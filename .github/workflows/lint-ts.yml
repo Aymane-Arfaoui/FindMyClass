@@ -26,7 +26,8 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          eslint_flags: ". --ext .js,.jsx,.ts,.tsx"
+          eslint_flags: "."
+          tool_name: eslint
 
       - name: 🏃‍♂️ Run ESLint Commit
         if: github.event_name != 'pull_request'
