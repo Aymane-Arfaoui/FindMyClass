@@ -1,0 +1,13 @@
+name: "Setup Node + npm + Install Dependencies"
+description: "Setup Node + npm + Install Dependencies"
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/setup-node@v3
+      with:
+        node-version: 18
+        cache: "npm"
+
+    - name: 📦 Install Project Dependencies
+      run: npm install
+      shell: bash

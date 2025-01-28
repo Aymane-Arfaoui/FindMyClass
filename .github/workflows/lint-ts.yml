@@ -1,6 +1,3 @@
-# 🔗 Links:
-# Source file: https://github.com/obytes/react-native-template-obytes/blob/master/.github/workflows/lint-ts.yml
-
 name: Lint TS (eslint, prettier)
 
 on:
@@ -20,8 +17,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 📦 Setup Node + PNPM + install deps
-        uses: ./.github/actions/setup-node-pnpm-install
+      - name: 📦 Setup Node + npm + install deps
+        uses: ./.github/actions/setup-node-npm-install
 
       - name: 🏃‍♂️ Run ESLint PR
         if: github.event_name == 'pull_request'
@@ -29,8 +26,9 @@ jobs:
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           reporter: github-pr-review
-          eslint_flags: ". --ext .js,.jsx,.ts,.tsx"
+          eslint_flags: "."
+          tool_name: eslint
 
-      - name: 🏃‍♂️ Run ESLint PR
+      - name: 🏃‍♂️ Run ESLint Commit
         if: github.event_name != 'pull_request'
-        run: pnpm run lint
+        run: npm run lint
