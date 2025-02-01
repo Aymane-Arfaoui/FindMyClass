@@ -1,0 +1,9 @@
+python-dotenv
+Flask
+oauthlib
+Flask-Login
+requests
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+flask-session
