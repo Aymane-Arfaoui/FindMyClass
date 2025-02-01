@@ -5,6 +5,7 @@ import { StatusBar } from 'expo-status-bar'
 import Button from '../components/Button'
 import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
+
 const Welcome = () => {
   return (
     <ScreenWrapper>

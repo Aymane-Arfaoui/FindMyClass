@@ -15,6 +15,11 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
    ```bash
     npx expo start
    ```
+## Backend Integration
+### Testing and Integration
+- Frontend Integration: The React Native frontend can call /auth/login to initiate the Google login process. After successful authentication, it can use /logged_in to fetch user details.
+- Session Management: Flask stores user details in sessions, allowing you to maintain context across API calls.
+
 
 In the output, you'll find options to open the app in a
 
@@ -48,3 +53,5 @@ Join our community of developers creating universal apps.
 
 - [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
 - [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+
+
