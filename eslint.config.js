@@ -1,8 +1,9 @@
 const typescriptParser = require("@typescript-eslint/parser");
 const typescriptPlugin = require("@typescript-eslint/eslint-plugin");
+const babelParser = require("@babel/eslint-parser");
 
 module.exports = [
-
+    // TypeScript configuration
     {
         files: ["**/*.ts", "**/*.tsx"],
         languageOptions: {
@@ -21,24 +22,32 @@ module.exports = [
                 { allowExpressions: true },
             ],
             "@typescript-eslint/no-empty-function": "warn",
-            semi: ["error", "always"],
+            semi: ["off"],
+
         },
         plugins: {
             "@typescript-eslint": typescriptPlugin,
         },
     },
 
+    // JavaScript and JSX configuration
     {
         files: ["**/*.js", "**/*.jsx"],
         languageOptions: {
-            ecmaVersion: "latest",
-            sourceType: "module",
+            parser: babelParser,
+            parserOptions: {
+                ecmaVersion: "latest",
+                sourceType: "module",
+                requireConfigFile: false, // Ensures Babel works without an extra config file
+                babelOptions: {
+                    presets: ["@babel/preset-react"], // Enables JSX parsing
+                },
+            },
         },
         rules: {
             "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
             "no-console": "warn",
-            "semi": ["error", "always"],
+            "semi": ["off"],
         },
     },
 ];
-
