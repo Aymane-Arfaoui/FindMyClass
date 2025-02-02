@@ -13,7 +13,19 @@ const index = () => {
       <Text>index File</Text>
       <Button title='Welcome' onPress={() => router.push('/home')} />
         <Button title='Welcome 2' buttonStyle={{ backgroundColor: 'blue', margin: 20 , height: 50, width: '80%', alignSelf: 'center' }}/>
-      {/*<Loading/>*/}
+        <Button
+            title="Shuttle Schedule"
+            onPress={() => router.push('/ShuttleSchedule')}
+            buttonStyle={{
+                backgroundColor: 'purple',
+                margin: 20,
+                height: 50,
+                width: '80%',
+                alignSelf: 'center',
+            }}
+        />
+
+        {/*<Loading/>*/}
     </ScreenWrapper>
   )
 }
