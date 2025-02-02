@@ -5,12 +5,12 @@ import ScreenWrapper from '../components/ScreenWrapper'
 
 const index = () => {
     const router = useRouter();
-  return (
-    <ScreenWrapper>
-      <Text>index File</Text>
-      <Button title='Welcome' onPress={() => router.push('welcome')} />
-    </ScreenWrapper>
-  )
+    return (
+        <ScreenWrapper>
+            <Text>index File</Text>
+            <Button title='Welcome' onPress={() => router.push('welcome')} />
+        </ScreenWrapper>
+    )
 }
 
 export default index
