@@ -1,15 +1,37 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import { Stack } from 'expo-router'
+import { Stack, useRouter, useSegments } from 'expo-router'
+import { AuthProvider, useAuth } from '../context/auth'
 
-const _layout = () => {
+function RootLayoutNav() {
+  const { user, loading } = useAuth();
+  const segments = useSegments();
+  const router = useRouter();
+
+  React.useEffect(() => {
+    if (!loading) {
+      const inAuthGroup = segments[0] === "(auth)";
+      if (user && !inAuthGroup) {
+        router.replace("/home");
+      } else if (!user && inAuthGroup) {
+        router.replace("/");
+      }
+    }
+  }, [user, loading]);
+
   return (
     <Stack 
-    screenOptions={{
-      headerShown: false,
-    }}
+      screenOptions={{
+        headerShown: false,
+      }}
     />
-  )
+  );
 }
 
-export default _layout
+export default function RootLayout() {
+  return (
+    <AuthProvider>
+      <RootLayoutNav />
+    </AuthProvider>
+  );
+}
