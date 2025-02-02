@@ -21,18 +21,9 @@ jobs:
         uses: ./.github/actions/setup-node-npm-install
 
       - name: 🏃‍♂️ Run Tests
-        run: npm run test -- --passWithNoTests
+        run: npm run test -- --passWithNoTests --coverage
 
-      - name: Jest Coverage Comment
-        uses: MishaKav/jest-coverage-comment@main
-        if: (success() || failure()) && github.event_name == 'pull_request'
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
         with:
-          coverage-summary-path: ./coverage/coverage-summary.json
-          summary-title: "💯 Test Coverage"
-          badge-title: Coverage
-          create-new-comment: false
-          junitxml-title: 😎 Tests Results
-          junitxml-path: ./coverage/jest-junit.xml
-          coverage-title: 👀 Tests Details
-          coverage-path: ./coverage/coverage.txt
-          report-only-changed-files: true
+          token: ${{ secrets.CODECOV_TOKEN }}
