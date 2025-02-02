@@ -2,7 +2,7 @@
   "name": "findmyclass",
   "main": "expo-router/entry",
   "version": "1.0.0",
-  "proxy":"http://localhost:5000/",
+  "proxy": "http://localhost:5000/",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -48,6 +48,7 @@
     "@babel/core": "^7.25.2",
     "@types/jest": "^29.5.12",
     "@types/react": "~18.3.12",
+    "@types/react-native": "^0.72.8",
     "@types/react-test-renderer": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^8.21.0",
     "@typescript-eslint/parser": "^8.21.0",
