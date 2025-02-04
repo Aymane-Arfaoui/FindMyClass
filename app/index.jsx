@@ -1,16 +1,39 @@
-import { View, Text, Button } from 'react-native'
-import React from 'react'
-import { useRouter } from 'expo-router'
-import ScreenWrapper from '../components/ScreenWrapper'
+import {StyleSheet, Text, View} from 'react-native';
+import React, {useEffect} from 'react';
+import {useRouter} from 'expo-router';
+import {theme} from "@/constants/theme";
 
-const index = () => {
+const Index = () => {
     const router = useRouter();
-  return (
-    <ScreenWrapper>
-      <Text>index File</Text>
-      <Button title='Welcome' onPress={() => router.push('Welcome')} />
-    </ScreenWrapper>
-  )
-}
 
-export default index
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            router.push('Welcome');
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
+
+    return (
+        <View style={styles.container}>
+            <Text style={styles.text}>ConUMaps</Text>
+        </View>
+    );
+};
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        backgroundColor: theme.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    text: {
+        color: theme.colors.white,
+        fontSize: 32,
+        textAlign: 'center',
+        fontWeight: 'bold',
+    },
+});
+
+export default Index;
