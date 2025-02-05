@@ -61,6 +61,19 @@ const Welcome = () => {
                         buttonStyle={styles.button}
                     />
                 </View>
+
+                <Button
+                    title="Shuttle Schedule"
+                    onPress={() => router.push('/ShuttleSchedule')}
+                    buttonStyle={{
+                        backgroundColor: 'purple',
+                        margin: 20,
+                        height: 50,
+                        width: '80%',
+                        alignSelf: 'center',
+                    }}
+                />
+
             </View>
         </ScreenWrapper>
     )
