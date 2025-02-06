@@ -1,18 +1,18 @@
-import React, {useEffect, useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import {theme} from "@/constants/theme";
+import { theme } from "@/constants/theme";
 import { concordiaBuildingsGeoJSON } from "@/constants/concordiaBuildings";
+import MapButtons from "@/components/MapButtons";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
-const Map = ({onBuildingPress, centerCoordinate}) => {
+const Map = ({ onBuildingPress }) => {
     const cameraRef = useRef(null);
+    const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]); // Default SGW
 
     useEffect(() => {
-        if (centerCoordinate && cameraRef.current) {
-            const [lng, lat] = centerCoordinate;
-
-            cameraRef.current.flyTo([lng, lat], 800);
+        if (cameraRef.current && centerCoordinate) {
+            cameraRef.current.flyTo(centerCoordinate, 800);
         }
     }, [centerCoordinate]);
 
@@ -31,7 +31,7 @@ const Map = ({onBuildingPress, centerCoordinate}) => {
                 <MapboxGL.Camera
                     ref={cameraRef}
                     zoomLevel={16}
-                    centerCoordinate={[-73.5789, 45.4960]}
+                    centerCoordinate={centerCoordinate}
                 />
 
                 <MapboxGL.ShapeSource
@@ -48,20 +48,20 @@ const Map = ({onBuildingPress, centerCoordinate}) => {
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
             </MapboxGL.MapView>
+
+            <MapButtons onPress={setCenterCoordinate} />
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {flex: 1},
-    map: {flex: 1},
-
+    container: { flex: 1 },
+    map: { flex: 1 },
     buildingFill: {
         fillColor: ["get", "color"],
         fillOpacity: 0.8,
         fillOutlineColor: theme.colors.primaryDark,
     },
-
     buildingLabel: {
         textField: ["get", "name"],
         textSize: 14,
