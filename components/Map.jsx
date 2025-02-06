@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import {StyleSheet, View} from 'react-native';
 import {theme} from "@/constants/theme";
-
+import polyline from '@mapbox/polyline';
+import {getUserLocation} from "@/services/userService";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
 
@@ -968,3 +969,4 @@ const styles = StyleSheet.create({
 
 
 export default Map;
+
