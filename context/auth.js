@@ -16,7 +16,7 @@ export function AuthProvider({ children }) {
       const userData = await AsyncStorage.getItem('@user');
       setUser(userData ? JSON.parse(userData) : null);
     } catch (error) {
-      console.log(error);
+      console.warn(error);
     } finally {
       setLoading(false);
     }
