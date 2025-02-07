@@ -45,11 +45,6 @@
       },
       "eas": {
         "projectId": "aacdd6f8-bfa8-4196-9c88-ede2f29119f7"
-      },
-      "expo": {
-        "extra": {
-          "mapboxAccessToken": "sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw"
-        }
       }
     }
   }

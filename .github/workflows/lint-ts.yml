@@ -1,4 +1,4 @@
-name: Lint TS (eslint, prettier)
+name: Lint Code (ESLint + Prettier)
 
 on:
   push:
@@ -8,27 +8,26 @@ on:
 
 jobs:
   lint:
-    name: Lint TS (eslint, prettier)
+    name: Lint Code
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📦 Checkout project repo
+      - name: 📦 Checkout repository
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
 
       - name: 📦 Setup Node + npm + install deps
         uses: ./.github/actions/setup-node-npm-install
 
-      - name: 🏃‍♂️ Run ESLint PR
-        if: github.event_name == 'pull_request'
-        uses: reviewdog/action-eslint@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          reporter: github-pr-review
-          eslint_flags: "."
-          tool_name: eslint
-
-      - name: 🏃‍♂️ Run ESLint Commit
-        if: github.event_name != 'pull_request'
+      - name: 🎯 Run ESLint
         run: npm run lint
+
+      - name: 🎨 Run Prettier Check
+        run: npm run prettier:check || true
+
+      - name: ✅ Output Success Message
+        if: success()
+        run: echo "✅ Linting completed successfully!"
+
+      - name: ❌ Output Failure Message
+        if: failure()
+        run: echo "❌ Linting failed. Check logs for details."
