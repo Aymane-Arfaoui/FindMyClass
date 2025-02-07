@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* eslint-disable */
+
 /**
  * This script is used to reset the project to a blank state.
  * It moves the /app, /components, /hooks, /scripts, and /constants directories to /app-example and creates a new /app directory with an index.tsx and _layout.tsx file.
@@ -23,7 +23,7 @@ export default function Index() {
       style={{
         flex: 1,
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
       }}
     >
       <Text>Edit app/index.tsx to edit this screen.</Text>
