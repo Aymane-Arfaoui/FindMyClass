@@ -26,12 +26,9 @@
     "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/bottom-tabs": "^7.2.0",
     "@react-navigation/native": "^7.0.14",
-<<<<<<< HEAD
     "@rnmapbox/maps": "^10.1.33",
     "axios": "^0.27.2",
     "dotenv": "^16.4.7",
-=======
->>>>>>> 6d19107e4a88fdd5e33ad3cb9f85c20c66ee6f19
     "expo": "~52.0.26",
     "expo-auth-session": "^6.0.3",
     "expo-blur": "^14.0.3",
