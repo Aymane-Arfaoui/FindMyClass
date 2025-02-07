@@ -21,12 +21,12 @@ export const getUserInfo = async (token) => {
 
 const FALLBACK_LOCATION = { lat: 45.4973, lng: -73.5788 }; // hall
 
-let hasRequestedPermission = false;
+let hasRequestedPermission = false; // prevents asking for permissions many times
 
 export const requestLocationPermissions = async () => {
-    if (hasRequestedPermission) return true;
+    if (hasRequestedPermission) return true; // already asked, doesnt need to be asked again
     try {
-        let { status } = await Location.requestForegroundPermissionsAsync();
+        let { status } = await Location.requestForegroundPermissionsAsync(); // use location while the app is open
         hasRequestedPermission = true;
         return status === 'granted';
     } catch (error) {
@@ -38,12 +38,12 @@ export const requestLocationPermissions = async () => {
 export const getUserLocation = async () => {
     try {
         const hasPermission = await requestLocationPermissions();
-        if (!hasPermission) return FALLBACK_LOCATION;
+        if (!hasPermission) return FALLBACK_LOCATION; // if user denies the location then uses the fallback
 
-        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+        let location = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High }); // get thelocation with high accuracy
         const userLocation = { lat: location.coords.latitude, lng: location.coords.longitude };
 
-        await AsyncStorage.setItem("@userLocation", JSON.stringify(userLocation));
+        await AsyncStorage.setItem("@userLocation", JSON.stringify(userLocation)); //saving the location locally
         return userLocation;
     } catch (error) {
         console.error("Error fetching location:", error);
