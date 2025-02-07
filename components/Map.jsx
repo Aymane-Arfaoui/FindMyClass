@@ -3,19 +3,29 @@ import { StyleSheet, View } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
 import { theme } from "@/constants/theme";
 import { concordiaBuildingsGeoJSON } from "@/constants/concordiaBuildings";
-import MapButtons from "@/components/MapButtons";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
-const Map = ({ onBuildingPress }) => {
+
+const Map = ({ onBuildingPress, selectedLocation }) => {
     const cameraRef = useRef(null);
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]); // Default SGW
+    const mapRef = useRef(null);
+
+    useEffect(() => {
+        if (selectedLocation && mapRef.current) {
+            mapRef.current.setCamera({
+                centerCoordinate: selectedLocation,
+                zoomLevel: 15,
+                animationDuration: 2000,
+            });
+        }
+    }, [selectedLocation]);
 
     useEffect(() => {
         if (cameraRef.current && centerCoordinate) {
             cameraRef.current.flyTo(centerCoordinate, 800);
         }
     }, [centerCoordinate]);
-
 
     return (
         <View style={styles.container}>
@@ -28,12 +38,6 @@ const Map = ({ onBuildingPress }) => {
                 scrollEnabled={true}
                 compassEnabled={false}
             >
-                <MapboxGL.Camera
-                    ref={cameraRef}
-                    zoomLevel={16}
-                    centerCoordinate={centerCoordinate}
-                />
-
                 <MapboxGL.ShapeSource
                     id="concordia-buildings"
                     shape={concordiaBuildingsGeoJSON}
@@ -47,9 +51,19 @@ const Map = ({ onBuildingPress }) => {
                     <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
+                <MapboxGL.Camera
+                    zoomLevel={16}
+                    centerCoordinate={selectedLocation || [-73.5788, 45.4973]}
+                    animationMode="flyTo"
+                    animationDuration={2000}
+                />
+                {selectedLocation && (
+                    <MapboxGL.PointAnnotation
+                        id="selected-location"
+                        coordinate={selectedLocation}
+                    />
+                )}
             </MapboxGL.MapView>
-
-            <MapButtons onPress={setCenterCoordinate} />
         </View>
     );
 };

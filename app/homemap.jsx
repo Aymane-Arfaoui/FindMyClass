@@ -14,6 +14,8 @@ import {
 import Map from "../components/Map";
 import {theme} from "@/constants/theme";
 import {Ionicons} from "@expo/vector-icons";
+import MapButtons from "@/components/MapButtons";
+import MainSearchBar from "@/components/MainSearchBar";
 
 const GOOGLE_PLACES_API_KEY = "AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80";
 
@@ -24,6 +26,7 @@ const Homemap = () => {
     const [mapCenter, setMapCenter] = useState([-73.5788, 45.4973]);
 
     const panelY = useRef(new Animated.Value(500)).current;
+    const [selectedLocation, setSelectedLocation] = useState(null);
 
     const handleDirectionPress = () => {
         if (selectedBuilding) {
@@ -119,7 +122,11 @@ const Homemap = () => {
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
-            <Map onBuildingPress={handleBuildingPress} centerCoordinate={mapCenter}/>
+            <View style={styles.searchOverlay}>
+                <MainSearchBar onLocationSelect={setSelectedLocation} />
+                <MapButtons onPress={setSelectedLocation} />
+            </View>
+            <Map onBuildingPress={handleBuildingPress} centerCoordinate={mapCenter} selectedLocation={selectedLocation} />
 
             {selectedBuilding && (
                 <Animated.View
@@ -265,5 +272,12 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
         marginLeft: 8,
+    },
+    searchOverlay: {
+        position: 'absolute',
+        top: 80, // Adjust as needed
+        left: 10,
+        right: 10,
+        zIndex: 10, // Ensure it's above the map
     },
 });
