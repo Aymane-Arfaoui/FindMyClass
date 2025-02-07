@@ -2,11 +2,14 @@ from flask import Flask
 from flask_session import Session
 import os
 from dotenv import load_dotenv
-# app = Flask(__name__)
+from flask_cors import CORS
+
+
 
 def create_app():
     load_dotenv('./.env.local')
     app = Flask(__name__)
+    CORS(app)
     
 
     # App configuration
@@ -17,9 +20,11 @@ def create_app():
 
     from .routes import main_routes
     from .auth import auth_routes
+    from .test import test_routes
 
     # Register blueprints for routes and authentication
     app.register_blueprint(main_routes)
     app.register_blueprint(auth_routes)
+    app.register_blueprint(test_routes)
 
     return app

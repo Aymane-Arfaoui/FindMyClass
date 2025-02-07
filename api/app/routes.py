@@ -1,5 +1,5 @@
 from flask import Blueprint, session, jsonify
-
+from flask_cors import cross_origin
 """
 This file contains the main routes for the API. It is used for testing purposes.
 """
@@ -11,6 +11,7 @@ def home():
     return {"message": "Welcome to the API"}
 
 @main_routes.route('/logged_in')
+@cross_origin()
 def logged_in():
     if 'user' not in session:
         return {"error": "User not logged in"}, 401
