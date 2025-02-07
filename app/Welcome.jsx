@@ -126,7 +126,6 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   welcomeTitle: {
-    fontSize: hp(3),
     fontFamily: 'Odor Mean Chey',
     fontSize: '340%',
     fontWeight: 'bold',

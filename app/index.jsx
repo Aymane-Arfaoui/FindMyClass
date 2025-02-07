@@ -5,7 +5,7 @@ import ScreenWrapper from '../components/ScreenWrapper'
 import whiteLogo from '../assets/images/logo_whitepage.png'
 import styling from '../assets/Styles/mainPageStyle.js'
 
-const index = () => {
+const Index = () => {
     const router = useRouter();
     
     // EXTRA feature: fade-in animation
@@ -51,4 +51,4 @@ const index = () => {
   )
 }
 
-export default index;
+export default Index;
