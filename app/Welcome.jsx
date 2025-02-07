@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
+import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native'
 import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import { StatusBar } from 'expo-status-bar'
@@ -11,6 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getUserInfo } from '../services/userService'
 import { getCalendarEvents } from '../services/calendarService'
 import { useRouter } from 'expo-router'
+import GoogleLoginButton from '../assets/images/google-color.png'
+import BackgroundImg from '../assets/images/background-generic-1.png';
 
 
 WebBrowser.maybeCompleteAuthSession()
@@ -44,18 +46,36 @@ const Welcome = () => {
     <ScreenWrapper>
       <StatusBar style='dark' />
       <View style={styles.container}>
+        <ImageBackground source={BackgroundImg} style={styles.backgroundImage}>
         <View style={styles.contentContainer}>
-          <Text style={styles.title}>Welcome to</Text>
-          <Text style={styles.appName}>FindMyClass</Text>
+          <Text style={styles.welcomeTitle}>Welcome</Text>
+          {/* <Text style={styles.appName}>FindMyClass</Text> */}
         </View>
-        
+
         <View style={styles.buttonContainer}>
-          <Button 
-            title="Sign In With Google" 
+          <TouchableOpacity 
+            style={styles.googleButton} 
             onPress={() => promptAsync()} 
-            buttonStyle={styles.button}
-          />
+          >
+            <Image 
+              source={GoogleLoginButton} 
+              style={styles.googleLogo} 
+            />
+            <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+          </TouchableOpacity>
         </View>
+
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity 
+            style={styles.welcomeButton} 
+            // TO DO
+            // ADD code to bring to map page
+          >
+            <Text style={styles.welcomeButtonText}>GET STARTED</Text>
+          </TouchableOpacity>
+
+        </View>
+        </ImageBackground>
       </View>
     </ScreenWrapper>
   )
@@ -64,16 +84,28 @@ const Welcome = () => {
 export default Welcome
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    resizeMode: 'cover',
+  },
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    backgroundColor: '#FFFFFF',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   contentContainerStyle: {
     paddingVertical: hp(4),
   },
   contentContainer: {
     alignItems: 'center',
-    marginBottom: hp(2),
+    marginBottom: hp(4),
+
   },
   title: {
     fontSize: hp(3),
@@ -87,9 +119,40 @@ const styles = StyleSheet.create({
   },
   buttonContainer: {
     width: '100%',
+    alignItems: 'center',
+    marginBottom: hp(10),
   },
   button: {
     width: '100%',
+  },
+  welcomeTitle: {
+    fontSize: hp(3),
+    fontFamily: 'Odor Mean Chey',
+    fontSize: '340%',
+    fontWeight: 'bold',
+    color: '#1E1E1E',
+    marginBottom: hp(7),
+    marginTop: hp(-4),
+
+  },
+  welcomeButton:{
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#912338',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 38,
+    borderColor: '#912338',
+    borderWidth: 2,
+    width: '95%',
+    height: '125%',
+    justifyContent: 'center',
+  },
+  welcomeButtonText: {
+    color: '#F6F1FB',
+    fontSize: 15.5,
+    fontWeight: 'bold',
+    letterSpacing: 1,
   },
   calendarContainer: {
     marginVertical: hp(2),
@@ -159,5 +222,31 @@ const styles = StyleSheet.create({
   userEmail: {
     fontSize: hp(1.8),
     color: theme.colors.black,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 38,
+    borderColor: '#EBEAEC',
+    borderWidth: 2,
+    width: '95%',
+    height: '125%',
+    justifyContent: 'flex-start',
+  },
+  googleLogo: {
+    width: 24,
+    height: 24,
+    marginRight: 1,
+  },
+  googleButtonText: {
+    color: '#3F414E',
+    fontSize: 15.5,
+    fontWeight: 'bold',
+    flex: 1,
+    textAlign: 'center',
+    letterSpacing: 0.8,
   },
 });
