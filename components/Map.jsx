@@ -1,21 +1,31 @@
-import React, {useEffect, useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { StyleSheet, View } from 'react-native';
 import MapboxGL from '@rnmapbox/maps';
-import {theme} from "@/constants/theme";
+import { theme } from "@/constants/theme";
 import { concordiaBuildingsGeoJSON } from "@/constants/concordiaBuildings";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
-const Map = ({onBuildingPress, centerCoordinate}) => {
+
+const Map = ({ onBuildingPress, selectedLocation }) => {
     const cameraRef = useRef(null);
+    const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]); // Default SGW
+    const mapRef = useRef(null);
 
     useEffect(() => {
-        if (centerCoordinate && cameraRef.current) {
-            const [lng, lat] = centerCoordinate;
+        if (selectedLocation && mapRef.current) {
+            mapRef.current.setCamera({
+                centerCoordinate: selectedLocation,
+                zoomLevel: 15,
+                animationDuration: 2000,
+            });
+        }
+    }, [selectedLocation]);
 
-            cameraRef.current.flyTo([lng, lat], 800);
+    useEffect(() => {
+        if (cameraRef.current && centerCoordinate) {
+            cameraRef.current.flyTo(centerCoordinate, 800);
         }
     }, [centerCoordinate]);
-
 
     return (
         <View style={styles.container}>
@@ -28,12 +38,6 @@ const Map = ({onBuildingPress, centerCoordinate}) => {
                 scrollEnabled={true}
                 compassEnabled={false}
             >
-                <MapboxGL.Camera
-                    ref={cameraRef}
-                    zoomLevel={16}
-                    centerCoordinate={[-73.5789, 45.4960]}
-                />
-
                 <MapboxGL.ShapeSource
                     id="concordia-buildings"
                     shape={concordiaBuildingsGeoJSON}
@@ -47,21 +51,31 @@ const Map = ({onBuildingPress, centerCoordinate}) => {
                     <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
+                <MapboxGL.Camera
+                    zoomLevel={16}
+                    centerCoordinate={selectedLocation || [-73.5788, 45.4973]}
+                    animationMode="flyTo"
+                    animationDuration={2000}
+                />
+                {selectedLocation && (
+                    <MapboxGL.PointAnnotation
+                        id="selected-location"
+                        coordinate={selectedLocation}
+                    />
+                )}
             </MapboxGL.MapView>
         </View>
     );
 };
 
 const styles = StyleSheet.create({
-    container: {flex: 1},
-    map: {flex: 1},
-
+    container: { flex: 1 },
+    map: { flex: 1 },
     buildingFill: {
         fillColor: ["get", "color"],
         fillOpacity: 0.8,
         fillOutlineColor: theme.colors.primaryDark,
     },
-
     buildingLabel: {
         textField: ["get", "name"],
         textSize: 14,
