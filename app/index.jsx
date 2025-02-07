@@ -2,6 +2,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import React, {useEffect} from 'react';
 import {useRouter} from 'expo-router';
 import {theme} from "@/constants/theme";
+import 'react-native-get-random-values';
 
 const Index = () => {
     const router = useRouter();

@@ -13,10 +13,13 @@
       "bundleIdentifier": "com.aymanearfaoui.FindMyClass"
     },
     "android": {
+      "permissions": ["android.permission.RECORD_AUDIO"],
+      "permissions": ["RECORD_AUDIO"],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
+
       "package": "com.aymanearfaoui.FindMyClass"
     },
     "web": {
@@ -33,6 +36,14 @@
           "imageWidth": 200,
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Allow this app to use the microphone for speech recognition.",
+          "speechRecognitionPermission": "Allow this app to use speech recognition.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
         }
       ]
     ],
