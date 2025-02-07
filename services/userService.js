@@ -1,4 +1,3 @@
-import React from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const getUserInfo = async (token) => {
@@ -13,7 +12,7 @@ export const getUserInfo = async (token) => {
     await AsyncStorage.setItem("@user", JSON.stringify(user));
     return user;
     }catch(error){
-      console.log(error);
+      console.warn(error);
       return null;
     }
   }

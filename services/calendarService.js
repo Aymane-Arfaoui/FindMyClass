@@ -13,7 +13,7 @@ export const getCalendarEvents = async (token) => {
       const data = await response.json();
       return data.items || [];
     } catch (error) {
-      console.log('Calendar fetch error:', error);
+      console.warn('Calendar fetch error:', error);
       return [];
     }
   };
