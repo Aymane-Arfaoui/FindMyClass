@@ -22,7 +22,6 @@ module.exports = [
                 { allowExpressions: true },
             ],
             "@typescript-eslint/no-empty-function": "warn",
-            semi: ["off"],
 
         },
         plugins: {
@@ -38,15 +37,15 @@ module.exports = [
             parserOptions: {
                 ecmaVersion: "latest",
                 sourceType: "module",
-                requireConfigFile: false, // Ensures Babel works without an extra config file
+                requireConfigFile: false,
                 babelOptions: {
-                    presets: ["@babel/preset-react"], // Enables JSX parsing
+                    presets: ["@babel/preset-react"],
                 },
             },
         },
         rules: {
-            "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-            "no-console": "warn",
+            "no-unused-vars": ["warn"],
+            "no-console": ["warn", { allow: ["warn", "error"] }],
             "semi": ["off"],
         },
     },

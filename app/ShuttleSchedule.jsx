@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image, TextInput } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
-import { theme } from "@/constants/theme";
+import {theme} from "@/constants/theme";
 import Icon from 'react-native-vector-icons/FontAwesome';
 import SearchBars from '../components/SearchBars';
 
