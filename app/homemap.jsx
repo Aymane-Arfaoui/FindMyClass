@@ -31,7 +31,7 @@ const Homemap = ({ destination, selectedMode }) => {
     const fetchRoutesData = async (origin, destination, mode) => {
         setLoading(true);
         try {
-            console.log(`Fetching ${mode} routes from ${origin.lat},${origin.lng} to ${destination.lat},${destination.lng}`);
+            // console.log(`Fetching ${mode} routes from ${origin.lat},${origin.lng} to ${destination.lat},${destination.lng}`);
 
             let routes = await fetchRoutes(origin, destination, mode);
 
