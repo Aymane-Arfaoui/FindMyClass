@@ -5,7 +5,7 @@ import { ActivityIndicator } from 'react-native'
 
 const Loading = ({size='large', color=theme.colors.loading}) => {
   return (
-    <View style={{justifyContent:'center', alignItems:'center'}}>
+    <View testID={'loading'} style={{justifyContent:'center', alignItems:'center'}}>
       <ActivityIndicator size={size} color={color} />
     </View>
   )
