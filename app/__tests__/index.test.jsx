@@ -1,9 +1,10 @@
 import Index from '../index.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
-import { useRouter } from 'expo-router'
+import { useRouter } from 'expo-router';
 
 
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
+
 //mocking the useRouter
 jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 
