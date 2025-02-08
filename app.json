@@ -9,6 +9,9 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We need your location to show your position on the map."
+      },
       "supportsTablet": true,
       "bundleIdentifier": "com.aymanearfaoui.FindMyClass"
     },
