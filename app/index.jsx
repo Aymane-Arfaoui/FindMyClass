@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
 import whiteLogo from '../assets/images/logo_whitepage.png'
 import styling from '../assets/Styles/mainPageStyle.js'
+import 'react-native-get-random-values';
 
 const Index = () => {
     const router = useRouter();
