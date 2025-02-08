@@ -25,11 +25,11 @@ const Button = ({
             <View style={[styles.button, buttonStyle, {backgroundColor:'white'}]}>
                 <Loading/>
             </View>
-        )
+        );
     }
 
   return (
-    <Pressable onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
+    <Pressable testID={'button'} onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
         <Text style={[styles.text, textStyle]}>{title}</Text>
     </Pressable>
   )
