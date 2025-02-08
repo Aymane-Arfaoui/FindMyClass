@@ -22,17 +22,17 @@ const SearchBars = () => {
     return (
 
         <View style={styles.locationContainer}>
-            <TouchableOpacity onPress={handleGoBack}>
+            <TouchableOpacity testID={'go-back-button-SearchBarComponent'} onPress={handleGoBack}>
                 <Icon name="chevron-left" size={20} color={theme.colors.white} style={styles.chevronLeft}  />
             </TouchableOpacity>
-            <View style={styles.iconContainer}>
+            <View testID={'map-marker-SearchBarComponent'} style={styles.iconContainer}>
                 <Icon name="circle" size={12} color="#0970de" />
                 <View style={styles.dottedLine} />
                 <Icon name="map-marker" size={16} color={theme.colors.white} />
             </View>
 
             <View style={styles.inputContainer}>
-                <TextInput
+                <TextInput testID={'source-input'}
                     style={styles.locationTextInput}
                     value={location1}
                     onChangeText={setLocation1}
@@ -40,6 +40,7 @@ const SearchBars = () => {
                     placeholderTextColor={theme.colors.white}
                 />
                 <TextInput
+                    testID={'destination-input'}
                     style={styles.locationTextInput}
                     value={location2}
                     onChangeText={setLocation2}
@@ -48,7 +49,7 @@ const SearchBars = () => {
                 />
             </View>
 
-            <TouchableOpacity onPress={swapLocations} style={styles.swapButton}>
+            <TouchableOpacity testID={'swap-location-button'} onPress={swapLocations} style={styles.swapButton}>
                 <Icon name="exchange" size={20} color={theme.colors.white} />
             </TouchableOpacity>
         </View>

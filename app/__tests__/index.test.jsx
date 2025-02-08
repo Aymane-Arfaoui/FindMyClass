@@ -6,9 +6,9 @@ jest.mock('expo-router', ()=> ({useRouter: jest.fn()}))
 
 describe('Index Component', () => {
 
-    it('should render the text and button correctly',  () => {
+    it('should render the text and button correctly',  async () => {
         render(<Index/>);
-        expect(screen.getByText("ConUMaps")).toBeOnTheScreen();
+        expect(await screen.findByTestId("index-image")).toBeOnTheScreen();
 
 
     });
@@ -19,9 +19,10 @@ describe('Index Component', () => {
         render(<Index/>);
 
         jest.useFakeTimers();
-         jest.advanceTimersByTime(3000)
+         jest.advanceTimersByTime(4200)
         expect(mock.push).toHaveBeenCalled();
          jest.clearAllMocks();
 
     });
+    
 });
