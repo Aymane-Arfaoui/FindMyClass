@@ -66,9 +66,8 @@ const Welcome = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={styles.welcomeButton} 
-            // TO DO
-            // ADD code to bring to map page
+            style={styles.welcomeButton}
+            onPress={() => router.push("/homemap")}
           >
             <Text style={styles.welcomeButtonText}>GET STARTED</Text>
           </TouchableOpacity>

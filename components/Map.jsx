@@ -31,7 +31,7 @@ const Map = ({ onBuildingPress, selectedLocation, onMapPress }) => {
                 });
                 setCenterCoordinate([location.lng, location.lat]);
             } catch (error) {
-                console.error("Error fetching user location:", error);
+                // console.error("Error fetching user location:", error);
             }
         };
 

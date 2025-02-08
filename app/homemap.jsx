@@ -30,7 +30,7 @@ const Homemap = ({destination, selectedMode}) => {
                     await fetchRoutesData(location, destination, selectedMode);
                 }
             } catch (error) {
-                console.error('Error initializing location/routes:', error);
+                // console.error('Error initializing location/routes:', error);
             } finally {
                 setLoading(false);
             }
@@ -58,7 +58,7 @@ const Homemap = ({destination, selectedMode}) => {
                 setFastestRoute(routes.length > 0 ? routes[0] : null);
             }
         } catch (error) {
-            console.error(`Error fetching ${mode} routes:`, error);
+            // console.error(`Error fetching ${mode} routes:`, error);
         } finally {
             setLoading(false);
         }
@@ -98,7 +98,7 @@ const Homemap = ({destination, selectedMode}) => {
                 setBuildingDetails(null);
             }
         } catch (error) {
-            console.error("Error fetching building details:", error);
+            // console.error("Error fetching building details:", error);
             setBuildingDetails(null);
         }
         setLoading(false);
