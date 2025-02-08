@@ -1,8 +1,11 @@
 import Index from '../index.jsx';
-import {render, screen, waitFor,userEvent} from '@testing-library/react-native';
+import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router'
 
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}))
+
+jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
+//mocking the useRouter
+jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 
 describe('Index Component', () => {
 
@@ -14,15 +17,20 @@ describe('Index Component', () => {
     });
 
     it('should call the router after some time',  () => {
+        jest.useFakeTimers();
+        //making the useRouter function return a mock Function when push is called
         const mock={push:jest.fn()};
         useRouter.mockReturnValue(mock);
+
         render(<Index/>);
 
-        jest.useFakeTimers();
-         jest.advanceTimersByTime(4200)
-        expect(mock.push).toHaveBeenCalled();
-         jest.clearAllMocks();
+        act(() => {
+            jest.runAllTimers();
+            expect(mock.push).toHaveBeenCalled();
+        });
+
+        jest.clearAllMocks();
 
     });
-    
+
 });
