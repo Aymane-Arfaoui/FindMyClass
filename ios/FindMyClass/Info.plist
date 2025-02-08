@@ -22,6 +22,10 @@
     <string>1.0.0</string>
     <key>CFBundleSignature</key>
     <string>????</string>
+    <key>NSLocationWhenInUseUsageDescription</key>
+        <string>We need your location to show your position on the map.</string>
+        <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+        <string>Location access helps improve your navigation experience.</string>
     <key>CFBundleURLTypes</key>
     <array>
       <dict>

@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ScreenWrapper = ({ children, containerStyle }) => {
     return (
-        <SafeAreaView style={[styles.container, containerStyle]}>
+        <SafeAreaView testID={'screen-wrapper'} style={[styles.container, containerStyle]}>
             {children}
         </SafeAreaView>
     );

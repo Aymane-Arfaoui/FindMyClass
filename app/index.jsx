@@ -42,7 +42,8 @@ const Index = () => {
     <ScreenWrapper>
       <View style={styling.container}>
         {/* <Image source={whiteLogo} style={styling.logo} /> */}
-        <Animated.Image 
+        <Animated.Image
+            testID={'index-image'}
           source={whiteLogo} 
           style={[styling.logo, { opacity: fadeAnim }]} 
         />

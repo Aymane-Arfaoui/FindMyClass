@@ -1,12 +1,11 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Animated, PanResponder, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '../services/routeService';
 import {getUserLocation} from '../services/userService';
 import BuildingDetailsPanel from "@/components/BuildingDetailsPanel";
 import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
-import MainSearchBar from "@/components/MainSearchBar";
 
 
 const Homemap = ({destination, selectedMode}) => {
@@ -15,27 +14,35 @@ const Homemap = ({destination, selectedMode}) => {
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
-    const [userLocation, setUserLocation] = useState(null);
+    // const [userLocation, setUserLocation] = useState(null);
     const [fastestRoute, setFastestRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const panelY = useRef(new Animated.Value(500)).current;
+    const [currentLocation, setCurrentLocation] = useState(null);
 
     useEffect(() => {
         const initialize = async () => {
             try {
                 const location = await getUserLocation();
-                if (!destination) throw new Error("Destination not provided");
+                setCurrentLocation(location);
 
-                setUserLocation(location);
-                await fetchRoutesData(location, destination, selectedMode);
+                if (destination) {
+                    await fetchRoutesData(location, destination, selectedMode);
+                }
             } catch (error) {
-                console.error("Error initializing location/routes:", error);
+                // console.error('Error initializing location/routes:', error);
             } finally {
                 setLoading(false);
             }
         };
-
         initialize();
+
+        const interval = setInterval(async () => {
+            const location = await getUserLocation();
+            setCurrentLocation(location);
+        }, 5000);
+
+        return () => clearInterval(interval);
     }, [destination, selectedMode]);
 
     const fetchRoutesData = async (origin, destination, mode) => {
@@ -51,7 +58,7 @@ const Homemap = ({destination, selectedMode}) => {
                 setFastestRoute(routes.length > 0 ? routes[0] : null);
             }
         } catch (error) {
-            console.error(`Error fetching ${mode} routes:`, error);
+            // console.error(`Error fetching ${mode} routes:`, error);
         } finally {
             setLoading(false);
         }
@@ -91,7 +98,7 @@ const Homemap = ({destination, selectedMode}) => {
                 setBuildingDetails(null);
             }
         } catch (error) {
-            console.error("Error fetching building details:", error);
+            // console.error("Error fetching building details:", error);
             setBuildingDetails(null);
         }
         setLoading(false);
@@ -142,11 +149,27 @@ const Homemap = ({destination, selectedMode}) => {
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
-            <Map onBuildingPress={handleBuildingPress} userLocation={userLocation} destination={destination}
-                 routes={routes} selectedRoute={fastestRoute}/>
+            <Map
+                onBuildingPress={handleBuildingPress}
+                selectedLocation={selectedLocation}
+                userLocation={currentLocation}
+                destination={destination}
+                routes={routes}
+                selectedRoute={fastestRoute}
+                onMapPress={handleClosePanel}
+            />
+
+
+            {/*routes={routes} selectedRoute={fastestRoute}/>*/}
             <View style={styles.searchOverlay}>
                 {/*<MainSearchBar onLocationSelect={setSelectedLocation} />*/}
-                <MapButtons onPress={setSelectedLocation}/>
+                <MapButtons
+                    onPress={(location) => {
+                        setSelectedLocation(location);
+                        handleClosePanel();
+                    }}
+                />
+
             </View>
 
             {selectedBuilding && (

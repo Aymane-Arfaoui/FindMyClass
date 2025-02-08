@@ -1,10 +1,10 @@
-import { StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native'
-import React from 'react'
+import {Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native'
+import React, { useState, useEffect } from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import { StatusBar } from 'expo-status-bar'
 import Button from '../components/Button'
 import { theme } from '../constants/theme'
-import { hp } from '../helpers/common'
+import { hp,wp } from '../helpers/common'
 import * as WebBrowser from 'expo-web-browser'
 import * as Google from 'expo-auth-session/providers/google'
 import AsyncStorage from '@react-native-async-storage/async-storage'
@@ -13,7 +13,6 @@ import { getCalendarEvents } from '../services/calendarService'
 import { useRouter } from 'expo-router'
 import GoogleLoginButton from '../assets/images/google-color.png'
 import BackgroundImg from '../assets/images/background-generic-1.png';
-
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -67,9 +66,8 @@ const Welcome = () => {
 
         <View style={styles.buttonContainer}>
           <TouchableOpacity 
-            style={styles.welcomeButton} 
-            // TO DO
-            // ADD code to bring to map page
+            style={styles.welcomeButton}
+            onPress={() => router.push("/homemap")}
           >
             <Text style={styles.welcomeButtonText}>GET STARTED</Text>
           </TouchableOpacity>
@@ -86,8 +84,10 @@ export default Welcome
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
-    width: '100%',
-    height: '100%',
+    // width: '100%',
+    // height: '100%',
+    width:wp(100),
+    height: hp(100),
     justifyContent: 'center',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -127,7 +127,8 @@ const styles = StyleSheet.create({
   },
   welcomeTitle: {
     fontFamily: 'Odor Mean Chey',
-    fontSize: '340%',
+    // fontSize: '340%',
+    fontSize: hp(5.7),
     fontWeight: 'bold',
     color: '#1E1E1E',
     marginBottom: hp(7),
@@ -143,8 +144,10 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     borderColor: '#912338',
     borderWidth: 2,
-    width: '95%',
-    height: '125%',
+    // width: '95%',
+    // height: '125%',
+    width: wp(80),
+    height: hp(7),
     justifyContent: 'center',
   },
   welcomeButtonText: {
@@ -231,8 +234,10 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     borderColor: '#EBEAEC',
     borderWidth: 2,
-    width: '95%',
-    height: '125%',
+    // width: '95%',
+    // height: '125%',
+    width: wp(80),
+    height: hp(7),
     justifyContent: 'flex-start',
   },
   googleLogo: {
