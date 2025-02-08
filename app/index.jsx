@@ -1,39 +1,54 @@
-import {StyleSheet, Text, View} from 'react-native';
-import React, {useEffect} from 'react';
-import {useRouter} from 'expo-router';
-import {theme} from "@/constants/theme";
+import { View, Text, Button, Image, Animated } from 'react-native';
+import React, { useState, useEffect } from 'react'
+import { useRouter } from 'expo-router'
+import ScreenWrapper from '../components/ScreenWrapper'
+import whiteLogo from '../assets/images/logo_whitepage.png'
+import styling from '../assets/Styles/mainPageStyle.js'
 
 const Index = () => {
     const router = useRouter();
+    
+    // EXTRA feature: fade-in animation
+    const [fadeAnim] = useState(new Animated.Value(0));
 
     useEffect(() => {
-        const timer = setTimeout(() => {
-            router.push('Welcome');
-        }, 2500);
+      // Fade-in
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 3000,
+        useNativeDriver: true,
+    }).start();
 
-        return () => clearTimeout(timer);
-    }, []);
+    const timer = setTimeout(() => {
+      // Fade-out
+      Animated.timing(fadeAnim, {
+        toValue: 0,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
 
-    return (
-        <View style={styles.container}>
-            <Text style={styles.text}>ConUMaps</Text>
-        </View>
-    );
-};
+      // This is a timer that shows the index page for 3 seconds before going to the welcome page
+      // Can change this later if need less or more time
+      setTimeout(() => {
+        router.push('Welcome');
+      }, 1100); // fade-out duration from index
+    }, 3000);
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.primary,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    text: {
-        color: theme.colors.white,
-        fontSize: 32,
-        textAlign: 'center',
-        fontWeight: 'bold',
-    },
-});
+    return () => clearTimeout(timer);
+    }, [fadeAnim, router]);
+    
+  return (
+    <ScreenWrapper>
+      <View style={styling.container}>
+        {/* <Image source={whiteLogo} style={styling.logo} /> */}
+        <Animated.Image 
+          source={whiteLogo} 
+          style={[styling.logo, { opacity: fadeAnim }]} 
+        />
+        {/* <Button title="Welcome" onPress={() => router.push('Welcome')} /> */}
+      </View>
+    </ScreenWrapper>
+  )
+}
 
 export default Index;

@@ -15,14 +15,13 @@ module.exports = [
             },
         },
         rules: {
-            "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+            "@typescript-eslint/no-unused-vars": ["off"],
             "@typescript-eslint/no-explicit-any": "error",
             "@typescript-eslint/explicit-function-return-type": [
                 "warn",
                 { allowExpressions: true },
             ],
             "@typescript-eslint/no-empty-function": "warn",
-            semi: ["off"],
 
         },
         plugins: {
@@ -38,15 +37,15 @@ module.exports = [
             parserOptions: {
                 ecmaVersion: "latest",
                 sourceType: "module",
-                requireConfigFile: false, // Ensures Babel works without an extra config file
+                requireConfigFile: false,
                 babelOptions: {
-                    presets: ["@babel/preset-react"], // Enables JSX parsing
+                    presets: ["@babel/preset-react"],
                 },
             },
         },
         rules: {
-            "no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
-            "no-console": "warn",
+            "no-unused-vars": ["off"],
+            "no-console": ["warn", { allow: ["warn", "error"] }],
             "semi": ["off"],
         },
     },

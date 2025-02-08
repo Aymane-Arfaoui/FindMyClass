@@ -21,10 +21,10 @@ const SearchBars = () => {
 
     return (
 
-    <View style={styles.locationContainer}>
-    <TouchableOpacity onPress={handleGoBack}>
-        <Icon name="chevron-left" size={20} color={theme.colors.white} style={styles.chevronLeft}  />
-    </TouchableOpacity>
+        <View style={styles.locationContainer}>
+            <TouchableOpacity onPress={handleGoBack}>
+                <Icon name="chevron-left" size={20} color={theme.colors.white} style={styles.chevronLeft}  />
+            </TouchableOpacity>
             <View style={styles.iconContainer}>
                 <Icon name="circle" size={12} color="#0970de" />
                 <View style={styles.dottedLine} />
