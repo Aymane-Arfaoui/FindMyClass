@@ -1,0 +1,6 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- launchApp
+- tapOn: "GET STARTED"
+- assertVisible: "SGW"
+- assertVisible: "Loyola"
