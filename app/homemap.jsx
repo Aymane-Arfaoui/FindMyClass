@@ -6,6 +6,8 @@ import {getUserLocation} from '../services/userService';
 import BuildingDetailsPanel from "@/components/BuildingDetailsPanel";
 import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
+import MainSearchBar from "@/components/MainSearchBar";
+import LiveLocationButton from '@/components/LiveLocationButton';
 
 
 const Homemap = ({destination, selectedMode}) => {
@@ -160,17 +162,33 @@ const Homemap = ({destination, selectedMode}) => {
             />
 
 
-            {/*routes={routes} selectedRoute={fastestRoute}/>*/}
-            <View style={styles.searchOverlay}>
-                {/*<MainSearchBar onLocationSelect={setSelectedLocation} />*/}
-                <MapButtons
-                    onPress={(location) => {
-                        setSelectedLocation(location);
-                        handleClosePanel();
-                    }}
-                />
 
-            </View>
+            {/*routes={routes} selectedRoute={fastestRoute}/>*/}
+            {/*<View style={styles.searchOverlay}>*/}
+            {/*    <View> <MainSearchBar onLocationSelect={setSelectedLocation} /> </View>*/}
+            {/*   <View> <MapButtons*/}
+            {/*       onPress={(location) => {*/}
+            {/*           setSelectedLocation(location);*/}
+            {/*           handleClosePanel();*/}
+            {/*       }}*/}
+            {/*   /></View>*/}
+            {/*</View>*/}
+
+
+                <View style={styles.searchOverlay}>
+                    <MainSearchBar onLocationSelect={setSelectedLocation} />
+                </View>
+                <View style={styles.mapButtonsContainer}>
+                    <MapButtons
+                        onPress={(location) => {
+                            setSelectedLocation(location);
+                            handleClosePanel();
+                        }}
+                    />
+                </View>
+            <LiveLocationButton onPress={setSelectedLocation} />
+
+
 
             {selectedBuilding && (
                 <BuildingDetailsPanel
@@ -214,6 +232,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: theme.colors.background,
         paddingTop: StatusBar.currentHeight || 0,
+        position: 'relative',
     },
     searchOverlay: {
         position: 'absolute',
@@ -233,6 +252,14 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 5,
         elevation: 5
+    },
+    mapButtonsContainer: {
+        position: 'absolute',
+        bottom: 820,
+        left: 10,
+        right: 10,
+        zIndex: 5,
+        alignItems: 'center',
     },
     header: {fontSize: 18, fontWeight: "bold"},
     routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
