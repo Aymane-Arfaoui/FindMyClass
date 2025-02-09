@@ -1,12 +1,13 @@
-import React, { useRef } from 'react';
-import { View, StyleSheet, Text, TextInput } from 'react-native';
-import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from "@/constants/theme";
+import React, {useRef} from 'react';
+import {StyleSheet, Text, View} from 'react-native';
+import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import {Ionicons} from '@expo/vector-icons';
+import {theme} from "@/constants/theme";
+
 
 const GOOGLE_MAPS_APIKEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
 
-const SearchBar = ({ onLocationSelect }) => {
+const SearchBar = ({onLocationSelect, onBuildingPress}) => {
     const googleRef = useRef(null);
 
     return (
@@ -18,10 +19,18 @@ const SearchBar = ({ onLocationSelect }) => {
                 fetchDetails={true}
                 onPress={(data, details = null) => {
                     if (details) {
-                        const { lat, lng } = details.geometry.location;
+                        const {lat, lng} = details.geometry.location;
                         onLocationSelect([lng, lat]);
+                        if (onBuildingPress) {
+                            const building = {
+                                name: details.name || data.description,
+                                textPosition: [lng, lat],
+                            };
+                            onBuildingPress(building, lng, lat);
+                        }
                     }
                 }}
+
                 query={{
                     key: GOOGLE_MAPS_APIKEY,
                     language: 'en',
@@ -39,7 +48,8 @@ const SearchBar = ({ onLocationSelect }) => {
                 }}
                 renderRow={(data) => (
                     <View style={styles.suggestionItem}>
-                        <Ionicons name="location-outline" size={20} color={theme.colors.grayDark} style={styles.locationIcon} />
+                        <Ionicons name="location-outline" size={20} color={theme.colors.grayDark}
+                                  style={styles.locationIcon}/>
                         <Text style={styles.suggestionText}>{data.description}</Text>
                     </View>
                 )}
@@ -72,7 +82,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         borderWidth: 0,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
@@ -112,9 +122,6 @@ const styles = StyleSheet.create({
 });
 
 export default SearchBar;
-
-
-
 
 
 // import React, { useState, useEffect, useRef } from 'react';

@@ -65,46 +65,67 @@ const Homemap = ({destination, selectedMode}) => {
             setLoading(false);
         }
     };
-    const handleBuildingPress = async (building) => {
-        setSelectedBuilding(building);
-
-        if (building.textPosition) {
-            const [lng, lat] = building.textPosition;
-            const offsetLat = lat - 0.0010;
-            setSelectedLocation([lng, offsetLat]);
-        }
-
+    const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
+        if (building) {
+            setSelectedBuilding(building);
 
-        try {
-            const {name, textPosition} = building;
-            const [longitude, latitude] = textPosition;
+            const [buildingLng, buildingLat] = building.textPosition || [lng, lat];
+            const offsetLat = (buildingLat || lat) - 0.0010;
+            setSelectedLocation([buildingLng || lng, offsetLat]);
 
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
-                    name
-                )}&inputtype=textquery&fields=place_id&locationbias=circle:2000@${latitude},${longitude}&key=${GOOGLE_PLACES_API_KEY}`
-            );
+            try {
+                const {name} = building;
 
-            const data = await response.json();
-            if (data.candidates.length > 0) {
-                const placeId = data.candidates[0].place_id;
-
-                const detailsResponse = await fetch(
-                    `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,formatted_address,opening_hours,photos&key=${GOOGLE_PLACES_API_KEY}`
+                const response = await fetch(
+                    `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
+                        name
+                    )}&inputtype=textquery&fields=place_id&locationbias=circle:2000@${buildingLat || lat},${buildingLng || lng}&key=${GOOGLE_PLACES_API_KEY}`
                 );
 
-                const detailsData = await detailsResponse.json();
-                setBuildingDetails(detailsData.result);
-            } else {
+                const data = await response.json();
+                if (data.candidates.length > 0) {
+                    const placeId = data.candidates[0].place_id;
+
+                    const detailsResponse = await fetch(
+                        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,formatted_address,opening_hours,photos&key=${GOOGLE_PLACES_API_KEY}`
+                    );
+
+                    const detailsData = await detailsResponse.json();
+                    setBuildingDetails(detailsData.result);
+                } else {
+                    setBuildingDetails(null);
+                }
+            } catch (error) {
                 setBuildingDetails(null);
             }
-        } catch (error) {
-            // console.error("Error fetching building details:", error);
-            setBuildingDetails(null);
-        }
-        setLoading(false);
+        } else if (lng !== null && lat !== null) {
+            const offsetLat = lat - 0.0010;
+            setSelectedLocation([lng, offsetLat]);
 
+            try {
+                const response = await fetch(
+                    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`
+                );
+
+                const data = await response.json();
+                if (data.results.length > 0) {
+                    const placeDetails = data.results[0];
+                    setBuildingDetails(placeDetails);
+                    setSelectedBuilding({
+                        name: placeDetails.formatted_address,
+                        textPosition: [lng, lat],
+                    });
+                } else {
+                    setBuildingDetails(null);
+                    setSelectedBuilding(null);
+                }
+            } catch (error) {
+                setBuildingDetails(null);
+            }
+        }
+
+        setLoading(false);
 
         Animated.timing(panelY, {
             toValue: 0,
@@ -112,6 +133,7 @@ const Homemap = ({destination, selectedMode}) => {
             useNativeDriver: true,
         }).start();
     };
+
 
     const handleClosePanel = () => {
         Animated.timing(panelY, {
@@ -162,7 +184,6 @@ const Homemap = ({destination, selectedMode}) => {
             />
 
 
-
             {/*routes={routes} selectedRoute={fastestRoute}/>*/}
             {/*<View style={styles.searchOverlay}>*/}
             {/*    <View> <MainSearchBar onLocationSelect={setSelectedLocation} /> </View>*/}
@@ -175,19 +196,21 @@ const Homemap = ({destination, selectedMode}) => {
             {/*</View>*/}
 
 
-                <View style={styles.searchOverlay}>
-                    <MainSearchBar onLocationSelect={setSelectedLocation} />
-                </View>
-                <View style={styles.mapButtonsContainer}>
-                    <MapButtons
-                        onPress={(location) => {
-                            setSelectedLocation(location);
-                            handleClosePanel();
-                        }}
-                    />
-                </View>
-            <LiveLocationButton onPress={setSelectedLocation} />
-
+            <View style={styles.searchOverlay}>
+                <MainSearchBar
+                    onLocationSelect={setSelectedLocation}
+                    onBuildingPress={handleBuildingPress}
+                />
+            </View>
+            <View style={styles.mapButtonsContainer}>
+                <MapButtons
+                    onPress={(location) => {
+                        setSelectedLocation(location);
+                        handleClosePanel();
+                    }}
+                />
+            </View>
+            <LiveLocationButton onPress={setSelectedLocation}/>
 
 
             {selectedBuilding && (
