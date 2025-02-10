@@ -21,7 +21,7 @@ jobs:
         uses: ./.github/actions/setup-node-npm-install
 
       - name: 🏃‍♂️ Run Tests
-        run: npm run test -- --ci --passWithNoTests --coverage
+        run: npm run test -- --ci --passWithNoTests --coverage --runInBand --detectOpenHandles --forceExit --watchAll=false
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
