@@ -6,6 +6,8 @@ labels: ''
 assignees: ''
 
 ---
+**Issue related to the bug**
+Link to issue
 
 **Describe the bug**
 A clear and concise description of what the bug is.
