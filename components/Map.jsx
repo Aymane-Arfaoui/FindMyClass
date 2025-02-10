@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import MapboxGL from '@rnmapbox/maps';
-import { StyleSheet, View } from 'react-native';
-import { theme } from "@/constants/theme";
-import { getUserLocation } from "@/services/userService";
-import { concordiaBuildingsGeoJSON } from "@/constants/concordiaBuildings";
+import {StyleSheet, View} from 'react-native';
+import {theme} from "@/constants/theme";
+import {getUserLocation} from "@/services/userService";
+import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
 
-const Map = ({ onBuildingPress, selectedLocation, onMapPress }) => {
+const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
     const cameraRef = useRef(null);
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
     const [userLocation, setUserLocation] = useState(null);
@@ -53,7 +53,7 @@ const Map = ({ onBuildingPress, selectedLocation, onMapPress }) => {
                 onPress={() => onMapPress()}
             >
 
-            <MapboxGL.Camera
+                <MapboxGL.Camera
                     ref={cameraRef}
                     zoomLevel={16}
                     centerCoordinate={selectedLocation || centerCoordinate}
@@ -71,8 +71,8 @@ const Map = ({ onBuildingPress, selectedLocation, onMapPress }) => {
                         }
                     }}
                 >
-                    <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill} />
-                    <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel} />
+                    <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
+                    <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
 
                 {userLocation && (
@@ -93,8 +93,8 @@ const Map = ({ onBuildingPress, selectedLocation, onMapPress }) => {
 };
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    map: { flex: 1 },
+    container: {flex: 1},
+    map: {flex: 1},
 
     buildingFill: {
         fillColor: ["get", "color"],

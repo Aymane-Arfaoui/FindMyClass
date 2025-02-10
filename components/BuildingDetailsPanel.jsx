@@ -3,6 +3,9 @@ import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, 
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 
+const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
+
+
 const BuildingDetailsPanel = ({
                                   selectedBuilding,
                                   buildingDetails,
@@ -38,19 +41,28 @@ const BuildingDetailsPanel = ({
 
                     {buildingDetails && (
                         <>
-                            {buildingDetails.photos && (
+                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
                                 <Image
                                     source={{
                                         uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
                                     }}
                                     style={styles.buildingImage}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <Image
+                                    source={{ uri: DEFAULT_IMAGE_URL }}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
                                 />
                             )}
+
                             <Text style={styles.buildingDetails}>
                                 {buildingDetails.formatted_address}
                             </Text>
                         </>
                     )}
+
 
                     <TouchableOpacity style={styles.directionButton} onPress={onDirectionPress}>
                         <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
@@ -119,10 +131,13 @@ const styles = StyleSheet.create({
     },
     buildingImage: {
         width: "100%",
-        height: 160,
+        height: 180,
         borderRadius: 15,
         marginBottom: 12,
+        backgroundColor: "#f0f0f0",
+        alignSelf: "center",
     },
+
     directionButton: {
         flexDirection: "row",
         marginTop: 12,
@@ -138,4 +153,5 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginLeft: 8,
     },
+
 });
