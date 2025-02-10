@@ -20,7 +20,7 @@ function RootLayoutNav() {
   }, [user, loading]);
 
   return (
-    <Stack 
+    <Stack
       screenOptions={{
         headerShown: false,
       }}
@@ -30,7 +30,7 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <AuthProvider>
+    <AuthProvider testID={'root-layout'}>
       <RootLayoutNav />
     </AuthProvider>
   );
