@@ -16,53 +16,93 @@ export default function Homemap(){
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
-
+    const [userLocation, setUserLocation] = useState(null);
     const [fastestRoute, setFastestRoute] = useState(null);
     const [loading, setLoading] = useState(true);
-    const panelY = useRef(new Animated.Value(500)).current;
     const [currentLocation, setCurrentLocation] = useState(null);
-    const [transitMode, setTransitMode] = useState('walking');
+    const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
+    const [transitMode, setTransitMode] = useState('WALK');
+    const [dest, setDest] = useState(null);
+
+    const panelY = useRef(new Animated.Value(500)).current;
 
     useEffect(() => {
-        setLoading(true);
-        getUserLocation().then(location => {
-            setCurrentLocation(location)
-        })
-        .catch(error => {
-            console.error('Error initializing location/routes:', error);
-        })
-        .finally(() => {
-            setLoading(false);
-        });
-
-        const interval = setInterval(async () => {
+        // Fetch the user location for updating both marker and the camera center.
+        const fetchLocation = async () => {
+          try {
+            const location = await getUserLocation();
+            setUserLocation({
+              type: "Feature",
+              geometry: {
+                type: "Point",
+                coordinates: [location.lng, location.lat],
+              },
+            });
+            setCenterCoordinate([location.lng, location.lat]);
+          } catch (error) {
+            console.error("Error fetching user location:", error);
+          }
+        };
+    
+        fetchLocation();
+    
+        // Get the current position for fetching routes.
+        const initialize = async () => {
+          try {
             const location = await getUserLocation();
             setCurrentLocation(location);
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, []);
-
-    const fetchRoutesData = async (origin, destination, mode) => {
-        console.log(`Fetching ${mode} routes from ${origin.lat},${origin.lng} to ${destination.lat},${destination.lng}`);
-        if(origin && destination){
-            setLoading(true);
-            try{
-                let routes = await fetchRoutes(origin, destination, mode);
-                if (Array.isArray(routes)) {
-                    routes.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
-                    setRoutes(routes);
-                    setFastestRoute(routes.length > 0 ? routes[0] : null);
-                }
-            } catch (error) {
-                console.error('Error fetching routes:', error);
+            if (dest) {
+              await fetchRoutesData(location, dest, transitMode);
             }
+          } catch (error) {
+            console.error('Error initializing location/routes:', error);
+          } finally {
+            setLoading(false);
+          }
+        };
+    
+        initialize();
+    
+        const interval = setInterval(async () => {
+          const location = await getUserLocation();
+          setCurrentLocation(location);
+        }, 5000);
+    
+        return () => clearInterval(interval);
+      }, [dest, transitMode]);
+
+
+      const fetchRoutesData = async (origin, destination, mode) => {
+        setLoading(true);
+        try {
+          let routesData = await fetchRoutes(origin, destination, mode);
+          if (Array.isArray(routesData)) {
+            routesData.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+            setRoutes(routesData);
+            setFastestRoute(routesData.length > 0 ? routesData[0] : null);
+          }
+        } catch (error) {
+          console.error(`Error fetching ${mode} routes:`, error);
+        } finally {
+          setLoading(false);
         }
-        else{
-            console.error("Invalid origin or destination");
-        }
-        setLoading(false);
-    };
+        console.log("Routes fetched:", routes);
+      };
+
+      // When the user wants to get directions, set the destination and fetch routes.
+  const handleDirectionPress = async () => {
+    setLoading(true);
+    if (!currentLocation || !selectedBuilding) return;
+    const buildingPos = selectedBuilding.textPosition;
+    if (buildingPos && buildingPos.length === 2) {
+      const [lng, lat] = buildingPos;
+      setDest({ lat, lng });
+      console.log("Destination set to:", { lat, lng });
+      console.log("Current location:", currentLocation);
+      await fetchRoutesData(currentLocation, { lat, lng }, transitMode);
+    }
+    setLoading(false);
+  };
 
         
 
@@ -188,19 +228,6 @@ export default function Homemap(){
                 onMapPress={handleClosePanel}
             />
 
-
-            {/*routes={routes} selectedRoute={fastestRoute}/>*/}
-            {/*<View style={styles.searchOverlay}>*/}
-            {/*    <View> <MainSearchBar onLocationSelect={setSelectedLocation} /> </View>*/}
-            {/*   <View> <MapButtons*/}
-            {/*       onPress={(location) => {*/}
-            {/*           setSelectedLocation(location);*/}
-            {/*           handleClosePanel();*/}
-            {/*       }}*/}
-            {/*   /></View>*/}
-            {/*</View>*/}
-
-
             <View style={styles.searchOverlay}>
                 <MainSearchBar
                     onLocationSelect={setSelectedLocation}
@@ -226,34 +253,10 @@ export default function Homemap(){
                     panelY={panelY}
                     panHandlers={panResponder.panHandlers}
                     onClose={handleClosePanel}
-                    onDirectionPress={fetchRoutesData}
-                    mode={transitMode}
-                    currentLocation={currentLocation}
+                    onDirectionPress={handleDirectionPress}
                     GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
                 />
             )}
-
-            {/*<View style={styles.infoBox}>*/}
-            {/*    <Text style={styles.header}>Available Routes:</Text>*/}
-            {/*    {loading ? (*/}
-            {/*        <ActivityIndicator size="large" color="#0000ff"/>*/}
-            {/*    ) : (*/}
-            {/*        <ScrollView>*/}
-            {/*            {routes.length > 0 ? (*/}
-            {/*                routes.map((route, index) => (*/}
-            {/*                    <View key={index} style={styles.routeCard}>*/}
-            {/*                        <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
-            {/*                        <Text>Duration: {route.duration}</Text>*/}
-            {/*                        <Text>Distance: {route.distance}</Text>*/}
-            {/*                        {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
-            {/*                    </View>*/}
-            {/*                ))*/}
-            {/*            ) : (*/}
-            {/*                <Text style={styles.noRoutes}>No routes available.</Text>*/}
-            {/*            )}*/}
-            {/*        </ScrollView>*/}
-            {/*    )}*/}
-            {/*</View>*/}
         </View>
     );
 };

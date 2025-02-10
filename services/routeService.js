@@ -19,7 +19,7 @@ export const fetchRoutes = async (origin, destination, mode) => {
         return fetchGoogleRoutes(origin, destination, mode);
 
     } catch (error) {
-        console.error(`Error fetching ${mode} routes:`, error.message);
+        console.error(`Error fetching ${mode} routes ${origin} to ${destination}`, );
         return [];
     }
 };
@@ -61,7 +61,7 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
           });
 
     } catch (error) {
-        console.error(`Error fetching Google ${mode} routes:`, error.message);
+        console.error(`Error fetching Google ${mode} routes from ${origin} to ${destination}`, error.message);
         return [];
     }
 };

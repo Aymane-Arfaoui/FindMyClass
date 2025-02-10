@@ -21,13 +21,6 @@ const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedR
         const fetchLocation = async () => {
             try {
                 const location = await getUserLocation();
-                setUserLocation({
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [location.lng, location.lat],
-                    },
-                });
                 setCenterCoordinate([location.lng, location.lat]);
             } catch (error) {
                 // console.error("Error fetching user location:", error);
@@ -38,6 +31,8 @@ const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedR
         const interval = setInterval(fetchLocation, 5000);
         return () => clearInterval(interval);
     }, []);
+
+    // console.log("Rendering map with selected location:", selectedLocation);
 
     return (
         <View style={styles.container}>
@@ -74,7 +69,7 @@ const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedR
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
 
-                {/* Render the routes if available */}
+               
                 {userLocation && (
                     <MapboxGL.ShapeSource
                         id="user-location-source"
@@ -87,17 +82,38 @@ const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedR
                     </MapboxGL.ShapeSource>
                 )}
 
+                 {/* Render the routes if available */}
+
                 {routes && routes.length > 0 && routes.map((route, index) => {
-                    const isSelected = selectedRoute && selectedRoute == route;
-                        return (
-                            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
-                            <MapboxGL.LineLayer
-                                id={`route-line-${index}`}
-                                style={isSelected ? styles.selectedRoute : styles.route}
-                            />
-                            </MapboxGL.ShapeSource>
-                        );
-                 })}
+          // Use strict equality or compare based on an id property if available.
+          const isSelected = selectedRoute && selectedRoute === route;
+          return (
+            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
+              <MapboxGL.LineLayer
+                id={`route-line-${index}`}
+                style={isSelected ? styles.selectedRoute : styles.route}
+              />
+            </MapboxGL.ShapeSource>
+          );
+        })}
+
+                 {/* Render a marker at the endpoint of the selected route */}
+        {selectedRoute &&
+         selectedRoute.routeGeoJSON &&
+         selectedRoute.routeGeoJSON.geometry &&
+         selectedRoute.routeGeoJSON.geometry.coordinates &&
+         selectedRoute.routeGeoJSON.geometry.coordinates.length > 0 && (
+            <MapboxGL.PointAnnotation
+              id="selectedRouteEndpoint"
+              coordinate={
+                selectedRoute.routeGeoJSON.geometry.coordinates[
+                  selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
+                ]
+              }
+            >
+              <View style={styles.endpointMarker} />
+            </MapboxGL.PointAnnotation>
+         )}
 
             </MapboxGL.MapView>
         </View>
