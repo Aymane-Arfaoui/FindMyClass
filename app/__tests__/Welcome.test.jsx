@@ -64,4 +64,14 @@ describe('Welcome Component', () => {
         expect(mock.push).toHaveBeenCalledWith('/homemap');
     });
 
+    it('should reroute to /home if user sign-in is successful',   async () => {
+        const mock = {replace: jest.fn()};
+        useRouter.mockReturnValue(mock);
+        getUserInfo.mockReturnValue("user")
+        render(<Welcome/>);
+        const user = userEvent.setup();
+        await user.press(screen.getByTestId('Google-login'));
+        expect(mock.replace).toHaveBeenCalledWith('/home');
+    });
+
 });
