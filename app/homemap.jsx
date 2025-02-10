@@ -140,8 +140,8 @@ export default function Homemap(){
             return;
           }
       
-          console.log("Origin:", originCoords);
-          console.log("Destination:", destCoords);
+        //   console.log("Origin:", originCoords);
+        //   console.log("Destination:", destCoords);
       
           // Fetch routes between origin and destination
           await fetchRoutesData(originCoords, destCoords, mode);
@@ -150,17 +150,17 @@ export default function Homemap(){
         } finally {
           setLoading(false);
         }
-        console.log("entered handleDirectionPress");
-        console.log("Selected Location:", selectedLocation);
-        console.log("User Location:", currentLocation);
-        console.log("Routes:", routes);
-        console.log("exit handledirectionpress");
+        // console.log("entered handleDirectionPress");
+        // console.log("Selected Location:", selectedLocation);
+        // console.log("User Location:", currentLocation);
+        // console.log("Routes:", routes);
+        // console.log("exit handledirectionpress");
       };
 
     const fetchRoutesData = async (origin, destination, mode) => {
         fetchRoutes(origin, destination, mode).then((routesData) => {
             if(Array.isArray(routesData) && routesData.length > 0){
-                console.log("Routes data:", routesData);
+                // console.log("Routes data:", routesData);
                 routesData.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
                 routesData = routesData.slice(0, 3);
                 setRoutes(routesData);
@@ -182,7 +182,7 @@ export default function Homemap(){
 
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
-        console.log("Building: ", building);
+        // console.log("Building: ", building);
         if (building) {
             // setSelectedBuilding(building);
 
@@ -267,12 +267,12 @@ export default function Homemap(){
                 console.error("Error fetching building details:", error);
                 setBuildingDetails(null);
             });
-            console.log("Building:", building);
-            console.log("Selected Location:", selectedLocation);
-            console.log("User Location:", currentLocation);
-            console.log("Routes:", routes);
-            console.log("lng:", lng);
-            console.log("lat:", lat);
+            // console.log("Building:", building);
+            // console.log("Selected Location:", selectedLocation);
+            // console.log("User Location:", currentLocation);
+            // console.log("Routes:", routes);
+            // console.log("lng:", lng);
+            // console.log("lat:", lat);
         }
 
 
