@@ -1,7 +1,6 @@
 import RootLayout from '../_layout.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import {Stack,useRouter, useSegments} from 'expo-router';
-import {AuthProvider} from "@/context/auth";
 import react from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
@@ -27,16 +26,16 @@ describe('Layout Component', () => {
         useSegments.mockReturnValue(["/"]);
         const replace = jest.fn();
         useRouter.mockReturnValue({replace: replace});
-        render(<AuthProvider><RootLayout/></AuthProvider>);
+        render(<RootLayout/>);
        await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/home');});
 
     });
-    
-    it('should reroute to / if user doesn\'t exist and (auth) is present in the route segment',  async () => {
+
+    it('should reroute to "/" if user doesnt exist and (auth) is present in the route segment',  async () => {
         useSegments.mockReturnValue(["(auth)"]);
         const replace = jest.fn();
         useRouter.mockReturnValue({replace: replace});
-        render(<AuthProvider><RootLayout/></AuthProvider>);
+        render(<RootLayout/>);
         await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/');});
 
     });

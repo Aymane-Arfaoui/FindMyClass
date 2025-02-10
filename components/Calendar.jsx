@@ -22,7 +22,7 @@ const Calendar = ({ events }) => {
     }, {});
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} testID={'calendar'}>
             <RNCalendar
                 markedDates={markedDates}
                 theme={{
