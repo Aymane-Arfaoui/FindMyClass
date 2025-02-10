@@ -1,6 +1,6 @@
 import { getNextShuttleTime, getShuttleTravelTime } from './shuttleService';
 import axios from 'axios';
-
+import polyline from '@mapbox/polyline';
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAPdmd0FumLk8snfLYCijEEMAMsitIHoAg'
 
 export const fetchRoutes = async (origin, destination, mode) => {
