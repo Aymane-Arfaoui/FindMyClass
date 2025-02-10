@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
 import whiteLogo from '../assets/images/logo_whitepage.png'
 import styling from '../assets/Styles/mainPageStyle.js'
+import 'react-native-get-random-values';
 
 const Index = () => {
     const router = useRouter();
@@ -41,7 +42,8 @@ const Index = () => {
     <ScreenWrapper>
       <View style={styling.container}>
         {/* <Image source={whiteLogo} style={styling.logo} /> */}
-        <Animated.Image 
+        <Animated.Image
+            testID={'index-image'}
           source={whiteLogo} 
           style={[styling.logo, { opacity: fadeAnim }]} 
         />

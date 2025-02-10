@@ -16,7 +16,9 @@ export const theme = {
       success: '#2D8A6B',       // Green for success states
       warning: '#F0B775',       // Warm orange for warnings
       error: '#D64045',         // Red for errors
-      background: '#FAFAFA',    // Very light gray for backgrounds
+      background: '#FAFAFA', // Very light gray for backgrounds
+      blueDark: '#004085',      // Dark blue for the buttons
+      blueLight: '#1A73E8'      // Light blue for the buttons
     },
     fonts: {
       medium: '500',            // Medium-weight font for general text
