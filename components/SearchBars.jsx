@@ -4,9 +4,10 @@ import Icon from "react-native-vector-icons/FontAwesome";
 import { theme } from "@/constants/theme";
 import {useRouter} from "expo-router";
 
-const SearchBars = () => {
-    const [location1, setLocation1] = useState('1455 Blvd. De Maisonneuve Ouest');
-    const [location2, setLocation2] = useState('Concordia University - Loyola Campus');
+const SearchBars = ({start, destination}) => {
+    const [location1, setLocation1] = useState(start);
+    const [location2, setLocation2] = useState(destination);
+
 
     const swapLocations = () => {
         const temp = location1;

@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
+import {Animated, Text, PanResponder, StatusBar, StyleSheet, View, ActivityIndicator, ScrollView} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '../services/routeService';
 import {getUserLocation} from '../services/userService';
@@ -8,6 +8,9 @@ import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
 import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
+import TransportOptions from "@/components/TransportOptions";
+import SearchBars from "@/components/SearchBars";
+import BottomPanel from "@/components/BottomPanel";
 
 
 const Homemap = ({destination, selectedMode}) => {
@@ -16,20 +19,27 @@ const Homemap = ({destination, selectedMode}) => {
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
-    // const [userLocation, setUserLocation] = useState(null);
     const [fastestRoute, setFastestRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentLocation, setCurrentLocation] = useState(null);
 
+    const [showDirections, setShowDirections] = useState(false);
+    const [selectedBuildingLocation, setSelectedBuildingLocation] = useState(null);
+    const [userLocation, setUserLocation] = useState(null);
+
+    const [modeSelected, setModeSelected] = useState('walking');
+
+
     useEffect(() => {
         const initialize = async () => {
             try {
                 const location = await getUserLocation();
-                setCurrentLocation(location);
 
-                if (destination) {
-                    await fetchRoutesData(location, destination, selectedMode);
+                if (selectedLocation) {
+                    await fetchRoutesData(userLocation.lat.toString() + ',' + userLocation.lng.toString(),
+                        selectedLocation[1].toString() +','+ selectedLocation[0].toString(),
+                        modeSelected);
                 }
             } catch (error) {
                 // console.error('Error initializing location/routes:', error);
@@ -45,7 +55,23 @@ const Homemap = ({destination, selectedMode}) => {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [destination, selectedMode]);
+    }, [destination, modeSelected]);
+
+    useEffect(() => {
+        handleLiveLocationGet().then(r => '');
+    }, []);
+
+    const handleGetDirections = () => {
+        handleClosePanel();
+        setShowDirections(true);
+        setSelectedBuildingLocation(selectedBuilding?.location);
+    };
+
+    const handleLiveLocationGet = async () => {
+        setUserLocation(await getUserLocation());
+    };
+
+
 
     const fetchRoutesData = async (origin, destination, mode) => {
         setLoading(true);
@@ -173,6 +199,15 @@ const Homemap = ({destination, selectedMode}) => {
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+
+            {showDirections && (
+                <View>
+                    <SearchBars start ={userLocation.lat.toString() + ',' + userLocation.lng.toString()} destination={selectedLocation[1].toString() +','+ selectedLocation[0].toString()}/>
+                    <TransportOptions modeSelected={modeSelected} setModeSelected={setModeSelected} />
+                </View>
+            )}
+
+
             <Map
                 onBuildingPress={handleBuildingPress}
                 selectedLocation={selectedLocation}
@@ -184,17 +219,7 @@ const Homemap = ({destination, selectedMode}) => {
             />
 
 
-            {/*routes={routes} selectedRoute={fastestRoute}/>*/}
-            {/*<View style={styles.searchOverlay}>*/}
-            {/*    <View> <MainSearchBar onLocationSelect={setSelectedLocation} /> </View>*/}
-            {/*   <View> <MapButtons*/}
-            {/*       onPress={(location) => {*/}
-            {/*           setSelectedLocation(location);*/}
-            {/*           handleClosePanel();*/}
-            {/*       }}*/}
-            {/*   /></View>*/}
-            {/*</View>*/}
-
+            {!showDirections && (
 
             <View style={styles.searchOverlay}>
                 <MainSearchBar
@@ -202,18 +227,27 @@ const Homemap = ({destination, selectedMode}) => {
                     onBuildingPress={handleBuildingPress}
                 />
             </View>
-            <View style={styles.mapButtonsContainer}>
-                <MapButtons
-                    onPress={(location) => {
-                        setSelectedLocation(location);
-                        handleClosePanel();
-                    }}
-                />
-            </View>
+            )}
+
+
+            {!showDirections && (
             <LiveLocationButton onPress={setSelectedLocation}/>
+            )}
+
+            {!showDirections && (
+
+                <View style={styles.searchOverlay}>
+                    <MapButtons
+                        onPress={(location) => {
+                            setSelectedLocation(location);
+                            handleClosePanel();
+                        }}
+                    />
+                </View>
+            )}
 
 
-            {selectedBuilding && (
+            {selectedBuilding &&  (
                 <BuildingDetailsPanel
                     selectedBuilding={selectedBuilding}
                     buildingDetails={buildingDetails}
@@ -221,31 +255,49 @@ const Homemap = ({destination, selectedMode}) => {
                     panelY={panelY}
                     panHandlers={panResponder.panHandlers}
                     onClose={handleClosePanel}
+                    onDirectionPress={handleGetDirections}
                     GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
                 />
             )}
 
-            {/*<View style={styles.infoBox}>*/}
-            {/*    <Text style={styles.header}>Available Routes:</Text>*/}
-            {/*    {loading ? (*/}
-            {/*        <ActivityIndicator size="large" color="#0000ff"/>*/}
-            {/*    ) : (*/}
-            {/*        <ScrollView>*/}
-            {/*            {routes.length > 0 ? (*/}
-            {/*                routes.map((route, index) => (*/}
-            {/*                    <View key={index} style={styles.routeCard}>*/}
-            {/*                        <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
-            {/*                        <Text>Duration: {route.duration}</Text>*/}
-            {/*                        <Text>Distance: {route.distance}</Text>*/}
-            {/*                        {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
-            {/*                    </View>*/}
-            {/*                ))*/}
-            {/*            ) : (*/}
-            {/*                <Text style={styles.noRoutes}>No routes available.</Text>*/}
-            {/*            )}*/}
-            {/*        </ScrollView>*/}
-            {/*    )}*/}
-            {/*</View>*/}
+            {/*{showDirections && (*/}
+            {/*    <View>*/}
+            {/*        <BottomPanel transportMode ={modeSelected}/>*/}
+            {/*    </View>*/}
+            {/*)}*/}
+
+            {showDirections && (
+                <View style={styles.infoBox}>
+                <Text style={styles.header}>Available Routes:</Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color="#0000ff"/>
+                ) : (
+                    <ScrollView>
+                        {routes?.length > 0 ? (
+                            routes.map((route, index) => (
+                                <View key={index} style={styles.routeCard}>
+                                    <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>
+                                    <Text>Duration: {route.duration}</Text>
+                                    <Text>Distance: {route.distance}</Text>
+                                    {route.departure && <Text>Next Shuttle: {route.departure}</Text>}
+                                </View>
+                            ))
+                        ) : (
+                            <View>
+                                <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>
+
+                                {/*FOR TESTING ONLY:*/}
+                                <Text>{routes.length}</Text>
+                                <Text>{modeSelected}</Text>
+                                <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>
+                                <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>
+                            </View>
+                        )}
+                    </ScrollView>
+                )}
+                </View>
+            )}
+
         </View>
     );
 };

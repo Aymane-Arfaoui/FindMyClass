@@ -52,3 +52,22 @@ export const getUserLocation = async () => {
         return FALLBACK_LOCATION;
     }
 };
+
+export const getUserLocationArray = async () => {
+    try {
+        const {status} = await Location.requestForegroundPermissionsAsync();
+        if (status !== 'granted') {
+            console.error('Permission denied');
+            return FALLBACK_LOCATION;
+        }
+
+        const location = await Location.getCurrentPositionAsync({
+            accuracy: Location.Accuracy.High,
+        });
+
+        return {lat: location.coords.latitude, lng: location.coords.longitude};
+    } catch (error) {
+        console.error('Error fetching location:', error);
+        return FALLBACK_LOCATION;
+    }
+};

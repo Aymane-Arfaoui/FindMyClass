@@ -3,9 +3,10 @@ import axios from 'axios';
 
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAPdmd0FumLk8snfLYCijEEMAMsitIHoAg'
 
-export const fetchRoutes = async (origin, destination, mode) => {
+export const fetchRoutes = async (origin, destination, mode = "walking") => {
     try {
         if (!origin || !destination) throw new Error("Invalid origin or destination");
+        if (!mode) mode = "walking";
 
         if (mode === "transit") {
             const [transitRoutes, shuttleRoute] = await Promise.all([
@@ -28,9 +29,9 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
     try {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
             params: {
-                origin: `${origin.lat},${origin.lng}`,
-                destination: `${destination.lat},${destination.lng}`,
-                mode,
+                origin: `${origin}`,
+                destination: `${destination}`,
+                mode: `${mode}`,
                 alternatives: true,
                 key: GOOGLE_MAPS_API_KEY
             }
