@@ -90,7 +90,7 @@ const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedR
                 {routes && routes.length > 0 && routes.map((route, index) => {
                     const isSelected = selectedRoute && selectedRoute == route;
                         return (
-                            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route}>
+                            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
                             <MapboxGL.LineLayer
                                 id={`route-line-${index}`}
                                 style={isSelected ? styles.selectedRoute : styles.route}
