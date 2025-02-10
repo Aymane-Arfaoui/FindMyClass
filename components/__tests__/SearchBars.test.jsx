@@ -5,7 +5,7 @@ import Index from "@/app";
 
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 jest.mock("expo-font");
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}))
+jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 describe('SearchBars Component', () => {
 
     it('should render the default map marker',   () => {

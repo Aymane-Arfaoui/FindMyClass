@@ -12,6 +12,7 @@ const LiveLocationButton = ({ onPress }) => {
 
     return (
         <TouchableOpacity
+            testID={'live-location-button'}
             style={styles.liveLocationButton}
             onPress={handleLiveLocationPress}
         >
