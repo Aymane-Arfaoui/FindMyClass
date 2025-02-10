@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
@@ -7,8 +7,8 @@ const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_
 
 
 function BuildingDetailsPanel({
-        selectedBuilding,buildingDetails,
-        loading,
+        selectedBuilding,
+        buildingDetails,
         panHandlers,
         panelY,
         onClose,
@@ -16,8 +16,9 @@ function BuildingDetailsPanel({
         currentLocation,
         mode,
         GOOGLE_PLACES_API_KEY,
+        loading
     }){
-                
+
         return (
             <Animated.View
                 {...panHandlers}
@@ -66,7 +67,7 @@ function BuildingDetailsPanel({
                         )}
 
 
-                        <TouchableOpacity style={styles.directionButton} onPress={(_event) => onDirectionPress(currentLocation,selectedBuilding, mode)}>
+                        <TouchableOpacity style={styles.directionButton} onPress={(_event) => onDirectionPress(currentLocation,selectedBuilding,mode)}>
                             <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
                             <Text style={styles.directionButtonText}>Get Directions</Text>
                         </TouchableOpacity>

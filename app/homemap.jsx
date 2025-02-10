@@ -8,174 +8,280 @@ import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
 import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
+import { type } from '@testing-library/react-native/build/user-event/type';
+
 
 
 export default function Homemap(){
     const GOOGLE_PLACES_API_KEY = "AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80";
-    const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
-    const [userLocation, setUserLocation] = useState(null);
     const [fastestRoute, setFastestRoute] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [currentLocation, setCurrentLocation] = useState(null);
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
-    const [transitMode, setTransitMode] = useState('WALK');
-    const [dest, setDest] = useState(null);
+    const [transitMode, setTransitMode] = useState('Walk');
+    const cameraRef = useRef(null);
 
     const panelY = useRef(new Animated.Value(500)).current;
 
     useEffect(() => {
-        // Fetch the user location for updating both marker and the camera center.
-        const fetchLocation = async () => {
+        let isMounted = true; // Flag to prevent state updates after unmount
+      
+        // Fetch user location initially
+        const fetchInitialLocation = async () => {
           try {
             const location = await getUserLocation();
-            setUserLocation({
-              type: "Feature",
-              geometry: {
-                type: "Point",
-                coordinates: [location.lng, location.lat],
-              },
-            });
-            setCenterCoordinate([location.lng, location.lat]);
+            if (isMounted) {
+              setCurrentLocation({
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [location.lng, location.lat],
+                },
+              });
+              setCenterCoordinate([location.lng, location.lat]);
+            }
           } catch (error) {
             console.error("Error fetching user location:", error);
           }
         };
-    
-        fetchLocation();
-    
-        // Get the current position for fetching routes.
-        const initialize = async () => {
+      
+        fetchInitialLocation();
+      
+        // Set up interval to poll user location every 5 seconds
+        const interval = setInterval(async () => {
           try {
             const location = await getUserLocation();
-            setCurrentLocation(location);
-            if (dest) {
-              await fetchRoutesData(location, dest, transitMode);
+            if (isMounted) {
+              setCurrentLocation({
+                type: "Feature",
+                geometry: {
+                  type: "Point",
+                  coordinates: [location.lng, location.lat],
+                },
+              });
             }
           } catch (error) {
-            console.error('Error initializing location/routes:', error);
-          } finally {
-            setLoading(false);
+            console.error("Error fetching user location in interval:", error);
           }
-        };
-    
-        initialize();
-    
-        const interval = setInterval(async () => {
-          const location = await getUserLocation();
-          setCurrentLocation(location);
         }, 5000);
+      
+        // Cleanup function
+        return () => {
+          clearInterval(interval);
+          isMounted = false; // Prevent further updates
+        };
+      }, [selectedLocation, transitMode]); // Empty dependency array ensures this runs once on mount
+        
+
+
+    //     useEffect(() => {
+            
+    //         const initialize = async () => {
+    //             try {
+    //               const location = await getUserLocation();
+    //               setCurrentLocation(location);
+    //               if (dest) {
+    //                 await fetchRoutesData(location, dest, transitMode);
+    //               }
+    //             } catch (error) {
+    //               console.error('Error initializing location/routes:', error);
+    //             } finally {
+    //               setLoading(false);
+    //             }
+    //     },[dest, transitMode]);
     
-        return () => clearInterval(interval);
-      }, [dest, transitMode]);
+    //     initialize();
+    
+    //     const interval = setInterval(async () => {
+    //       const location = await getUserLocation();
+    //       setCurrentLocation(location);
+    //     }, 5000);
+    
+    //     return () => clearInterval(interval);
+    //   }, [dest, transitMode]);
 
 
-      const fetchRoutesData = async (origin, destination, mode) => {
+      
+
+    const handleDirectionPress = async (origin, dest, mode) => {
         setLoading(true);
+
+        if (!origin || !dest) {
+            // console.error("entered handleDirectionPress");    
+            // console.error("Origin:", origin);
+            // console.error("Destination:", dest);
+            // console.error("Mode:", mode);
+            console.error("Invalid origin or destination");
+            setLoading(false);
+            return;
+        }
+      
+        
+      
         try {
-          let routesData = await fetchRoutes(origin, destination, mode);
-          if (Array.isArray(routesData)) {
-            routesData.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
-            setRoutes(routesData);
-            setFastestRoute(routesData.length > 0 ? routesData[0] : null);
+          // Extract coordinates for origin
+          const originCoords = origin.geometry?.coordinates;
+      
+          // Extract coordinates for destination
+          let destCoords;
+          if (dest.geometry?.type === "Point") {
+            // If destination is a point
+            destCoords = dest.geometry.coordinates;
+          } else if (dest.geometry?.type === "Polygon") {
+            // If destination is a polygon, use its centroid or textPosition
+            destCoords = dest.properties?.textPosition || getCentroid(dest.geometry.coordinates[0]);
           }
+      
+          if (!originCoords || !destCoords) {
+            console.error("Could not extract coordinates for origin or destination");
+            return;
+          }
+      
+          console.log("Origin:", originCoords);
+          console.log("Destination:", destCoords);
+      
+          // Fetch routes between origin and destination
+          await fetchRoutesData(originCoords, destCoords, mode);
         } catch (error) {
-          console.error(`Error fetching ${mode} routes:`, error);
+          console.error("Error in handleDirectionPress:", error.message);
         } finally {
           setLoading(false);
         }
-        console.log("Routes fetched:", routes);
+        console.log("entered handleDirectionPress");
+        console.log("Selected Location:", selectedLocation);
+        console.log("User Location:", currentLocation);
+        console.log("Routes:", routes);
+        console.log("exit handledirectionpress");
       };
 
-      // When the user wants to get directions, set the destination and fetch routes.
-  const handleDirectionPress = async () => {
-    setLoading(true);
-    if (!currentLocation || !selectedBuilding) return;
-    const buildingPos = selectedBuilding.textPosition;
-    if (buildingPos && buildingPos.length === 2) {
-      const [lng, lat] = buildingPos;
-      setDest({ lat, lng });
-      console.log("Destination set to:", { lat, lng });
-      console.log("Current location:", currentLocation);
-      await fetchRoutesData(currentLocation, { lat, lng }, transitMode);
+    const fetchRoutesData = async (origin, destination, mode) => {
+        fetchRoutes(origin, destination, mode).then((routesData) => {
+            if(Array.isArray(routesData) && routesData.length > 0){
+                console.log("Routes data:", routesData);
+                routesData.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+                routesData = routesData.slice(0, 3);
+                setRoutes(routesData);
+                setFastestRoute(routesData[0]);
+            }
+            else{
+                setRoutes([]);
+                setFastestRoute(null);
+            }
+        }).catch((error)=> {
+            console.error("Error fetching routes:", error);
+            setRoutes([]);
+            setFastestRoute(null);
+        }) 
     }
-    setLoading(false);
-  };
 
         
 
 
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
+        console.log("Building: ", building);
         if (building) {
-            setSelectedBuilding(building);
+            // setSelectedBuilding(building);
 
             const [buildingLng, buildingLat] = building.textPosition || [lng, lat];
             const offsetLat = (buildingLat || lat) - 0.0010;
-            setSelectedLocation([buildingLng || lng, offsetLat]);
+            setSelectedLocation(
+                {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [buildingLng || lng, buildingLat || lat],
+                    },
+                }
+            );
 
-            try {
+
                 const {name} = building;
 
-                const response = await fetch(
+                
+                fetch(
                     `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
                         name
                     )}&inputtype=textquery&fields=place_id&locationbias=circle:2000@${buildingLat || lat},${buildingLng || lng}&key=${GOOGLE_PLACES_API_KEY}`
-                );
+                )
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.candidates.length > 0) {
+                        const placeId = data.candidates[0].place_id;
+    
+                        fetch(
+                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,formatted_address,opening_hours,photos&key=${GOOGLE_PLACES_API_KEY}`
+                        ).then((detailsResponse) => detailsResponse.json()).then((detailsData) => {
+                            if (detailsData.result) {
+                                setBuildingDetails(detailsData.result);
+                            } else {
+                                setBuildingDetails(null);
+                            }
+                        }).catch((error) => {
+                            console.error("Error fetching building details:", error);
+                            setBuildingDetails(null);
+                        });
 
-                const data = await response.json();
-                if (data.candidates.length > 0) {
-                    const placeId = data.candidates[0].place_id;
-
-                    const detailsResponse = await fetch(
-                        `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,formatted_address,opening_hours,photos&key=${GOOGLE_PLACES_API_KEY}`
-                    );
-
-                    const detailsData = await detailsResponse.json();
-                    setBuildingDetails(detailsData.result);
-                } else {
+                    } else {
+                        setBuildingDetails(null);
+                    }
+                }).catch((error) => {
+                    console.error("Error fetching building details:", error);
                     setBuildingDetails(null);
-                }
-            } catch (error) {
-                setBuildingDetails(null);
-            }
+                });
+                
         } else if (lng !== null && lat !== null) {
             const offsetLat = lat - 0.0010;
-            setSelectedLocation([lng, offsetLat]);
 
-            try {
-                const response = await fetch(
-                    `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`
-                );
+            // setSelectedLocation({
+            //     type: "Feature",
+            //     geometry: {
+            //         type: "Point",
+            //         coordinates: [lng, offsetLat],
+            //     },
+            // });
 
-                const data = await response.json();
+            fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`)
+            .then((response) => response.json())
+            .then((data) => {
                 if (data.results.length > 0) {
                     const placeDetails = data.results[0];
                     setBuildingDetails(placeDetails);
-                    setSelectedBuilding({
-                        name: placeDetails.formatted_address,
-                        textPosition: [lng, lat],
+                    setSelectedLocation({
+                        type: "Feature",
+                        geometry: {
+                            type: "Point",
+                            coordinates: [lng, lat],
+                        },
                     });
                 } else {
                     setBuildingDetails(null);
-                    setSelectedBuilding(null);
+                    setSelectedLocation(null);
                     setRoutes([]);
                     setFastestRoute(null);
                 }
-            } catch (error) {
+            }).catch((error) => {
+                console.error("Error fetching building details:", error);
                 setBuildingDetails(null);
-            }
+            });
+            console.log("Building:", building);
+            console.log("Selected Location:", selectedLocation);
+            console.log("User Location:", currentLocation);
+            console.log("Routes:", routes);
+            console.log("lng:", lng);
+            console.log("lat:", lat);
         }
 
-        setLoading(false);
 
         Animated.timing(panelY, {
             toValue: 0,
             duration: 300,
             useNativeDriver: true,
         }).start();
+        setLoading(false);  
     };
 
 
@@ -185,7 +291,6 @@ export default function Homemap(){
             duration: 300,
             useNativeDriver: true,
         }).start(() => {
-            setSelectedBuilding(null);
             setBuildingDetails(null);
             setRoutes([]);
             setFastestRoute(null);
@@ -226,6 +331,8 @@ export default function Homemap(){
                 routes={routes}
                 selectedRoute={fastestRoute}
                 onMapPress={handleClosePanel}
+                cameraRef={cameraRef}
+                centerCoordinate={centerCoordinate}
             />
 
             <View style={styles.searchOverlay}>
@@ -245,9 +352,10 @@ export default function Homemap(){
             <LiveLocationButton onPress={setSelectedLocation}/>
 
 
-            {selectedBuilding && (
+            {selectedLocation && (
                 <BuildingDetailsPanel
-                    selectedBuilding={selectedBuilding}
+                    currentLocation={currentLocation}
+                    selectedBuilding={selectedLocation}
                     buildingDetails={buildingDetails}
                     loading={loading}
                     panelY={panelY}
@@ -255,6 +363,7 @@ export default function Homemap(){
                     onClose={handleClosePanel}
                     onDirectionPress={handleDirectionPress}
                     GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
+                    mode={transitMode}
                 />
             )}
         </View>
@@ -301,3 +410,14 @@ const styles = StyleSheet.create({
     noRoutes: {textAlign: "center", color: "gray", marginTop: 10}
 });
 
+
+const getCentroid = (polygon) => {
+    let x = 0, y = 0, n = polygon.length;
+  
+    polygon.forEach(([lng, lat]) => {
+      x += lng;
+      y += lat;
+    });
+  
+    return [x / n, y / n];
+  };
