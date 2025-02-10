@@ -7,10 +7,9 @@ import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
 
-const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
+const Map = ({onBuildingPress, selectedLocation, userLocation, routes, selectedRoute, onMapPress}) => {
     const cameraRef = useRef(null);
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
-    const [userLocation, setUserLocation] = useState(null);
 
     useEffect(() => {
         if (selectedLocation && cameraRef.current) {
@@ -75,6 +74,7 @@ const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
 
+                {/* Render the routes if available */}
                 {userLocation && (
                     <MapboxGL.ShapeSource
                         id="user-location-source"
@@ -86,6 +86,18 @@ const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
                         />
                     </MapboxGL.ShapeSource>
                 )}
+
+                {routes && routes.length > 0 && routes.map((route, index) => {
+                    const isSelected = selectedRoute && selectedRoute == route;
+                        return (
+                            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route}>
+                            <MapboxGL.LineLayer
+                                id={`route-line-${index}`}
+                                style={isSelected ? styles.selectedRoute : styles.route}
+                            />
+                            </MapboxGL.ShapeSource>
+                        );
+                 })}
 
             </MapboxGL.MapView>
         </View>
@@ -118,6 +130,17 @@ const styles = StyleSheet.create({
         circleStrokeWidth: 2,
         circleStrokeColor: 'white',
         circleOpacity: 1,
+    },
+    route: {
+    lineColor: 'gray',
+    lineWidth: 2,
+    lineOpacity: 0.6,
+    },
+
+    selectedRoute: {
+        lineColor: 'blue',
+        lineWidth: 4,
+        lineOpacity: 0.8,
     },
 });
 

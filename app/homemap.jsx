@@ -10,34 +10,30 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 
 
-const Homemap = ({destination, selectedMode}) => {
+export default function Homemap(){
     const GOOGLE_PLACES_API_KEY = "AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80";
     const [selectedBuilding, setSelectedBuilding] = useState(null);
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
-    // const [userLocation, setUserLocation] = useState(null);
+
     const [fastestRoute, setFastestRoute] = useState(null);
     const [loading, setLoading] = useState(true);
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentLocation, setCurrentLocation] = useState(null);
+    const [transitMode, setTransitMode] = useState('walking');
 
     useEffect(() => {
-        const initialize = async () => {
-            try {
-                const location = await getUserLocation();
-                setCurrentLocation(location);
-
-                if (destination) {
-                    await fetchRoutesData(location, destination, selectedMode);
-                }
-            } catch (error) {
-                // console.error('Error initializing location/routes:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
-        initialize();
+        setLoading(true);
+        getUserLocation().then(location => {
+            setCurrentLocation(location)
+        })
+        .catch(error => {
+            console.error('Error initializing location/routes:', error);
+        })
+        .finally(() => {
+            setLoading(false);
+        });
 
         const interval = setInterval(async () => {
             const location = await getUserLocation();
@@ -45,26 +41,32 @@ const Homemap = ({destination, selectedMode}) => {
         }, 5000);
 
         return () => clearInterval(interval);
-    }, [destination, selectedMode]);
+    }, []);
 
     const fetchRoutesData = async (origin, destination, mode) => {
-        setLoading(true);
-        try {
-            // console.log(`Fetching ${mode} routes from ${origin.lat},${origin.lng} to ${destination.lat},${destination.lng}`);
-
-            let routes = await fetchRoutes(origin, destination, mode);
-
-            if (Array.isArray(routes)) {
-                routes.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
-                setRoutes(routes);
-                setFastestRoute(routes.length > 0 ? routes[0] : null);
+        console.log(`Fetching ${mode} routes from ${origin.lat},${origin.lng} to ${destination.lat},${destination.lng}`);
+        if(origin && destination){
+            setLoading(true);
+            try{
+                let routes = await fetchRoutes(origin, destination, mode);
+                if (Array.isArray(routes)) {
+                    routes.sort((a, b) => parseInt(a.duration) - parseInt(b.duration));
+                    setRoutes(routes);
+                    setFastestRoute(routes.length > 0 ? routes[0] : null);
+                }
+            } catch (error) {
+                console.error('Error fetching routes:', error);
             }
-        } catch (error) {
-            // console.error(`Error fetching ${mode} routes:`, error);
-        } finally {
-            setLoading(false);
         }
+        else{
+            console.error("Invalid origin or destination");
+        }
+        setLoading(false);
     };
+
+        
+
+
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
         if (building) {
@@ -119,6 +121,8 @@ const Homemap = ({destination, selectedMode}) => {
                 } else {
                     setBuildingDetails(null);
                     setSelectedBuilding(null);
+                    setRoutes([]);
+                    setFastestRoute(null);
                 }
             } catch (error) {
                 setBuildingDetails(null);
@@ -143,6 +147,8 @@ const Homemap = ({destination, selectedMode}) => {
         }).start(() => {
             setSelectedBuilding(null);
             setBuildingDetails(null);
+            setRoutes([]);
+            setFastestRoute(null);
             panelY.setValue(500);
         });
     };
@@ -177,7 +183,6 @@ const Homemap = ({destination, selectedMode}) => {
                 onBuildingPress={handleBuildingPress}
                 selectedLocation={selectedLocation}
                 userLocation={currentLocation}
-                destination={destination}
                 routes={routes}
                 selectedRoute={fastestRoute}
                 onMapPress={handleClosePanel}
@@ -221,6 +226,9 @@ const Homemap = ({destination, selectedMode}) => {
                     panelY={panelY}
                     panHandlers={panResponder.panHandlers}
                     onClose={handleClosePanel}
+                    onDirectionPress={fetchRoutesData}
+                    mode={transitMode}
+                    currentLocation={currentLocation}
                     GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
                 />
             )}
@@ -290,4 +298,3 @@ const styles = StyleSheet.create({
     noRoutes: {textAlign: "center", color: "gray", marginTop: 10}
 });
 
-export default Homemap;
