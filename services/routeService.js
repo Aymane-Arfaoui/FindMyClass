@@ -1,6 +1,6 @@
 import { getNextShuttleTime, getShuttleTravelTime } from './shuttleService';
 import axios from 'axios';
-
+import polyline from '@mapbox/polyline';
 const GOOGLE_MAPS_API_KEY = 'AIzaSyAPdmd0FumLk8snfLYCijEEMAMsitIHoAg'
 
 export const fetchRoutes = async (origin, destination, mode) => {
@@ -9,7 +9,7 @@ export const fetchRoutes = async (origin, destination, mode) => {
 
         if (mode === "transit") {
             const [transitRoutes, shuttleRoute] = await Promise.all([
-                fetchGoogleRoutes(origin, destination, "transit"),
+                fetchGoogleRoutes(origin, destination, mode),
                 fetchShuttleRoute(origin, destination)
             ]);
 
@@ -19,7 +19,7 @@ export const fetchRoutes = async (origin, destination, mode) => {
         return fetchGoogleRoutes(origin, destination, mode);
 
     } catch (error) {
-        console.error(`Error fetching ${mode} routes:`, error.message);
+        console.error(`Error fetching ${mode} routes ${origin} to ${destination}`, );
         return [];
     }
 };
@@ -28,8 +28,8 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
     try {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
             params: {
-                origin: `${origin.lat},${origin.lng}`,
-                destination: `${destination.lat},${destination.lng}`,
+                origin: `${origin[1]},${origin[0]}`, // Convert [lng, lat] to [lat,lng]
+                destination: `${destination[1]},${destination[0]}`, // Convert [lng, lat] to [lat,lng]
                 mode,
                 alternatives: true,
                 key: GOOGLE_MAPS_API_KEY
@@ -38,15 +38,30 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
 
         if (response.data.status !== "OK") throw new Error(response.data.error_message);
 
-        return response.data.routes.map(route => ({
-            mode,
-            distance: route.legs[0].distance.text,
-            duration: route.legs[0].duration.text,
-            polyline: route.overview_polyline?.points || null
-        }));
+        return response.data.routes.map(route => {
+            const encoded = route.overview_polyline?.points;
+            // Decode the polyline into an array of [lat, lng] pairs
+            const decodedCoords = polyline.decode(encoded);
+            // Convert to [lng, lat] order as required by GeoJSON
+            const coordinates = decodedCoords.map(([lat, lng]) => [lng, lat]);
+            return {
+              mode,
+              distance: route.legs[0].distance.text,
+              duration: route.legs[0].duration.text,
+              // Use a valid GeoJSON Feature to represent the route
+              routeGeoJSON: {
+                type: 'Feature',
+                geometry: {
+                  type: 'LineString',
+                  coordinates
+                },
+                properties: {}
+              }
+            };
+          });
 
     } catch (error) {
-        console.error(`Error fetching Google ${mode} routes:`, error.message);
+        console.error(`Error fetching Google ${mode} routes from ${origin} to ${destination}`, error.message);
         return [];
     }
 };

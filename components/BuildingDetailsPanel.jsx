@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
@@ -6,72 +6,75 @@ import {theme} from "@/constants/theme";
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
 
-const BuildingDetailsPanel = ({
-                                  selectedBuilding,
-                                  buildingDetails,
-                                  loading,
-                                  panelY,
-                                  panHandlers,
-                                  onClose,
-                                  onDirectionPress,
-                                  GOOGLE_PLACES_API_KEY,
-                              }) => {
-    return (
-        <Animated.View
-            {...panHandlers}
-            style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
-        >
-            <TouchableOpacity
-                onPress={onClose}
-                style={styles.closeButton}
-                activeOpacity={0.7}
+function BuildingDetailsPanel({
+        selectedBuilding,
+        buildingDetails,
+        panHandlers,
+        panelY,
+        onClose,
+        onDirectionPress,
+        currentLocation,
+        mode,
+        GOOGLE_PLACES_API_KEY,
+        loading
+    }){
+
+        return (
+            <Animated.View
+                {...panHandlers}
+                style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
             >
-                <Ionicons name="close-circle" size={32} color={theme.colors.dark}/>
-            </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={onClose}
+                    style={styles.closeButton}
+                    activeOpacity={0.7}
+                >
+                    <Ionicons name="close-circle" size={32} color={theme.colors.dark}/>
+                </TouchableOpacity>
 
-            <View style={styles.dragBar}/>
+                <View style={styles.dragBar}/>
 
-            {loading ? (
-                <ActivityIndicator size="large" color={theme.colors.primary}/>
-            ) : (
-                <>
-                    <Text style={styles.buildingName}>
-                        {selectedBuilding?.name || "Loading..."}
-                    </Text>
+                {loading ? (
+                    <ActivityIndicator size="large" color={theme.colors.primary}/>
+                ) : (
+                    <>
+                        <Text style={styles.buildingName}>
+                            {selectedBuilding?.name || "Loading..."}
+                        </Text>
 
-                    {buildingDetails && (
-                        <>
-                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
-                                <Image
-                                    source={{
-                                        uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
-                                    }}
-                                    style={styles.buildingImage}
-                                    resizeMode="cover"
-                                />
-                            ) : (
-                                <Image
-                                    source={{ uri: DEFAULT_IMAGE_URL }}
-                                    style={styles.buildingImage}
-                                    resizeMode="cover"
-                                />
-                            )}
+                        {buildingDetails && (
+                            <>
+                                {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
+                                    <Image
+                                        source={{
+                                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
+                                        }}
+                                        style={styles.buildingImage}
+                                        resizeMode="cover"
+                                    />
+                                ) : (
+                                    <Image
+                                        source={{ uri: DEFAULT_IMAGE_URL }}
+                                        style={styles.buildingImage}
+                                        resizeMode="cover"
+                                    />
+                                )}
 
-                            <Text style={styles.buildingDetails}>
-                                {buildingDetails.formatted_address}
-                            </Text>
-                        </>
-                    )}
+                                <Text style={styles.buildingDetails}>
+                                    {buildingDetails.formatted_address}
+                                </Text>
+                            </>
+                        )}
 
 
-                    <TouchableOpacity style={styles.directionButton} onPress={onDirectionPress}>
-                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                        <Text style={styles.directionButtonText}>Get Directions</Text>
-                    </TouchableOpacity>
-                </>
-            )}
-        </Animated.View>
-    );
+                        <TouchableOpacity style={styles.directionButton} onPress={(_event) => onDirectionPress(currentLocation,selectedBuilding,mode)}>
+                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                        </TouchableOpacity>
+                    </>
+                )}
+            </Animated.View>
+        );
 };
 
 export default BuildingDetailsPanel;

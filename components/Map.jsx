@@ -7,38 +7,21 @@ import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
 
-const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
-    const cameraRef = useRef(null);
-    const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
-    const [userLocation, setUserLocation] = useState(null);
+const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef}) => {
 
     useEffect(() => {
+
         if (selectedLocation && cameraRef.current) {
             cameraRef.current.flyTo(selectedLocation, 800);
         }
-    }, [selectedLocation]);
-
-    useEffect(() => {
-        const fetchLocation = async () => {
-            try {
-                const location = await getUserLocation();
-                setUserLocation({
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [location.lng, location.lat],
-                    },
-                });
-                setCenterCoordinate([location.lng, location.lat]);
-            } catch (error) {
-                // console.error("Error fetching user location:", error);
-            }
-        };
-
-        fetchLocation();
-        const interval = setInterval(fetchLocation, 5000);
-        return () => clearInterval(interval);
     }, []);
+
+    // console.log("Rendering map with selected location:", selectedLocation);
+    // console.log("Rendering map with user location:", userLocation);
+
+
+
+    // console.log("Rendering map with selected location:", selectedLocation);
 
     return (
         <View style={styles.container}>
@@ -56,7 +39,7 @@ const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
                 <MapboxGL.Camera
                     ref={cameraRef}
                     zoomLevel={16}
-                    centerCoordinate={selectedLocation || centerCoordinate}
+                    centerCoordinate={centerCoordinate || selectedLocation}
                     animationMode="flyTo"
                     animationDuration={500}
                 />
@@ -75,6 +58,7 @@ const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
                     <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
                 </MapboxGL.ShapeSource>
 
+               
                 {userLocation && (
                     <MapboxGL.ShapeSource
                         id="user-location-source"
@@ -86,6 +70,41 @@ const Map = ({onBuildingPress, selectedLocation, onMapPress}) => {
                         />
                     </MapboxGL.ShapeSource>
                 )}
+
+                 {/* Render the routes if available */}
+
+                {routes && routes.length > 0 && routes.map((route, index) => {
+          // Use strict equality or compare based on an id property if available.
+          const isSelected = selectedRoute && selectedRoute === route;
+          if (!(route.routeGeoJSON)) return null;
+          return (
+            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
+              <MapboxGL.LineLayer
+                id={`route-line-${index}`}
+                style={isSelected ? styles.selectedRoute : styles.route}
+              />
+            </MapboxGL.ShapeSource>
+          );
+        })}
+
+                 {/* Render a marker at the endpoint of the selected route */}
+        {selectedRoute &&
+         selectedRoute.routeGeoJSON &&
+         selectedRoute.routeGeoJSON.geometry &&
+         selectedRoute.routeGeoJSON.geometry.coordinates &&
+         selectedRoute.routeGeoJSON.geometry.coordinates.length > 0 && (
+            <MapboxGL.PointAnnotation
+              id="selectedRouteEndpoint"
+              coordinate={
+                selectedRoute.routeGeoJSON.geometry.coordinates[
+                  selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
+                ]
+              }
+            >
+              <View style={styles.endpointMarker} />
+
+            </MapboxGL.PointAnnotation>
+         )}
 
             </MapboxGL.MapView>
         </View>
@@ -119,6 +138,36 @@ const styles = StyleSheet.create({
         circleStrokeColor: 'white',
         circleOpacity: 1,
     },
+    route: {
+    lineColor: 'gray',
+    lineWidth: 2,
+    lineOpacity: 0.6,
+    },
+
+    selectedRoute: {
+        lineColor: 'blue',
+        lineWidth: 4,
+        lineOpacity: 0.8,
+    },
+
+    endpointMarker: {
+        width: 24, // Size of the marker
+        height: 24,
+        borderRadius: 12, // Half of width/height for a perfect circle
+        backgroundColor: 'red', // Fill color of the marker
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderWidth: 2, // Border thickness
+        borderColor: 'white', // Border color (optional)
+      },
+    
+      // Inner marker (smaller circle inside for a layered effect)
+      innerMarker: {
+        width: 12, // Smaller size for inner circle
+        height: 12,
+        borderRadius: 6,
+        backgroundColor: 'white', // Inner fill color
+      },
 });
 
 export default Map;
