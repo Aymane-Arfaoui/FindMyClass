@@ -15,26 +15,44 @@ const SHUTTLE_SCHEDULE = {
     ]
 };
 
-export const getNextShuttleTime = () => {
+export const getShuttleTimes = (count) => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
     const today = now.getDay();
 
     const scheduleType = (today >= 1 && today <= 4) ? "Monday-Thursday" : (today === 5 ? "Friday" : null);
-    if (!scheduleType) return null; // if on weekend
+    if (!scheduleType) return { nextShuttles: [], allShuttles: [] }; // if it's the weekend
+
+    const allShuttles = [];
 
     for (const time of SHUTTLE_SCHEDULE[scheduleType]) {
         const [hh, mm] = time.split(":").map(Number);
         const shuttleTime = hh * 60 + mm;
 
-        if (shuttleTime > currentTime) {
-            // console.log(`Next shuttle found at ${time}`);
-            return time;
+        allShuttles.push({
+            time,
+            shuttleTime,
+            isPast: shuttleTime < currentTime
+        });
+    }
+
+    const sortedShuttles = allShuttles.sort((a, b) => a.shuttleTime - b.shuttleTime);
+
+    const nextShuttles = [];
+    let previousShuttle = null;
+
+    for (const shuttle of sortedShuttles) {
+        if (shuttle.shuttleTime > currentTime && nextShuttles.length < count) {
+            nextShuttles.push(shuttle.time);
+        }
+        if (shuttle.shuttleTime < currentTime && !previousShuttle) {
+            previousShuttle = shuttle.time;
         }
     }
-    // console.warn("No more shuttles today.");
-    return null;
+
+    return { nextShuttles, allShuttles };
 };
+
 
 export const getShuttleTravelTime = () => ({
     duration: "30 min",
