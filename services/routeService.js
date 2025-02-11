@@ -28,9 +28,9 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
     try {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
             params: {
-                origin: `${origin[1]},${origin[0]}`, // Convert [lng, lat] to [lat,lng]
-                destination: `${destination[1]},${destination[0]}`, // Convert [lng, lat] to [lat,lng]
-                mode,
+                origin: `${origin}`, // Convert [lng, lat] to [lat,lng]
+                destination: `${destination}`, // Convert [lng, lat] to [lat,lng]
+                mode : `${mode}`,
                 alternatives: true,
                 key: GOOGLE_MAPS_API_KEY
             }
