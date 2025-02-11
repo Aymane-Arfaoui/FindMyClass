@@ -19,11 +19,11 @@ describe('MapButtons Component', () => {
     });
     it('should trigger a function if pressed',  async () => {
         const mockFun = jest.fn();
-        render(<MapButtons  onPress={() => mockFun()}/>);
+        const { unmount } = render(<MapButtons  onPress={() => mockFun()}/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('SGW'));
         expect(mockFun).toBeCalled();
-
+        unmount();
 
     });
 });
