@@ -4,19 +4,17 @@ import Icon from 'react-native-vector-icons/FontAwesome5';
 import { theme } from '../constants/theme';
 import { hp, wp } from '../helpers/common';
 
+const transportModes = [
+    { mode: 'driving', icon: 'car', time: '4 min' },
+    { mode: 'transit', icon: 'bus', time: '12 min' },
+    { mode: 'walking', icon: 'walking', time: '3 min' },
+    { mode: 'bicycling', icon: 'bicycle', time: '5 min' },
+];
 
-
-const TransportOptions = ({ modeSelected, setModeSelected, travelTimes }) => {
-    const transportModes = [
-        { mode: 'driving', icon: 'car' },
-        { mode: 'transit', icon: 'bus' },
-        { mode: 'walking', icon: 'walking' },
-        { mode: 'bicycling', icon: 'bicycle' },
-    ];
-
+const TransportOptions = ({ modeSelected , setModeSelected }) => {
     return (
         <View style={styles.container}>
-            {transportModes.map(({ mode, icon }) => (
+            {transportModes.map(({ mode, icon, time }) => (
                 <Pressable
                     key={mode}
                     onPress={() => setModeSelected(mode)}
@@ -35,14 +33,13 @@ const TransportOptions = ({ modeSelected, setModeSelected, travelTimes }) => {
                         styles.text,
                         modeSelected === mode && styles.selectedText
                     ]}>
-                        {travelTimes[mode] || 'Loading...'}
+                        {time}
                     </Text>
                 </Pressable>
             ))}
         </View>
     );
 };
-
 
 export default TransportOptions;
 
@@ -52,7 +49,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-around',
-        backgroundColor:'transparnt',
+        backgroundColor: theme.colors.primary,
         paddingVertical: hp(1.5),
         marginTop: 3,
         elevation: 4,
@@ -81,7 +78,7 @@ const styles = StyleSheet.create({
     },
 
     icon: {
-        marginRight: wp(1),
+        marginRight: wp(2),
     },
 
     text: {

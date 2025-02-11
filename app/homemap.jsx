@@ -26,19 +26,6 @@ export default function Homemap() {
     const [routeDetails, setRouteDetails] = useState(null);
     const [modeSelected, setModeSelected] = useState('walking');
     const panelY = useRef(new Animated.Value(500)).current;
-    const [travelTimes, setTravelTimes] = useState({});
-
-    useEffect(() => {
-        const interval = setInterval(async () => {
-            const location = await getUserLocation();
-            setCurrentLocation(location);
-            if (selectedLocation) {
-                fetchRealTimeRoutes(location, selectedLocation);
-            }
-        }, 5000);
-
-        return () => clearInterval(interval);
-    }, [selectedLocation, modeSelected]);
 
     useEffect(() => {
         let isMounted = true;

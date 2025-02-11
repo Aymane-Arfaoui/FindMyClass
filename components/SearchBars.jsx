@@ -1,32 +1,23 @@
-import React, {useEffect, useState} from 'react';
-import {Platform, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
-import {Ionicons} from '@expo/vector-icons';
-import {theme} from '@/constants/theme';
-import {hp, wp} from '../helpers/common';
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '@/constants/theme';
+import { hp, wp } from '../helpers/common';
 import TransportOptions from "@/components/TransportOptions";
 
 
 const GOOGLE_API_KEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
 
-const SearchBars = ({currentLocation, destination, onBackPress}) => {
+const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     const [startLocation, setStartLocation] = useState('Fetching current location...');
     const [endLocation, setEndLocation] = useState(destination || 'Destination');
     const [modeSelected, setModeSelected] = useState('walking');
-    const [travelTimes, setTravelTimes] = useState({});
-
-    useEffect(() => {
-        if (
-            currentLocation?.geometry?.coordinates &&
-            destination
-        ) {
-            const [lng, lat] = currentLocation.geometry.coordinates;
-
-            const switchedCoordinates = `${lat},${lng}`;
-            const dest = destination;
-
-            fetchRoutesData(switchedCoordinates, dest).then(setTravelTimes);
-        }
-    }, [currentLocation, destination]);
 
 
     useEffect(() => {
@@ -103,12 +94,12 @@ const SearchBars = ({currentLocation, destination, onBackPress}) => {
         <View style={styles.container}>
 
             <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-                <Ionicons name="chevron-back" size={26} color="white"/>
+                <Ionicons name="chevron-back" size={26} color="white" />
             </TouchableOpacity>
 
 
             <View style={styles.inputContainer}>
-                <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.icon}/>
+                <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.icon} />
                 <TextInput
                     style={styles.input}
                     value={startLocation}
@@ -119,7 +110,7 @@ const SearchBars = ({currentLocation, destination, onBackPress}) => {
 
 
             <View style={styles.inputContainer}>
-                <Ionicons name="location-sharp" size={16} color={theme.colors.primary} style={styles.icon}/>
+                <Ionicons name="location-sharp" size={16} color={theme.colors.primary} style={styles.icon} />
                 <TextInput
                     style={styles.input}
                     value={endLocation}
@@ -127,12 +118,7 @@ const SearchBars = ({currentLocation, destination, onBackPress}) => {
                     placeholder="Destination"
                 />
             </View>
-            <TransportOptions
-                modeSelected={modeSelected}
-                setModeSelected={setModeSelected}
-                travelTimes={travelTimes}
-            />
-
+            <TransportOptions modeSelected={modeSelected} setModeSelected={setModeSelected} />
 
         </View>
     );
@@ -152,7 +138,7 @@ const styles = StyleSheet.create({
         zIndex: 100,
         elevation: 10,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: hp(0.5)},
+        shadowOffset: { width: 0, height: hp(0.5) },
         shadowOpacity: 0.2,
         shadowRadius: wp(3),
     },
@@ -175,7 +161,7 @@ const styles = StyleSheet.create({
         marginTop: hp(1.2),
         elevation: 2,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: hp(0.3)},
+        shadowOffset: { width: 0, height: hp(0.3) },
         shadowOpacity: 0.1,
         shadowRadius: wp(2),
     },
@@ -190,6 +176,10 @@ const styles = StyleSheet.create({
         color: 'black',
     },
 });
+
+
+
+
 
 
 export default SearchBars;
