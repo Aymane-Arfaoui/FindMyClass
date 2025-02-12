@@ -21,6 +21,7 @@ const Welcome = () => {
     iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
     androidClientId: '794159243993-iafmbeen4qjbe6tsmba1khj7qlsrrd1a.apps.googleusercontent.com',
     scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly']
+
   });
 
   const router = useRouter();
