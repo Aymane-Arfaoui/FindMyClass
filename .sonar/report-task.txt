@@ -1,0 +1,7 @@
+organization=aymane-arfaoui
+projectKey=Aymane-Arfaoui_FindMyClass
+serverUrl=https://sonarcloud.io
+serverVersion=8.0.0.59623
+dashboardUrl=https://sonarcloud.io/dashboard?id=Aymane-Arfaoui_FindMyClass
+ceTaskId=AZT8oHSsA8FUbEeR9zcR
+ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZT8oHSsA8FUbEeR9zcR
