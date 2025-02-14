@@ -37,13 +37,6 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
-      ],
-      [
-        "@rnmapbox/maps",
-        {
-          "RNMapboxMapsVersion": "10.0.0",
-          "RNMapboxMapsDownloadToken": "YOUR_MAPBOX_DOWNLOAD_TOKEN"
-        }
       ]
     ],
     "experiments": {
