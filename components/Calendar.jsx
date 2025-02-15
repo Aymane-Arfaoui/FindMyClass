@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
 import { theme } from '../constants/theme';
@@ -6,52 +6,79 @@ import { hp } from '../helpers/common';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Calendar = ({ events: propEvents }) => {
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    const [events, setEvents] = useState([]);
     const router = useRouter();
+    const [events, setEvents] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(getLocalDate());
 
     useEffect(() => {
+        loadEvents();
+    }, [propEvents]);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadEvents();
+        }, [])
+    );
+
+    function getLocalDate() {
+        return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+    }
+
+    const loadEvents = async () => {
         if (propEvents && propEvents.length > 0) {
             setEvents(propEvents);
         } else {
-            loadEventsFromStorage();
-        }
-    }, [propEvents]);
-
-    const loadEventsFromStorage = async () => {
-        const storedEvents = await AsyncStorage.getItem("@calendar");
-        if (storedEvents) {
-            setEvents(JSON.parse(storedEvents));
+            const storedEvents = await AsyncStorage.getItem("@calendar");
+            if (storedEvents) {
+                setEvents(JSON.parse(storedEvents));
+            }
         }
     };
 
-    // Marked dates logic
     const markedDates = events.reduce((acc, event) => {
-        const date = new Date(event.start?.dateTime || event.start?.date)
-            .toISOString()
-            .split('T')[0];
+        const eventDate = event.start?.dateTime
+            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
+            : event.start?.date;
 
-        acc[date] = {
-            marked: true,
-            dotColor: theme.colors.primary,
-            selected: date === selectedDate,
-            selectedColor: theme.colors.lightPrimary,
-        };
+        if (eventDate) {
+            acc[eventDate] = {
+                marked: true,
+                dotColor: theme.colors.primary,
+            };
+        }
         return acc;
     }, {});
 
+    if (selectedDate) {
+        markedDates[selectedDate] = {
+            ...markedDates[selectedDate],
+            selected: true,
+            selectedColor: theme.colors.lightPrimary,
+        };
+    }
+
     const selectedDateEvents = events.filter(event => {
-        const eventDate = new Date(event.start?.dateTime || event.start?.date)
-            .toISOString()
-            .split('T')[0];
+        const eventDate = event.start?.dateTime
+            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
+            : event.start?.date;
+
         return eventDate === selectedDate;
     });
 
+    const formattedSelectedDate = new Intl.DateTimeFormat(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }).format(new Date(selectedDate + 'T00:00:00'));
+
     return (
         <View style={styles.container}>
-            {/* Header */}
+
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
@@ -60,8 +87,8 @@ const Calendar = ({ events: propEvents }) => {
                 <View style={{ width: 24 }} />
             </View>
 
-            {/* Calendar */}
             <RNCalendar
+                current={getLocalDate()}
                 markedDates={markedDates}
                 onDayPress={(day) => setSelectedDate(day.dateString)}
                 theme={{
@@ -71,19 +98,17 @@ const Calendar = ({ events: propEvents }) => {
                 }}
             />
 
-            {/* Events for selected date */}
             <View style={styles.eventsContainer}>
                 <Text style={styles.dateHeader}>
-                    {new Date(selectedDate).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                    })}
+                    {formattedSelectedDate}
                 </Text>
                 {selectedDateEvents.length > 0 ? (
                     selectedDateEvents.map((event, index) => (
-                        <View key={index} style={styles.eventCard}>
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.eventCard}
+                            onPress={() => handleEventPress(event)}
+                        >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
                                     {event.start?.dateTime
@@ -100,7 +125,7 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventLocation}>{event.location}</Text>
                                 )}
                             </View>
-                        </View>
+                        </TouchableOpacity>
                     ))
                 ) : (
                     <View style={styles.noEventsContainer}>
@@ -110,6 +135,11 @@ const Calendar = ({ events: propEvents }) => {
             </View>
         </View>
     );
+};
+
+const handleEventPress = (event) => {
+    alert(`Get directions to: ${event.location}`);
+    // need to add logic here soon
 };
 
 const styles = StyleSheet.create({
