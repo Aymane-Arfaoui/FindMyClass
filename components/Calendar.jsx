@@ -7,24 +7,20 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import {fetchBuildingCoordinates} from "@/services/buildingService";
 
 const Calendar = ({ events: propEvents }) => {
     const router = useRouter();
     const [events, setEvents] = useState([]);
     const [selectedDate, setSelectedDate] = useState(getLocalDate());
+    const [activeEvent, setActiveEvent] = useState(null);
 
     useEffect(() => {
         loadEvents();
     }, [propEvents]);
 
-    useFocusEffect(
-        useCallback(() => {
-            loadEvents();
-        }, [])
-    );
-
     function getLocalDate() {
-        return new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+        return new Date().toLocaleDateString('en-CA');
     }
 
     const loadEvents = async () => {
@@ -76,9 +72,34 @@ const Calendar = ({ events: propEvents }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date(selectedDate + 'T00:00:00'));
 
+    const handleGetDirections = async (event) => {
+        if (!event.location) {
+            console.warn("No location available for this event.");
+            return;
+        }
+
+        console.log(`Fetching directions for: ${event.location}`);
+
+        try {
+            const coordinates = await fetchBuildingCoordinates(event.location);
+            const roomNumber = event.location.split('Rm')[1]?.trim();
+
+            if (coordinates) {
+                console.log(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
+                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
+            } else {
+                console.error("Failed to fetch building coordinates.");
+            }
+        } catch (error) {
+            console.error('Error fetching building coordinates:', error);
+        }
+    };
+    const handleEventPress = (event) => {
+        setActiveEvent(activeEvent === event ? null : event);
+    };
+
     return (
         <View style={styles.container}>
-
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
@@ -125,6 +146,16 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventLocation}>{event.location}</Text>
                                 )}
                             </View>
+
+                            {activeEvent === event && (
+                                <TouchableOpacity
+                                    style={styles.directionButton}
+                                    onPress={() => handleGetDirections(event)}
+                                >
+                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                    <Text style={styles.directionButtonText}>Get Directions</Text>
+                                </TouchableOpacity>
+                            )}
                         </TouchableOpacity>
                     ))
                 ) : (
@@ -135,11 +166,6 @@ const Calendar = ({ events: propEvents }) => {
             </View>
         </View>
     );
-};
-
-const handleEventPress = (event) => {
-    alert(`Get directions to: ${event.location}`);
-    // need to add logic here soon
 };
 
 const styles = StyleSheet.create({
@@ -191,6 +217,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     eventTimeContainer: {
         width: hp(8),
@@ -214,6 +242,20 @@ const styles = StyleSheet.create({
         fontSize: hp(1.6),
         color: theme.colors.dark,
         opacity: 0.7,
+    },
+    directionButton: {
+        backgroundColor: theme.colors.primary,
+        paddingVertical: hp(1),
+        paddingHorizontal: hp(2),
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: hp(2),
+    },
+    directionButtonText: {
+        color: theme.colors.white,
+        fontSize: hp(1.7),
+        marginLeft: hp(1),
     },
     noEventsContainer: {
         padding: hp(3),

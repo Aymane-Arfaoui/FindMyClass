@@ -40,10 +40,11 @@ const Home = () => {
     try {
       const location = event.location;
       const buildingCode = location?.split('-')[0];
+      const room = location?.split(' ')[location?.split(' ').length - 1]; // Extract room number
       if (buildingCode) {
         const coordinates = await fetchBuildingCoordinates(buildingCode);
         if (coordinates) {
-          router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}`);
+          router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${room}`);
         }
       }
     } catch (error) {
