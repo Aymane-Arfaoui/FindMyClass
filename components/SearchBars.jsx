@@ -1,113 +1,185 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, TouchableOpacity } from 'react-native';
-import Icon from "react-native-vector-icons/FontAwesome";
-import { theme } from "@/constants/theme";
-import {useRouter} from "expo-router";
+import React, { useEffect, useState } from 'react';
+import {
+    View,
+    TextInput,
+    TouchableOpacity,
+    StyleSheet,
+    Platform,
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from '@/constants/theme';
+import { hp, wp } from '../helpers/common';
+import TransportOptions from "@/components/TransportOptions";
 
-const SearchBars = () => {
-    const [location1, setLocation1] = useState('1455 Blvd. De Maisonneuve Ouest');
-    const [location2, setLocation2] = useState('Concordia University - Loyola Campus');
 
-    const swapLocations = () => {
-        const temp = location1;
-        setLocation1(location2);
-        setLocation2(temp);
+const GOOGLE_API_KEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
+
+const SearchBars = ({ currentLocation, destination, onBackPress }) => {
+    const [startLocation, setStartLocation] = useState('Fetching current location...');
+    const [endLocation, setEndLocation] = useState(destination || 'Destination');
+    const [modeSelected, setModeSelected] = useState('walking');
+
+
+    useEffect(() => {
+        if (currentLocation?.geometry?.coordinates) {
+            const [lng, lat] = currentLocation.geometry.coordinates;
+            fetch(
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.results.length > 0) {
+                        setStartLocation(data.results[0].formatted_address);
+                    } else {
+                        setStartLocation('Unable to fetch address');
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching address:', error);
+                    setStartLocation('Unable to fetch address');
+                });
+        }
+    }, [currentLocation]);
+
+
+    const fetchRoutesData = async (origin, destination) => {
+        const modes = ['driving', 'transit', 'walking', 'bicycling'];
+        const updatedTravelTimes = {};
+
+        await Promise.all(
+            modes.map(async (mode) => {
+                try {
+                    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${GOOGLE_API_KEY}`);
+                    const data = await response.json();
+
+                    if (data.routes.length > 0) {
+                        updatedTravelTimes[mode] = data.routes[0].legs[0].duration.text;
+                    } else {
+                        updatedTravelTimes[mode] = 'N/A';
+                    }
+                } catch (error) {
+                    console.error(`Error fetching ${mode} route:`, error);
+                    updatedTravelTimes[mode] = 'Error';
+                }
+            })
+        );
+
+        return updatedTravelTimes;
     };
 
-    const router = useRouter();
-    const handleGoBack = () => {
-        router.back();
+    const handleAddressChange = (text, isStart) => {
+        if (text.length > 2) {
+            fetch(
+                `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${GOOGLE_API_KEY}`
+            )
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.predictions) {
+                        setSuggestions(data.predictions);
+                    }
+                });
+        } else {
+            setSuggestions([]);
+        }
+
+        isStart ? setStartLocation(text) : setEndLocation(text);
+    };
+
+    const handleSuggestionSelect = (suggestion, isStart) => {
+        isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
+        setSuggestions([]);
     };
 
     return (
+        <View style={styles.container}>
 
-        <View style={styles.locationContainer}>
-            <TouchableOpacity testID={'go-back-button-SearchBarComponent'} onPress={handleGoBack}>
-                <Icon name="chevron-left" size={20} color={theme.colors.white} style={styles.chevronLeft}  />
+            <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+                <Ionicons name="chevron-back" size={26} color="white" />
             </TouchableOpacity>
-            <View testID={'map-marker-SearchBarComponent'} style={styles.iconContainer}>
-                <Icon name="circle" size={12} color="#0970de" />
-                <View style={styles.dottedLine} />
-                <Icon name="map-marker" size={16} color={theme.colors.white} />
-            </View>
+
 
             <View style={styles.inputContainer}>
-                <TextInput testID={'source-input'}
-                    style={styles.locationTextInput}
-                    value={location1}
-                    onChangeText={setLocation1}
-                    placeholder="Enter Source Location"
-                    placeholderTextColor={theme.colors.white}
-                />
+                <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.icon} />
                 <TextInput
-                    testID={'destination-input'}
-                    style={styles.locationTextInput}
-                    value={location2}
-                    onChangeText={setLocation2}
-                    placeholder="Enter Destination Location"
-                    placeholderTextColor={theme.colors.white}
+                    style={styles.input}
+                    value={startLocation}
+                    onChangeText={(text) => handleAddressChange(text, true)}
+                    placeholder="Starting Point"
                 />
             </View>
 
-            <TouchableOpacity testID={'swap-location-button'} onPress={swapLocations} style={styles.swapButton}>
-                <Icon name="exchange" size={20} color={theme.colors.white} />
-            </TouchableOpacity>
+
+            <View style={styles.inputContainer}>
+                <Ionicons name="location-sharp" size={16} color={theme.colors.primary} style={styles.icon} />
+                <TextInput
+                    style={styles.input}
+                    value={endLocation}
+                    onChangeText={(text) => handleAddressChange(text, false)}
+                    placeholder="Destination"
+                />
+            </View>
+            <TransportOptions modeSelected={modeSelected} setModeSelected={setModeSelected} />
+
         </View>
     );
 };
-
 const styles = StyleSheet.create({
-    icon: {
-        marginRight: 10,
-    },
-    iconContainer: {
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginRight: 10,
-    },
-    locationContainer: {
+    container: {
         backgroundColor: theme.colors.primary,
-        padding: 16,
+        paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
+        paddingHorizontal: wp(4),
+        paddingBottom: hp(1),
+        borderBottomLeftRadius: wp(6),
+        borderBottomRightRadius: wp(6),
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        elevation: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: hp(0.5) },
+        shadowOpacity: 0.2,
+        shadowRadius: wp(3),
+    },
+
+    backButton: {
+        position: 'absolute',
+        top: Platform.OS === 'ios' ? hp(6) : hp(5),
+        left: wp(2),
+        padding: wp(1),
+        borderRadius: wp(5),
+    },
+
+    inputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-    },
-    locationTextInput: {
-        backgroundColor: 'transparent',
-        borderColor: theme.colors.white,
-        borderWidth: 1,
-        padding: 10,
-        borderRadius: 10,
-        marginBottom: 10,
-        fontSize: 16,
-        color: theme.colors.white,
-    },
-    inputContainer: {
-        flex: 1,
-        justifyContent: 'space-between',
-    },
-    swapButton: {
-        marginLeft: 10,
-    },
-    dottedLine: {
-        width: 1,
-        height: 35,
-        borderStyle: 'dotted',
-        borderWidth: 1.5,
-        borderColor: theme.colors.white,
-        marginVertical: 4,
-    },
-    dottedLineContainer: {
-        position: 'absolute',
-        left: 25,
-        top: 50,
-        bottom: 50,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    chevronLeft: {
-        marginTop: -70,
+        backgroundColor: 'white',
+        paddingVertical: hp(1.5),
+        paddingHorizontal: wp(3),
+        borderRadius: wp(4),
+        marginTop: hp(1.2),
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: hp(0.3) },
+        shadowOpacity: 0.1,
+        shadowRadius: wp(2),
     },
 
+    icon: {
+        marginRight: wp(2),
+    },
+
+    input: {
+        flex: 1,
+        fontSize: hp(1.8),
+        color: 'black',
+    },
 });
+
+
+
+
+
 
 export default SearchBars;

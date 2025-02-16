@@ -38,7 +38,6 @@ const Calendar = ({ events: propEvents }) => {
         const eventDate = event.start?.dateTime
             ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
             : event.start?.date;
-
         if (eventDate) {
             acc[eventDate] = {
                 marked: true,
@@ -98,6 +97,13 @@ const Calendar = ({ events: propEvents }) => {
         setActiveEvent(activeEvent === event ? null : event);
     };
 
+    const selectedDateEvents = events.filter(event => {
+        const eventDate = new Date(event.start?.dateTime || event.start?.date)
+            .toISOString()
+            .split('T')[0];
+        return eventDate === selectedDate;
+    });
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -107,7 +113,6 @@ const Calendar = ({ events: propEvents }) => {
                 <Text style={styles.headerTitle}>Calendar</Text>
                 <View style={{ width: 24 }} />
             </View>
-
             <RNCalendar
                 current={getLocalDate()}
                 markedDates={markedDates}
@@ -118,7 +123,6 @@ const Calendar = ({ events: propEvents }) => {
                     arrowColor: theme.colors.primary,
                 }}
             />
-
             <View style={styles.eventsContainer}>
                 <Text style={styles.dateHeader}>
                     {formattedSelectedDate}
@@ -146,7 +150,6 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventLocation}>{event.location}</Text>
                                 )}
                             </View>
-
                             {activeEvent === event && (
                                 <TouchableOpacity
                                     style={styles.directionButton}

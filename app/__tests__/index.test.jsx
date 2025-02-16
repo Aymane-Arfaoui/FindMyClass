@@ -11,10 +11,10 @@ jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 describe('Index Component', () => {
 
     it('should render the text and button correctly',  async () => {
-        render(<Index/>);
+        const { unmount } =render(<Index/>);
         expect(await screen.findByTestId("index-image")).toBeOnTheScreen();
 
-
+        unmount();
     });
 
     it('should call the router after some time',  () => {

@@ -9,17 +9,18 @@ describe('LiveLocationButton Component', () => {
         }
     );
     it('should render correctly',  () => {
-        render(<LiveLocationButton />);
+        const { unmount } = render(<LiveLocationButton />);
         expect(screen.getByTestId('live-location-button')).toBeOnTheScreen();
+        unmount();
     });
 
     it('should trigger a function if pressed',  async () => {
         const mockFun = jest.fn();
-        render(<LiveLocationButton  onPress={() => mockFun()}/>);
+        const { unmount } =render(<LiveLocationButton  onPress={() => mockFun()}/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('live-location-button'));
         expect(mockFun).toBeCalled();
 
-
+        unmount();
     });
 });
