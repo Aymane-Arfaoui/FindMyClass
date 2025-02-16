@@ -97,13 +97,6 @@ const Calendar = ({ events: propEvents }) => {
         setActiveEvent(activeEvent === event ? null : event);
     };
 
-    const selectedDateEvents = events.filter(event => {
-        const eventDate = new Date(event.start?.dateTime || event.start?.date)
-            .toISOString()
-            .split('T')[0];
-        return eventDate === selectedDate;
-    });
-
     return (
         <View style={styles.container}>
             <View style={styles.header}>
