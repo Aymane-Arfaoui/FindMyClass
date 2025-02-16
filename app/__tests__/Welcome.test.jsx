@@ -1,13 +1,8 @@
 import Welcome from '../Welcome.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import {Stack,useRouter, useSegments} from 'expo-router';
-import {AuthProvider} from "@/context/auth";
-import react from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import useAuthRequest from 'expo-auth-session/providers/google';
-import { getUserInfo } from '../../services/userService'
-import { getCalendarEvents } from '../../services/calendarService'
-import LiveLocationButton from "@/components/LiveLocationButton";
+
+import { getUserInfo } from '../../services/userService';
 jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 let mockFun=jest.fn();
 jest.mock('expo-auth-session/providers/google', ()=> (
@@ -42,10 +37,16 @@ describe('Welcome Component', () => {
     });
 
     it('should trigger a function if login with google button is pressed',  async () => {
-        render(<Welcome/>);
+
         const user = userEvent.setup();
+        const { unmount } =render(<Welcome/>);
+
         await user.press(screen.getByTestId('Google-login'));
-        expect(mockFun).toBeCalled();
+
+        await waitFor(async ()=>{
+            expect(mockFun).toBeCalled();
+        });
+        unmount();
 
 
     });
@@ -58,20 +59,22 @@ describe('Welcome Component', () => {
     it('should reroute to /homemap if GET STARTED button is pressed',  async () => {
         const mock={push:jest.fn()};
         useRouter.mockReturnValue(mock);
-        render(<Welcome/>);
+        const { unmount } =render(<Welcome/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('welcome-button'));
-        expect(mock.push).toHaveBeenCalledWith('/homemap');
+        await waitFor(()=>{expect(mock.push).toHaveBeenCalledWith('/homemap');});
+        unmount();
     });
 
     it('should reroute to /home if user sign-in is successful',   async () => {
         const mock = {replace: jest.fn()};
         useRouter.mockReturnValue(mock);
         getUserInfo.mockReturnValue("user")
-        render(<Welcome/>);
+        const { unmount } =render(<Welcome/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('Google-login'));
-        expect(mock.replace).toHaveBeenCalledWith('/home');
+        await waitFor(()=>{expect(mock.replace).toHaveBeenCalledWith('/home');});
+        unmount();
     });
 
 });
