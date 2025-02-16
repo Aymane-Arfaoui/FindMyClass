@@ -12,7 +12,7 @@ app.use(cors());
 
 app.get('/api/buildinglist', async (req, res) => {
     try {
-        console.log('Fetching building list from Concordia API...');
+        console.warn('Fetching building list from Concordia API...');
         const response = await axios.get('https://opendata.concordia.ca/API/v1/facilities/buildinglist/', {
             auth: {
                 username: API_USER,
@@ -23,7 +23,7 @@ app.get('/api/buildinglist', async (req, res) => {
             }
         });
 
-        console.log('API response received:', response.status);
+        console.warn('API response received:', response.status);
         res.json(response.data);
     } catch (error) {
         if (error.response) {
@@ -37,5 +37,5 @@ app.get('/api/buildinglist', async (req, res) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
+    console.warn(`Server running on http://localhost:${PORT}`);
 });

@@ -77,14 +77,14 @@ const Calendar = ({ events: propEvents }) => {
             return;
         }
 
-        console.log(`Fetching directions for: ${event.location}`);
+        console.warn(`Fetching directions for: ${event.location}`);
 
         try {
             const coordinates = await fetchBuildingCoordinates(event.location);
             const roomNumber = event.location.split('Rm')[1]?.trim();
 
             if (coordinates) {
-                console.log(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
+                console.warn(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
                 router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
             } else {
                 console.error("Failed to fetch building coordinates.");
