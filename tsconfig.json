@@ -13,8 +13,7 @@
     "**/*.js",
     "**/*.jsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "@env.d.ts"
+    "expo-env.d.ts"
   ],
   "expo": {
     "plugins": [

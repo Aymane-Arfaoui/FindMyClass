@@ -1,7 +1,8 @@
 import { getNextShuttleTime, getShuttleTravelTime } from './shuttleService';
 import axios from 'axios';
 import polyline from '@mapbox/polyline';
-import { GOOGLE_MAPS_API_KEY } from '@env';
+const GOOGLE_MAPS_API_KEY = 'AIzaSyAPdmd0FumLk8snfLYCijEEMAMsitIHoAg'
+
 export const fetchRoutes = async (origin, destination, mode) => {
     try {
         if (!origin || !destination) throw new Error("Invalid origin or destination");
@@ -83,3 +84,4 @@ const fetchShuttleRoute = async (origin, destination) => {
         return [];
     }
 };
+
