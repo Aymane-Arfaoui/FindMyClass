@@ -3,9 +3,7 @@ import {StyleSheet, Text, View} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from "@/constants/theme";
-
-
-const GOOGLE_MAPS_APIKEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
+import { GOOGLE_PLACES_API_KEY } from '@env';
 
 const SearchBar = ({onLocationSelect, onBuildingPress}) => {
     const googleRef = useRef(null);
@@ -32,7 +30,7 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
                 }}
 
                 query={{
-                    key: GOOGLE_MAPS_APIKEY,
+                    key: GOOGLE_PLACES_API_KEY,
                     language: 'en',
                     components: 'country:CA',
                     types: 'establishment',

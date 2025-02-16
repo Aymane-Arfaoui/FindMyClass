@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
 import { theme } from '../constants/theme';
@@ -6,41 +6,96 @@ import { hp } from '../helpers/common';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import {fetchBuildingCoordinates} from "@/services/buildingService";
 
 const Calendar = ({ events: propEvents }) => {
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
-    const [events, setEvents] = useState([]);
     const router = useRouter();
+    const [events, setEvents] = useState([]);
+    const [selectedDate, setSelectedDate] = useState(getLocalDate());
+    const [activeEvent, setActiveEvent] = useState(null);
 
     useEffect(() => {
+        loadEvents();
+    }, [propEvents]);
+
+    function getLocalDate() {
+        return new Date().toLocaleDateString('en-CA');
+    }
+
+    const loadEvents = async () => {
         if (propEvents && propEvents.length > 0) {
             setEvents(propEvents);
         } else {
-            loadEventsFromStorage();
-        }
-    }, [propEvents]);
-
-    const loadEventsFromStorage = async () => {
-        const storedEvents = await AsyncStorage.getItem("@calendar");
-        if (storedEvents) {
-            setEvents(JSON.parse(storedEvents));
+            const storedEvents = await AsyncStorage.getItem("@calendar");
+            if (storedEvents) {
+                setEvents(JSON.parse(storedEvents));
+            }
         }
     };
 
-    // Marked dates logic
     const markedDates = events.reduce((acc, event) => {
-        const date = new Date(event.start?.dateTime || event.start?.date)
-            .toISOString()
-            .split('T')[0];
-
-        acc[date] = {
-            marked: true,
-            dotColor: theme.colors.primary,
-            selected: date === selectedDate,
-            selectedColor: theme.colors.lightPrimary,
-        };
+        const eventDate = event.start?.dateTime
+            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
+            : event.start?.date;
+        if (eventDate) {
+            acc[eventDate] = {
+                marked: true,
+                dotColor: theme.colors.primary,
+            };
+        }
         return acc;
     }, {});
+
+    if (selectedDate) {
+        markedDates[selectedDate] = {
+            ...markedDates[selectedDate],
+            selected: true,
+            selectedColor: theme.colors.lightPrimary,
+        };
+    }
+
+    const selectedDateEvents = events.filter(event => {
+        const eventDate = event.start?.dateTime
+            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
+            : event.start?.date;
+
+        return eventDate === selectedDate;
+    });
+
+    const formattedSelectedDate = new Intl.DateTimeFormat(undefined, {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    }).format(new Date(selectedDate + 'T00:00:00'));
+
+    const handleGetDirections = async (event) => {
+        if (!event.location) {
+            console.warn("No location available for this event.");
+            return;
+        }
+
+        console.log(`Fetching directions for: ${event.location}`);
+
+        try {
+            const coordinates = await fetchBuildingCoordinates(event.location);
+            const roomNumber = event.location.split('Rm')[1]?.trim();
+
+            if (coordinates) {
+                console.log(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
+                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
+            } else {
+                console.error("Failed to fetch building coordinates.");
+            }
+        } catch (error) {
+            console.error('Error fetching building coordinates:', error);
+        }
+    };
+    const handleEventPress = (event) => {
+        setActiveEvent(activeEvent === event ? null : event);
+    };
 
     const selectedDateEvents = events.filter(event => {
         const eventDate = new Date(event.start?.dateTime || event.start?.date)
@@ -51,7 +106,6 @@ const Calendar = ({ events: propEvents }) => {
 
     return (
         <View style={styles.container}>
-            {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
@@ -59,9 +113,8 @@ const Calendar = ({ events: propEvents }) => {
                 <Text style={styles.headerTitle}>Calendar</Text>
                 <View style={{ width: 24 }} />
             </View>
-
-            {/* Calendar */}
             <RNCalendar
+                current={getLocalDate()}
                 markedDates={markedDates}
                 onDayPress={(day) => setSelectedDate(day.dateString)}
                 theme={{
@@ -70,20 +123,17 @@ const Calendar = ({ events: propEvents }) => {
                     arrowColor: theme.colors.primary,
                 }}
             />
-
-            {/* Events for selected date */}
             <View style={styles.eventsContainer}>
                 <Text style={styles.dateHeader}>
-                    {new Date(selectedDate).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        year: 'numeric',
-                        month: 'long',
-                        day: 'numeric',
-                    })}
+                    {formattedSelectedDate}
                 </Text>
                 {selectedDateEvents.length > 0 ? (
                     selectedDateEvents.map((event, index) => (
-                        <View key={index} style={styles.eventCard}>
+                        <TouchableOpacity
+                            key={index}
+                            style={styles.eventCard}
+                            onPress={() => handleEventPress(event)}
+                        >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
                                     {event.start?.dateTime
@@ -100,7 +150,16 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventLocation}>{event.location}</Text>
                                 )}
                             </View>
-                        </View>
+                            {activeEvent === event && (
+                                <TouchableOpacity
+                                    style={styles.directionButton}
+                                    onPress={() => handleGetDirections(event)}
+                                >
+                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                    <Text style={styles.directionButtonText}>Get Directions</Text>
+                                </TouchableOpacity>
+                            )}
+                        </TouchableOpacity>
                     ))
                 ) : (
                     <View style={styles.noEventsContainer}>
@@ -161,6 +220,8 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     eventTimeContainer: {
         width: hp(8),
@@ -184,6 +245,20 @@ const styles = StyleSheet.create({
         fontSize: hp(1.6),
         color: theme.colors.dark,
         opacity: 0.7,
+    },
+    directionButton: {
+        backgroundColor: theme.colors.primary,
+        paddingVertical: hp(1),
+        paddingHorizontal: hp(2),
+        borderRadius: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginLeft: hp(2),
+    },
+    directionButtonText: {
+        color: theme.colors.white,
+        fontSize: hp(1.7),
+        marginLeft: hp(1),
     },
     noEventsContainer: {
         padding: hp(3),

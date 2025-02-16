@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View, Image, ScrollView } from 'react-native'
+import {StyleSheet, Text, View, Image, ScrollView, TouchableOpacity} from 'react-native'
 import React from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import { StatusBar } from 'expo-status-bar'
@@ -7,6 +7,9 @@ import { theme } from '../constants/theme'
 import { hp } from '../helpers/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useRouter } from 'expo-router'
+import {fetchBuildingCoordinates} from "@/services/routeService";
+import {Ionicons} from "@expo/vector-icons";
+import Calendar from "@/components/Calendar";
 
 const Home = () => {
   const [userInfo, setUserInfo] = React.useState(null);
@@ -33,73 +36,176 @@ const Home = () => {
     router.replace("/");
   };
 
-  return (
-    <ScreenWrapper>
-      <StatusBar style='dark' />
-      <ScrollView 
-        contentContainerStyle={styles.contentContainerStyle}
-        style={styles.container}
-      >
-        <View style={styles.header}>
-          <Text style={styles.appName}>FindMyClass</Text>
-          <Button
-            title="Sign Out" 
-            onPress={handleSignOut}
-            buttonStyle={styles.signOutButton}
-            textStyle={styles.signOutText}
-          />
-        </View>
-        
-        {userInfo && (
-          <>
-            <View style={styles.userCard} testID={'user-card'}>
-              {userInfo.picture && (
-                <Image
-                    testID={'user-picture'}
-                  source={{ uri: userInfo.picture }} 
-                  style={styles.userImage}
-                />
-              )}
-              <View style={styles.userInfo}>
-                <Text style={styles.userName}>{userInfo.name}</Text>
-                <Text style={styles.userEmail}>{userInfo.email}</Text>
-              </View>
-            </View>
+  const handleClassSelect = async (event) => {
+    try {
+      const location = event.location;
+      const buildingCode = location?.split('-')[0];
+      const room = location?.split(' ')[location?.split(' ').length - 1]; // Extract room number
+      if (buildingCode) {
+        const coordinates = await fetchBuildingCoordinates(buildingCode);
+        if (coordinates) {
+          router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${room}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error selecting class:', error);
+    }
+  };
 
-            <View style={styles.calendarContainer} testID={'calendar-events'}>
-              <Text style={styles.sectionTitle}>Upcoming Events</Text>
-              {calendarEvents.map((event, index) => (
-                <View key={index} style={styles.eventCard}>
-                  <Text style={styles.eventTitle}>{event.summary}</Text>
-                  <Text style={styles.eventTime}>
-                    {new Date(event.start?.dateTime || event.start?.date).toLocaleDateString()}
-                  </Text>
+  const todayEvents = React.useMemo(() => {
+    const today = new Date().toISOString().split('T')[0];
+    return calendarEvents.filter(event => {
+      const eventDate = new Date(event.start?.dateTime || event.start?.date).toISOString().split('T')[0];
+      return eventDate === today;
+    });
+  }, [calendarEvents]);
+
+  return (
+      <ScreenWrapper>
+        <StatusBar style='dark' />
+        <ScrollView contentContainerStyle={styles.contentContainerStyle} style={styles.container}>
+          {userInfo && (
+              <>
+                <View style={styles.header}>
+                  <View style={styles.userCard}>
+                    {userInfo.picture && (
+                        <Image source={{ uri: userInfo.picture }} style={styles.userImage} />
+                    )}
+                    <View style={styles.userInfo}>
+                      <Text style={styles.welcomeText}>Welcome back,</Text>
+                      <Text style={styles.userName}>{userInfo.given_name}</Text>
+                    </View>
+                  </View>
                 </View>
-              ))}
+
+                <View style={styles.quickActions}>
+                  <TouchableOpacity
+                      style={styles.actionCard}
+                      onPress={() => router.push("/calendar")}
+                  >
+                    <View style={styles.actionIconContainer}>
+                      <Ionicons name="calendar" size={24} color={theme.colors.primary} />
+                    </View>
+                    <Text style={styles.actionTitle}>Calendar</Text>
+                    <Text style={styles.actionSubtitle}>{todayEvents.length} events today</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <Calendar events={calendarEvents} onClassSelect={handleClassSelect} />
+              </>
+          )}
+        </ScrollView>
+
+        {userInfo && (
+            <View style={styles.bottomContainer}>
+              <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
+                <View style={styles.signOutContainer}>
+                  <Ionicons name="log-out-outline" size={24} color="#fff" />
+                  <Text style={styles.signOutText}>Sign Out</Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          </>
         )}
-      </ScrollView>
-    </ScreenWrapper>
+      </ScreenWrapper>
   )
 }
 
-export default Home
+export default Home;
 
 const styles = StyleSheet.create({
-  // ... copy existing styles from Welcome.jsx ...
+  container: {
+    flex: 1,
+  },
+  contentContainerStyle: {
+    padding: hp(2),
+  },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(2),
-    paddingHorizontal: hp(2),
+    marginBottom: hp(3),
+  },
+  userCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  userImage: {
+    width: hp(6),
+    height: hp(6),
+    borderRadius: hp(3),
+    marginRight: hp(2),
+  },
+  userInfo: {
+    flex: 1,
+  },
+  welcomeText: {
+    fontSize: hp(1.8),
+    color: theme.colors.dark,
+    opacity: 0.7,
+  },
+  userName: {
+    fontSize: hp(2.4),
+    fontWeight: 'bold',
+    color: theme.colors.dark,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    marginBottom: hp(3),
+  },
+  actionCard: {
+    backgroundColor: '#fff',
+    padding: hp(2),
+    borderRadius: 15,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 2},
+    shadowOpacity: 0.1,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: '48%',
+  },
+  actionIconContainer: {
+    width: hp(5),
+    height: hp(5),
+    borderRadius: hp(2.5),
+    backgroundColor: theme.colors.lightPrimary,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: hp(1),
+  },
+  actionTitle: {
+    fontSize: hp(2),
+    fontWeight: '600',
+    color: theme.colors.dark,
+    marginBottom: hp(0.5),
+  },
+  actionSubtitle: {
+    fontSize: hp(1.6),
+    color: theme.colors.dark,
+    opacity: 0.7,
+  },
+  bottomContainer: {
+    padding: hp(2),
+    paddingBottom: hp(4),
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.lightGray,
   },
   signOutButton: {
-    backgroundColor: 'transparent',
-    paddingHorizontal: hp(2),
+    backgroundColor: theme.colors.primary,
+    padding: hp(1.5),
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  signOutContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   signOutText: {
-    color: theme.colors.dark,
-  }
-}); 
+    marginLeft: hp(1),
+    fontSize: hp(1.8),
+    color: '#fff',
+    fontWeight: '600',
+  },
+});
