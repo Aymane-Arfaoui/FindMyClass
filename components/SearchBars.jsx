@@ -10,9 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import { hp, wp } from '../helpers/common';
 import TransportOptions from "@/components/TransportOptions";
-
-
-const GOOGLE_API_KEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
+import { GOOGLE_PLACES_API_KEY } from '@env';
 
 const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     const [startLocation, setStartLocation] = useState('Fetching current location...');
@@ -24,7 +22,7 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
         if (currentLocation?.geometry?.coordinates) {
             const [lng, lat] = currentLocation.geometry.coordinates;
             fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_API_KEY}`
+                `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`
             )
                 .then((response) => response.json())
                 .then((data) => {
@@ -49,7 +47,7 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
         await Promise.all(
             modes.map(async (mode) => {
                 try {
-                    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${GOOGLE_API_KEY}`);
+                    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${GOOGLE_PLACES_API_KEY}`);
                     const data = await response.json();
 
                     if (data.routes.length > 0) {
@@ -70,7 +68,7 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     const handleAddressChange = (text, isStart) => {
         if (text.length > 2) {
             fetch(
-                `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${GOOGLE_API_KEY}`
+                `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${text}&key=${GOOGLE_PLACES_API_KEY}`
             )
                 .then((response) => response.json())
                 .then((data) => {
