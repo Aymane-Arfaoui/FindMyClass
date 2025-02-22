@@ -29,11 +29,14 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
+      - name: 🗑 Clear npm Cache
+        run: npm cache clean --force
+
       - name: 🧪 Run Tests with Coverage (Ensure It Runs)
         id: test_coverage
         run: |
           echo "Running tests to generate coverage..."
-          npm run test:ci
+          npm run test:ci -- --verbose
         continue-on-error: true
 
       - name: 🛠 Debug Coverage Files
@@ -54,6 +57,7 @@ jobs:
             -Dsonar.organization=aymane-arfaoui
             -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass
             -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
-            -Dsonar.exclusions=app/__tests__/**,components/__tests__/**
+            -Dsonar.exclusions=**/__tests__/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
             -Dsonar.coverage.exclusions=**/__tests__/**
+            -Dsonar.verbose=true

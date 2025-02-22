@@ -1,7 +1,9 @@
 module.exports = {
     preset: "jest-expo",
+    rootDir: "./",
     collectCoverage: true,
     coverageDirectory: "coverage",
+    testEnvironment: "node",
     collectCoverageFrom: [
         "Config/**/*.{js,jsx,ts,tsx}",
         "api/**/*.{js,jsx,ts,tsx}",
