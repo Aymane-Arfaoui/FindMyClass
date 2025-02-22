@@ -26,12 +26,13 @@ const MapButtons = ({onPress}) => {
     };
 
     return (
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer} testID={'map-buttons'}>
             {Object.keys(locations).map((location) => (
                 <TouchableOpacity
                     key={location}
                     style={[styles.button, selectedButton === location && styles.selectedButton]}
                     onPress={() => handlePress(location)}
+                    testID={location}
                 >
                     <Text style={[styles.buttonText, selectedButton === location && styles.selectedButtonText]}>
                         {location}

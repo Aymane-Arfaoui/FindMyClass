@@ -44,15 +44,16 @@ const Welcome = () => {
   return (
     <ScreenWrapper>
       <StatusBar style='dark' />
-      <View style={styles.container}>
-        <ImageBackground source={BackgroundImg} style={styles.backgroundImage}>
-        <View style={styles.contentContainer}>
+      <View style={styles.container} testID={'welcome'}>
+        <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
+        <View style={styles.contentContainer} testID={'welcome-title'}>
           <Text style={styles.welcomeTitle}>Welcome</Text>
           {/* <Text style={styles.appName}>FindMyClass</Text> */}
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
+              testID={'Google-login'}
             style={styles.googleButton} 
             onPress={() => promptAsync()} 
           >
@@ -65,7 +66,8 @@ const Welcome = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <TouchableOpacity 
+          <TouchableOpacity
+              testID={'welcome-button'}
             style={styles.welcomeButton}
             onPress={() => router.push("/homemap")}
           >

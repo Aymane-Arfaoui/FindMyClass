@@ -42,7 +42,7 @@ const Home = () => {
       >
         <View style={styles.header}>
           <Text style={styles.appName}>FindMyClass</Text>
-          <Button 
+          <Button
             title="Sign Out" 
             onPress={handleSignOut}
             buttonStyle={styles.signOutButton}
@@ -52,9 +52,10 @@ const Home = () => {
         
         {userInfo && (
           <>
-            <View style={styles.userCard}>
+            <View style={styles.userCard} testID={'user-card'}>
               {userInfo.picture && (
-                <Image 
+                <Image
+                    testID={'user-picture'}
                   source={{ uri: userInfo.picture }} 
                   style={styles.userImage}
                 />
@@ -65,7 +66,7 @@ const Home = () => {
               </View>
             </View>
 
-            <View style={styles.calendarContainer}>
+            <View style={styles.calendarContainer} testID={'calendar-events'}>
               <Text style={styles.sectionTitle}>Upcoming Events</Text>
               {calendarEvents.map((event, index) => (
                 <View key={index} style={styles.eventCard}>
