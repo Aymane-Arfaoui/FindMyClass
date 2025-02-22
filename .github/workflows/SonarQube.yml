@@ -41,5 +41,5 @@ jobs:
           args: >
             -Dsonar.organization=aymane-arfaoui
             -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass
-            -Dsonar.sources=config,api,app,components,constants,context,helpers,services
+            -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
             -Dsonar.exclusions=app/__tests__/**,components/__tests__/**
