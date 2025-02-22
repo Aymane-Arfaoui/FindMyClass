@@ -3,11 +3,11 @@ import {StyleSheet, Text, View} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from "@/constants/theme";
-import { GOOGLE_PLACES_API_KEY } from '@env';
+// import { GOOGLE_PLACES_API_KEY } from '@env';
 
 const SearchBar = ({onLocationSelect, onBuildingPress}) => {
     const googleRef = useRef(null);
-
+    const GOOGLE_PLACES_API_KEY= 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80'
     return (
         <View style={styles.container}>
             <GooglePlacesAutocomplete

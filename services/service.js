@@ -1,5 +1,7 @@
-import { CONCORDIA_API_KEY, API_USER } from '@env';
+// import { CONCORDIA_API_KEY, API_USER } from '@env';
 
+const API_USER=844;
+const CONCORDIA_API_KEY= '4826c5ae0a83e77ab0e53a61eb5d809d';
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');

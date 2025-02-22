@@ -10,11 +10,11 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
-import { GOOGLE_PLACES_API_KEY } from '@env';
+// import { GOOGLE_PLACES_API_KEY } from '@env';
 import { type } from '@testing-library/react-native/build/user-event/type';
 
 
-
+const GOOGLE_PLACES_API_KEY='AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
 export default function Homemap(){
 
     const [buildingDetails, setBuildingDetails] = useState(null);
@@ -138,7 +138,7 @@ export default function Homemap(){
                     type: "Feature",
                     geometry: {
                         type: "Point",
-                        coordinates: [buildingLng || lng, buildingLat || lat],
+                        coordinates: [buildingLng || lng, offsetLat],
                     },
                     name: building.name || "Unnamed Building",
                 }
