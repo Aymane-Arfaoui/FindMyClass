@@ -12,12 +12,10 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest --watchAll",
+    "test:ci": "jest --coverage",
     "lint": "eslint . --max-warnings=0",
     "prettier:check": "prettier --check .",
     "type-check": "tsc --noEmit"
-  },
-  "jest": {
-    "preset": "jest-expo"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
