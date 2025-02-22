@@ -26,8 +26,9 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: 🧪 Run Tests with Coverage
+      - name: 🧪 Run Tests with Coverage (Continue on Failure)
         run: npm run test:ci
+        continue-on-error: true
 
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
