@@ -35,5 +35,6 @@ jobs:
             -Dsonar.host.url=https://sonarcloud.io \
             -Dsonar.organization=aymane-arfaoui \
             -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass \
-            -Dsonar.sources=app,components,services,helpers,context,constants \
+            -Dsonar.sources=config,api,app,components,constants,context,helpers,services \
+            -Dsonar.exclusions=app/__tests__/**,components/__tests__/*
             -Dsonar.login=${{ secrets.SONAR_TOKEN }}
