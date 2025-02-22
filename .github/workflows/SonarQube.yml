@@ -20,6 +20,12 @@ jobs:
       - name: 📦 Setup Node + npm + Install Dependencies
         uses: ./.github/actions/setup-node-npm-install
 
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Cache SonarQube dependencies
         uses: actions/cache@v3
         with:
