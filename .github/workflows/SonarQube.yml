@@ -1,0 +1,39 @@
+name: SonarQube Analysis
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  sonarqube:
+    name: Run SonarQube Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📦 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: 📦 Setup Node + npm + Install Dependencies
+        uses: ./.github/actions/setup-node-npm-install
+
+      - name: Cache SonarQube dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          npx sonarqube-scanner \
+            -Dsonar.host.url=https://sonarcloud.io \
+            -Dsonar.organization=aymane-arfaoui \
+            -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass \
+            -Dsonar.sources=app,components,services,helpers,context,constants \
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}

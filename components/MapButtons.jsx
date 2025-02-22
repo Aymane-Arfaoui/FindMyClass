@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
-import { theme } from "@/constants/theme";
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {theme} from "@/constants/theme";
 
-const MapButtons = ({ onPress }) => {
+const MapButtons = ({onPress}) => {
     const [selectedButton, setSelectedButton] = useState('SGW');
 
     const locations = {
-        SGW: [-73.5780, 45.4972],   // SGW Coordinates
+        SGW: [-73.5787, 45.4963],     // SGW Coordinates
         Loyola: [-73.6405, 45.4582] // Loyola Coordinates
     };
 
@@ -26,12 +26,13 @@ const MapButtons = ({ onPress }) => {
     };
 
     return (
-        <View style={styles.buttonContainer}>
+        <View style={styles.buttonContainer} testID={'map-buttons'}>
             {Object.keys(locations).map((location) => (
                 <TouchableOpacity
                     key={location}
                     style={[styles.button, selectedButton === location && styles.selectedButton]}
                     onPress={() => handlePress(location)}
+                    testID={location}
                 >
                     <Text style={[styles.buttonText, selectedButton === location && styles.selectedButtonText]}>
                         {location}
@@ -65,7 +66,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 15,
         shadowColor: theme.colors.dark,
-        shadowOffset: { width: 4, height: 4 },
+        shadowOffset: {width: 4, height: 4},
         shadowOpacity: 0.3,
         shadowRadius: theme.radius.xs,
         elevation: 5,
