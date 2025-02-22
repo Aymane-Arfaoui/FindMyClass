@@ -1,4 +1,5 @@
 module.exports = {
+    preset: "jest-expo",
     collectCoverage: true,
     coverageDirectory: "coverage",
     collectCoverageFrom: [
