@@ -4,6 +4,7 @@ import {StyleSheet, View} from 'react-native';
 import {theme} from "@/constants/theme";
 import {getUserLocation} from "@/services/userService";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
+// import {MAPBOX_ACCESS_TOKEN} from '@env';
 
 MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
 
