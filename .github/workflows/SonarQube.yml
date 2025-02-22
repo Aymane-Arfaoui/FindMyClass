@@ -36,7 +36,7 @@ jobs:
         id: test_coverage
         run: |
           echo "Running tests to generate coverage..."
-          npm run test:ci -- --coverage --runInBand --forceExit
+          npm run test:ci -- --coverage --runInBand --forceExit --all
         continue-on-error: true
 
       - name: 🛠 Debug Coverage Files
@@ -45,7 +45,9 @@ jobs:
           echo "Checking if coverage directory exists..."
           ls -l coverage || echo "❌ Coverage folder not found"
           echo "Checking lcov.info..."
-          cat coverage/lcov.info | head -n 20 || echo "❌ lcov.info not found"
+          cat coverage/lcov.info | head -n 50 || echo "❌ lcov.info not found"
+          echo "Showing Jest coverage summary..."
+          cat coverage/coverage-final.json | jq
 
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2

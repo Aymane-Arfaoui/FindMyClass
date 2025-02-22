@@ -16,10 +16,15 @@ module.exports = {
         "services/**/*.{js,jsx,ts,tsx}",
         "!**/__tests__/**",
         "!**/node_modules/**",
-        "!**/coverage/**"
+        "!**/coverage/**",
+        "!**/dist/**",
+        "!**/build/**"
     ],
     coverageReporters: ["json", "lcov", "text", "clover"],
     reporters: ["default"],
     moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
-    transformIgnorePatterns: ["/node_modules/(?!@react-native|react-native)"]
+    transformIgnorePatterns: ["/node_modules/(?!@react-native|react-native)"],
+    moduleNameMapper: {
+        "\\.(css|less|scss|sass)$": "identity-obj-proxy"
+    }
 };
