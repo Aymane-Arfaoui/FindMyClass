@@ -1,9 +1,8 @@
 import {getNextShuttleTime, getShuttleTravelTime} from './shuttleService';
 import axios from 'axios';
 import polyline from '@mapbox/polyline';
-// import { GOOGLE_MAPS_API_KEY } from '@env';
-
-const GOOGLE_MAPS_API_KEY = 'AIzaSyAPdmd0FumLk8snfLYCijEEMAMsitIHoAg';
+import Config from 'react-native-config';
+const GOOGLE_MAPS_API_KEY=Config.GOOGLE_MAPS_API_KEY;
 
 export const fetchRoutes = async (origin, destination, mode) => {
     try {

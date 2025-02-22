@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {ActivityIndicator, Animated, PanResponder, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
 import Map from '../components/Map';
-import {fetchRoutes} from '../services/routeService';
-import {getUserLocation} from '../services/userService';
+import {fetchRoutes} from '@/services/routeService';
+import {getUserLocation} from '@/services/userService';
 import BuildingDetailsPanel from "@/components/BuildingDetailsPanel";
 import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
@@ -10,11 +10,10 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
-// import { GOOGLE_PLACES_API_KEY } from '@env';
 import { type } from '@testing-library/react-native/build/user-event/type';
+import Config from 'react-native-config';
+const GOOGLE_PLACES_API_KEY=Config.GOOGLE_PLACES_API_KEY;
 
-
-const GOOGLE_PLACES_API_KEY='AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
 export default function Homemap(){
 
     const [buildingDetails, setBuildingDetails] = useState(null);

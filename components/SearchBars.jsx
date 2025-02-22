@@ -8,11 +8,10 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import { hp, wp } from '../helpers/common';
+import { hp, wp } from '@/helpers/common';
 import TransportOptions from "@/components/TransportOptions";
-
-
-const GOOGLE_API_KEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
+import Config from 'react-native-config';
+const GOOGLE_API_KEY=Config.GOOGLE_PLACES_API_KEY;
 
 const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     const [startLocation, setStartLocation] = useState('Fetching current location...');
