@@ -36,7 +36,7 @@ jobs:
         id: test_coverage
         run: |
           echo "Running tests to generate coverage..."
-          npm run test:ci -- --verbose
+          npm run test:ci -- --coverage --runInBand --forceExit
         continue-on-error: true
 
       - name: 🛠 Debug Coverage Files
@@ -48,7 +48,6 @@ jobs:
           cat coverage/lcov.info | head -n 20 || echo "❌ lcov.info not found"
 
       - name: 🔍 Run SonarCloud Scan
-        if: always()
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

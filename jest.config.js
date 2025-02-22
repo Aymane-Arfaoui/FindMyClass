@@ -2,8 +2,9 @@ module.exports = {
     preset: "jest-expo",
     rootDir: "./",
     collectCoverage: true,
-    coverageDirectory: "coverage",
+    verbose: true,
     testEnvironment: "node",
+    coverageDirectory: "coverage",
     collectCoverageFrom: [
         "Config/**/*.{js,jsx,ts,tsx}",
         "api/**/*.{js,jsx,ts,tsx}",
@@ -12,7 +13,13 @@ module.exports = {
         "constants/**/*.{js,jsx,ts,tsx}",
         "context/**/*.{js,jsx,ts,tsx}",
         "helpers/**/*.{js,jsx,ts,tsx}",
-        "services/**/*.{js,jsx,ts,tsx}"
+        "services/**/*.{js,jsx,ts,tsx}",
+        "!**/__tests__/**",
+        "!**/node_modules/**",
+        "!**/coverage/**"
     ],
-    coverageReporters: ["json", "lcov", "text", "clover"]
+    coverageReporters: ["json", "lcov", "text", "clover"],
+    reporters: ["default"],
+    moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
+    transformIgnorePatterns: ["/node_modules/(?!@react-native|react-native)"]
 };
