@@ -20,20 +20,32 @@ jobs:
       - name: 📦 Setup Node + npm + Install Dependencies
         uses: ./.github/actions/setup-node-npm-install
 
+      - name: 🔍 Check Jest Installation
+        run: npx jest --version
+
       - name: ☕ Setup Java
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: 🧪 Run Tests with Coverage (Continue on Failure)
-        run: npm run test:ci
+      - name: 🧪 Run Tests with Coverage (Ensure It Runs)
+        id: test_coverage
+        run: |
+          echo "Running tests to generate coverage..."
+          npm run test:ci
         continue-on-error: true
 
       - name: 🛠 Debug Coverage Files
-        run: ls -l coverage && cat coverage/lcov.info | head -n 20
+        if: always()
+        run: |
+          echo "Checking if coverage directory exists..."
+          ls -l coverage || echo "❌ Coverage folder not found"
+          echo "Checking lcov.info..."
+          cat coverage/lcov.info | head -n 20 || echo "❌ lcov.info not found"
 
       - name: 🔍 Run SonarCloud Scan
+        if: always()
         uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
