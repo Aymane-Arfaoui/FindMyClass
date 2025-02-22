@@ -26,12 +26,8 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache SonarQube dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      - name: 🧪 Run Tests with Coverage
+        run: npm run test:ci
 
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
@@ -43,3 +39,4 @@ jobs:
             -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass
             -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
             -Dsonar.exclusions=app/__tests__/**,components/__tests__/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
