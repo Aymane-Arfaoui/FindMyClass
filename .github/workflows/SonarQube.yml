@@ -30,6 +30,9 @@ jobs:
         run: npm run test:ci
         continue-on-error: true
 
+      - name: 🛠 Debug Coverage Files
+        run: ls -l coverage && cat coverage/lcov.info | head -n 20
+
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
@@ -41,3 +44,4 @@ jobs:
             -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
             -Dsonar.exclusions=app/__tests__/**,components/__tests__/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/__tests__/**
