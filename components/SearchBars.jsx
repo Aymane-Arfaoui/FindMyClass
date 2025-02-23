@@ -90,7 +90,7 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} testID={'search-bars'}>
 
             <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
                 <Ionicons name="chevron-back" size={26} color="white" />

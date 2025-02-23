@@ -17,11 +17,11 @@ const BottomPanel = ({ transportMode, routeDetails }) => {
     };
 
     return (
-        <Animated.View style={[styles.container, { height: animatedHeight }]}>
+        <Animated.View style={[styles.container, { height: animatedHeight }]}  testID={'bottom-panel'}>
             <View style={styles.slideIndicator} />
             <View style={styles.content}>
                 {routeDetails ? (
-                    <View>
+                    <View testID={'route-details'}>
                         <Text style={styles.text}>{`Duration: ${routeDetails.duration}`}</Text>
                         <Text style={styles.subText}>{`Distance: ${routeDetails.distance}`}</Text>
                     </View>
@@ -29,8 +29,8 @@ const BottomPanel = ({ transportMode, routeDetails }) => {
                     <Text style={styles.text}>No route available</Text>
                 )}
 
-                <TouchableOpacity style={styles.button} onPress={toggleExpand}>
-                    <FontAwesome name={expanded ? "chevron-down" : "chevron-up"} size={20} color="white" />
+                <TouchableOpacity testID={'toggle-button'} style={styles.button} onPress={toggleExpand}>
+                    <FontAwesome testID={'chevron'} name={expanded ? "chevron-down" : "chevron-up"} size={20} color="white" />
                 </TouchableOpacity>
             </View>
         </Animated.View>

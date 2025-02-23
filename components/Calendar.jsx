@@ -98,7 +98,7 @@ const Calendar = ({ events: propEvents }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} testID={'calendar'}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
