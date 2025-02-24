@@ -20,20 +20,45 @@ jobs:
       - name: 📦 Setup Node + npm + Install Dependencies
         uses: ./.github/actions/setup-node-npm-install
 
-      - name: Cache SonarQube dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+      - name: 🔍 Check Jest Installation
+        run: npx jest --version
 
-      - name: Run SonarQube analysis
+      - name: ☕ Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: 🗑 Clear npm Cache
+        run: npm cache clean --force
+
+      - name: 🧪 Run Tests with Coverage (Ensure It Runs)
+        id: test_coverage
+        run: |
+          echo "Running tests to generate coverage..."
+          npm run test:ci -- --coverage --runInBand --forceExit --all
+        continue-on-error: true
+
+      - name: 🛠 Debug Coverage Files
+        if: always()
+        run: |
+          echo "Checking if coverage directory exists..."
+          ls -l coverage || echo "❌ Coverage folder not found"
+          echo "Checking lcov.info..."
+          cat coverage/lcov.info | head -n 50 || echo "❌ lcov.info not found"
+          echo "Showing Jest coverage summary..."
+          cat coverage/coverage-final.json | jq
+
+      - name: 🔍 Run SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@v2
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          npx sonarqube-scanner \
-            -Dsonar.host.url=https://sonarcloud.io \
-            -Dsonar.organization=aymane-arfaoui \
-            -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass \
-            -Dsonar.sources=app,components,services,helpers,context,constants \
-            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.organization=aymane-arfaoui
+            -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass
+            -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
+            -Dsonar.exclusions=**/__tests__/**
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.coverage.exclusions=**/__tests__/**
+            -Dsonar.verbose=true
