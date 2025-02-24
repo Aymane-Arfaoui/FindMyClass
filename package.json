@@ -17,7 +17,8 @@
     "type-check": "tsc --noEmit"
   },
   "jest": {
-    "preset": "jest-expo"
+    "preset": "jest-expo",
+    "collectCoverage": true
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
@@ -68,6 +69,7 @@
     "@babel/core": "^7.25.2",
     "@babel/eslint-parser": "^7.26.5",
     "@babel/preset-react": "^7.26.3",
+    "@react-native/babel-preset": "^0.78.0",
     "@testing-library/react-native": "^13.0.1",
     "@types/jest": "^29.5.14",
     "@types/react": "~18.3.12",

@@ -4,8 +4,9 @@ import {StyleSheet, View} from 'react-native';
 import {theme} from "@/constants/theme";
 import {getUserLocation} from "@/services/userService";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
-
-MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
+import Config from 'react-native-config';
+const MAPBOX_ACCESS_TOKEN='sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw'
+MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef}) => {
 
