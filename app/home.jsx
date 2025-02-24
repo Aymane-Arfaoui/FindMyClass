@@ -67,9 +67,9 @@ const Home = () => {
           {userInfo && (
               <>
                 <View style={styles.header}>
-                  <View style={styles.userCard}>
+                  <View style={styles.userCard} testID={'user-card'}>
                     {userInfo.picture && (
-                        <Image source={{ uri: userInfo.picture }} style={styles.userImage} />
+                        <Image testID={'user-picture'} source={{ uri: userInfo.picture }} style={styles.userImage} />
                     )}
                     <View style={styles.userInfo}>
                       <Text style={styles.welcomeText}>Welcome back,</Text>
@@ -82,6 +82,7 @@ const Home = () => {
                   <TouchableOpacity
                       style={styles.actionCard}
                       onPress={() => router.push("/calendar")}
+                      testID={'calendar-button'}
                   >
                     <View style={styles.actionIconContainer}>
                       <Ionicons name="calendar" size={24} color={theme.colors.primary} />
@@ -91,14 +92,14 @@ const Home = () => {
                   </TouchableOpacity>
                 </View>
 
-                <Calendar events={calendarEvents} onClassSelect={handleClassSelect} />
+                <Calendar events={calendarEvents} onClassSelect={handleClassSelect}  />
               </>
           )}
         </ScrollView>
 
         {userInfo && (
             <View style={styles.bottomContainer}>
-              <TouchableOpacity onPress={handleSignOut} style={styles.signOutButton}>
+              <TouchableOpacity onPress={handleSignOut} testID={'button'} style={styles.signOutButton}>
                 <View style={styles.signOutContainer}>
                   <Ionicons name="log-out-outline" size={24} color="#fff" />
                   <Text style={styles.signOutText}>Sign Out</Text>

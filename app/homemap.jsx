@@ -1,8 +1,8 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {ActivityIndicator, Animated, PanResponder, ScrollView, StatusBar, StyleSheet, Text, View} from 'react-native';
+import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
 import Map from '../components/Map';
-import {fetchRoutes} from '../services/routeService';
-import {getUserLocation} from '../services/userService';
+import {fetchRoutes} from '@/services/routeService';
+import {getUserLocation} from '@/services/userService';
 import BuildingDetailsPanel from "@/components/BuildingDetailsPanel";
 import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
@@ -10,12 +10,11 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
-import { GOOGLE_PLACES_API_KEY } from '@env';
-import { type } from '@testing-library/react-native/build/user-event/type';
+import Config from 'react-native-config';
 
+const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
-
-export default function Homemap(){
+export default function Homemap() {
 
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
@@ -29,6 +28,8 @@ export default function Homemap(){
     const [routeDetails, setRouteDetails] = useState(null);
     const [modeSelected, setModeSelected] = useState('walking');
     const panelY = useRef(new Animated.Value(500)).current;
+    const [currentOrigin, setCurrentOrigin] = useState(null);
+    const [currentDestination, setCurrentDestination] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -72,6 +73,64 @@ export default function Homemap(){
         };
     }, [selectedLocation, modeSelected]);
 
+    async function fetchAllModesData(originStr, destinationStr) {
+        const modes = ['driving', 'transit', 'walking', 'bicycling'];
+        const updatedTravelTimes = {
+            driving: 'N/A',
+            transit: 'N/A',
+            walking: 'N/A',
+            bicycling: 'N/A',
+        };
+
+        await Promise.all(
+            modes.map(async (mode) => {
+                const url = `https://maps.googleapis.com/maps/api/directions/json
+        ?origin=${encodeURIComponent(originStr)}
+        &destination=${encodeURIComponent(destinationStr)}
+        &mode=${mode}
+        &alternatives=true
+        &key=${GOOGLE_PLACES_API_KEY}`
+                    .replace(/\s+/g, '');
+
+                try {
+                    const resp = await fetch(url);
+                    const data = await resp.json();
+                    if (data.routes && data.routes.length > 0) {
+                        const bestRoute = data.routes.reduce((shortest, cur) =>
+                            cur.legs[0].duration.value < shortest.legs[0].duration.value
+                                ? cur
+                                : shortest
+                        );
+                        const durSec = bestRoute.legs[0].duration.value;
+                        const hours = Math.floor(durSec / 3600);
+                        const minutes = Math.ceil((durSec % 3600) / 60);
+
+                        let label = '';
+                        if (hours > 0) {
+                            label = `${hours}h ${minutes} min`;
+                        } else {
+                            label = `${minutes} min`;
+                        }
+
+                        updatedTravelTimes[mode] = label;
+                    }
+                } catch (err) {
+                    console.error(`Error fetching ${mode}`, err);
+                }
+            })
+        );
+
+        return updatedTravelTimes;
+    }
+
+    const [travelTimes, setTravelTimes] = useState({
+        driving: 'N/A',
+        transit: 'N/A',
+        walking: 'N/A',
+        bicycling: 'N/A'
+    });
+
+
     const fetchRoutesData = async (origin, destination, mode) => {
         setLoading(true);
         try {
@@ -100,37 +159,49 @@ export default function Homemap(){
             setLoading(false);
         }
     };
-
     const handleDirectionPress = async (origin, dest, mode) => {
         setLoading(true);
+        setCurrentOrigin(origin);
+        setCurrentDestination(dest);
 
         try {
-            const originCoords = origin.geometry?.coordinates;  // [lng, lat]
-            const destCoords = dest.geometry?.coordinates;      // [lng, lat]
+            const originCoords = origin.geometry?.coordinates;
+            const destCoords = dest.geometry?.coordinates;
 
             if (!originCoords || !destCoords) {
                 setLoading(false);
                 return;
             }
+
             const formattedOrigin = `${originCoords[1]},${originCoords[0]}`;
             const formattedDestination = `${destCoords[1]},${destCoords[0]}`;
+
+
+            const times = await fetchAllModesData(formattedOrigin, formattedDestination);
+            setTravelTimes(times);
             await fetchRoutesData(formattedOrigin, formattedDestination, mode);
 
             setIsDirectionsView(true);
         } catch (error) {
-
+            console.warn(error);
         } finally {
             setLoading(false);
         }
     };
+    useEffect(() => {
+        if (isDirectionsView && currentOrigin && currentDestination) {
+            const originCoords = currentOrigin.geometry?.coordinates; // [lng, lat]
+            const destCoords = currentDestination.geometry?.coordinates; // [lng, lat]
+            const formattedO = `${originCoords[1]},${originCoords[0]}`;
+            const formattedD = `${destCoords[1]},${destCoords[0]}`;
 
+            fetchRoutesData(formattedO, formattedD, modeSelected);
+        }
+    }, [modeSelected, currentOrigin, currentDestination]);
 
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
-        // console.log("Building: ", building);
         if (building) {
-            // setSelectedBuilding(building);
-
             const [buildingLng, buildingLat] = building.textPosition || [lng, lat];
             const offsetLat = (buildingLat || lat) - 0.0010;
             setSelectedLocation(
@@ -138,7 +209,7 @@ export default function Homemap(){
                     type: "Feature",
                     geometry: {
                         type: "Point",
-                        coordinates: [buildingLng || lng, buildingLat || lat],
+                        coordinates: [buildingLng || lng, offsetLat],
                     },
                     name: building.name || "Unnamed Building",
                 }
@@ -179,15 +250,6 @@ export default function Homemap(){
 
         } else if (lng !== null && lat !== null) {
             const offsetLat = lat - 0.0010;
-
-            // setSelectedLocation({
-            //     type: "Feature",
-            //     geometry: {
-            //         type: "Point",
-            //         coordinates: [lng, offsetLat],
-            //     },
-            // });
-
             fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`)
                 .then((response) => response.json())
                 .then((data) => {
@@ -211,12 +273,6 @@ export default function Homemap(){
                 console.error("Error fetching building details:", error);
                 setBuildingDetails(null);
             });
-            // console.log("Building:", building);
-            // console.log("Selected Location:", selectedLocation);
-            // console.log("User Location:", currentLocation);
-            // console.log("Routes:", routes);
-            // console.log("lng:", lng);
-            // console.log("lat:", lat);
         }
 
 
@@ -331,46 +387,47 @@ export default function Homemap(){
                         onBackPress={() => setIsDirectionsView(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
+                        travelTimes={travelTimes}
                     />
-
                     <BottomPanel
                         transportMode={modeSelected}
                         routeDetails={routeDetails}
+                        routes={routes}
                     />
                 </>
             )}
-            {isDirectionsView && (
-                <View style={styles.infoBox}>
-                    <Text style={styles.header}>Available Routes:</Text>
-                    {loading ? (
-                        <ActivityIndicator size="large" color="#0000ff"/>
-                    ) : (
-                        <ScrollView>
-                            {routes?.length > 0 ? (
-                                routes.map((route, index) => (
-                                    <View key={index} style={styles.routeCard}>
-                                        <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>
-                                        <Text>Duration: {route.duration}</Text>
-                                        <Text>Distance: {route.distance}</Text>
-                                        {route.departure && <Text>Next Shuttle: {route.departure}</Text>}
-                                    </View>
-                                ))
-                            ) : (
-                                <View>
-                                    <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>
 
-                                    {/FOR TESTING ONLY:/}
-                                    <Text>{routes.length}</Text>
-                                    <Text>{modeSelected}</Text>
-                                    <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>
-                                    <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>
-                                </View>
-                            )}
-                        </ScrollView>
-                    )}
-                </View>
-            )}
+            {/*{isDirectionsView && (*/}
+            {/*    <View style={styles.infoBox}>*/}
+            {/*        <Text style={styles.header}>Available Routes:</Text>*/}
+            {/*        {loading ? (*/}
+            {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
+            {/*        ) : (*/}
+            {/*            <ScrollView>*/}
+            {/*                {routes?.length > 0 ? (*/}
+            {/*                    routes.map((route, index) => (*/}
+            {/*                        <View key={index} style={styles.routeCard}>*/}
+            {/*                            <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
+            {/*                            <Text>Duration: {route.duration}</Text>*/}
+            {/*                            <Text>Distance: {route.distance}</Text>*/}
+            {/*                            {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
+            {/*                        </View>*/}
+            {/*                    ))*/}
+            {/*                ) : (*/}
+            {/*                    <View>*/}
+            {/*                        <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>*/}
 
+            {/*                        {/FOR TESTING ONLY:/}*/}
+            {/*                        <Text>{routes.length}</Text>*/}
+            {/*                        <Text>{modeSelected}</Text>*/}
+            {/*                        <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>*/}
+            {/*                        <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>*/}
+            {/*                    </View>*/}
+            {/*                )}*/}
+            {/*            </ScrollView>*/}
+            {/*        )}*/}
+            {/*    </View>*/}
+            {/*)}*/}
 
 
         </View>

@@ -1,5 +1,6 @@
-import { CONCORDIA_API_KEY, API_USER } from '@env';
-
+import Config from 'react-native-config';
+const API_USER=Config.API_USER;
+const CONCORDIA_API_KEY= Config.CONCORDIA_API_KEY;
 const express = require('express');
 const axios = require('axios');
 const cors = require('cors');

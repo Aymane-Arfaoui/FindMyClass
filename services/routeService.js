@@ -1,7 +1,9 @@
-import { getNextShuttleTime, getShuttleTravelTime } from './shuttleService';
+import {getNextShuttleTime, getShuttleTravelTime} from './shuttleService';
 import axios from 'axios';
 import polyline from '@mapbox/polyline';
-import { GOOGLE_MAPS_API_KEY } from '@env';
+import Config from 'react-native-config';
+const GOOGLE_MAPS_API_KEY=Config.GOOGLE_MAPS_API_KEY;
+
 export const fetchRoutes = async (origin, destination, mode) => {
     try {
         if (!origin || !destination) throw new Error("Invalid origin or destination");
@@ -18,7 +20,7 @@ export const fetchRoutes = async (origin, destination, mode) => {
         return fetchGoogleRoutes(origin, destination, mode);
 
     } catch (error) {
-        console.error(`Error fetching ${mode} routes ${origin} to ${destination}`, );
+        console.error(`Error fetching ${mode} routes ${origin} to ${destination}`,);
         return [];
     }
 };
@@ -29,7 +31,7 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
             params: {
                 origin: `${origin}`, // Convert [lng, lat] to [lat,lng]
                 destination: `${destination}`, // Convert [lng, lat] to [lat,lng]
-                mode : `${mode}`,
+                mode: `${mode}`,
                 alternatives: true,
                 key: GOOGLE_MAPS_API_KEY
             }
@@ -44,20 +46,20 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
             // Convert to [lng, lat] order as required by GeoJSON
             const coordinates = decodedCoords.map(([lat, lng]) => [lng, lat]);
             return {
-              mode,
-              distance: route.legs[0].distance.text,
-              duration: route.legs[0].duration.text,
-              // Use a valid GeoJSON Feature to represent the route
-              routeGeoJSON: {
-                type: 'Feature',
-                geometry: {
-                  type: 'LineString',
-                  coordinates
-                },
-                properties: {}
-              }
+                mode,
+                distance: route.legs[0].distance.text,
+                duration: route.legs[0].duration.text,
+                // Use a valid GeoJSON Feature to represent the route
+                routeGeoJSON: {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        coordinates
+                    },
+                    properties: {}
+                }
             };
-          });
+        });
 
     } catch (error) {
         console.error(`Error fetching Google ${mode} routes from ${origin} to ${destination}`, error.message);
