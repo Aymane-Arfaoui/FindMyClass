@@ -193,6 +193,12 @@ export default function Homemap() {
         setFastestRoute(route);
     };
 
+    const handleBackPress = (bool) => {
+        setRoutes([]);
+        setFastestRoute(null);
+        setIsDirectionsView(bool);
+    };
+
 
     useEffect(() => {
         if (isDirectionsView && currentOrigin && currentDestination) {
@@ -391,7 +397,7 @@ export default function Homemap() {
                     <SearchBars
                         currentLocation={currentLocation}
                         destination={buildingDetails?.formatted_address}
-                        onBackPress={() => setIsDirectionsView(false)}
+                        onBackPress={() => handleBackPress(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
