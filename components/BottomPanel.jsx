@@ -1,27 +1,35 @@
-import React, {useState} from "react";
-import {Animated, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import React, {useEffect, useState} from "react";
+import {Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 
 const BottomPanel = ({transportMode, routeDetails, routes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
-    const [selectedRoute, setSelectedRoute] = useState(null); // Store the selected route
+    const [selectedRoute, setSelectedRoute] = useState(null);
+    const [modalVisible, setModalVisible] = useState(false);
+
+
+    useEffect(() => {
+            setSelectedRoute(routeDetails);
+    }, [routeDetails]);
 
     const toggleExpand = () => {
         Animated.timing(animatedHeight, {
-            toValue: expanded ? 100 : 600,
+            toValue: expanded ? 100 : 350,
             duration: 300,
             useNativeDriver: false,
         }).start();
         setExpanded(!expanded);
     };
 
+
     const handleRouteSelection = (route) => {
         setSelectedRoute(route);
         // setExpanded(false);
-    };
+        setModalVisible(true);
 
+    };
 
 
     return (
@@ -30,8 +38,13 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
             <View style={styles.content}>
                 {routeDetails ? (
                     <View testID={'route-details'}>
-                        <Text style={styles.text}>{`Duration: ${routeDetails.duration}`}</Text>
-                        <Text style={styles.subText}>{`Distance: ${routeDetails.distance}`}</Text>
+                        <Text style={styles.text}>
+                            {selectedRoute ? `Duration: ${selectedRoute.duration}` : `Duration: ${routeDetails?.duration || 'N/A'}`}
+                        </Text>
+                        <Text style={styles.subText}>
+                            {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
+                        </Text>
+
                     </View>
                 ) : (
                     <Text style={styles.text}>No route available</Text>
@@ -46,63 +59,64 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
 
 
 
-            {/*<View style={styles.content}>*/}
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)}
+            >
+                <View style={styles.modalContainer}>
+                    <ScrollView style={styles.stepsScroll}>
 
-            {/*    {selectedRoute ? (*/}
-            {/*        <View testID={'route-details'}>*/}
-            {/*            <Text style={styles.text}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>*/}
-            {/*            <Text style={styles.subText}>{`Duration: ${selectedRoute.duration}`}</Text>*/}
-            {/*            <Text style={styles.subText}>{`Distance: ${selectedRoute.distance}`}</Text>*/}
-            {/*            <Text style={styles.subText}>{`INFO: */}
-            {/*            ${selectedRoute.steps[0].instruction} */}
-            {/*            ${selectedRoute.steps[0].distance} */}
-            {/*            ${selectedRoute.steps[0].maneuver}*/}
-            {/*            `}</Text>*/}
-            {/*        </View>*/}
-            {/*    ) : (*/}
-            {/*        <Text style={styles.text}>No route selected</Text>*/}
-            {/*    )}*/}
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup}>
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
 
-            {/*</View>*/}
+                        <View style={styles.content}>
+                            {selectedRoute ? (
+                                <View testID={'route-details'}>
+                                    <Text style={styles.textHeader}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>
+                                    <Text style={styles.subTextHeader}>{`Duration: ${selectedRoute.duration}`}</Text>
+                                    <Text style={styles.subTextHeader}>{`Distance: ${selectedRoute.distance}`}</Text>
 
-            <ScrollView style={{minHeight: 0, maxHeight: 700, backgroundColor: "#ffffff"}}>
-            <View style={styles.content}>
-                {selectedRoute ? (
-                    <View testID={'route-details'}>
-                        <Text style={styles.text}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>
-                        <Text style={styles.subText}>{`Duration: ${selectedRoute.duration}`}</Text>
-                        <Text style={styles.subText}>{`Distance: ${selectedRoute.distance}`}</Text>
+                                    <Text style={[styles.subSubTextHeader, { marginTop: 10 }]}>Step-by-step Directions:</Text>
 
-                        <Text style={[styles.text, { marginTop: 10 }]}>Step-by-step Directions:</Text>
-
-                        {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
-                            selectedRoute.mode === "transit" ? (
-                                selectedRoute.steps.map((step, index) => (
-                                    <View key={index} style={styles.stepContainer}>
-                                        <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                        <Text style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
-                                        <Text style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
-                                        <Text style={styles.stepSubText}>{`Stops: ${step.num_stops || 0}`}</Text>
-                                    </View>
-                                ))
+                                    {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
+                                        selectedRoute.mode === "transit" ? (
+                                            selectedRoute.steps.map((step, index) => (
+                                                <View key={index} style={styles.stepContainer}>
+                                                    <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`Stops: ${step.num_stops || 0}`}</Text>
+                                                </View>
+                                            ))
+                                        ) : (
+                                            selectedRoute.steps.map((step, index) => (
+                                                <View key={index} style={styles.stepContainer}>
+                                                    <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
+                                                </View>
+                                            ))
+                                        )
+                                    ) : (
+                                        <Text style={styles.text}>No step-by-step instructions available.</Text>
+                                    )}
+                                </View>
                             ) : (
-                                selectedRoute.steps.map((step, index) => (
-                                    <View key={index} style={styles.stepContainer}>
-                                        <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                        <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
-                                        <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
-                                    </View>
-                                ))
-                            )
-                        ) : (
-                            <Text style={styles.text}>No step-by-step instructions available.</Text>
-                        )}
-                    </View>
-                ) : (
-                    <Text style={styles.text}>No route selected</Text>
-                )}
-            </View>
-            </ScrollView>
+                                <Text style={styles.text}>No route selected</Text>
+                            )}
+                        </View>
+
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBP}>
+                            <Text style={styles.closeButtonText}>Close</Text>
+                        </TouchableOpacity>
+                    </ScrollView>
+                </View>
+            </Modal>
+
+
 
 
 
@@ -171,7 +185,22 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 18,
         fontWeight: "bold",
-        color: "#333",
+        color: theme.colors.primary,
+    },
+    textHeader: {
+        fontSize: 30,
+        fontWeight: "bold",
+        color: theme.colors.primary,
+    },
+    subTextHeader: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: theme.colors.dark,
+    },
+    subSubTextHeader: {
+        fontSize: 20,
+        fontWeight: "bold",
+        color: theme.colors.primary,
     },
     button: {
         backgroundColor: theme.colors.blueDark,
@@ -188,9 +217,9 @@ const styles = StyleSheet.create({
 
     },
     stepText: {
-        fontSize: 16,
+        fontSize: 17,
         marginVertical: 4,
-        color: "#555",
+        color: theme.colors.dark,
     },
     publicTransportContainer: {
         marginTop: 10,
@@ -224,6 +253,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
 
     },
+    stepContainer: {
+        marginTop: 10,
+        padding: 10,
+        borderRadius: 10,
+        backgroundColor: "#f3f3f3",
+    },
 
     switchRouteContent: {
         flexDirection: "row",
@@ -236,6 +271,55 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: "bold",
     },
+
+
+
+    modalContainer: {
+        flex: 1,
+        justifyContent: "flex-end",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+    },
+    modalContent: {
+        backgroundColor: "white",
+        padding: 20,
+        borderRadius: 10,
+        width: "80%",
+        alignItems: "center",
+    },
+    closeButtonBP: {
+        marginTop: 20,
+        backgroundColor: theme.colors.blueDark,
+        borderRadius: theme.radius.md,
+        padding: 12,
+        marginBottom: 50,
+
+    },
+    closeButtonBPup:{
+        marginTop: 0,
+        backgroundColor: theme.colors.blueDark,
+        borderRadius: theme.radius.md,
+        padding: 12,
+        marginBottom: 15,
+
+    },
+    closeButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 16,
+
+    },
+    stepsScroll: {
+        maxHeight: "60%",
+        backgroundColor: "#ffffff",
+        width: "100%",
+        paddingTop: 20,
+        paddingLeft: 20,
+        paddingRight: 20,
+        paddingBottom: 20,
+
+    }
+
 
 });
 
