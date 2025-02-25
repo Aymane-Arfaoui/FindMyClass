@@ -42,7 +42,17 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                                 <Text style={styles.stepText}>
                                     {route.mode.toUpperCase()} – {route.duration} – {route.distance}
                                 </Text>
+
+                                <TouchableOpacity testID={'switch-route-button'} style={styles.switchRouteButton} onPress={toggleExpand}>
+                                        <View style={styles.switchRouteContent}>
+                                            <Text style={styles.switchRouteText}>Go</Text>
+                                            <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white" />
+                                        </View>
+                                    </TouchableOpacity>
+
+
                             </View>
+
                         ))
                     ) : (
                         <Text style={styles.text}>
@@ -98,6 +108,12 @@ const styles = StyleSheet.create({
     },
     stepsContainer: {
         marginTop: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        paddingVertical: 10,
+
     },
     stepText: {
         fontSize: 16,
@@ -126,6 +142,29 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: "#007AFF",
     },
+    switchRouteButton: {
+        backgroundColor: theme.colors.blueLight,
+        borderRadius: 25,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "row",
+
+    },
+
+    switchRouteContent: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 8,
+    },
+
+    switchRouteText: {
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
+    },
+
 });
 
 export default BottomPanel;
