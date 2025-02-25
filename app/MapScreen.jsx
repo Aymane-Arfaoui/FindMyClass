@@ -6,6 +6,7 @@ import Svg, { Path, Image as SvgImage, Rect } from 'react-native-svg';
 const floorsData = {
     1: {
         sections : [
+            { id: "floor", d: "M1024 0H0V1132H1024V0Z" },
             { id: "H-0023", d: "M61.052 123.99H424.965V265.783H61.052V123.99Z" },
             { id: "H-133", d: "M637.223 265.783H602.641V160.83H705.849V126.737H844.893V210.509H748.852V198.132H703.159V229.159H678.973V240.859H637.223V265.783Z" },
             { id: "H-141", d: "M971.906 265.783V172.742H906.972V265.783H971.906Z" },
@@ -50,11 +51,16 @@ const floorsData = {
             { id: "H-137", d: "M796.371 210.508H844.893V265.783H796.371V210.508Z" },
             { id: "H-139", d: "M906.962 265.783H844.893V126.737H971.906V173.085H906.962V265.783Z" },
             { id: "H-118", d: "M769.658 780.777H636.594V715.685L899.5 715.972V803.522L864.968 803.235V780.992H794.061V774.367H769.658V780.777Z" },
+            { id: "Water Fountain", d: "M553 756H580V769V783.5H553V756Z" },
         ],
-        poiImage: require('../assets/floorPlans/POIs_H1.png')
+        poiImage: require('../assets/floorPlans/POIs_H1.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
     },
     2: {
         sections: [
+            { id: "floor", d: "M1024 0H0V1132H1024V0Z" },
             { id: "Escalator between H1 and H2", d: "M778 1021H737V902H778V1021Z" },
             { id: "Elevator", d: "M737 939.5H632V891.5H737V939.5Z" },
             { id: "Escalator between H1 and H2", d: "M588 1023H632V904H588V1023Z" },
@@ -83,12 +89,17 @@ const floorsData = {
             { id: "H-0052", d: "M937 517H643.5V371H937V517Z" },
             { id: "H-260", d: "M974 804.5H882V711H974V804.5Z" },
             { id: "Outside H2", d: "M1011.5 287.5H12V156.5H65V107H941.5V167H1011.5V287.5Z" },
+            { id: "Water Fountain", d: "M73.5 625V590H107.5V625H73.5Z" },
         ],
-        poiImage: require('../assets/floorPlans/POIs_H2.png')
+        poiImage: require('../assets/floorPlans/POIs_H2.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
     },
 
     8: {
         sections : [
+            { id: "floor", d: "M0 1132L1024 1132L1024 0L0 0L0 1132Z" },
             { id: "H-867", d: "M851 998H982V902H851V998Z" },
             { id: "H-801", d: "M767 998H851V871H767V998Z" },
             { id: "H-803", d: "M675 998H767V871H675V998Z" },
@@ -162,27 +173,33 @@ const floorsData = {
             { id: "Stairs", d: "M292 414H342V324H292V414Z" },
             { id: "N/A", d: "M227 414H292V324H227L227 414Z" },
             { id: "H-832.02", d: "M342 414H381V324H342V414Z" },
-            // { id: "Section 75", d: "M433 695L433 443Z" },
-            // { id: "Section 76", d: "M433 695L433 443" },
+            { id: "line", d: "M433 695L433 443Z" },
+            { id: "line", d: "M433 695L433 443" },
             { id: "H-832.05", d: "M399 443H433V384H399V443Z" },
             { id: "H-832.03", d: "M399 384H433V353H399V384Z" },
             { id: "H-832.01", d: "M399 353H433V324H399V353Z" },
-            // { id: "Section 80", d: "M381 414H399Z" },
-            // { id: "Section 81", d: "M381 414H399" },
-            // { id: "Section 82", d: "M342 533H433Z" },
-            // { id: "Section 83", d: "M342 533H433" },
-            // { id: "Section 84", d: "M283 586L314 533Z" },
-            // { id: "Section 85", d: "M283 586L314 533" },
-            // { id: "Section 86", d: "M283 642L315 695Z" },
-            // { id: "Section 87", d: "M283 642L315 695" },
+            { id: "line", d: "M381 414H399Z" },
+            { id: "line", d: "M381 414H399" },
+            { id: "line", d: "M342 533H433Z" },
+            { id: "line", d: "M342 533H433" },
+            { id: "line", d: "M283 586L314 533Z" },
+            { id: "line", d: "M283 586L314 533" },
+            { id: "line", d: "M283 642L315 695Z" },
+            { id: "line", d: "M283 642L315 695" },
             { id: "Escalator", d: "M561 491H510L510 633H561V491Z" },
             { id: "H-877", d: "M719 456V429.842V414.547H682.553H681.314V392H658V429.842H682.553V456H719Z" },
             { id: "H-832.06", d: "M433 533V443.005H398.733V414H342V443.005V533H433Z" },
+            { id: "Water Fountain", d: "M685.5 812.5H714.5V839H685.5V812.5Z" },
+            { id: "Water Fountain", d: "M345 808.5H373.5V835.5H345V808.5Z" },
         ],
-        poiImage: require('../assets/floorPlans/POIs_H8.png')
+        poiImage: require('../assets/floorPlans/POIs_H8.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
     },
     9: {
         sections : [
+            { id: "floor", d: "M1024 0L0 0L0 1132L1024 1132L1024 0Z" },
             { id: "925-1", d: "M89 394H32L32 439H89V394Z" },
             { id: "925-3", d: "M89 439H32L32 481H89V439Z" },
             { id: "925-2", d: "M112 481H32L32 588H112L112 481Z" },
@@ -255,10 +272,10 @@ const floorsData = {
             { id: "915", d: "M250 864H193.115V892.644H167L167 996H250V864Z" },
             { id: "920", d: "M260 526V580.797H278.247V635.594H260V689H431V526H260Z" },
             { id: "920", d: "M278 581H223V635H278V581Z" },
-            // { id: "Section 74", d: "M278 581L313 526Z" },
-            // { id: "Section 75", d: "M278 581L313 526" },
-            // { id: "Section 76", d: "M278 635L311 689Z" },
-            // { id: "Section 77", d: "M278 635L311 689" },
+            { id: "line", d: "M278 581L313 526Z" },
+            { id: "line", d: "M278 581L313 526" },
+            { id: "line", d: "M278 635L311 689Z" },
+            { id: "line", d: "M278 635L311 689" },
             { id: "980", d: "M254 475V526.061H430.877L430.877 811H477L477 526.061V475L254 475Z" },
             { id: "Men's Bathroom", d: "M431 689H338V811H431V689Z" },
             { id: "Stairs", d: "M338 689H289V811H338V689Z" },
@@ -296,15 +313,176 @@ const floorsData = {
             { id: "961-19", d: "M991 206V136H945.663V192.91H939V206H945.663H991Z" },
             { id: "937", d: "M558 358L543.338 344L531 358H558Z" },
             { id: "Escalator", d: "M515 481H554V642H515V481Z" },
+            { id: "Water Fountain", d: "M231.5 436.5V404H264.5V436.5H231.5Z" },
+            { id: "Vending Machine", d: "M344 377.5V345H377V377.5H344Z" },
+            { id: "Water Fountain", d: "M351 826V795H383V826H351Z" },
+            { id: "Water Fountain", d: "M871 731.5V701H857.75H839.5V731.5H871Z" },
         ],
-        poiImage: require('../assets/floorPlans/POIs_H9.png')
+        poiImage: require('../assets/floorPlans/POIs_H9.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
+    },
+    10: {
+        sections : [
+            { id: "background", d: "M1 1133V1H1025V1133H1Z" },
+            { id: "floor", d: "M29 474.59L388.88 443.882L341.753 111.202H400.305V22H426.724V111.202H857.295V680.161H979V1040H462.984L399.366 541.602L32.8029 573.657L29 474.59Z" },
+            { id: "S2.245", d: "M357.881 225.054H543.769V111.202H341.753L357.881 225.054Z" },
+            { id: "Stairs", d: "M616.981 111.202H543.769V225.054H616.981V111.202Z" },
+            { id: "S2.273", d: "M656.869 111.202H616.981V178.661H656.869V111.202Z" },
+            { id: "S2.275", d: "M693.727 111.202H656.869V178.661H693.727V111.202Z" },
+            { id: "S2.279", d: "M733.11 111.202H693.727V178.661H733.11V111.202Z" },
+            { id: "S2.285", d: "M857.295 111.202H733.11V255.178H857.295V111.202Z" },
+            { id: "S2.330", d: "M723.509 255.191V269.138H698.268V541.072H857.308V255.191H723.509Z" },
+            { id: "S2.210", d: "M673.026 255.191V269.138H698.268V541.072H539.227V255.191H673.026Z" },
+            { id: "S2.345", d: "M734.625 541.072H608.398V565.385H734.625V541.072Z" },
+            { id: "Elevator", d: "M650.81 565.385H608.398V607.78H650.81V565.385Z" },
+            { id: "Elevator", d: "M691.203 565.385H650.81V607.78H691.203V565.385Z" },
+            { id: "Elevator", d: "M734.625 565.385H691.203V607.78H734.625V565.385Z" },
+            { id: "S2.230", d: "M783.096 541.072H734.625V593.82H783.096V541.072Z" },
+            { id: "S2.312", d: "M817.308 541.072H783.096V608.028H817.308V541.072Z" },
+            { id: "Stairs", d: "M857.295 647.876H759.114V690.284H857.295V647.876Z" },
+            { id: "S2.438", d: "M793.031 690.284H734.625V724.283H793.031V690.284Z" },
+            { id: "Elevator", d: "M734.625 649.338H691.993V686.263H734.625V649.338Z" },
+            { id: "Elevator", d: "M691.993 649.338H650.936V686.263H691.993V649.338Z" },
+            { id: "Elevator", d: "M650.935 649.338H608.398V686.263H650.935V649.338Z" },
+            { id: "S2.440", d: "M734.625 686.263H608.398V756.089H734.625V686.263Z" },
+            { id: "Accessibility Bathroom", d: "M698.049 832.87V794.1H671.995V832.87H698.049Z" },
+            { id: "Men's Bathroom", d: "M671.995 756.098V794.1H698.049V832.87V856.254H734.63V756.098H671.995Z" },
+            { id: "Women's Bathroom", d: "M608.392 756.098V832.87V855.902H643.786V832.87H671.995V756.098H608.392Z" },
+            { id: "S2.437", d: "M793.031 724.283H734.63V819.754H793.031V724.283Z" },
+            { id: "S2.435", d: "M857.309 680.157V690.298H793.018V819.755H857.309V801.394H978.987V680.157H857.309Z" },
+            { id: "S2.428", d: "M857.295 819.754H764.919V857.496H857.295V819.754Z" },
+            { id: "S2.445", d: "M978.999 801.393H901.749V927.809H978.999V801.393Z" },
+            { id: "S2.455", d: "M979 927.809H883.067V1040H979V927.809Z" },
+            { id: "S2.465", d: "M883.068 954.694H729.071V1040H883.068V954.694Z" },
+            { id: "S2.470", d: "M860.852 889.551H729.071V954.694H860.852V889.551Z" },
+            { id: "S2.401", d: "M729.071 889.551H615.972V1040H729.071V889.551Z" },
+            { id: "S2.015", d: "M452.165 955.24H615.971V1040H462.984L452.165 955.24Z" },
+            { id: "S2.115", d: "M432.27 799.377H565.481V955.24L452.118 954.875L432.27 799.377Z" },
+            { id: "S2.135", d: "M421.727 716.782H565.481V799.376H432.27L421.727 716.782Z" },
+            { id: "S2.145", d: "M413.144 649.513L421.727 716.782L565.468 716.784V666.722H502.864V649.512L413.144 649.513Z" },
+            { id: "line", d: "M502.864 649.513V304.812Z" },
+            { id: "line", d: "M502.864 649.513V304.812" },
+            { id: "Escalator", d: "M453.858 513.854V648.461H502.842V513.854H453.858Z" },
+            { id: "line", d: "M420.369 421.215L387.38 426.845L374.885 333.695L406.874 328.577L420.369 421.215Z" },
+            { id: "Stairs to MB-1", d: "M406.874 328.577L420.369 421.215L387.38 426.845L374.885 333.695L406.874 328.577ZM406.874 328.577L398.877 271.765" },
+            { id: "Metro Guy-Concordia", d: "M339.791 507.598V475.5H371.798V507.598H339.791Z" },
+            { id: "Water Fountain", d: "M654 856.5V832.08H678.414L678.414 856.5H654Z" },
+        ],
+        poiImage: require('../assets/floorPlans/POIs_MB-S2.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
+    },
+    11: {
+        sections : [
+            { id: "background", d: "M1 1133V1H1025V1133H1Z" },
+            { id: "floor", d: "M915 1020.09L782.76 202.035H762.415L720.801 77.8944H427.654V68.345H367.544V58H110V452.524H276.75V1058.29H324.081V1039.19H562.668V1057.49H595.034V1075H865.063V1020.09H915Z" },
+            { id: "1.294", d: "M709 1075V995.13H670.887V952H577V1057.43H594.662V1075H709Z" },
+            { id: "1.347", d: "M577 1012.79H531.795L508.974 978.814V920H277V1058H324.218V1038.97H562.239V1057.21H577V1012.79Z" },
+            { id: "1.210", d: "M668 915H586.727L329 855.42V655.243L559.313 602H668V915Z" },
+            { id: "1.338", d: "M395.597 920V871.006L328.925 855.615V655.362L487 618.871V581.232H427.979V535H394.671V605.942H277V920H395.597Z" },
+            { id: "1.310", d: "M487 582H583V602.513H559.339L487 619V582Z" },
+            { id: "line", d: "M712 621V702Z" },
+            { id: "line", d: "M712 621V702" },
+            { id: "line", d: "M712 690H668Z" },
+            { id: "line", d: "M712 690H668" },
+            { id: "line", d: "M712 736V919Z" },
+            { id: "line", d: "M712 736V919" },
+            { id: "1.437", d: "M110 453H277V256H110V453Z" },
+            { id: "1.301", d: "M277 443H428V332H277V443Z" },
+            { id: "1.309", d: "M343 553H395V488H343V553Z" },
+            { id: "Stairs", d: "M277 488H395V443H277V488Z" },
+            { id: "1.335", d: "M277 606H343V488H277V606Z" },
+            { id: "1.315", d: "M343 606H395V553H343V606Z" },
+            { id: "Elevator", d: "M428 582H480V535H428V582Z" },
+            { id: "Elevator", d: "M480 582H529V535H480V582Z" },
+            { id: "Elevator", d: "M529 582H583V535H529V582Z" },
+            { id: "Elevator", d: "M529 487H583V443H529V487Z" },
+            { id: "Elevator", d: "M479 487H529V443H479V487Z" },
+            { id: "Elevator", d: "M428 487H479V443H428V487Z" },
+            { id: "1.424", d: "M428 443H583V376H428V443Z" },
+            { id: "Women's Bathroom", d: "M494.575 376V321.895H504V281.072H463.132V256H436.262V281.072H428V321.895V376H494.575Z" },
+            { id: "N/A", d: "M417 332H428V281H417V332Z" },
+            { id: "Accessibility Bathroom", d: "M382 332H417V281H382V332Z" },
+            { id: "Men's Bathroom", d: "M382 332V281.174V256H350.492V281.174H277V332H382Z" },
+            { id: "N/A", d: "M277 281H311V256H277V281Z" },
+            { id: "N/A", d: "M311 281H350V256H311V281Z" },
+            { id: "1.494", d: "M205.459 256V223.788H266.367H390V149.834H300.03V128.371H266.367V149.834V172.897H175.469V58H110V215.823V256H205.459Z" },
+            { id: "1.115", d: "M266.468 173V128.434H300.342V149.916H390.877V171.015H428V68.3407H390.877H367.644V58H266.468H175V173H266.468Z" },
+            { id: "1.434", d: "M390 209H428V171H390V209Z" },
+            { id: "1.132", d: "M535 301V280.946V256H463V280.946H512.734V301H535Z" },
+            { id: "1.130", d: "M605 321V238H535.401V301.739H513V321H535.401H605Z" },
+            { id: "1.134", d: "M513 376H583V321H513V376Z" },
+            { id: "N/A", d: "M554 343H583V321H554V343Z" },
+            { id: "line", d: "M808 356H771Z" },
+            { id: "line", d: "M808 356H771" },
+            { id: "floor", d: "M763 202H712L722.664 232H756.509" },
+            { id: "line", d: "M712 202L672 78Z" },
+            { id: "line", d: "M712 202L672 78" },
+            { id: "floor", d: "M851 621H798V819H839.664L820.684 710.045" },
+            { id: "line", d: "M832 819L855 964Z" },
+            { id: "line", d: "M832 819L855 964" },
+            { id: "1.299", d: "M822 1075H865V1021H822V1075Z" },
+            { id: "1.349", d: "M277 1004H442V920H277V1004Z" },
+            { id: "line", d: "M671 995V1039Z" },
+            { id: "line", d: "M671 995V1039" },
+            { id: "Escalator to S2", d: "M770 487V334.167V312H725V487H770Z" },
+            { id: "Stairs to S2", d: "M903 953.386L856.312 964L832.32 818.755H839.453L820 709.262V702H862.148L903 953.386Z" },
+            { id: "Water Fountain", d: "M396 282V260H423V282H396Z" },
+        ],
+
+        poiImage: require('../assets/floorPlans/POIs_MB-1.png'),
+        viewBox: "0 0 1024 1132",
+        width: 1024,
+        height: 1132
+    },
+
+    12: {
+        sections : [
+            { id: "background", d: "M1816 0H0V746H1816V0Z" },
+            { id: "H-119", d: "M471 431H110V576H471V431Z" },
+            { id: "H-117", d: "M600 431H471V576H600V431Z" },
+            { id: "H-115", d: "M885 431H600V587H885V431Z" },
+            { id: "H-111", d: "M1163 431H885V583H1163V431Z" },
+            { id: "H-109", d: "M1163 573V431H1218.11V483.225H1276V573H1163Z" },
+            { id: "H-107", d: "M1218 483V431H1276V483H1218Z" },
+            { id: "H-101", d: "M1639 431H1276V573H1639V431Z" },
+            { id: "Stairs", d: "M1709 431H1639V504H1709V431Z" },
+            { id: "H-102", d: "M1584 264V323H1636V264H1584Z" },
+            { id: "Women's Bathroom", d: "M1636 180V264.245H1583.85V323H1523V180H1636Z" },
+            { id: "H-106", d: "M1523 323V181.242V160H1256V323H1523Z" },
+            { id: "H-155", d: "M1256 323H1205V267H1256V323Z" },
+            { id: "Stairs", d: "M1166 323H1204.97V266.644H1256V160H1166V323Z" },
+            { id: "H-112", d: "M1125.57 323H946.378V250.363H928V160H1166V314.785H1125.57V323Z" },
+            { id: "H-112-1", d: "M946 250.363V323H874V160H927.656V250.363H946Z" },
+            { id: "H-116", d: "M592 323H873.539L874 160H592V323Z" },
+            { id: "Stairs", d: "M493 323H592V176H493V323Z" },
+            { id: "H-120", d: "M347 176H493V323H347V176Z" },
+            { id: "H-122", d: "M216 323H347V176H216V323Z" },
+            { id: "Men's Bathroom", d: "M216 323H106V176H216V323Z" },
+            { id: "Stairs", d: "M125.5 323H30.5V431H125.5V323Z" },
+            { id: "Stairs", d: "M1790 323H1709V431H1790V323Z" },
+            { id: "floor", d: "M125.5 431V323.5L1125.5 323V315H1166V323H1709V431H125.5Z" },
+        ],
+        poiImage: require('../assets/floorPlans/POIs_CC1.png'),
+        viewBox: "0 0 1816 746",
+        width: 1816,
+        height: 746
+
     }
+
 };
 
 const InteractiveMap = () => {
     const [selectedSection, setSelectedSection] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedFloor, setSelectedFloor] = useState(1); // Start with Floor 1
+
+    const floorWidth = floorsData[selectedFloor].width;
+    const floorHeight = floorsData[selectedFloor].height;
+    const aspectRatio = floorWidth / floorHeight;
 
     const handlePress = (section) => {
         setSelectedSection(section);
@@ -315,20 +493,24 @@ const InteractiveMap = () => {
         <View style={{ flex: 1 }}>
             {/* Scrollable Map */}
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-                <View style={{ height: '100%', aspectRatio: 1024 / 1132, position: 'relative' }}>
-                    <Svg width="100%" height="100%" viewBox="0 0 1024 1132">
+                <View style={{ height: '100%', aspectRatio: aspectRatio, position: 'relative' }}>
+                    <Svg width="100%" height="100%" viewBox={floorsData[selectedFloor].viewBox}>
                         {/* Background */}
-                        <Rect width="1024" height="1132" fill="#C7C7C7" />
+                        <Rect width="100%" height="100%" fill="#8F8F8F" />
 
                         {/* Interactive Sections */}
                         {floorsData[selectedFloor].sections.map((section, index) => (
                             <Path
                                 key={index}
                                 d={section.d}
-                                fill="white"
+                                fill={
+                                    section.id === "floor" ? "#C7C7C7" :
+                                        section.id === "background" ? "#8F8F8F" :
+                                            "white" // Default color
+                                }
                                 stroke="black"
                                 strokeWidth="2"
-                                onPress={() => handlePress(section)}
+                                onPress={section.id === "floor" || section.id === "background" || section.id === "line" ? null : () => handlePress(section)}
                             />
                         ))}
 
@@ -337,8 +519,8 @@ const InteractiveMap = () => {
                             href={floorsData[selectedFloor].poiImage}
                             x="0"
                             y="0"
-                            width="1024"
-                            height="1132"
+                            width="100%"
+                            height="100%"
                             preserveAspectRatio="xMidYMid meet"
                             opacity="1"
                             pointerEvents="none"
@@ -349,7 +531,7 @@ const InteractiveMap = () => {
 
             {/* Floor Selection Bar */}
             <View style={{ flexDirection: 'row', justifyContent: 'center', padding: 10, backgroundColor: '#ddd' }}>
-                {[1, 2, 8, 9].map(floor => (
+                {[1, 2, 8, 9, 10, 11, 12].map(floor => (
                     <TouchableOpacity
                         key={floor}
                         onPress={() => setSelectedFloor(floor)}
@@ -361,7 +543,7 @@ const InteractiveMap = () => {
                         }}
                     >
                         <Text style={{ color: selectedFloor === floor ? 'white' : 'black', fontSize: 16 }}>
-                            Floor {floor}
+                            {floor}
                         </Text>
                     </TouchableOpacity>
                 ))}
