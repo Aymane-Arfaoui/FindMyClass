@@ -20,8 +20,10 @@ const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
     iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '794159243993-iafmbeen4qjbe6tsmba1khj7qlsrrd1a.apps.googleusercontent.com',
-    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly']
+    androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
+    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+
   });
 
   const router = useRouter();
@@ -54,12 +56,12 @@ const Welcome = () => {
         <View style={styles.buttonContainer}>
           <TouchableOpacity
               testID={'Google-login'}
-            style={styles.googleButton} 
-            onPress={() => promptAsync()} 
+            style={styles.googleButton}
+            onPress={() => promptAsync()}
           >
-            <Image 
-              source={GoogleLoginButton} 
-              style={styles.googleLogo} 
+            <Image
+              source={GoogleLoginButton}
+              style={styles.googleLogo}
             />
             <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
           </TouchableOpacity>
