@@ -1,20 +1,19 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import { theme } from '../constants/theme';
-import { hp, wp } from '../helpers/common';
+import {theme} from '../constants/theme';
+import {hp, wp} from '../helpers/common';
 
-const transportModes = [
-    { mode: 'driving', icon: 'car', time: '4 min' },
-    { mode: 'transit', icon: 'bus', time: '12 min' },
-    { mode: 'walking', icon: 'walking', time: '3 min' },
-    { mode: 'bicycling', icon: 'bicycle', time: '5 min' },
-];
-
-const TransportOptions = ({ modeSelected , setModeSelected }) => {
+const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
+    const transportModes = [
+        {mode: 'driving', icon: 'car', time: travelTimes.driving},
+        {mode: 'transit', icon: 'bus', time: travelTimes.transit},
+        {mode: 'walking', icon: 'walking', time: travelTimes.walking},
+        {mode: 'bicycling', icon: 'bicycle', time: travelTimes.bicycling},
+    ];
     return (
         <View style={styles.container}>
-            {transportModes.map(({ mode, icon, time }) => (
+            {transportModes.map(({mode, icon, time}) => (
                 <Pressable
                     key={mode}
                     onPress={() => setModeSelected(mode)}
@@ -43,8 +42,6 @@ const TransportOptions = ({ modeSelected , setModeSelected }) => {
 
 export default TransportOptions;
 
-
-
 const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
@@ -54,7 +51,7 @@ const styles = StyleSheet.create({
         marginTop: 3,
         elevation: 4,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: hp(0.5) },
+        shadowOffset: {width: 0, height: hp(0.5)},
         shadowOpacity: 0.2,
         shadowRadius: wp(2),
         overflow: 'hidden',
@@ -64,8 +61,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: hp(1),
-        paddingHorizontal: wp(2),
-        borderRadius: wp(4),
+        paddingHorizontal: wp(1),
+        borderRadius: wp(2),
         backgroundColor: 'transparent',
     },
 

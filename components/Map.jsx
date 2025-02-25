@@ -4,10 +4,11 @@ import {StyleSheet, View} from 'react-native';
 import {theme} from "@/constants/theme";
 import {getUserLocation} from "@/services/userService";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
+import Config from 'react-native-config';
+const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
+MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-MapboxGL.setAccessToken('sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw');
-
-const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef}) => {
+const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress}) => {
 
     useEffect(() => {
 
@@ -78,7 +79,9 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
           const isSelected = selectedRoute && selectedRoute === route;
           if (!(route.routeGeoJSON)) return null;
           return (
-            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
+            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}
+                onPress={() => onRoutePress(route)} // onPress to update selected route
+            >
               <MapboxGL.LineLayer
                 id={`route-line-${index}`}
                 style={isSelected ? styles.selectedRoute : styles.route}
