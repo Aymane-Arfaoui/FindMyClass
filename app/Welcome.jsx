@@ -13,6 +13,7 @@ import { getCalendarEvents } from '../services/calendarService'
 import { useRouter } from 'expo-router'
 import GoogleLoginButton from '../assets/images/google-color.png'
 import BackgroundImg from '../assets/images/background-generic-1.png';
+import AppNavigationPanel from "@/components/AppNavigationPannel";
 
 WebBrowser.maybeCompleteAuthSession()
 
@@ -46,36 +47,40 @@ const Welcome = () => {
       <StatusBar style='dark' />
       <View style={styles.container} testID={'welcome'}>
         <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
-        <View style={styles.contentContainer} testID={'welcome-title'}>
-          <Text style={styles.welcomeTitle}>Welcome</Text>
-          {/* <Text style={styles.appName}>FindMyClass</Text> */}
-        </View>
+          <View style={styles.contentContainer} testID={'welcome-title'}>
+            <Text style={styles.welcomeTitle}>Welcome</Text>
+            {/* <Text style={styles.appName}>FindMyClass</Text> */}
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'Google-login'}
-            style={styles.googleButton} 
-            onPress={() => promptAsync()} 
-          >
-            <Image 
-              source={GoogleLoginButton} 
-              style={styles.googleLogo} 
-            />
-            <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+                testID={'Google-login'}
+              style={styles.googleButton}
+              onPress={() => promptAsync()}
+            >
+              <Image
+                source={GoogleLoginButton}
+                style={styles.googleLogo}
+              />
+              <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+            </TouchableOpacity>
+          </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'welcome-button'}
-            style={styles.welcomeButton}
-            onPress={() => router.push("/homemap")}
-          >
-            <Text style={styles.welcomeButtonText}>GET STARTED</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+                testID={'welcome-button'}
+              style={styles.welcomeButton}
+              onPress={() => router.push("/homemap")}
+            >
+              <Text style={styles.welcomeButtonText}>GET STARTED</Text>
+            </TouchableOpacity>
 
-        </View>
+          </View>
+
+
         </ImageBackground>
+        <AppNavigationPanel style={styles.navPanel}></AppNavigationPanel>
+
       </View>
     </ScreenWrapper>
   )
@@ -100,6 +105,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     justifyContent: 'center',
     alignItems: 'center',
+    width: "100%"
   },
   contentContainerStyle: {
     paddingVertical: hp(4),
@@ -254,5 +260,8 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     letterSpacing: 0.8,
+  },
+  navPanel: {
+    width: "100%"
   },
 });
