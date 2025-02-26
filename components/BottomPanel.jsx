@@ -2,17 +2,19 @@ import React, {useEffect, useState} from "react";
 import {Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
+import {useRouter} from "expo-router";
 
 const BottomPanel = ({transportMode, routeDetails, routes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
-
+    const router = useRouter();
 
     useEffect(() => {
-            setSelectedRoute(routeDetails);
+        setSelectedRoute(routeDetails);
     }, [routeDetails]);
+
 
     const toggleExpand = () => {
         Animated.timing(animatedHeight, {
@@ -23,13 +25,15 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
         setExpanded(!expanded);
     };
 
-
     const handleRouteSelection = (route) => {
         setSelectedRoute(route);
         // setExpanded(false);
         setModalVisible(true);
 
     };
+
+    const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle");
+    const otherTransitRoutes = routes?.filter((r) => r.mode !== "shuttle");
 
 
     return (
@@ -117,37 +121,48 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
             </Modal>
 
 
-
-
-
             {expanded && (
                 <ScrollView style={{marginTop: 10}}>
-                    {routes?.length > 0 ? (
-                        routes.map((route, index) => (
-                            <View key={index} style={styles.stepsContainer}>
-                                <Text style={styles.stepText}>
-                                    {route.mode.toUpperCase()} – {route.duration} – {route.distance}
-                                </Text>
+                    {shuttleRoutes?.map((route, index) => (
+                        <View key={index} style={styles.shuttleStepsContainer}>
+                            <Text style={styles.shuttleStepText}>
+                                {route.mode.toUpperCase()} – {route.duration} – {route.distance}
+                            </Text>
 
-                                <TouchableOpacity testID={'switch-route-button'} style={styles.switchRouteButton} onPress={() => handleRouteSelection(route)}>
-                                        <View style={styles.switchRouteContent}>
-                                            <Text style={styles.switchRouteText}>Go</Text>
-                                            <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white" />
-                                        </View>
-                                    </TouchableOpacity>
+                            <TouchableOpacity
+                                testID={'switch-route-button'}
+                                style={styles.shuttleSwitchRouteButton}
+                                onPress={() => router.push('/shuttleScheduleTest')}
+                            >
+                                <View style={styles.switchRouteContent}>
+                                    <Text style={styles.shuttleSwitchRouteText}>Go</Text>
+                                    <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white" />
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
 
+                    {otherTransitRoutes?.map((route, index) => (
+                        <View key={index} style={styles.stepsContainer}>
+                            <Text style={styles.stepText}>
+                                {route.mode.toUpperCase()} – {route.duration} – {route.distance}
+                            </Text>
 
-                            </View>
+                            <TouchableOpacity testID={'switch-route-button'} style={styles.switchRouteButton}
+                                              onPress={() => handleRouteSelection(route)}>
+                                <View style={styles.switchRouteContent}>
+                                    <Text style={styles.switchRouteText}>Go</Text>
+                                    <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white"/>
+                                </View>
+                            </TouchableOpacity>
+                        </View>
+                    ))}
 
-                        ))
-                    ) : (
-                        <Text style={styles.text}>
-                            No routes found for {transportMode}.
-                        </Text>
+                    {shuttleRoutes?.length === 0 && otherTransitRoutes?.length === 0 && (
+                        <Text style={styles.text}>No routes found for {transportMode}.</Text>
                     )}
                 </ScrollView>
             )}
-
         </Animated.View>
     );
 };
@@ -214,7 +229,6 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         width: "100%",
         paddingVertical: 10,
-
     },
     stepText: {
         fontSize: 17,
@@ -272,8 +286,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
     },
 
-
-
     modalContainer: {
         flex: 1,
         justifyContent: "flex-end",
@@ -318,9 +330,38 @@ const styles = StyleSheet.create({
         paddingRight: 20,
         paddingBottom: 20,
 
-    }
+    },
+    shuttleStepsContainer: {
+        marginTop: 10,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        width: "100%",
+        paddingVertical: 10,
+    },
+    shuttleStepText: {
+        fontSize: 16,
+        marginVertical: 4,
+        color: theme.colors.text,
+    },
+    shuttleSwitchRouteButton: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: 25,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "row",
+    },
+    shuttleSwitchRouteText: {
+        color: theme.colors.white,
+        fontSize: 16,
+        fontWeight: theme.fonts.bold,
+    },
+
 
 
 });
 
 export default BottomPanel;
+

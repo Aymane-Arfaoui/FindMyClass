@@ -108,7 +108,7 @@ const fetchShuttleRoute = async (origin, destination) => {
 
         const shuttleDetails = getShuttleTravelTime();
         return [{
-            mode: "transit (shuttle)",
+            mode: "shuttle",
             distance: shuttleDetails.distance,
             duration: shuttleDetails.duration,
             departure: nextShuttle

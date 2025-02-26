@@ -3,7 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 import { useRouter } from 'expo-router';
 import { theme } from "@/constants/theme";
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { getShuttleTimes } from '../services/shuttleService';
+import { getShuttleTimes } from '@/services/shuttleService';
 import { useState, useEffect } from "react";
 
 const ShuttleSchedule = () => {
@@ -15,7 +15,7 @@ const ShuttleSchedule = () => {
 
     useEffect(() => {
         const fetchShuttleData = () => {
-            const { nextShuttles, allShuttles } = getShuttleTimes(10);
+            const { nextShuttles, allShuttles } = getShuttleTimes(5);
 
             if (Array.isArray(nextShuttles) && (nextShuttles.length > 0 || (Array.isArray(allShuttles) && allShuttles.length > 0))) {
                 setErrorMessage("");
