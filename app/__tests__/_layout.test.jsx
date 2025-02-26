@@ -3,17 +3,7 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import {Stack,useRouter, useSegments} from 'expo-router';
 import react from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 
-//mocking the useRouter
-jest.mock('expo-router',
-    ()=> (
-        {
-            useRouter: jest.fn(),
-            useSegments:jest.fn(),
-            Stack:jest.fn()
-        }
-));
 describe('Layout Component', () => {
     afterEach(
         ()=> {AsyncStorage.clear();}

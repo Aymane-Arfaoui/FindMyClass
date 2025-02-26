@@ -2,14 +2,8 @@ import Home from '../home.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Button from "@/components/Button";
-import Welcome from "@/app/Welcome";
 
 
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
-jest.mock('expo-font');
-//mocking the useRouter
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 const event = JSON.stringify([{
     "summary": "test1",
     "location": "test1",
