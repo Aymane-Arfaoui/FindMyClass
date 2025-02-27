@@ -35,7 +35,6 @@ allprojects {
         google()
         mavenCentral()
         maven { url 'https://www.jitpack.io' }
-<<<<<<< HEAD
         maven {
             // Mapbox Maven repository for Mapbox Maps SDK dependencies
             url 'https://api.mapbox.com/downloads/v2/releases/maven'
@@ -48,8 +47,5 @@ allprojects {
                 password = 'sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw'
             }
         }
-=======
-        maven { url 'https://api.mapbox.com/downloads/v2/releases/maven' }
->>>>>>> 22e92c2a5007e5215884fd85b79ad433ac53c976
     }
 }
