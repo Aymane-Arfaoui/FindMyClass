@@ -88,7 +88,19 @@ const Welcome = () => {
 
           </ImageBackground>
         </View>
-      </ScreenWrapper>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+              testID={'open-map-button'}
+              style={styles.mapButton}
+              onPress={() => router.push('/MapScreen')}
+          >
+            <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
+          </TouchableOpacity>
+        </View>
+
+        </ImageBackground>
+      </View>
+    </ScreenWrapper>
   )
 }
 
