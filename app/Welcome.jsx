@@ -85,9 +85,6 @@ const Welcome = () => {
                 <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
               </TouchableOpacity>
             </View>
-
-          </ImageBackground>
-        </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
               testID={'open-map-button'}
