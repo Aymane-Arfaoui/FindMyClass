@@ -13,6 +13,8 @@ import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
 import {useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
+import PlaceFilterButtons from "@/components/PlaceFilterButtons";
+
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
@@ -32,6 +34,8 @@ export default function Homemap() {
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
+    const [places, setPlaces] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -327,6 +331,68 @@ export default function Homemap() {
         })
     ).current;
 
+    const fetchPlacesOfInterest = async (category) => {
+        if (!currentLocation) return;
+
+        setPlaces([]); // Reset places list
+
+        const { coordinates } = currentLocation.geometry;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json
+    ?location=${coordinates[1]},${coordinates[0]}
+    &radius=1000
+    &type=${category}
+    &key=${GOOGLE_PLACES_API_KEY}`.replace(/\s+/g, '');
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.results) {
+                const formattedPlaces = data.results.map((place) => ({
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [
+                            place.geometry.location.lng,
+                            place.geometry.location.lat,
+                        ],
+                    },
+                    name: place.name,
+                    place_id: place.place_id || null,  // ✅ Ensure place_id is included
+                    category: category,
+                }));
+                setPlaces(formattedPlaces);
+            }
+        } catch (error) {
+            console.error("Error fetching places of interest:", error);
+        }
+    };
+
+    const handlePOIPress = async (place) => {
+
+        setSelectedLocation(place);
+
+        Animated.timing(panelY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+
+        try {
+            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,rating,formatted_address,photos&key=${GOOGLE_PLACES_API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.result) {
+                setBuildingDetails(data.result);
+            } else {
+                console.warn("No details found for this place.");
+            }
+        } catch (error) {
+            console.error("Error fetching POI details:", error);
+        }
+    };
+
+
 
     return (
         <View style={styles.container}>
@@ -341,6 +407,8 @@ export default function Homemap() {
                 cameraRef={cameraRef}
                 centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
                 onRoutePress={handleRoutePress}
+                places={places}
+                onSelectedPOI={handlePOIPress}
             />
 
             {!isDirectionsView && (
@@ -355,6 +423,23 @@ export default function Homemap() {
                         />
                     </View>
                 </>
+            )}
+
+            {/* Place Filter Buttons */}
+            {!isDirectionsView && (
+                <View style={styles.filterButtonsContainer}>
+                    <PlaceFilterButtons
+                        onSelectCategory={(category) => {
+                            setSelectedCategory(category);
+                            if (category) {
+                                fetchPlacesOfInterest(category);
+                            } else {
+                                setPlaces([]);
+                            }
+                        }}
+                    />
+                </View>
+
             )}
 
             {!isDirectionsView && (
@@ -461,6 +546,17 @@ const styles = StyleSheet.create({
         left: 10,
         right: 10,
         zIndex: 10,
+    },
+    filterButtonsContainer: {
+        position: "absolute",
+        top: 140, // Ensure it's below the search bar
+        left: 10,
+        right: 10,
+        zIndex: 10,
+        flexDirection: "row",
+        justifyContent: "center",
+        paddingVertical: 8,
+        borderRadius: 10,
     },
     infoBox: {
         position: 'absolute',
