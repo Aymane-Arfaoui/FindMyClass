@@ -1,46 +1,64 @@
-import React, { useState } from "react";
+import React from "react";
 import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
+import { useNavigation } from "@react-navigation/native";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
 
+function hasIndoorMap(buildingName = "") {
+    const lower = buildingName.toLowerCase();
+    let buildingKey = null;
+
+    if (lower.includes("hall")) {
+        buildingKey = "Hall";
+    } else if (lower.includes("john molson") || lower.includes("mb ")) {
+        buildingKey = "MB";
+    } else if (lower.includes("cc") || lower.includes("central building")) {
+        buildingKey = "CC";
+    }
+
+    return buildingKey;
+}
+
+
 function BuildingDetailsPanel({
-        selectedBuilding,
-        buildingDetails,
-        panHandlers,
-        panelY,
-        onClose,
-        onDirectionPress,
-        currentLocation,
-        mode,
-        GOOGLE_PLACES_API_KEY,
-        loading
-    }){
-
-        return (
-            <Animated.View
-                {...panHandlers}
-                style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
+                                  selectedBuilding,
+                                  buildingDetails,
+                                  panHandlers,
+                                  panelY,
+                                  onClose,
+                                  onDirectionPress,
+                                  currentLocation,
+                                  mode,
+                                  GOOGLE_PLACES_API_KEY,
+                                  loading
+                              }) {
+    const buildingKey = hasIndoorMap(selectedBuilding?.name);
+    const navigation = useNavigation();
+    return (
+        <Animated.View
+            {...panHandlers}
+            style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
+        >
+            <TouchableOpacity
+                onPress={onClose}
+                style={styles.closeButton}
+                activeOpacity={0.7}
             >
-                <TouchableOpacity
-                    onPress={onClose}
-                    style={styles.closeButton}
-                    activeOpacity={0.7}
-                >
-                    <Ionicons name="close-circle" size={32} color={theme.colors.dark}/>
-                </TouchableOpacity>
+                <Ionicons name="close-circle" size={32} color={theme.colors.dark}/>
+            </TouchableOpacity>
 
-                <View style={styles.dragBar}/>
+            <View style={styles.dragBar}/>
 
-                {loading ? (
-                    <ActivityIndicator size="large" color={theme.colors.primary}/>
-                ) : (
-                    <>
-                        <Text style={styles.buildingName}>
-                            {selectedBuilding?.name || "Loading..."}
-                        </Text>
+            {loading ? (
+                <ActivityIndicator size="large" color={theme.colors.primary}/>
+            ) : (
+                <>
+                    <Text style={styles.buildingName}>
+                        {selectedBuilding?.name || "Loading..."}
+                    </Text>
 
                         {buildingDetails && (
                             <>
@@ -54,7 +72,7 @@ function BuildingDetailsPanel({
                                     />
                                 ) : (
                                     <Image
-                                        source={{ uri: DEFAULT_IMAGE_URL }}
+                                        source={{uri: DEFAULT_IMAGE_URL}}
                                         style={styles.buildingImage}
                                         resizeMode="cover"
                                     />
@@ -67,14 +85,26 @@ function BuildingDetailsPanel({
                         )}
 
 
-                        <TouchableOpacity style={styles.directionButton} onPress={(_event) => onDirectionPress(currentLocation,selectedBuilding,mode)}>
-                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                    <TouchableOpacity style={styles.directionButton}
+                                      onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
+                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                        <Text style={styles.directionButtonText}>Get Directions</Text>
+                    </TouchableOpacity>
+                    {buildingKey && (
+                        <TouchableOpacity
+                            style={styles.indoorMapButton}
+                            onPress={() => {
+                                navigation.navigate("MapScreen", { buildingKey });
+                            }}
+                        >
+                            <Ionicons name="map" size={22} color={theme.colors.white} />
+                            <Text style={styles.indoorMapButtonText}>Indoor Map</Text>
                         </TouchableOpacity>
-                    </>
-                )}
-            </Animated.View>
-        );
+                    )}
+                </>
+            )}
+        </Animated.View>
+    );
 };
 
 export default BuildingDetailsPanel;
@@ -156,5 +186,26 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginLeft: 8,
     },
+    indoorMapButton: {
+        flexDirection: "row",
+        marginTop: 12,
+        backgroundColor: theme.colors.primaryLight,
+        paddingVertical: 14,
+        borderRadius: 15,
+        alignItems: "center",
+        justifyContent: "center",
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 5,
+        elevation: 6,
+    },
+    indoorMapButtonText: {
+        color: theme.colors.white,
+        fontSize: 16,
+        fontWeight: "bold",
+        marginLeft: 8,
+    },
+
 
 });
