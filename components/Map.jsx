@@ -5,10 +5,14 @@ import {theme} from "@/constants/theme";
 import {getUserLocation} from "@/services/userService";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
 import Config from 'react-native-config';
+import { Ionicons } from '@expo/vector-icons';
+
+
 const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef}) => {
+const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, places, onSelectedPOI }) => {
+
 
     useEffect(() => {
 
@@ -28,6 +32,7 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
         <View style={styles.container}>
             <MapboxGL.MapView
                 style={styles.map}
+                styleURL="mapbox://styles/rwz/cm6odl6aq01bn01qm3tc9eqif"
                 rotateEnabled={false}
                 attributionEnabled={false}
                 logoEnabled={false}
@@ -71,6 +76,34 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                         />
                     </MapboxGL.ShapeSource>
                 )}
+
+                {/* Places of Interest */}
+                {places.map((place, index) => {
+                    let iconName;
+                    let iconColor; // Default color (Tomato Red)
+
+                    // Assign icons based on category
+                    if (place.category === "restaurant") {
+                        iconName = "restaurant";
+                        iconColor = "#ff8c00"; // Orange
+                    } else if (place.category === "cafe") {
+                        iconName = "cafe";
+                        iconColor = "#8b4513"; // SaddleBrown
+                    } else if (place.category === "atm") {
+                        iconName = "cash";
+                        iconColor = "#228b22"; // ForestGreen
+                    } else {
+                        iconName = "location"; // Default marker
+                        iconColor = "#4682b4"; // SteelBlue
+                    }
+
+                    return (
+                        <MapboxGL.PointAnnotation key={`place-${index}`} id={`place-${index}`} coordinate={place.geometry.coordinates} onSelected={() => onSelectedPOI(place)}>
+                            <Ionicons name={iconName} size={24} color={iconColor} />
+
+                        </MapboxGL.PointAnnotation>
+                    );
+                })}
 
                  {/* Render the routes if available */}
 
@@ -162,13 +195,22 @@ const styles = StyleSheet.create({
         borderColor: 'white', // Border color (optional)
       },
     
-      // Inner marker (smaller circle inside for a layered effect)
-      innerMarker: {
+    // Inner marker (smaller circle inside for a layered effect)
+    innerMarker: {
         width: 12, // Smaller size for inner circle
         height: 12,
         borderRadius: 6,
         backgroundColor: 'white', // Inner fill color
-      },
+    },
+
+    poiMarker: {
+        width: 15,
+        height: 15,
+        backgroundColor: "purple",
+        borderRadius: 7.5,
+    },
+
+
 });
 
 export default Map;
