@@ -191,6 +191,12 @@ export default function Homemap() {
             setLoading(false);
         }
     };
+
+    const handleRoutePress = (route) => {
+        setFastestRoute(route);
+    };
+
+
     useEffect(() => {
         if (isDirectionsView && currentOrigin && currentDestination) {
             const originCoords = currentOrigin.geometry?.coordinates; // [lng, lat]
@@ -294,8 +300,8 @@ export default function Homemap() {
             useNativeDriver: true,
         }).start(() => {
             setBuildingDetails(null);
-            setRoutes([]);
-            setFastestRoute(null);
+            // setRoutes([]);
+            // setFastestRoute(null);
             panelY.setValue(500);
         });
     };
@@ -397,6 +403,7 @@ export default function Homemap() {
                 onMapPress={handleClosePanel}
                 cameraRef={cameraRef}
                 centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
+                onRoutePress={handleRoutePress}
                 places={places}
                 onSelectedPOI={handlePOIPress}
             />
@@ -475,7 +482,7 @@ export default function Homemap() {
                     />
                     <BottomPanel
                         transportMode={modeSelected}
-                        routeDetails={routeDetails}
+                        routeDetails={fastestRoute}
                         routes={routes}
                     />
                 </>

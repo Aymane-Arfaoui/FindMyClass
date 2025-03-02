@@ -42,40 +42,49 @@ const Welcome = () => {
   }
 
   return (
-    <ScreenWrapper>
-      <StatusBar style='dark' />
-      <View style={styles.container} testID={'welcome'}>
-        <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
-        <View style={styles.contentContainer} testID={'welcome-title'}>
-          <Text style={styles.welcomeTitle}>Welcome</Text>
-          {/* <Text style={styles.appName}>FindMyClass</Text> */}
+      <ScreenWrapper>
+        <StatusBar style='dark' />
+        <View style={styles.container} testID={'welcome'}>
+          <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
+            <View style={styles.contentContainer} testID={'welcome-title'}>
+              <Text style={styles.welcomeTitle}>Welcome</Text>
+              {/* <Text style={styles.appName}>FindMyClass</Text> */}
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'Google-login'}
+                  style={styles.googleButton}
+                  onPress={() => promptAsync()}
+              >
+                <Image
+                    source={GoogleLoginButton}
+                    style={styles.googleLogo}
+                />
+                <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'welcome-button'}
+                  style={styles.welcomeButton}
+                  onPress={() => router.push("/homemap")}
+              >
+                <Text style={styles.welcomeButtonText}>GET STARTED</Text>
+              </TouchableOpacity>
+
+            </View>
+
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'open-map-button'}
+                  style={styles.mapButton}
+                  onPress={() => router.push('/MapScreen')}
+              >
+                <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
+              </TouchableOpacity>
         </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'Google-login'}
-            style={styles.googleButton} 
-            onPress={() => promptAsync()} 
-          >
-            <Image 
-              source={GoogleLoginButton} 
-              style={styles.googleLogo} 
-            />
-            <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'welcome-button'}
-            style={styles.welcomeButton}
-            onPress={() => router.push("/homemap")}
-          >
-            <Text style={styles.welcomeButtonText}>GET STARTED</Text>
-          </TouchableOpacity>
-
-        </View>
-
         <View style={styles.buttonContainer}>
           <TouchableOpacity
               testID={'open-map-button'}
