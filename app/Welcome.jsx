@@ -79,25 +79,25 @@ const Welcome = () => {
               </TouchableOpacity>
             </View>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                  testID={'welcome-button'}
-                  style={styles.welcomeButton}
-                  onPress={() => router.push("/homemap")}
-                  disabled={isLoading}
-              >
-                <Text style={styles.welcomeButtonText}>GET STARTED</Text>
-              </TouchableOpacity>
-            </View>
-          </ImageBackground>
+<View style={styles.buttonContainer}>
+            <TouchableOpacity
+              testID={'open-map-button'}
+              style={styles.mapButton}
+              onPress={() => router.push('/MapScreen')}
+              disabled={isLoading}
+            >
+              <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
+            </TouchableOpacity>
+          </View>
+        </ImageBackground>
 
-          {isLoading && (
-              <View style={styles.loadingOverlay}>
-                <ActivityIndicator size="large" color="#0000ff" />
-              </View>
-          )}
-        </View>
-      </ScreenWrapper>
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        )}
+      </View>
+    </ScreenWrapper>
   );
 };
 
@@ -162,7 +162,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.8,
   },
-  welcomeButton: {
+welcomeButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#912338',
@@ -177,6 +177,22 @@ const styles = StyleSheet.create({
   },
   welcomeButtonText: {
     color: '#F6F1FB',
+    fontSize: 15.5,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  mapButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 38,
+    width: wp(80),
+    height: hp(7),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapButtonText: {
+    color: '#FFFFFF',
     fontSize: 15.5,
     fontWeight: 'bold',
     letterSpacing: 1,
