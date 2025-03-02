@@ -12,6 +12,7 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "test": "jest",
+    "test:ci": "jest --coverage",
     "lint": "eslint . --max-warnings=0",
     "prettier:check": "prettier --check .",
     "type-check": "tsc --noEmit"
