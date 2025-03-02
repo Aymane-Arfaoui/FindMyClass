@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
+import {Animated, PanResponder, StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '@/services/routeService';
 import {getUserLocation} from '@/services/userService';
@@ -11,12 +11,15 @@ import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
+import {useRouter} from 'expo-router';
+import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
+
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
-
+    const router = useRouter();
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
@@ -409,12 +412,17 @@ export default function Homemap() {
             />
 
             {!isDirectionsView && (
-                <View style={styles.searchOverlay}>
-                    <MainSearchBar
-                        onLocationSelect={setSelectedLocation}
-                        onBuildingPress={handleBuildingPress}
-                    />
-                </View>
+                <>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
+                        <Ionicons name="chevron-back" size={28} color="black"/>
+                    </TouchableOpacity>
+                    <View style={styles.searchOverlay}>
+                        <MainSearchBar
+                            onLocationSelect={setSelectedLocation}
+                            onBuildingPress={handleBuildingPress}
+                        />
+                    </View>
+                </>
             )}
 
             {/* Place Filter Buttons */}
@@ -569,6 +577,13 @@ const styles = StyleSheet.create({
         right: 10,
         zIndex: 5,
         alignItems: 'center',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 50,
+        left: 10,
+        padding: 6,
+        zIndex: 10,
     },
     header: {fontSize: 18, fontWeight: "bold"},
     routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},

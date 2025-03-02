@@ -76,25 +76,6 @@ const Welcome = () => {
 
             </View>
 
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity
-                  testID={'open-map-button'}
-                  style={styles.mapButton}
-                  onPress={() => router.push('/MapScreen')}
-              >
-                <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
-              </TouchableOpacity>
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'open-map-button'}
-              style={styles.mapButton}
-              onPress={() => router.push('/MapScreen')}
-          >
-            <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
-          </TouchableOpacity>
-        </View>
-
         </ImageBackground>
       </View>
     </ScreenWrapper>
@@ -274,20 +255,5 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     letterSpacing: 0.8,
-  },
-  mapButton: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 38,
-    width: '80%',
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  mapButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: 'bold',
   },
 });
