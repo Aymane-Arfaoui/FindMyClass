@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 16,
-        shadowColor: "#000",
+        shadowColor: theme.colors.dark,
         shadowOffset: {width: 0, height: -2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
     slideIndicator: {
         width: 40,
         height: 5,
-        backgroundColor: "#ccc",
+        backgroundColor: theme.colors.gray,
         borderRadius: 10,
         alignSelf: "center",
         marginBottom: 8,
@@ -246,16 +246,16 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 10,
         borderBottomWidth: 1,
-        borderBottomColor: "#ddd",
+        borderBottomColor: theme.colors.gray,
     },
     transportText: {
         fontSize: 16,
         fontWeight: "600",
-        color: "#333",
+        color: theme.colors.text,
     },
     transportTime: {
         fontSize: 16,
-        color: "#007AFF",
+        color: theme.colors.blueLight,
     },
     switchRouteButton: {
         backgroundColor: theme.colors.blueLight,
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         padding: 10,
         borderRadius: 10,
-        backgroundColor: "#f3f3f3",
+        backgroundColor: theme.colors.gray,
     },
 
     switchRouteContent: {
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     },
     stepsScroll: {
         maxHeight: "60%",
-        backgroundColor: "#ffffff",
+        backgroundColor: theme.colors.white,
         width: "100%",
         paddingTop: 20,
         paddingLeft: 20,

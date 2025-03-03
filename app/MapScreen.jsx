@@ -15,7 +15,7 @@ import {floorsData} from '@/constants/floorData';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
-import FloorSelector from '../components/FloorSlector';
+import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
 
 const MapScreen = () => {
