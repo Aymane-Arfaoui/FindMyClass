@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {buildingNameToCodeMap} from "@/constants/buildingsMapping";
 
-const API_BASE_URL = 'http://localhost:3001/api/buildinglist';
+const API_BASE_URL = 'http://10.0.2.2:3001/api/buildinglist';
 const coordinatesCache = {};
 
 export const fetchBuildingCoordinates = async (location) => {

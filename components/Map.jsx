@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
+
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress, places, onSelectedPOI }) => {
@@ -20,12 +21,6 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
         }
     }, []);
 
-    // console.log("Rendering map with selected location:", selectedLocation);
-    // console.log("Rendering map with user location:", userLocation);
-
-
-
-    // console.log("Rendering map with selected location:", selectedLocation);
 
     return (
         <View style={styles.container}>
@@ -79,9 +74,8 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                 {/* Places of Interest */}
                 {places.map((place, index) => {
                     let iconName;
-                    let iconColor; // Default color (Tomato Red)
+                    let iconColor;
 
-                    // Assign icons based on category
                     if (place.category === "restaurant") {
                         iconName = "restaurant";
                         iconColor = "#ff8c00"; // Orange
@@ -107,7 +101,7 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                  {/* Render the routes if available */}
 
                 {routes && routes.length > 0 && routes.map((route, index) => {
-          // Use strict equality or compare based on an id property if available.
+
           const isSelected = selectedRoute && selectedRoute === route;
           if (!(route.routeGeoJSON)) return null;
           return (
@@ -146,7 +140,8 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
     );
 };
 
-const styles = StyleSheet.create({
+let styles;
+styles = StyleSheet.create({
     container: {flex: 1},
     map: {flex: 1},
 
@@ -174,9 +169,9 @@ const styles = StyleSheet.create({
         circleOpacity: 1,
     },
     route: {
-    lineColor: 'gray',
-    lineWidth: 2,
-    lineOpacity: 0.6,
+        lineColor: 'gray',
+        lineWidth: 2,
+        lineOpacity: 0.6,
     },
 
     selectedRoute: {
@@ -186,22 +181,22 @@ const styles = StyleSheet.create({
     },
 
     endpointMarker: {
-        width: 24, // Size of the marker
+        width: 24,
         height: 24,
-        borderRadius: 12, // Half of width/height for a perfect circle
-        backgroundColor: 'red', // Fill color of the marker
+        borderRadius: 12,
+        backgroundColor: 'red',
         justifyContent: 'center',
         alignItems: 'center',
-        borderWidth: 2, // Border thickness
-        borderColor: 'white', // Border color (optional)
-      },
-    
+        borderWidth: 2,
+        borderColor: 'white',
+    },
+
     // Inner marker (smaller circle inside for a layered effect)
     innerMarker: {
-        width: 12, // Smaller size for inner circle
+        width: 12,
         height: 12,
         borderRadius: 6,
-        backgroundColor: 'white', // Inner fill color
+        backgroundColor: 'white',
     },
 
     poiMarker: {

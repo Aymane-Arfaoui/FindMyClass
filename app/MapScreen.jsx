@@ -151,7 +151,7 @@ const MapScreen = () => {
                         </View>
                     </ScrollView>
 
-                    {/* ✅ Floor Selector */}
+                    {/* Floor Selector */}
                     <FloorSelector
                         floorKeys={floorKeys}
                         selectedFloorKey={selectedFloorKey}

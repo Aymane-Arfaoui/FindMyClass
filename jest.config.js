@@ -10,7 +10,6 @@ module.exports = {
         "api/**/*.{js,jsx,ts,tsx}",
         "app/**/*.{js,jsx,ts,tsx}",
         "components/**/*.{js,jsx,ts,tsx}",
-        "constants/**/*.{js,jsx,ts,tsx}",
         "context/**/*.{js,jsx,ts,tsx}",
         "helpers/**/*.{js,jsx,ts,tsx}",
         "services/**/*.{js,jsx,ts,tsx}",
@@ -18,7 +17,8 @@ module.exports = {
         "!**/node_modules/**",
         "!**/coverage/**",
         "!**/dist/**",
-        "!**/build/**"
+        "!**/build/**",
+        "!**constants**"
     ],
     coverageReporters: ["json", "lcov", "text", "clover"],
     reporters: ["default"],

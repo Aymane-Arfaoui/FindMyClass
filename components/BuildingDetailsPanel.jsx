@@ -189,7 +189,7 @@ const styles = StyleSheet.create({
     indoorMapButton: {
         flexDirection: "row",
         marginTop: 12,
-        backgroundColor: theme.colors.primaryLight,
+        backgroundColor: theme.colors.blueDark,
         paddingVertical: 14,
         borderRadius: 15,
         alignItems: "center",
