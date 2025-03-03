@@ -46,14 +46,6 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
             // Convert to [lng, lat] order as required by GeoJSON
             const coordinates = decodedCoords.map(([lat, lng]) => [lng, lat]);
 
-
-            // const steps = route.legs[0].steps.map(step => ({
-            //     instruction: step.html_instructions.replace(/<[^>]*>/g, ''), // Remove HTML tags
-            //     distance: step.distance.text,
-            //     maneuver: step.maneuver || "Continue"
-            // }));
-
-
             let steps = [];
             route.legs.forEach(leg => {
                 leg.steps.forEach(step => {
@@ -82,7 +74,6 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
                 mode,
                 distance: route.legs[0].distance.text,
                 duration: route.legs[0].duration.text,
-                // Use a valid GeoJSON Feature to represent the route
                 steps,
                 routeGeoJSON: {
                     type: 'Feature',
