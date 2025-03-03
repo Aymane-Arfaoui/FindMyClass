@@ -17,10 +17,6 @@
     "prettier:check": "prettier --check .",
     "type-check": "tsc --noEmit"
   },
-  "jest": {
-    "preset": "jest-expo",
-    "collectCoverage": true
-  },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
     "@mapbox/mapbox-sdk": "^0.16.1",
