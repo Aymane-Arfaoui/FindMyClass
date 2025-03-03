@@ -3,7 +3,6 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import {Stack,useRouter, useSegments} from 'expo-router';
 
 import { getUserInfo } from '../../services/userService';
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 let mockFun=jest.fn();
 jest.mock('expo-auth-session/providers/google', ()=> (
     {useAuthRequest: jest.fn(()=>{
@@ -11,8 +10,7 @@ jest.mock('expo-auth-session/providers/google', ()=> (
     })}));
 jest.mock('../../services/userService', ()=> ({getUserInfo: jest.fn()}));
 jest.mock('../../services/calendarService', ()=> ({getCalendarEvents: jest.fn(),}));
-//mocking the useRouter
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
+
 describe('Welcome Component', () => {
 
     it('should render',   () => {

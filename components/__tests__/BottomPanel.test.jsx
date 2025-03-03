@@ -2,11 +2,6 @@ import BottomPanel from '../BottomPanel.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 
-
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
-
-
-jest.mock('expo-font');
 describe('BottomPanel Component', () => {
 
     it('should render the bottom panel correctly',  async () => {
@@ -44,7 +39,7 @@ describe('BottomPanel Component', () => {
     });
     it('should display the toggle button',  async () => {
 
-        const route = {duration: 'test', distance: 'test'}
+        const route = {mode:'test',duration: 'test', distance: 'test'}
         render(<BottomPanel routeDetails={route}/>);
         expect(await screen.findByTestId('toggle-button')).toBeOnTheScreen();
 

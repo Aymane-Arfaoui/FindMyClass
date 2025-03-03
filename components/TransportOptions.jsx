@@ -12,7 +12,7 @@ const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
         {mode: 'bicycling', icon: 'bicycle', time: travelTimes.bicycling},
     ];
     return (
-        <View style={styles.container}>
+        <View style={styles.container} testID={'transport-options'}>
             {transportModes.map(({mode, icon, time}) => (
                 <Pressable
                     key={mode}
