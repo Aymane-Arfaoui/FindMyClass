@@ -363,7 +363,7 @@ export default function Homemap() {
                         ],
                     },
                     name: place.name,
-                    place_id: place.place_id || null,  // ✅ Ensure place_id is included
+                    place_id: place.place_id || null,
                     category: category,
                 }));
                 setPlaces(formattedPlaces);
@@ -555,7 +555,7 @@ const styles = StyleSheet.create({
     },
     filterButtonsContainer: {
         position: "absolute",
-        top: 140, // Ensure it's below the search bar
+        top: 140,
         left: 10,
         right: 10,
         zIndex: 10,
