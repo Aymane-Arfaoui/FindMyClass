@@ -9,6 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
+
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
 const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress, places, onSelectedPOI }) => {
