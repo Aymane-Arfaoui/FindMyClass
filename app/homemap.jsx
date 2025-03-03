@@ -13,6 +13,8 @@ import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
 import {useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
+import PlaceFilterButtons from "@/components/PlaceFilterButtons";
+
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
@@ -32,6 +34,8 @@ export default function Homemap() {
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
+    const [places, setPlaces] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -333,6 +337,68 @@ export default function Homemap() {
         })
     ).current;
 
+    const fetchPlacesOfInterest = async (category) => {
+        if (!currentLocation) return;
+
+        setPlaces([]); // Reset places list
+
+        const { coordinates } = currentLocation.geometry;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json
+    ?location=${coordinates[1]},${coordinates[0]}
+    &radius=1000
+    &type=${category}
+    &key=${GOOGLE_PLACES_API_KEY}`.replace(/\s+/g, '');
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.results) {
+                const formattedPlaces = data.results.map((place) => ({
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [
+                            place.geometry.location.lng,
+                            place.geometry.location.lat,
+                        ],
+                    },
+                    name: place.name,
+                    place_id: place.place_id || null,
+                    category: category,
+                }));
+                setPlaces(formattedPlaces);
+            }
+        } catch (error) {
+            console.error("Error fetching places of interest:", error);
+        }
+    };
+
+    const handlePOIPress = async (place) => {
+
+        setSelectedLocation(place);
+
+        Animated.timing(panelY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+
+        try {
+            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,rating,formatted_address,photos&key=${GOOGLE_PLACES_API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.result) {
+                setBuildingDetails(data.result);
+            } else {
+                console.warn("No details found for this place.");
+            }
+        } catch (error) {
+            console.error("Error fetching POI details:", error);
+        }
+    };
+
+
 
     return (
         <View style={styles.container}>
@@ -347,6 +413,8 @@ export default function Homemap() {
                 cameraRef={cameraRef}
                 centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
                 onRoutePress={handleRoutePress}
+                places={places}
+                onSelectedPOI={handlePOIPress}
             />
 
             {!isDirectionsView && (
@@ -361,6 +429,23 @@ export default function Homemap() {
                         />
                     </View>
                 </>
+            )}
+
+            {/* Place Filter Buttons */}
+            {!isDirectionsView && (
+                <View style={styles.filterButtonsContainer}>
+                    <PlaceFilterButtons
+                        onSelectCategory={(category) => {
+                            setSelectedCategory(category);
+                            if (category) {
+                                fetchPlacesOfInterest(category);
+                            } else {
+                                setPlaces([]);
+                            }
+                        }}
+                    />
+                </View>
+
             )}
 
             {!isDirectionsView && (
@@ -417,39 +502,6 @@ export default function Homemap() {
                 </>
             )}
 
-            {/*{isDirectionsView && (*/}
-            {/*    <View style={styles.infoBox}>*/}
-            {/*        <Text style={styles.header}>Available Routes:</Text>*/}
-            {/*        {loading ? (*/}
-            {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
-            {/*        ) : (*/}
-            {/*            <ScrollView>*/}
-            {/*                {routes?.length > 0 ? (*/}
-            {/*                    routes.map((route, index) => (*/}
-            {/*                        <View key={index} style={styles.routeCard}>*/}
-            {/*                            <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
-            {/*                            <Text>Duration: {route.duration}</Text>*/}
-            {/*                            <Text>Distance: {route.distance}</Text>*/}
-            {/*                            {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
-            {/*                        </View>*/}
-            {/*                    ))*/}
-            {/*                ) : (*/}
-            {/*                    <View>*/}
-            {/*                        <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>*/}
-
-            {/*                        {/FOR TESTING ONLY:/}*/}
-            {/*                        <Text>{routes.length}</Text>*/}
-            {/*                        <Text>{modeSelected}</Text>*/}
-            {/*                        <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>*/}
-            {/*                        <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>*/}
-            {/*                    </View>*/}
-            {/*                )}*/}
-            {/*            </ScrollView>*/}
-            {/*        )}*/}
-            {/*    </View>*/}
-            {/*)}*/}
-
-
         </View>
     );
 };
@@ -468,6 +520,17 @@ const styles = StyleSheet.create({
         right: 10,
         zIndex: 10,
     },
+    filterButtonsContainer: {
+        position: "absolute",
+        top: 140,
+        left: 10,
+        right: 10,
+        zIndex: 10,
+        flexDirection: "row",
+        justifyContent: "center",
+        paddingVertical: 8,
+        borderRadius: 10,
+    },
     infoBox: {
         position: 'absolute',
         bottom: 20,
@@ -482,7 +545,7 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 820,
+        bottom: 780,
         left: 10,
         right: 10,
         zIndex: 5,
