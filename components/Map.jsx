@@ -9,7 +9,7 @@ const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef}) => {
+const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress}) => {
 
     useEffect(() => {
 
@@ -80,7 +80,9 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
           const isSelected = selectedRoute && selectedRoute === route;
           if (!(route.routeGeoJSON)) return null;
           return (
-            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}>
+            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}
+                onPress={() => onRoutePress(route)} // onPress to update selected route
+            >
               <MapboxGL.LineLayer
                 id={`route-line-${index}`}
                 style={isSelected ? styles.selectedRoute : styles.route}

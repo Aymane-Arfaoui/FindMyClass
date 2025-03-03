@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
+import {Animated, PanResponder, StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '@/services/routeService';
 import {getUserLocation} from '@/services/userService';
@@ -11,11 +11,13 @@ import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
+import {useRouter} from 'expo-router';
+import {Ionicons} from "@expo/vector-icons";
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
-
+    const router = useRouter();
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
@@ -188,6 +190,18 @@ export default function Homemap() {
             setLoading(false);
         }
     };
+
+    const handleRoutePress = (route) => {
+        setFastestRoute(route);
+    };
+
+    const handleBackPress = (bool) => {
+        setRoutes([]);
+        setFastestRoute(null);
+        setIsDirectionsView(bool);
+    };
+
+
     useEffect(() => {
         if (isDirectionsView && currentOrigin && currentDestination) {
             const originCoords = currentOrigin.geometry?.coordinates; // [lng, lat]
@@ -291,8 +305,8 @@ export default function Homemap() {
             useNativeDriver: true,
         }).start(() => {
             setBuildingDetails(null);
-            setRoutes([]);
-            setFastestRoute(null);
+            // setRoutes([]);
+            // setFastestRoute(null);
             panelY.setValue(500);
         });
     };
@@ -332,15 +346,21 @@ export default function Homemap() {
                 onMapPress={handleClosePanel}
                 cameraRef={cameraRef}
                 centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
+                onRoutePress={handleRoutePress}
             />
 
             {!isDirectionsView && (
-                <View style={styles.searchOverlay}>
-                    <MainSearchBar
-                        onLocationSelect={setSelectedLocation}
-                        onBuildingPress={handleBuildingPress}
-                    />
-                </View>
+                <>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
+                        <Ionicons name="chevron-back" size={28} color="black"/>
+                    </TouchableOpacity>
+                    <View style={styles.searchOverlay}>
+                        <MainSearchBar
+                            onLocationSelect={setSelectedLocation}
+                            onBuildingPress={handleBuildingPress}
+                        />
+                    </View>
+                </>
             )}
 
             {!isDirectionsView && (
@@ -384,14 +404,14 @@ export default function Homemap() {
                     <SearchBars
                         currentLocation={currentLocation}
                         destination={buildingDetails?.formatted_address}
-                        onBackPress={() => setIsDirectionsView(false)}
+                        onBackPress={() => handleBackPress(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
                     />
                     <BottomPanel
                         transportMode={modeSelected}
-                        routeDetails={routeDetails}
+                        routeDetails={fastestRoute}
                         routes={routes}
                     />
                 </>
@@ -467,6 +487,13 @@ const styles = StyleSheet.create({
         right: 10,
         zIndex: 5,
         alignItems: 'center',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 50,
+        left: 10,
+        padding: 6,
+        zIndex: 10,
     },
     header: {fontSize: 18, fontWeight: "bold"},
     routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},

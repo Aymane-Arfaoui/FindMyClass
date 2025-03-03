@@ -44,6 +44,7 @@ const Welcome = () => {
     }
   }
 
+  
   const handleGoogleSignIn = async () => {
     setLoading(true); // Show loading when starting authentication
     try {
@@ -79,16 +80,18 @@ const Welcome = () => {
               </TouchableOpacity>
             </View>
 
-<View style={styles.buttonContainer}>
-            <TouchableOpacity
-              testID={'open-map-button'}
-              style={styles.mapButton}
-              onPress={() => router.push('/MapScreen')}
-              disabled={isLoading}
-            >
-              <Text style={styles.mapButtonText}>OPEN INDOOR MAPS</Text>
-            </TouchableOpacity>
-          </View>
+          <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'welcome-button'}
+                  style={styles.welcomeButton}
+                  onPress={() => router.push("/homemap")}
+              >
+                <Text style={styles.welcomeButtonText}>GET STARTED</Text>
+              </TouchableOpacity>
+
+            </View>
+
+
         </ImageBackground>
 
         {isLoading && (
@@ -162,6 +165,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.8,
   },
+
 welcomeButton: {
     flexDirection: 'row',
     alignItems: 'center',
