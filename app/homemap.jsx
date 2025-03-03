@@ -502,39 +502,6 @@ export default function Homemap() {
                 </>
             )}
 
-            {/*{isDirectionsView && (*/}
-            {/*    <View style={styles.infoBox}>*/}
-            {/*        <Text style={styles.header}>Available Routes:</Text>*/}
-            {/*        {loading ? (*/}
-            {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
-            {/*        ) : (*/}
-            {/*            <ScrollView>*/}
-            {/*                {routes?.length > 0 ? (*/}
-            {/*                    routes.map((route, index) => (*/}
-            {/*                        <View key={index} style={styles.routeCard}>*/}
-            {/*                            <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
-            {/*                            <Text>Duration: {route.duration}</Text>*/}
-            {/*                            <Text>Distance: {route.distance}</Text>*/}
-            {/*                            {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
-            {/*                        </View>*/}
-            {/*                    ))*/}
-            {/*                ) : (*/}
-            {/*                    <View>*/}
-            {/*                        <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>*/}
-
-            {/*                        {/FOR TESTING ONLY:/}*/}
-            {/*                        <Text>{routes.length}</Text>*/}
-            {/*                        <Text>{modeSelected}</Text>*/}
-            {/*                        <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>*/}
-            {/*                        <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>*/}
-            {/*                    </View>*/}
-            {/*                )}*/}
-            {/*            </ScrollView>*/}
-            {/*        )}*/}
-            {/*    </View>*/}
-            {/*)}*/}
-
-
         </View>
     );
 };
@@ -578,7 +545,7 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 820,
+        bottom: 780,
         left: 10,
         right: 10,
         zIndex: 5,
