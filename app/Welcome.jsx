@@ -1,94 +1,115 @@
-import {Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import ScreenWrapper from '../components/ScreenWrapper'
-import { StatusBar } from 'expo-status-bar'
-import Button from '../components/Button'
-import { theme } from '../constants/theme'
-import { hp,wp } from '../helpers/common'
-import * as WebBrowser from 'expo-web-browser'
-import * as Google from 'expo-auth-session/providers/google'
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { getUserInfo } from '../services/userService'
-import { getCalendarEvents } from '../services/calendarService'
-import { useRouter } from 'expo-router'
-import GoogleLoginButton from '../assets/images/google-color.png'
+import { Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import ScreenWrapper from '../components/ScreenWrapper';
+import { StatusBar } from 'expo-status-bar';
+import { theme } from '../constants/theme';
+import { hp, wp } from '../helpers/common';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { getUserInfo } from '../services/userService';
+import { getCalendarEvents } from '../services/calendarService';
+import { useRouter } from 'expo-router';
+import GoogleLoginButton from '../assets/images/google-color.png';
 import BackgroundImg from '../assets/images/background-generic-1.png';
 
-WebBrowser.maybeCompleteAuthSession()
+WebBrowser.maybeCompleteAuthSession();
 
 const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
     webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
     iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '794159243993-iafmbeen4qjbe6tsmba1khj7qlsrrd1a.apps.googleusercontent.com',
-    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly']
+    androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
+    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
   });
 
   const router = useRouter();
+  const [isLoading, setLoading] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     handleSignInWithGoogle();
-  }, [response])
+  }, [response]);
 
   async function handleSignInWithGoogle() {
-    if(response?.type === "success"){
+    if (response?.type === "success") {
+      setLoading(true); // Show loading while processing
       const userData = await getUserInfo(response.authentication.accessToken);
       if (userData) {
         const events = await getCalendarEvents(response.authentication.accessToken);
         await AsyncStorage.setItem("@calendar", JSON.stringify(events));
         router.replace("/home");
       }
+      setLoading(false); // Hide loading after processing
     }
   }
 
+  
+  const handleGoogleSignIn = async () => {
+    setLoading(true); // Show loading when starting authentication
+    try {
+      await promptAsync();
+    } catch (error) {
+      console.error('Authentication error:', error);
+    } finally {
+      setLoading(false); // Hide loading on error or completion
+    }
+  };
+
   return (
-    <ScreenWrapper>
-      <StatusBar style='dark' />
-      <View style={styles.container} testID={'welcome'}>
-        <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
-        <View style={styles.contentContainer} testID={'welcome-title'}>
-          <Text style={styles.welcomeTitle}>Welcome</Text>
-          {/* <Text style={styles.appName}>FindMyClass</Text> */}
-        </View>
+      <ScreenWrapper>
+        <StatusBar style='dark' />
+        <View style={styles.container} testID={'welcome'}>
+          <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}>
+            <View style={styles.contentContainer} testID={'welcome-title'}>
+              <Text style={styles.welcomeTitle}>Welcome</Text>
+            </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'Google-login'}
-            style={styles.googleButton} 
-            onPress={() => promptAsync()} 
-          >
-            <Image 
-              source={GoogleLoginButton} 
-              style={styles.googleLogo} 
-            />
-            <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
-          </TouchableOpacity>
-        </View>
+            <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'Google-login'}
+                  style={styles.googleButton}
+                  onPress={handleGoogleSignIn}
+                  disabled={isLoading}
+              >
+                <Image
+                    source={GoogleLoginButton}
+                    style={styles.googleLogo}
+                />
+                <Text style={styles.googleButtonText}>CONTINUE WITH GOOGLE</Text>
+              </TouchableOpacity>
+            </View>
 
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-              testID={'welcome-button'}
-            style={styles.welcomeButton}
-            onPress={() => router.push("/homemap")}
-          >
-            <Text style={styles.welcomeButtonText}>GET STARTED</Text>
-          </TouchableOpacity>
+          <View style={styles.buttonContainer}>
+              <TouchableOpacity
+                  testID={'welcome-button'}
+                  style={styles.welcomeButton}
+                  onPress={() => router.push("/homemap")}
+              >
+                <Text style={styles.welcomeButtonText}>GET STARTED</Text>
+              </TouchableOpacity>
 
-        </View>
+            </View>
+
+
         </ImageBackground>
+
+        {isLoading && (
+          <View style={styles.loadingOverlay}>
+            <ActivityIndicator size="large" color="#0000ff" />
+          </View>
+        )}
       </View>
     </ScreenWrapper>
-  )
-}
+  );
+};
 
-export default Welcome
+export default Welcome;
 
 const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
-    // width: '100%',
-    // height: '100%',
-    width:wp(100),
+    width: wp(100),
     height: hp(100),
     justifyContent: 'center',
     alignItems: 'center',
@@ -101,131 +122,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  contentContainerStyle: {
-    paddingVertical: hp(4),
-  },
   contentContainer: {
     alignItems: 'center',
     marginBottom: hp(4),
-
-  },
-  title: {
-    fontSize: hp(3),
-    color: theme.colors.dark,
-    marginBottom: hp(1),
-  },
-  appName: {
-    fontSize: hp(4),
-    fontWeight: 'bold',
-    color: theme.colors.dark,
-  },
-  buttonContainer: {
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: hp(10),
-  },
-  button: {
-    width: '100%',
   },
   welcomeTitle: {
     fontFamily: 'Odor Mean Chey',
-    // fontSize: '340%',
     fontSize: hp(5.7),
     fontWeight: 'bold',
     color: '#1E1E1E',
     marginBottom: hp(7),
     marginTop: hp(-4),
-
   },
-  welcomeButton:{
-    flexDirection: 'row',
+  buttonContainer: {
+    width: '100%',
     alignItems: 'center',
-    backgroundColor: '#912338',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 38,
-    borderColor: '#912338',
-    borderWidth: 2,
-    // width: '95%',
-    // height: '125%',
-    width: wp(80),
-    height: hp(7),
-    justifyContent: 'center',
-  },
-  welcomeButtonText: {
-    color: '#F6F1FB',
-    fontSize: 15.5,
-    fontWeight: 'bold',
-    letterSpacing: 1,
-  },
-  calendarContainer: {
-    marginVertical: hp(2),
-    padding: hp(2),
-  },
-  sectionTitle: {
-    fontSize: hp(2.5),
-    fontWeight: 'bold',
-    marginBottom: hp(2),
-    color: theme.colors.dark,
-  },
-  eventCard: {
-    backgroundColor: '#fff',
-    padding: hp(2),
-    borderRadius: 10,
-    marginBottom: hp(1),
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  eventTitle: {
-    fontSize: hp(2),
-    fontWeight: '600',
-    color: theme.colors.dark,
-  },
-  eventTime: {
-    fontSize: hp(1.8),
-    color: theme.colors.black,
-    marginTop: hp(0.5),
-  },
-  userCard: {
-    backgroundColor: '#fff',
-    padding: hp(2),
-    marginHorizontal: hp(2),
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  userImage: {
-    width: hp(6),
-    height: hp(6),
-    borderRadius: hp(3),
-    marginRight: hp(2),
-  },
-  userInfo: {
-    flex: 1,
-  },
-  userName: {
-    fontSize: hp(2.2),
-    fontWeight: 'bold',
-    color: theme.colors.dark,
-    marginBottom: hp(0.5),
-  },
-  userEmail: {
-    fontSize: hp(1.8),
-    color: theme.colors.black,
+    marginBottom: hp(10),
   },
   googleButton: {
     flexDirection: 'row',
@@ -236,8 +148,6 @@ const styles = StyleSheet.create({
     borderRadius: 38,
     borderColor: '#EBEAEC',
     borderWidth: 2,
-    // width: '95%',
-    // height: '125%',
     width: wp(80),
     height: hp(7),
     justifyContent: 'flex-start',
@@ -254,5 +164,52 @@ const styles = StyleSheet.create({
     flex: 1,
     textAlign: 'center',
     letterSpacing: 0.8,
+  },
+
+welcomeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#912338',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 38,
+    borderColor: '#912338',
+    borderWidth: 2,
+    width: wp(80),
+    height: hp(7),
+    justifyContent: 'center',
+  },
+  welcomeButtonText: {
+    color: '#F6F1FB',
+    fontSize: 15.5,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  mapButton: {
+    backgroundColor: '#007AFF',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 38,
+    width: wp(80),
+    height: hp(7),
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  mapButtonText: {
+    color: '#FFFFFF',
+    fontSize: 15.5,
+    fontWeight: 'bold',
+    letterSpacing: 1,
+  },
+  loadingOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
   },
 });

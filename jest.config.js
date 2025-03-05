@@ -5,6 +5,7 @@ module.exports = {
     verbose: true,
     testEnvironment: "node",
     coverageDirectory: "coverage",
+
     // collectCoverageFrom: [
     //     // "Config/**/*.{js,jsx,ts,tsx}",
     //     "api/**/*.{js,jsx,ts,tsx}",
@@ -20,6 +21,7 @@ module.exports = {
     //     "!**/dist/**",
     //     "!**/build/**"
     // ],
+
     coverageReporters: ["json", "lcov", "text", "clover"],
     reporters: ["default"],
     moduleFileExtensions: ["js", "jsx", "ts", "tsx"],

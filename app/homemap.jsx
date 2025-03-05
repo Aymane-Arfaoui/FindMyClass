@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from 'react';
-import {Animated, PanResponder, StatusBar, StyleSheet, View} from 'react-native';
+import {Animated, PanResponder, StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '@/services/routeService';
 import {getUserLocation} from '@/services/userService';
@@ -11,11 +11,15 @@ import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
+import {useRouter} from 'expo-router';
+import {Ionicons} from "@expo/vector-icons";
+import PlaceFilterButtons from "@/components/PlaceFilterButtons";
+
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
-
+    const router = useRouter();
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
@@ -30,6 +34,8 @@ export default function Homemap() {
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
+    const [places, setPlaces] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -188,6 +194,18 @@ export default function Homemap() {
             setLoading(false);
         }
     };
+
+    const handleRoutePress = (route) => {
+        setFastestRoute(route);
+    };
+
+    const switchToRegularMapView = (bool) => {
+        setRoutes([]);
+        setFastestRoute(null);
+        setIsDirectionsView(bool);
+    };
+
+
     useEffect(() => {
         if (isDirectionsView && currentOrigin && currentDestination) {
             const originCoords = currentOrigin.geometry?.coordinates; // [lng, lat]
@@ -291,8 +309,8 @@ export default function Homemap() {
             useNativeDriver: true,
         }).start(() => {
             setBuildingDetails(null);
-            setRoutes([]);
-            setFastestRoute(null);
+            // setRoutes([]);
+            // setFastestRoute(null);
             panelY.setValue(500);
         });
     };
@@ -319,6 +337,68 @@ export default function Homemap() {
         })
     ).current;
 
+    const fetchPlacesOfInterest = async (category) => {
+        if (!currentLocation) return;
+
+        setPlaces([]); // Reset places list
+
+        const { coordinates } = currentLocation.geometry;
+        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json
+    ?location=${coordinates[1]},${coordinates[0]}
+    &radius=1000
+    &type=${category}
+    &key=${GOOGLE_PLACES_API_KEY}`.replace(/\s+/g, '');
+
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+            if (data.results) {
+                const formattedPlaces = data.results.map((place) => ({
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [
+                            place.geometry.location.lng,
+                            place.geometry.location.lat,
+                        ],
+                    },
+                    name: place.name,
+                    place_id: place.place_id || null,
+                    category: category,
+                }));
+                setPlaces(formattedPlaces);
+            }
+        } catch (error) {
+            console.error("Error fetching places of interest:", error);
+        }
+    };
+
+    const handlePOIPress = async (place) => {
+
+        setSelectedLocation(place);
+
+        Animated.timing(panelY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: true,
+        }).start();
+
+        try {
+            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,rating,formatted_address,photos&key=${GOOGLE_PLACES_API_KEY}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (data.result) {
+                setBuildingDetails(data.result);
+            } else {
+                console.warn("No details found for this place.");
+            }
+        } catch (error) {
+            console.error("Error fetching POI details:", error);
+        }
+    };
+
+
 
     return (
         <View style={styles.container}>
@@ -332,15 +412,40 @@ export default function Homemap() {
                 onMapPress={handleClosePanel}
                 cameraRef={cameraRef}
                 centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
+                onRoutePress={handleRoutePress}
+                places={places}
+                onSelectedPOI={handlePOIPress}
             />
 
             {!isDirectionsView && (
-                <View style={styles.searchOverlay}>
-                    <MainSearchBar
-                        onLocationSelect={setSelectedLocation}
-                        onBuildingPress={handleBuildingPress}
+                <>
+                    <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
+                        <Ionicons name="chevron-back" size={28} color="black"/>
+                    </TouchableOpacity>
+                    <View style={styles.searchOverlay}>
+                        <MainSearchBar
+                            onLocationSelect={setSelectedLocation}
+                            onBuildingPress={handleBuildingPress}
+                        />
+                    </View>
+                </>
+            )}
+
+            {/* Place Filter Buttons */}
+            {!isDirectionsView && (
+                <View style={styles.filterButtonsContainer}>
+                    <PlaceFilterButtons
+                        onSelectCategory={(category) => {
+                            setSelectedCategory(category);
+                            if (category) {
+                                fetchPlacesOfInterest(category);
+                            } else {
+                                setPlaces([]);
+                            }
+                        }}
                     />
                 </View>
+
             )}
 
             {!isDirectionsView && (
@@ -384,51 +489,18 @@ export default function Homemap() {
                     <SearchBars
                         currentLocation={currentLocation}
                         destination={buildingDetails?.formatted_address}
-                        onBackPress={() => setIsDirectionsView(false)}
+                        onBackPress={() => switchToRegularMapView(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
                     />
                     <BottomPanel
                         transportMode={modeSelected}
-                        routeDetails={routeDetails}
+                        routeDetails={fastestRoute}
                         routes={routes}
                     />
                 </>
             )}
-
-            {/*{isDirectionsView && (*/}
-            {/*    <View style={styles.infoBox}>*/}
-            {/*        <Text style={styles.header}>Available Routes:</Text>*/}
-            {/*        {loading ? (*/}
-            {/*            <ActivityIndicator size="large" color="#0000ff"/>*/}
-            {/*        ) : (*/}
-            {/*            <ScrollView>*/}
-            {/*                {routes?.length > 0 ? (*/}
-            {/*                    routes.map((route, index) => (*/}
-            {/*                        <View key={index} style={styles.routeCard}>*/}
-            {/*                            <Text style={styles.routeMode}>{route.mode.toUpperCase()}</Text>*/}
-            {/*                            <Text>Duration: {route.duration}</Text>*/}
-            {/*                            <Text>Distance: {route.distance}</Text>*/}
-            {/*                            {route.departure && <Text>Next Shuttle: {route.departure}</Text>}*/}
-            {/*                        </View>*/}
-            {/*                    ))*/}
-            {/*                ) : (*/}
-            {/*                    <View>*/}
-            {/*                        <Text style={styles.noRoutes}>No routes available, or routes are loading. Please wait, or select a transport mode to try again.</Text>*/}
-
-            {/*                        {/FOR TESTING ONLY:/}*/}
-            {/*                        <Text>{routes.length}</Text>*/}
-            {/*                        <Text>{modeSelected}</Text>*/}
-            {/*                        <Text>{userLocation.lat.toString() + ',' + userLocation.lng.toString()}</Text>*/}
-            {/*                        <Text>{selectedLocation[1].toString() +','+ selectedLocation[0].toString()}</Text>*/}
-            {/*                    </View>*/}
-            {/*                )}*/}
-            {/*            </ScrollView>*/}
-            {/*        )}*/}
-            {/*    </View>*/}
-            {/*)}*/}
-
 
         </View>
     );
@@ -448,6 +520,17 @@ const styles = StyleSheet.create({
         right: 10,
         zIndex: 10,
     },
+    filterButtonsContainer: {
+        position: "absolute",
+        top: 140,
+        left: 10,
+        right: 10,
+        zIndex: 10,
+        flexDirection: "row",
+        justifyContent: "center",
+        paddingVertical: 8,
+        borderRadius: 10,
+    },
     infoBox: {
         position: 'absolute',
         bottom: 20,
@@ -462,11 +545,18 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 820,
+        bottom: 780,
         left: 10,
         right: 10,
         zIndex: 5,
         alignItems: 'center',
+    },
+    backButton: {
+        position: 'absolute',
+        top: 50,
+        left: 10,
+        padding: 6,
+        zIndex: 10,
     },
     header: {fontSize: 18, fontWeight: "bold"},
     routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
