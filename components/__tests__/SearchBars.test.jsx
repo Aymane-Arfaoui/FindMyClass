@@ -25,6 +25,7 @@ describe('SearchBars', () => {
     });
 
     it('renders the component correctly', () => {
+        global.setTravelTimes=jest.fn();
         render(
             <SearchBars
                 currentLocation={{ geometry: { coordinates: [0, 0] } }}
