@@ -45,11 +45,36 @@ const fetchGoogleRoutes = async (origin, destination, mode) => {
             const decodedCoords = polyline.decode(encoded);
             // Convert to [lng, lat] order as required by GeoJSON
             const coordinates = decodedCoords.map(([lat, lng]) => [lng, lat]);
+
+            let steps = [];
+            route.legs.forEach(leg => {
+                leg.steps.forEach(step => {
+                    if (mode === "transit" && step.transit_details) {
+                        steps.push({
+                            instruction: `Take ${step.transit_details.line.short_name} ${step.transit_details.line.name} `
+                                + `${step.transit_details.headsign}` +  `\nfrom ${step.transit_details.departure_stop.name} to ${step.transit_details.arrival_stop.name}`,
+                            vehicle: step.transit_details.line.vehicle.type,
+                            departure_time: step.transit_details.departure_time.text,
+                            arrival_time: step.transit_details.arrival_time.text,
+                            num_stops: step.transit_details.num_stops
+                        });
+                    } else {
+                        steps.push({
+                            instruction: step.html_instructions.replace(/<[^>]*>/g, ''),
+                            distance: step.distance.text,
+                            maneuver: step.maneuver || "Continue"
+                        });
+                    }
+                });
+            });
+
+
+
             return {
                 mode,
                 distance: route.legs[0].distance.text,
                 duration: route.legs[0].duration.text,
-                // Use a valid GeoJSON Feature to represent the route
+                steps,
                 routeGeoJSON: {
                     type: 'Feature',
                     geometry: {
@@ -74,7 +99,7 @@ const fetchShuttleRoute = async (origin, destination) => {
 
         const shuttleDetails = getShuttleTravelTime();
         return [{
-            mode: "transit (shuttle)",
+            mode: "shuttle",
             distance: shuttleDetails.distance,
             duration: shuttleDetails.duration,
             departure: nextShuttle
