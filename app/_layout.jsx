@@ -12,7 +12,7 @@ function RootLayoutNav() {
     if (!loading) {
       const inAuthGroup = segments[0] === "(auth)";
       if (user && !inAuthGroup) {
-        router.replace("/home");
+        router.replace("/homemap");
       } else if (!user && inAuthGroup) {
         router.replace("/");
       }
