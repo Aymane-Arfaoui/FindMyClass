@@ -11,8 +11,8 @@ const AppNavigationPanel = () => {
     const pathname = usePathname();
 
     return (
-        <View style={styles.appNavigationPanel}>
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/home")}>
+        <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
+            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/home")} testID={'button-navigate-to-home'}>
                 <Ionicons
                     name="calendar-outline"
                     size={26}
@@ -21,7 +21,7 @@ const AppNavigationPanel = () => {
                 <View style={pathname === "/home" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")}>
+            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")} testID={'button-navigate-to-homemap'}>
                 <Ionicons
                     name="home-outline"
                     size={26}
@@ -30,7 +30,7 @@ const AppNavigationPanel = () => {
                 <View style={pathname === "/homemap" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/user")}>
+            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/user")} testID={'button-navigate-to-user'}>
                 <Ionicons
                     name="person-outline"
                     size={26}

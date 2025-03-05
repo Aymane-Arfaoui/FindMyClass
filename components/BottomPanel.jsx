@@ -64,6 +64,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
 
 
             <Modal
+                testID={'modal'}
                 animationType="slide"
                 transparent={true}
                 visible={modalVisible}
@@ -72,13 +73,13 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                 <View style={styles.modalContainer}>
                     <ScrollView style={styles.stepsScroll}>
 
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup} testID={'close-button'}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
 
                         <View style={styles.content}>
                             {selectedRoute ? (
-                                <View testID={'route-details'}>
+                                <View testID={'selected-route-details'}>
                                     <Text style={styles.textHeader}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>
                                     <Text style={styles.subTextHeader}>{`Duration: ${selectedRoute.duration}`}</Text>
                                     <Text style={styles.subTextHeader}>{`Distance: ${selectedRoute.distance}`}</Text>
@@ -88,7 +89,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                                     {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
                                         selectedRoute.mode === "transit" ? (
                                             selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer}>
+                                                <View key={index} style={styles.stepContainer} testID={'transit-steps'}>
                                                     <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
                                                     <Text style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
                                                     <Text style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
@@ -97,7 +98,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                                             ))
                                         ) : (
                                             selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer}>
+                                                <View key={index} style={styles.stepContainer} testID={'other-mode-steps'}>
                                                     <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
                                                     <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
                                                     <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
@@ -122,7 +123,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
 
 
             {expanded && (
-                <ScrollView style={{marginTop: 10}}>
+                <ScrollView style={{marginTop: 10}} testID={'expanded'}>
                     {shuttleRoutes?.map((route, index) => (
                         <View key={index} style={styles.shuttleStepsContainer}>
                             <Text style={styles.shuttleStepText}>
@@ -130,7 +131,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                             </Text>
 
                             <TouchableOpacity
-                                testID={'switch-route-button'}
+                                testID={'shuttle-route-button'}
                                 style={styles.shuttleSwitchRouteButton}
                                 onPress={() => router.push('/shuttleSchedule')}
                             >

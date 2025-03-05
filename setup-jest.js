@@ -6,7 +6,11 @@ jest.mock('expo-router',
         {
             useRouter: jest.fn(),
             useSegments:jest.fn(),
-            Stack:jest.fn()
+            Stack:jest.fn(),
+            usePathname:jest.fn()
         }
     ));
 jest.mock('expo-font');
+
+
+

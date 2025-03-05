@@ -9,7 +9,7 @@ describe('Layout Component', () => {
         ()=> {AsyncStorage.clear();}
     );
 
-    it('should reroute to /home if user exists and (auth) is not present in the route segment',  async () => {
+    it('should reroute to /homemap if user exists and (auth) is not present in the route segment',  async () => {
         const user=JSON.stringify({name:"asd"});
         await AsyncStorage.setItem('@user',user);
         //returning the segment that should be there if the user is authenticated
@@ -17,7 +17,7 @@ describe('Layout Component', () => {
         const replace = jest.fn();
         useRouter.mockReturnValue({replace: replace});
         render(<RootLayout/>);
-       await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/home');});
+       await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/homemap');});
 
     });
 

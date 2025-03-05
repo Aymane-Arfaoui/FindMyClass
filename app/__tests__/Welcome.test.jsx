@@ -6,13 +6,15 @@ import { getUserInfo } from '../../services/userService';
 let mockFun=jest.fn();
 jest.mock('expo-auth-session/providers/google', ()=> (
     {useAuthRequest: jest.fn(()=>{
-        return['',{type:'success',authentication:{accessToken:''}},mockFun];
+        return[{type:'success'},{type:'success',authentication:{accessToken:''}},mockFun];
     })}));
+
+
 jest.mock('../../services/userService', ()=> ({getUserInfo: jest.fn()}));
 jest.mock('../../services/calendarService', ()=> ({getCalendarEvents: jest.fn(),}));
 
 describe('Welcome Component', () => {
-
+    beforeEach(jest.clearAllMocks)
     it('should render',   () => {
         render(<Welcome/>);
         expect(screen.getByTestId('welcome')).toBeOnTheScreen();
@@ -37,14 +39,13 @@ describe('Welcome Component', () => {
     it('should trigger a function if login with google button is pressed',  async () => {
 
         const user = userEvent.setup();
-        const { unmount } =render(<Welcome/>);
+        render(<Welcome/>);
 
         await user.press(screen.getByTestId('Google-login'));
 
         await waitFor(async ()=>{
             expect(mockFun).toBeCalled();
         });
-        unmount();
 
 
     });
