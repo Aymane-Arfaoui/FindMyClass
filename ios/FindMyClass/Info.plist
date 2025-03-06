@@ -50,9 +50,9 @@
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need your location to show your position on the map.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Please allow to access your microphone</string>
+	<string>Please allow FindMyClass to access your microphone</string>
 	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>please allow speech recognition</string>
+	<string>Please allow FindMyClass to use speech recognition</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>
