@@ -3,11 +3,6 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import { useRouter } from 'expo-router';
 
 
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
-
-//mocking the useRouter
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
-
 describe('Index Component', () => {
 
     it('should render the text and button correctly',  async () => {

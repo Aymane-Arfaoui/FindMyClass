@@ -11,7 +11,7 @@ function hasIndoorMap(buildingName = "") {
     const lower = buildingName.toLowerCase();
     let buildingKey = null;
 
-    if (lower.includes("hall")) {
+    if (lower.includes("hall building")) {
         buildingKey = "Hall";
     } else if (lower.includes("john molson") || lower.includes("mb ")) {
         buildingKey = "MB";

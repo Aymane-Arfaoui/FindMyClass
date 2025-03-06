@@ -1,7 +1,6 @@
 import {render, screen} from "@testing-library/react-native";
 import Calendar from "@/components/Calendar";
-jest.mock('expo-font')
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
+
 let events=[
     {
         "summary": "test1",

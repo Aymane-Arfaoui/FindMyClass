@@ -2,7 +2,6 @@ import LiveLocationButton from '../LiveLocationButton.jsx';
 import {render, screen, waitFor,userEvent} from '@testing-library/react-native';
 import { getUserLocation } from '@/services/userService';
 jest.mock('@/services/userService', ()=> ({getUserLocation: jest.fn()}));
-jest.mock("expo-font");
 describe('LiveLocationButton Component', () => {
     beforeEach(()=>{
            getUserLocation.mockReturnValue({lat: 1, lng: 1});

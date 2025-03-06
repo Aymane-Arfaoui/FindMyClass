@@ -7,7 +7,7 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
     if (!selectedSection) return null;
 
     return (
-        <Animated.View
+        <Animated.View testID={'section-panel'}
             {...panHandlers}
             style={[styles.panelContainer, { transform: [{ translateY: panelY }] }]}
         >
@@ -15,7 +15,7 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
 
             <View style={styles.panelContent}>
                 <Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>
-                <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButton} testID={'close-section-button'}>
                     <Ionicons name="close-circle" size={32} color={theme.colors.dark} />
                 </TouchableOpacity>
             </View>
