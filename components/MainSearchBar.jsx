@@ -1,63 +1,179 @@
-import React, {useRef} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
-import {Ionicons} from '@expo/vector-icons';
-import {theme} from "@/constants/theme";
+import { StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
+import { GooglePlacesAutocomplete } from 'react-native-google-places-autocomplete';
+import { Ionicons } from '@expo/vector-icons';
+import { theme } from "@/constants/theme";
 import Config from 'react-native-config';
-const GOOGLE_PLACES_API_KEY=Config.GOOGLE_PLACES_API_KEY;
 
-const SearchBar = ({onLocationSelect, onBuildingPress}) => {
+import React, { useState, useEffect, useRef } from 'react';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import { Camera } from 'expo-camera';
+
+const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
+
+const SearchBar = ({ onLocationSelect, onBuildingPress }) => {
+
+    const [isListening, setIsListening] = useState(false);
+    const [recognizedText, setRecognizedText] = useState('');
+    const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
     const googleRef = useRef(null);
+
+
+
+    useEffect(() => {
+        checkMicrophonePermission();
+    }, []);
+
+    const checkMicrophonePermission = async () => {
+        try {
+            const { granted } = await ExpoSpeechRecognitionModule.getPermissionsAsync();
+
+            if (granted) {
+                setHasMicrophonePermission(true);
+            } else {
+                requestMicrophonePermission();
+            }
+        } catch (error) {
+            Alert.alert("❌ Permission check error:", error);
+        }
+    };
+
+    const requestMicrophonePermission = async () => {
+        try {
+            const { status } = await Camera.requestMicrophonePermissionsAsync();
+
+            if (status === "granted") {
+                setHasMicrophonePermission(true);
+            } else {
+                Alert.alert(
+                    "Microphone Permission Denied",
+                    "Please enable microphone access manually in your device settings.",
+                    [
+                        { text: "Open Settings", onPress: () => Linking.openSettings() },
+                        { text: "Cancel", style: "cancel" },
+                    ]
+                );
+                setHasMicrophonePermission(false);
+            }
+        } catch (error) {
+            Alert.alert("❌ Permission request error:", error);
+        }
+    };
+
+    useSpeechRecognitionEvent("result", (event) => {
+        if (event.results && event.results.length > 0) {
+            const text = event.results[0].transcript;
+            setRecognizedText(text);
+
+            googleRef?.current?.setAddressText(text);
+        }
+    });
+
+    useSpeechRecognitionEvent("end", () => {
+        setIsListening(false);
+    });
+
+    useSpeechRecognitionEvent("error", (event) => {
+        setIsListening(false);
+        Alert.alert("Error", "Failed to recognize speech. Please try again.");
+    });
+
+    const startVoiceRecognition = async () => {
+        if (!hasMicrophonePermission) {
+            Alert.alert("Permission Required", "Microphone access is needed for voice search.");
+            return;
+        }
+
+        try {
+            setIsListening(true);
+
+            ExpoSpeechRecognitionModule.start({
+                lang: "en-US",
+                interimResults: true,
+                maxAlternatives: 1,
+                continuous: true,
+            });
+
+
+            setTimeout(() => {
+                stopVoiceRecognition();
+            }, 5000);
+
+        } catch (error) {
+            setIsListening(false);
+        }
+    };
+
+
+    const stopVoiceRecognition = async () => {
+        try {
+            await ExpoSpeechRecognitionModule.stop();
+        } catch (error) {
+        }
+        setIsListening(false);
+    };
+
+
     return (
         <View style={styles.container}>
-            <GooglePlacesAutocomplete
-                ref={googleRef}
-                placeholder="Search Here"
-                minLength={2}
-                fetchDetails={true}
-                onPress={(data, details = null) => {
-                    if (details) {
-                        const { lat, lng } = details.geometry.location;
-                        onLocationSelect([lng, lat]);
-                        if (onBuildingPress) {
-                            const building = {
-                                name: details.name || data.description,
-                                textPosition: [lng, lat],
-                            };
-                            onBuildingPress(building, lng, lat);
+            <View style={styles.autocompleteContainer}>
+                <GooglePlacesAutocomplete
+                    ref={googleRef}
+                    placeholder="Search Here"
+                    minLength={2}
+                    fetchDetails={true}
+                    onPress={(data, details = null) => {
+                        if (details) {
+                            const { lat, lng } = details.geometry.location;
+                            onLocationSelect([lng, lat]);
+                            if (onBuildingPress) {
+                                const building = {
+                                    name: details.name || data.description,
+                                    textPosition: [lng, lat],
+                                };
+                                onBuildingPress(building, lng, lat);
+                            }
                         }
-                    }
-                }}
-                query={{
-                    key: GOOGLE_PLACES_API_KEY,
-                    language: 'en',
-                    components: 'country:CA',
-                    types: 'establishment',
-                }}
-                styles={{
-                    container: styles.autocompleteContainer,
-                    textInputContainer: styles.inputContainer,
-                    textInput: styles.textInput,
-                    listView: styles.listView,
-                    row: styles.suggestionRow,
-                    description: styles.descriptionText,
-                    poweredContainer: styles.poweredContainer,
-                }}
-                renderLeftButton={() => (
-                    <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon} />
-                )}
-                enablePoweredByContainer={false}
-            />
-
+                    }}
+                    query={{
+                        key: GOOGLE_PLACES_API_KEY,
+                        language: 'en',
+                        components: 'country:CA',
+                        types: 'establishment',
+                    }}
+                    styles={{
+                        container: { flex: 1 },
+                        textInputContainer: styles.inputContainer,
+                        textInput: styles.textInput,
+                        listView: styles.listView,
+                        row: styles.suggestionRow,
+                        description: styles.descriptionText,
+                        poweredContainer: styles.poweredContainer,
+                    }}
+                    renderLeftButton={() => (
+                        <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon} />
+                    )}
+                    enablePoweredByContainer={false}
+                />
+            </View>
+            <TouchableOpacity
+                style={styles.voiceButton}
+                onPress={isListening ? stopVoiceRecognition : startVoiceRecognition}
+            >
+                <Ionicons name={isListening ? 'mic-off' : 'mic'} size={24} color="white" />
+            </TouchableOpacity>
         </View>
     );
+
 };
 
 const styles = StyleSheet.create({
     container: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: 'transparent',
         paddingTop: 10,
         zIndex: 100,
+        paddingHorizontal: 10,
     },
     autocompleteContainer: {
         flex: 1,
@@ -127,7 +243,19 @@ const styles = StyleSheet.create({
     poweredContainer: {
         display: 'none',
     },
+    voiceButton: {
+        backgroundColor: theme.colors.blueDark,
+        padding: 15,
+        borderRadius: 50,
+        elevation: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.7,
+        shadowRadius: 4,
+        marginLeft: 10,
+    },
 });
+
 
 
 export default SearchBar;
