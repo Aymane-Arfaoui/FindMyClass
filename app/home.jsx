@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router'
 import {fetchBuildingCoordinates} from "@/services/routeService";
 import {Ionicons} from "@expo/vector-icons";
 import Calendar from "@/components/Calendar";
+import AppNavigationPanel from "@/components/AppNavigationPannel";
 
 const Home = () => {
   const [userInfo, setUserInfo] = React.useState(null);
@@ -95,19 +96,21 @@ const Home = () => {
                 <Calendar events={calendarEvents} onClassSelect={handleClassSelect}  />
               </>
           )}
+          {userInfo && (
+              <View style={styles.bottomContainer}>
+                <TouchableOpacity onPress={handleSignOut} testID={'button'} style={styles.signOutButton}>
+                  <View style={styles.signOutContainer}>
+                    <Ionicons name="log-out-outline" size={24} color="#fff" />
+                    <Text style={styles.signOutText}>Sign Out</Text>
+                  </View>
+                </TouchableOpacity>
+              </View>
+          )}
         </ScrollView>
 
-        {userInfo && (
-            <View style={styles.bottomContainer}>
-              <TouchableOpacity onPress={handleSignOut} testID={'button'} style={styles.signOutButton}>
-                <View style={styles.signOutContainer}>
-                  <Ionicons name="log-out-outline" size={24} color="#fff" />
-                  <Text style={styles.signOutText}>Sign Out</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-        )}
+        <AppNavigationPanel />
       </ScreenWrapper>
+
   )
 }
 
@@ -186,15 +189,16 @@ const styles = StyleSheet.create({
   },
   bottomContainer: {
     padding: hp(2),
-    paddingBottom: hp(4),
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.lightGray,
+    paddingBottom: hp(8),
+    // backgroundColor: '#fff',
+    // borderTopWidth: 1,
+    // borderTopColor: theme.colors.lightGray,
   },
   signOutButton: {
     backgroundColor: theme.colors.primary,
     padding: hp(1.5),
-    borderRadius: 10,
+    paddingHorizontal: hp(4),
+    borderRadius: theme.radius.lg,
     alignItems: 'center',
     justifyContent: 'center',
   },

@@ -10,3 +10,5 @@ flask-session
 cryptography
 Flask-Cors
 pytest
+opencv-python
+networkx

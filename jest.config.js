@@ -5,26 +5,26 @@ module.exports = {
     verbose: true,
     testEnvironment: "node",
     coverageDirectory: "coverage",
-    collectCoverageFrom: [
-        "Config/**/*.{js,jsx,ts,tsx}",
-        "api/**/*.{js,jsx,ts,tsx}",
-        "app/**/*.{js,jsx,ts,tsx}",
-        "components/**/*.{js,jsx,ts,tsx}",
-        "context/**/*.{js,jsx,ts,tsx}",
-        "helpers/**/*.{js,jsx,ts,tsx}",
-        "services/**/*.{js,jsx,ts,tsx}",
-        "!**/__tests__/**",
-        "!**/node_modules/**",
-        "!**/coverage/**",
-        "!**/dist/**",
-        "!**/build/**",
-        "!**constants**"
-    ],
+
+    // collectCoverageFrom: [
+    //     // "Config/**/*.{js,jsx,ts,tsx}",
+    //     "api/**/*.{js,jsx,ts,tsx}",
+    //     "app/**/*.{js,jsx,ts,tsx}",
+    //     "components/**/*.{js,jsx,ts,tsx}",
+    //     //"constants/**/*.{js,jsx,ts,tsx}",
+    //     "context/**/*.{js,jsx,ts,tsx}",
+    //     "helpers/**/*.{js,jsx,ts,tsx}",
+    //     "services/**/*.{js,jsx,ts,tsx}",
+    //     "!**/__tests__/**",
+    //     "!**/node_modules/**",
+    //     "!**/coverage/**",
+    //     "!**/dist/**",
+    //     "!**/build/**"
+    // ],
+
     coverageReporters: ["json", "lcov", "text", "clover"],
     reporters: ["default"],
     moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
-    transformIgnorePatterns: ["/node_modules/(?!@react-native|react-native)"],
-    moduleNameMapper: {
-        "\\.(css|less|scss|sass)$": "identity-obj-proxy"
-    }
+    setupFilesAfterEnv: ['<rootDir>/setup-jest.js'],
+
 };

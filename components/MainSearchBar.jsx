@@ -17,7 +17,7 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
                 fetchDetails={true}
                 onPress={(data, details = null) => {
                     if (details) {
-                        const {lat, lng} = details.geometry.location;
+                        const { lat, lng } = details.geometry.location;
                         onLocationSelect([lng, lat]);
                         if (onBuildingPress) {
                             const building = {
@@ -28,7 +28,6 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
                         }
                     }
                 }}
-
                 query={{
                     key: GOOGLE_PLACES_API_KEY,
                     language: 'en',
@@ -44,15 +43,12 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
                     description: styles.descriptionText,
                     poweredContainer: styles.poweredContainer,
                 }}
-                renderRow={(data) => (
-                    <View style={styles.suggestionItem}>
-                        <Ionicons name="location-outline" size={20} color={theme.colors.grayDark}
-                                  style={styles.locationIcon}/>
-                        <Text style={styles.suggestionText}>{data.description}</Text>
-                    </View>
+                renderLeftButton={() => (
+                    <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon} />
                 )}
                 enablePoweredByContainer={false}
             />
+
         </View>
     );
 };
@@ -60,12 +56,12 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'transparent',
-        paddingHorizontal: 10,
         paddingTop: 10,
-        zIndex: 5,
+        zIndex: 100,
     },
     autocompleteContainer: {
         flex: 1,
+        position: "relative",
     },
     inputContainer: {
         backgroundColor: 'transparent',
@@ -77,20 +73,34 @@ const styles = StyleSheet.create({
         fontSize: 16,
         borderRadius: 25,
         backgroundColor: theme.colors.white,
-        paddingHorizontal: 20,
+        paddingHorizontal: 40,
         borderWidth: 0,
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
+        color: theme.colors.black,
+        placeholderTextColor: theme.colors.grayDark,
+    },
+    searchIcon: {
+        position: "absolute",
+        left: 15,
+        top: 15,
+        zIndex: 10,
     },
     listView: {
+        position: 'absolute',
+        top: 50,
+        left: 0,
+        right: 0,
         backgroundColor: theme.colors.white,
         borderRadius: 10,
         marginTop: 5,
         paddingHorizontal: 10,
-        elevation: 5,
+        elevation: 10,
+        zIndex: 500,
+        maxHeight: 200,
     },
     suggestionRow: {
         flexDirection: 'row',
@@ -118,5 +128,6 @@ const styles = StyleSheet.create({
         display: 'none',
     },
 });
+
 
 export default SearchBar;

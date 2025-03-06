@@ -14,6 +14,8 @@ import Config from 'react-native-config';
 import {useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
+import AppNavigationPannel from "@/components/AppNavigationPannel";
+
 
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
@@ -342,7 +344,7 @@ export default function Homemap() {
 
         setPlaces([]); // Reset places list
 
-        const { coordinates } = currentLocation.geometry;
+        const {coordinates} = currentLocation.geometry;
         const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json
     ?location=${coordinates[1]},${coordinates[0]}
     &radius=1000
@@ -399,7 +401,6 @@ export default function Homemap() {
     };
 
 
-
     return (
         <View style={styles.container}>
             <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
@@ -418,22 +419,21 @@ export default function Homemap() {
             />
 
             {!isDirectionsView && (
-                <>
+                <View style={styles.searchContainer}>
+                    {/* Back Button */}
                     <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
                         <Ionicons name="chevron-back" size={28} color="black"/>
                     </TouchableOpacity>
-                    <View style={styles.searchOverlay}>
+
+                    {/* Search Bar */}
+                    <View style={styles.searchWrapper}>
                         <MainSearchBar
                             onLocationSelect={setSelectedLocation}
                             onBuildingPress={handleBuildingPress}
                         />
                     </View>
-                </>
-            )}
 
-            {/* Place Filter Buttons */}
-            {!isDirectionsView && (
-                <View style={styles.filterButtonsContainer}>
+                    {/* Filter Button (Now Functional) */}
                     <PlaceFilterButtons
                         onSelectCategory={(category) => {
                             setSelectedCategory(category);
@@ -445,8 +445,25 @@ export default function Homemap() {
                         }}
                     />
                 </View>
-
             )}
+
+
+
+            {/*{!isDirectionsView && (*/}
+            {/*    <View style={styles.filterButtonsContainer}>*/}
+            {/*        <PlaceFilterButtons*/}
+            {/*            onSelectCategory={(category) => {*/}
+            {/*                setSelectedCategory(category);*/}
+            {/*                if (category) {*/}
+            {/*                    fetchPlacesOfInterest(category);*/}
+            {/*                } else {*/}
+            {/*                    setPlaces([]);*/}
+            {/*                }*/}
+            {/*            }}*/}
+            {/*        />*/}
+            {/*    </View>*/}
+
+            {/*)}*/}
 
             {!isDirectionsView && (
                 <View style={styles.mapButtonsContainer}>
@@ -466,6 +483,9 @@ export default function Homemap() {
             )}
             {!isDirectionsView && (
                 <LiveLocationButton onPress={setSelectedLocation}/>
+            )}
+            {!isDirectionsView && (
+                <AppNavigationPannel/>
             )}
 
             {selectedLocation && !isDirectionsView && (
@@ -513,24 +533,7 @@ const styles = StyleSheet.create({
         paddingTop: StatusBar.currentHeight || 0,
         position: 'relative',
     },
-    searchOverlay: {
-        position: 'absolute',
-        top: 80,
-        left: 10,
-        right: 10,
-        zIndex: 10,
-    },
-    filterButtonsContainer: {
-        position: "absolute",
-        top: 140,
-        left: 10,
-        right: 10,
-        zIndex: 10,
-        flexDirection: "row",
-        justifyContent: "center",
-        paddingVertical: 8,
-        borderRadius: 10,
-    },
+
     infoBox: {
         position: 'absolute',
         bottom: 20,
@@ -545,18 +548,41 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 780,
-        left: 10,
-        right: 10,
-        zIndex: 5,
+        bottom: 830,
+        left: 0,
+        right: 0,
+        zIndex: 10,
         alignItems: 'center',
     },
-    backButton: {
-        position: 'absolute',
-        top: 50,
+    searchContainer: {
+        position: "absolute",
+        top: 70,
         left: 10,
-        padding: 6,
-        zIndex: 10,
+        right: 10,
+        zIndex: 20,
+        flexDirection: "row",
+        alignItems: "center",
+        borderRadius: 30,
+        paddingHorizontal: 10,
+        elevation: 5,
+        shadowOpacity: 0.2,
+        shadowRadius: 4,
+    },
+    backButton: {
+        padding: 2,
+        marginRight: 2,
+    },
+    searchWrapper: {
+        flex: 1,
+    },
+    filterButton: {
+        backgroundColor: theme.colors.primary,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        justifyContent: "center",
+        alignItems: "center",
+        marginLeft: 2,
     },
     header: {fontSize: 18, fontWeight: "bold"},
     routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},

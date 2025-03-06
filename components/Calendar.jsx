@@ -194,7 +194,7 @@ const styles = StyleSheet.create({
     eventsContainer: {
         padding: hp(2),
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.lightGray,
+        borderBottomColor: theme.colors.gray,
     },
     dateHeader: {
         fontSize: hp(2),

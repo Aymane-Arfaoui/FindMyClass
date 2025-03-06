@@ -2,14 +2,8 @@ import Home from '../home.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import Button from "@/components/Button";
-import Welcome from "@/app/Welcome";
 
 
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
-jest.mock('expo-font');
-//mocking the useRouter
-jest.mock('expo-router', ()=> ({useRouter: jest.fn()}));
 const event = JSON.stringify([{
     "summary": "test1",
     "location": "test1",
@@ -23,6 +17,7 @@ const event = JSON.stringify([{
         "timeZone": "America/New_York"
     }
 }]);
+const userMock = JSON.stringify({name: "test"});
 describe('Home Component', () => {
     afterEach(
         ()=> {AsyncStorage.clear();}
@@ -37,24 +32,21 @@ describe('Home Component', () => {
 
 
     it('should render user card when a user is stored in async storage',   async () => {
-        const user = JSON.stringify({name: "asd"});
-        await AsyncStorage.setItem('@user', user);
+        await AsyncStorage.setItem('@user', userMock);
         const { unmount } =render(<Home/>);
         expect(await screen.findByTestId('user-card')).toBeOnTheScreen();
         unmount();
     });
     it('should render user picture when a user with a picture is stored in async storage',   async () => {
-        const user = JSON.stringify({name: "asd",picture:'../assets/images/icon.png'});
-        await AsyncStorage.setItem('@user', user);
+        const userMock = JSON.stringify({name: "asd",picture:'../assets/images/icon.png'});
+        await AsyncStorage.setItem('@user', userMock);
         const { unmount } =render(<Home/>);
         expect(await screen.findByTestId('user-picture')).toBeOnTheScreen();
         unmount();
     });
 
     it('should render user card when a user is stored in async storage',   async () => {
-        const user = JSON.stringify({name: "test"});
-
-        await AsyncStorage.setItem('@user', user);
+        await AsyncStorage.setItem('@user', userMock);
         await AsyncStorage.setItem('@calendar', event);
         const { unmount } =render(<Home/>);
         expect(await screen.findByTestId('user-card')).toBeOnTheScreen();
@@ -64,7 +56,6 @@ describe('Home Component', () => {
     it('should reroute to "/"  if sign out button is pressed',  async () => {
         const mock={replace:jest.fn()};
         useRouter.mockReturnValue(mock);
-        const userMock = JSON.stringify({name: "test"});
         await AsyncStorage.setItem('@user', userMock);
         await AsyncStorage.setItem('@calendar', event);
         const { unmount } =render(<Home/>);
@@ -78,7 +69,6 @@ describe('Home Component', () => {
     it('should reroute to "/calendar" if calendar button is pressed',  async () => {
         const mock={push:jest.fn()};
         useRouter.mockReturnValue(mock);
-        const userMock = JSON.stringify({name: "test"});
         await AsyncStorage.setItem('@user', userMock);
         await AsyncStorage.setItem('@calendar', event);
         const { unmount } =render(<Home/>);
