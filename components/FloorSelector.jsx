@@ -22,6 +22,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
                 </TouchableOpacity>
                 {floorKeys.map((floorKey) => (
                     <TouchableOpacity
+                        testID={`floor-${floorKey}-button`}
                         key={floorKey}
                         onPress={() => setSelectedFloorKey(floorKey)}
                         style={[

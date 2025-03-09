@@ -112,6 +112,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                         <Rect width="100%" height="100%" fill={theme.colors.backgroundDark}/>
                                         {sections.map((section, index) => (
                                             <Path
+                                                testID={`section-${index}`}
                                                 key={index}
                                                 d={section.d}
                                                 fill={
@@ -137,6 +138,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                         ))}
                                         {poiImage && (
                                             <SvgImage
+                                                testID={'svg-image'}
                                                 href={poiImage}
                                                 x="0"
                                                 y="0"
