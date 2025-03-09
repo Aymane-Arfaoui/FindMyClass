@@ -1,0 +1,537 @@
+{
+  "nodes": [
+    {
+      "id": "mb_s2_hw1",
+      "x": 671.55,
+      "y": 920.45,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_273",
+      "x": 637.47,
+      "y": 955.95,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_275",
+      "x": 674.39,
+      "y": 960.21,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_279",
+      "x": 714.15,
+      "y": 958.79,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_285",
+      "x": 734.03,
+      "y": 890.62,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_330",
+      "x": 709.89,
+      "y": 867.9,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_210",
+      "x": 687.17,
+      "y": 865.06,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw2",
+      "x": 580.66,
+      "y": 896.3,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_stairs_1",
+      "x": 577.82,
+      "y": 914.77,
+      "floor_number": "S2",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "mb_s2_hw3",
+      "x": 518.18,
+      "y": 892.04,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_hw4",
+      "x": 519.6,
+      "y": 514.31,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_elevator",
+      "x": 667.29,
+      "y": 510.05,
+      "floor_number": "S2",
+      "poi_type": "elevator"
+    },
+    {
+      "id": "mb_s2_hw5",
+      "x": 836.27,
+      "y": 515.73,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_hw6",
+      "x": 833.43,
+      "y": 571.11,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_312",
+      "x": 816.39,
+      "y": 578.21,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_230",
+      "x": 783.73,
+      "y": 579.63,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_330__",
+      "x": 834.85,
+      "y": 595.25,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_210__",
+      "x": 570.72,
+      "y": 596.67,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw7",
+      "x": 583.5,
+      "y": 493.01,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_hw8",
+      "x": 586.34,
+      "y": 417.74,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_145",
+      "x": 563.62,
+      "y": 429.1,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_135",
+      "x": 563.62,
+      "y": 412.06,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw9",
+      "x": 587.76,
+      "y": 261.54,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_115",
+      "x": 565.04,
+      "y": 319.76,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_015",
+      "x": 606.22,
+      "y": 182.01,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw10",
+      "x": 665.87,
+      "y": 257.28,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_water",
+      "x": 664.45,
+      "y": 272.9,
+      "floor_number": "S2",
+      "poi_type": "water"
+    },
+    {
+      "id": "mb_s2_women_bathroom",
+      "x": 645.99,
+      "y": 304.14,
+      "floor_number": "S2",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "mb_s2_accessibility_bathroom",
+      "x": 684.33,
+      "y": 302.72,
+      "floor_number": "S2",
+      "poi_type": "accessibility_bathroom"
+    },
+    {
+      "id": "mb_s2_men_bathroom",
+      "x": 697.11,
+      "y": 292.78,
+      "floor_number": "S2",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "mb_s2_hw11",
+      "x": 743.97,
+      "y": 267.22,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_470",
+      "x": 739.71,
+      "y": 245.92,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_437",
+      "x": 741.13,
+      "y": 308.4,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_438",
+      "x": 743.97,
+      "y": 409.22,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_428",
+      "x": 786.57,
+      "y": 280.0,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw12",
+      "x": 876.04,
+      "y": 261.54,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_435",
+      "x": 874.62,
+      "y": 336.8,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_445",
+      "x": 901.6,
+      "y": 217.51,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_465",
+      "x": 873.2,
+      "y": 182.01,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_stairs_2",
+      "x": 827.75,
+      "y": 488.75,
+      "floor_number": "S2",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "mb_s2_245",
+      "x": 477.0,
+      "y": 911.93,
+      "floor_number": "S2",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_s2_hw13",
+      "x": 474.16,
+      "y": 876.42,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_hw14",
+      "x": 477.0,
+      "y": 711.7,
+      "floor_number": "S2",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_s2_stairs_to_mb_1",
+      "x": 404.58,
+      "y": 714.54,
+      "floor_number": "S2",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "mb_s2_metro",
+      "x": 377.59,
+      "y": 646.37,
+      "floor_number": "S2",
+      "poi_type": "entrance"
+    },
+    {
+      "id": "mb_s2_escalator_to_mb_1",
+      "x": 477.0,
+      "y": 626.49,
+      "floor_number": "S2",
+      "poi_type": "escalator"
+    }
+  ],
+  "edges": [
+    [
+      "mb_s2_hw1",
+      "mb_s2_273"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_275"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_279"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_285"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_330"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_210"
+    ],
+    [
+      "mb_s2_hw1",
+      "mb_s2_hw2"
+    ],
+    [
+      "mb_s2_hw2",
+      "mb_s2_stairs_1"
+    ],
+    [
+      "mb_s2_hw3",
+      "mb_s2_hw2"
+    ],
+    [
+      "mb_s2_hw3",
+      "mb_s2_hw4"
+    ],
+    [
+      "mb_s2_elevator",
+      "mb_s2_hw4"
+    ],
+    [
+      "mb_s2_hw5",
+      "mb_s2_elevator"
+    ],
+    [
+      "mb_s2_hw5",
+      "mb_s2_hw6"
+    ],
+    [
+      "mb_s2_hw6",
+      "mb_s2_312"
+    ],
+    [
+      "mb_s2_312",
+      "mb_s2_230"
+    ],
+    [
+      "mb_s2_hw6",
+      "mb_s2_330__"
+    ],
+    [
+      "mb_s2_hw4",
+      "mb_s2_210__"
+    ],
+    [
+      "mb_s2_hw7",
+      "mb_s2_elevator"
+    ],
+    [
+      "mb_s2_hw7",
+      "mb_s2_hw4"
+    ],
+    [
+      "mb_s2_hw7",
+      "mb_s2_210__"
+    ],
+    [
+      "mb_s2_hw7",
+      "mb_s2_hw8"
+    ],
+    [
+      "mb_s2_hw8",
+      "mb_s2_145"
+    ],
+    [
+      "mb_s2_hw8",
+      "mb_s2_135"
+    ],
+    [
+      "mb_s2_hw8",
+      "mb_s2_hw9"
+    ],
+    [
+      "mb_s2_hw8",
+      "mb_s2_115"
+    ],
+    [
+      "mb_s2_hw9",
+      "mb_s2_115"
+    ],
+    [
+      "mb_s2_hw9",
+      "mb_s2_015"
+    ],
+    [
+      "mb_s2_hw9",
+      "mb_s2_hw10"
+    ],
+    [
+      "mb_s2_hw10",
+      "mb_s2_water"
+    ],
+    [
+      "mb_s2_hw10",
+      "mb_s2_women_bathroom"
+    ],
+    [
+      "mb_s2_accessibility_bathroom",
+      "mb_s2_hw10"
+    ],
+    [
+      "mb_s2_men_bathroom",
+      "mb_s2_hw10"
+    ],
+    [
+      "mb_s2_hw11",
+      "mb_s2_hw10"
+    ],
+    [
+      "mb_s2_hw11",
+      "mb_s2_470"
+    ],
+    [
+      "mb_s2_437",
+      "mb_s2_hw11"
+    ],
+    [
+      "mb_s2_437",
+      "mb_s2_438"
+    ],
+    [
+      "mb_s2_428",
+      "mb_s2_hw11"
+    ],
+    [
+      "mb_s2_hw11",
+      "mb_s2_hw12"
+    ],
+    [
+      "mb_s2_hw12",
+      "mb_s2_428"
+    ],
+    [
+      "mb_s2_hw12",
+      "mb_s2_435"
+    ],
+    [
+      "mb_s2_hw12",
+      "mb_s2_445"
+    ],
+    [
+      "mb_s2_hw12",
+      "mb_s2_465"
+    ],
+    [
+      "mb_s2_stairs_2",
+      "mb_s2_hw5"
+    ],
+    [
+      "mb_s2_hw3",
+      "mb_s2_245"
+    ],
+    [
+      "mb_s2_hw13",
+      "mb_s2_hw3"
+    ],
+    [
+      "mb_s2_hw13",
+      "mb_s2_245"
+    ],
+    [
+      "mb_s2_hw13",
+      "mb_s2_hw14"
+    ],
+    [
+      "mb_s2_stairs_to_mb_1",
+      "mb_s2_hw14"
+    ],
+    [
+      "mb_s2_stairs_to_mb_1",
+      "mb_s2_metro"
+    ],
+    [
+      "mb_s2_metro",
+      "mb_s2_hw14"
+    ],
+    [
+      "mb_s2_escalator_to_mb_1",
+      "mb_s2_metro"
+    ],
+    [
+      "mb_s2_escalator_to_mb_1",
+      "mb_s2_hw14"
+    ]
+  ],
+  "scale_factor": 0.05
+}

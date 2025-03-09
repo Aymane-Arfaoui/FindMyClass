@@ -1,17 +1,34 @@
+import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-import heapq
+import app.graph.Graph as Graph
 
 
+navigation_routes = Blueprint('indoorNavigation', __name__)
 
-navigation_routes = Blueprint('navigation', __name__)
+g = {}
 
-h_building_first_floor = {
-    
-}
+@navigation_routes.route('/indoorNavigation', methods=['GET'])
+@cross_origin()
+def indoor_navigation():
+    global g
+    start_id = request.args.get('startId')
+    end_id = request.args.get('endId')
+    campus = request.args.get('campus')
 
+    if os.path.exists(f'app/data/campus_jsons/{campus}') is False:
+        return jsonify({"error": "Campus not found"}), 400
 
+    if not start_id or not end_id:
+        return jsonify({"error": "Missing required parameters 'startId' and 'endId'"}), 400
 
+    if g == {} or campus not in g:
+        g[campus] = None
+        for root, dirs, files in os.walk(f'app/data/campus_jsons/{campus}'):
+            for file in files:
+                if file.endswith('.json'):
+                    g[campus] = Graph.load_graph_from_json(g[campus], os.path.join(root, file))
 
+    path = g[campus].find_shortest_path(start_id, end_id)
 
-
+    return jsonify({"path": path})

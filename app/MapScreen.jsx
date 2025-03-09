@@ -20,8 +20,6 @@ import SectionPanel from '../components/SectionPanel';
 
 const MapScreen = () => {
     const route = useRoute();
-    const navigation = useNavigation();
-
     const {buildingKey} = route.params || {};
 
     if (!buildingKey || !floorsData[buildingKey]) {
@@ -31,6 +29,10 @@ const MapScreen = () => {
             </View>
         );
     }
+    return (<InnerMapScreen buildingKey={buildingKey}/>);
+};
+const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+    const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
