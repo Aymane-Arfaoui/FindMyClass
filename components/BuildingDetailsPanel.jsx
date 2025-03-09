@@ -3,6 +3,7 @@ import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, 
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import { useNavigation } from "@react-navigation/native";
+import PropTypes from "prop-types";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
@@ -106,6 +107,20 @@ function BuildingDetailsPanel({
         </Animated.View>
     );
 };
+
+BuildingDetailsPanel.propTypes={
+    selectedBuilding:PropTypes.any,
+    buildingDetails:PropTypes.any,
+    panHandlers:PropTypes.any,
+    panelY:PropTypes.any,
+    onClose:PropTypes.func,
+    onDirectionPress:PropTypes.func,
+    currentLocation:PropTypes.any,
+    mode:PropTypes.string,
+    GOOGLE_PLACES_API_KEY:PropTypes.string,
+    loading:PropTypes.bool,
+
+}
 
 export default BuildingDetailsPanel;
 

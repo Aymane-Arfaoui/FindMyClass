@@ -1,9 +1,10 @@
 import React, {useRef} from 'react';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleSheet, View} from 'react-native';
 import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from "@/constants/theme";
 import Config from 'react-native-config';
+import PropTypes from "prop-types";
 const GOOGLE_PLACES_API_KEY=Config.GOOGLE_PLACES_API_KEY;
 
 const SearchBar = ({onLocationSelect, onBuildingPress}) => {
@@ -52,7 +53,10 @@ const SearchBar = ({onLocationSelect, onBuildingPress}) => {
         </View>
     );
 };
-
+SearchBar.propTypes={
+    onLocationSelect:PropTypes.func,
+    onBuildingPress:PropTypes.func
+}
 const styles = StyleSheet.create({
     container: {
         backgroundColor: 'transparent',

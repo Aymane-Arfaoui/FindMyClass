@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {theme} from "@/constants/theme";
-
+import PropTypes from "prop-types";
 const MapButtons = ({onPress}) => {
     const [selectedButton, setSelectedButton] = useState('SGW');
 
@@ -42,6 +42,9 @@ const MapButtons = ({onPress}) => {
         </View>
     );
 };
+MapButtons.propTypes={
+    onPress:PropTypes.func
+}
 
 const styles = StyleSheet.create({
     buttonContainer: {

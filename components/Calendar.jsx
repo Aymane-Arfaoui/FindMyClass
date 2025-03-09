@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
 import { theme } from '../constants/theme';
@@ -6,7 +6,6 @@ import { hp } from '../helpers/common';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
 import {fetchBuildingCoordinates} from "@/services/buildingService";
 
 const Calendar = ({ events: propEvents }) => {
