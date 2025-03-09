@@ -496,6 +496,30 @@
     [
       "h2_hw8",
       "h2_290_1"
+    ],
+    [
+      "h2_elevator",
+      "h1_elevator"
+    ],
+    [
+      "h2_elevator",
+      "h8_elevator"
+    ],
+    [
+      "h2_elevator",
+      "h9_elevator"
+    ],
+    [
+      "h2_escalator_to_h1",
+      "h1_hw1"
+    ],
+    [
+      "h2_stairs_to_h1",
+      "h1_hw1"
+    ],
+    [
+      "h2_escalator_to_h4",
+      "h8_escalator_from_h7"
     ]
   ],
   "scale_factor": 0.05

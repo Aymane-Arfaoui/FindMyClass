@@ -642,6 +642,26 @@
     [
       "h1_131",
       "h1_133"
+    ],
+    [
+      "h1_elevator",
+      "h2_elevator"
+    ],
+    [
+      "h1_elevator",
+      "h8_elevator"
+    ],
+    [
+      "h1_elevator",
+      "h9_elevator"
+    ],
+    [
+      "h1_escalator_to_h2",
+      "h2_escalator_to_h2"
+    ],
+    [
+      "h1_hw1",
+      "h2_stairs2_to_h1"
     ]
   ],
   "scale_factor": 0.05

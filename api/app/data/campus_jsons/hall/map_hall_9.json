@@ -1473,6 +1473,38 @@
     [
       "h9_hw20",
       "h9_937"
+    ],
+    [
+      "h9_elevator",
+      "h1_elevator"
+    ],
+    [
+      "h9_elevator",
+      "h2_elevator"
+    ],
+    [
+      "h9_elevator",
+      "h8_elevator"
+    ],
+    [
+      "h9_escalator_to_h10",
+      "h8_escalator_to_h9"
+    ],
+    [
+      "h9_stairs_up_2",
+      "h8_stairs_4"
+    ],
+    [
+      "h9_stairs_up_1",
+      "h8_stairs_1"
+    ],
+    [
+      "h9_stairs_up_4",
+      "h8_stairs_2"
+    ],
+    [
+      "h9_stairs_up_3",
+      "h8_stairs_3"
     ]
   ],
   "scale_factor": 0.05
