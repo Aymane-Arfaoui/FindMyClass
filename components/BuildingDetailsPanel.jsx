@@ -86,6 +86,7 @@ function BuildingDetailsPanel({
 
 
                     <TouchableOpacity style={styles.directionButton}
+                                      testID={'direction-button'}
                                       onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
                         <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
                         <Text style={styles.directionButtonText}>Get Directions</Text>
