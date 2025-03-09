@@ -1,16 +1,20 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-import heapq
 
+import graph.Graph as Graph
+navigation_routes = Blueprint('indoor_navigation', __name__)
 
+g = None
+import os
 
-navigation_routes = Blueprint('navigation', __name__)
+@navigation_routes.route('/indoor_navigation', methods=['GET'])
+@cross_origin()
+def indoor_navigation():
+    if g is None:
 
-h_building_first_floor = {
-    
-}
+        g = Graph.load_graph_from_json(None, 'api/app/graph/graph.json')
 
-
+    return jsonify(h_building_first_floor)
 
 
 
