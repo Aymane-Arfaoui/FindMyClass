@@ -3,10 +3,11 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import {Stack,useRouter, useSegments} from 'expo-router';
 
 import { getUserInfo } from '../../services/userService';
+jest.useFakeTimers()
 let mockFun=jest.fn();
 jest.mock('expo-auth-session/providers/google', ()=> (
     {useAuthRequest: jest.fn(()=>{
-        return[{type:'success'},{type:'success',authentication:{accessToken:''}},mockFun];
+        return[{type:'success'},{type:'success',authentication:{accessToken:''}},mockFun()];
     })}));
 
 
