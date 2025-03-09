@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
+import PropTypes from "prop-types";
 
 const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
     if (!selectedSection) return null;
@@ -22,6 +23,12 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
         </Animated.View>
     );
 };
+SectionPanel.propTypes={
+    selectedSection: PropTypes.object,
+    onClose: PropTypes.func,
+    panHandlers: PropTypes.any,
+    panelY: PropTypes.object
+}
 
 export default SectionPanel;
 

@@ -3,6 +3,7 @@ import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {theme} from '../constants/theme';
 import {hp, wp} from '../helpers/common';
+import PropTypes from "prop-types";
 
 const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
     const transportModes = [
@@ -39,6 +40,11 @@ const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
         </View>
     );
 };
+TransportOptions.propTypes={
+    modeSelected: PropTypes.string,
+    setModeSelected: PropTypes.func,
+    travelTimes: PropTypes.object
+}
 
 export default TransportOptions;
 
