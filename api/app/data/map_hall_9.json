@@ -1,0 +1,1483 @@
+{
+  "nodes": [
+    {
+      "id": "h9_elevator",
+      "x": 655.76,
+      "y": 436.03,
+      "floor_number": "9",
+      "poi_type": "elevator"
+    },
+    {
+      "id": "h9_hw1",
+      "x": 653.92,
+      "y": 463.59,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_962",
+      "x": 613.49,
+      "y": 480.13,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_960",
+      "x": 589.6,
+      "y": 483.81,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_992",
+      "x": 576.74,
+      "y": 441.54,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_964",
+      "x": 753.15,
+      "y": 483.81,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_stairs_up_1",
+      "x": 740.29,
+      "y": 443.38,
+      "floor_number": "9",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "h9_962_1",
+      "x": 602.46,
+      "y": 581.2,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_964_1",
+      "x": 766.02,
+      "y": 511.37,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_964_2",
+      "x": 771.53,
+      "y": 546.29,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_964_3",
+      "x": 771.53,
+      "y": 592.23,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw2",
+      "x": 826.66,
+      "y": 465.43,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_963",
+      "x": 841.36,
+      "y": 481.97,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_water_1",
+      "x": 839.52,
+      "y": 419.49,
+      "floor_number": "9",
+      "poi_type": "water"
+    },
+    {
+      "id": "h9_hw3",
+      "x": 834.01,
+      "y": 371.71,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_965",
+      "x": 857.9,
+      "y": 366.19,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw4",
+      "x": 832.17,
+      "y": 298.2,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_967",
+      "x": 856.06,
+      "y": 266.96,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_901",
+      "x": 841.36,
+      "y": 239.4,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_903",
+      "x": 749.48,
+      "y": 276.15,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw5",
+      "x": 589.6,
+      "y": 300.04,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_902_1",
+      "x": 595.11,
+      "y": 331.28,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_women_bathroom",
+      "x": 582.25,
+      "y": 342.31,
+      "floor_number": "9",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "h9_907",
+      "x": 589.6,
+      "y": 274.31,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw6",
+      "x": 492.2,
+      "y": 296.36,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_909",
+      "x": 494.04,
+      "y": 265.12,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_906",
+      "x": 510.58,
+      "y": 334.95,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw7",
+      "x": 494.04,
+      "y": 465.43,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_914",
+      "x": 510.58,
+      "y": 406.62,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_908",
+      "x": 510.58,
+      "y": 388.25,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_980",
+      "x": 453.61,
+      "y": 323.93,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw8",
+      "x": 365.41,
+      "y": 294.53,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_911",
+      "x": 402.16,
+      "y": 266.96,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_water_2",
+      "x": 361.73,
+      "y": 309.23,
+      "floor_number": "9",
+      "poi_type": "water"
+    },
+    {
+      "id": "h9_men_bathroom",
+      "x": 394.81,
+      "y": 322.09,
+      "floor_number": "9",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "h9_stairs_up_2",
+      "x": 313.95,
+      "y": 325.77,
+      "floor_number": "9",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "h9_913",
+      "x": 317.63,
+      "y": 268.8,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw9",
+      "x": 187.15,
+      "y": 296.36,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_915",
+      "x": 190.83,
+      "y": 241.23,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_917",
+      "x": 166.94,
+      "y": 252.26,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_919",
+      "x": 165.1,
+      "y": 336.79,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw10",
+      "x": 192.67,
+      "y": 428.68,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_921",
+      "x": 165.1,
+      "y": 432.35,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_968",
+      "x": 223.91,
+      "y": 434.19,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw11",
+      "x": 492.2,
+      "y": 708.0,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_escalator_from_h8",
+      "x": 549.17,
+      "y": 652.87,
+      "floor_number": "9",
+      "poi_type": "escalator"
+    },
+    {
+      "id": "h9_escalator_to_h10",
+      "x": 530.8,
+      "y": 492.99,
+      "floor_number": "9",
+      "poi_type": "escalator"
+    },
+    {
+      "id": "h9_923",
+      "x": 163.26,
+      "y": 450.73,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw12",
+      "x": 200.02,
+      "y": 566.5,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_920",
+      "x": 258.82,
+      "y": 581.2,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_925_1",
+      "x": 148.56,
+      "y": 564.66,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_925_2",
+      "x": 111.81,
+      "y": 553.64,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_925_3",
+      "x": 128.35,
+      "y": 614.28,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw13",
+      "x": 234.93,
+      "y": 671.25,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_water_3",
+      "x": 240.44,
+      "y": 696.97,
+      "floor_number": "9",
+      "poi_type": "water"
+    },
+    {
+      "id": "h9_927_4",
+      "x": 203.69,
+      "y": 691.46,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw14",
+      "x": 211.04,
+      "y": 737.4,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_927",
+      "x": 185.31,
+      "y": 746.59,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw15",
+      "x": 214.72,
+      "y": 869.71,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_931",
+      "x": 201.85,
+      "y": 869.71,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_929",
+      "x": 205.53,
+      "y": 893.6,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_928",
+      "x": 223.91,
+      "y": 831.12,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw16",
+      "x": 286.39,
+      "y": 882.58,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_932",
+      "x": 293.74,
+      "y": 864.2,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_933",
+      "x": 306.6,
+      "y": 897.28,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw17",
+      "x": 324.98,
+      "y": 871.55,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_hw18",
+      "x": 380.11,
+      "y": 783.34,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_vending",
+      "x": 358.06,
+      "y": 775.99,
+      "floor_number": "9",
+      "poi_type": "vending"
+    },
+    {
+      "id": "h9_stairs_up_3",
+      "x": 315.79,
+      "y": 722.7,
+      "floor_number": "9",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "h9_hw19",
+      "x": 376.43,
+      "y": 700.65,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_1",
+      "x": 935.08,
+      "y": 568.34,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_937",
+      "x": 543.66,
+      "y": 733.73,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw20",
+      "x": 545.5,
+      "y": 713.51,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_966_1",
+      "x": 562.04,
+      "y": 698.81,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_966",
+      "x": 609.81,
+      "y": 696.97,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_966_2",
+      "x": 602.46,
+      "y": 634.49,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw21",
+      "x": 709.05,
+      "y": 711.68,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_stairs_up_4",
+      "x": 709.05,
+      "y": 726.38,
+      "floor_number": "9",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "h9_958",
+      "x": 714.56,
+      "y": 696.97,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw22",
+      "x": 852.39,
+      "y": 708.0,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_8",
+      "x": 848.71,
+      "y": 720.86,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw23",
+      "x": 920.38,
+      "y": 709.84,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_7",
+      "x": 935.08,
+      "y": 708.0,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_3",
+      "x": 933.24,
+      "y": 610.6,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_2",
+      "x": 913.03,
+      "y": 568.34,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_4",
+      "x": 909.35,
+      "y": 610.6,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_5",
+      "x": 914.87,
+      "y": 654.71,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_10",
+      "x": 909.35,
+      "y": 735.56,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_9",
+      "x": 929.57,
+      "y": 741.08,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_12",
+      "x": 911.19,
+      "y": 763.13,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_11",
+      "x": 933.24,
+      "y": 777.83,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_14",
+      "x": 909.35,
+      "y": 798.05,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_13",
+      "x": 940.59,
+      "y": 823.77,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_15",
+      "x": 940.59,
+      "y": 860.53,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_17",
+      "x": 940.59,
+      "y": 897.28,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw24",
+      "x": 922.22,
+      "y": 928.52,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_19",
+      "x": 942.43,
+      "y": 939.55,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_21",
+      "x": 922.22,
+      "y": 941.38,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_23",
+      "x": 887.3,
+      "y": 941.38,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_26",
+      "x": 813.8,
+      "y": 913.82,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_25",
+      "x": 845.04,
+      "y": 943.22,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw25",
+      "x": 793.58,
+      "y": 930.36,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_27",
+      "x": 791.74,
+      "y": 943.22,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_28",
+      "x": 791.74,
+      "y": 917.49,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw26",
+      "x": 727.43,
+      "y": 928.52,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_961_29",
+      "x": 742.13,
+      "y": 941.38,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_30",
+      "x": 732.94,
+      "y": 915.66,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_31",
+      "x": 720.07,
+      "y": 945.06,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_961_33",
+      "x": 679.65,
+      "y": 941.38,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw27",
+      "x": 635.54,
+      "y": 924.84,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_941",
+      "x": 630.03,
+      "y": 941.38,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_929_25",
+      "x": 536.31,
+      "y": 972.62,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw28",
+      "x": 615.33,
+      "y": 878.9,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "h9_943",
+      "x": 630.03,
+      "y": 877.06,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_945",
+      "x": 628.19,
+      "y": 827.45,
+      "floor_number": "9",
+      "poi_type": "room"
+    },
+    {
+      "id": "h9_hw29",
+      "x": 611.65,
+      "y": 794.37,
+      "floor_number": "9",
+      "poi_type": "hallway"
+    }
+  ],
+  "edges": [
+    [
+      "h9_elevator",
+      "h9_hw1"
+    ],
+    [
+      "h9_hw1",
+      "h9_962"
+    ],
+    [
+      "h9_960",
+      "h9_962"
+    ],
+    [
+      "h9_992",
+      "h9_elevator"
+    ],
+    [
+      "h9_992",
+      "h9_hw1"
+    ],
+    [
+      "h9_964",
+      "h9_hw1"
+    ],
+    [
+      "h9_stairs_up_1",
+      "h9_hw1"
+    ],
+    [
+      "h9_962",
+      "h9_962_1"
+    ],
+    [
+      "h9_964",
+      "h9_964_1"
+    ],
+    [
+      "h9_964",
+      "h9_964_2"
+    ],
+    [
+      "h9_964",
+      "h9_964_3"
+    ],
+    [
+      "h9_hw2",
+      "h9_hw1"
+    ],
+    [
+      "h9_hw2",
+      "h9_964"
+    ],
+    [
+      "h9_hw2",
+      "h9_stairs_up_1"
+    ],
+    [
+      "h9_hw2",
+      "h9_963"
+    ],
+    [
+      "h9_hw2",
+      "h9_water_1"
+    ],
+    [
+      "h9_hw3",
+      "h9_water_1"
+    ],
+    [
+      "h9_hw3",
+      "h9_hw2"
+    ],
+    [
+      "h9_hw3",
+      "h9_965"
+    ],
+    [
+      "h9_hw3",
+      "h9_hw4"
+    ],
+    [
+      "h9_hw4",
+      "h9_965"
+    ],
+    [
+      "h9_hw4",
+      "h9_967"
+    ],
+    [
+      "h9_901",
+      "h9_hw4"
+    ],
+    [
+      "h9_901",
+      "h9_967"
+    ],
+    [
+      "h9_hw4",
+      "h9_903"
+    ],
+    [
+      "h9_hw5",
+      "h9_hw4"
+    ],
+    [
+      "h9_hw5",
+      "h9_903"
+    ],
+    [
+      "h9_hw5",
+      "h9_902_1"
+    ],
+    [
+      "h9_hw5",
+      "h9_women_bathroom"
+    ],
+    [
+      "h9_907",
+      "h9_hw5"
+    ],
+    [
+      "h9_hw6",
+      "h9_hw5"
+    ],
+    [
+      "h9_hw6",
+      "h9_909"
+    ],
+    [
+      "h9_hw6",
+      "h9_906"
+    ],
+    [
+      "h9_hw7",
+      "h9_960"
+    ],
+    [
+      "h9_hw7",
+      "h9_962"
+    ],
+    [
+      "h9_hw7",
+      "h9_hw1"
+    ],
+    [
+      "h9_hw7",
+      "h9_992"
+    ],
+    [
+      "h9_hw6",
+      "h9_908"
+    ],
+    [
+      "h9_hw6",
+      "h9_914"
+    ],
+    [
+      "h9_hw7",
+      "h9_914"
+    ],
+    [
+      "h9_hw7",
+      "h9_908"
+    ],
+    [
+      "h9_hw7",
+      "h9_906"
+    ],
+    [
+      "h9_hw6",
+      "h9_hw7"
+    ],
+    [
+      "h9_906",
+      "h9_908"
+    ],
+    [
+      "h9_908",
+      "h9_914"
+    ],
+    [
+      "h9_hw6",
+      "h9_980"
+    ],
+    [
+      "h9_hw8",
+      "h9_hw6"
+    ],
+    [
+      "h9_hw8",
+      "h9_909"
+    ],
+    [
+      "h9_hw8",
+      "h9_980"
+    ],
+    [
+      "h9_hw6",
+      "h9_911"
+    ],
+    [
+      "h9_hw8",
+      "h9_911"
+    ],
+    [
+      "h9_hw8",
+      "h9_water_2"
+    ],
+    [
+      "h9_hw8",
+      "h9_men_bathroom"
+    ],
+    [
+      "h9_hw6",
+      "h9_men_bathroom"
+    ],
+    [
+      "h9_hw8",
+      "h9_stairs_up_2"
+    ],
+    [
+      "h9_hw8",
+      "h9_913"
+    ],
+    [
+      "h9_911",
+      "h9_men_bathroom"
+    ],
+    [
+      "h9_909",
+      "h9_men_bathroom"
+    ],
+    [
+      "h9_hw8",
+      "h9_hw9"
+    ],
+    [
+      "h9_hw9",
+      "h9_stairs_up_2"
+    ],
+    [
+      "h9_hw9",
+      "h9_913"
+    ],
+    [
+      "h9_hw9",
+      "h9_915"
+    ],
+    [
+      "h9_hw9",
+      "h9_917"
+    ],
+    [
+      "h9_915",
+      "h9_917"
+    ],
+    [
+      "h9_hw9",
+      "h9_919"
+    ],
+    [
+      "h9_hw10",
+      "h9_hw9"
+    ],
+    [
+      "h9_hw10",
+      "h9_919"
+    ],
+    [
+      "h9_921",
+      "h9_hw10"
+    ],
+    [
+      "h9_968",
+      "h9_hw10"
+    ],
+    [
+      "h9_escalator_to_h10",
+      "h9_hw7"
+    ],
+    [
+      "h9_escalator_from_h8",
+      "h9_hw11"
+    ],
+    [
+      "h9_923",
+      "h9_hw10"
+    ],
+    [
+      "h9_hw12",
+      "h9_hw10"
+    ],
+    [
+      "h9_hw12",
+      "h9_920"
+    ],
+    [
+      "h9_925_1",
+      "h9_hw12"
+    ],
+    [
+      "h9_925_2",
+      "h9_hw12"
+    ],
+    [
+      "h9_925_2",
+      "h9_925_3"
+    ],
+    [
+      "h9_hw13",
+      "h9_hw12"
+    ],
+    [
+      "h9_water_3",
+      "h9_hw13"
+    ],
+    [
+      "h9_hw13",
+      "h9_927_4"
+    ],
+    [
+      "h9_hw13",
+      "h9_hw14"
+    ],
+    [
+      "h9_hw14",
+      "h9_927_4"
+    ],
+    [
+      "h9_927",
+      "h9_hw14"
+    ],
+    [
+      "h9_927",
+      "h9_927_inside"
+    ],
+    [
+      "h9_hw14",
+      "h9_hw15"
+    ],
+    [
+      "h9_931",
+      "h9_hw15"
+    ],
+    [
+      "h9_929",
+      "h9_hw15"
+    ],
+    [
+      "h9_928",
+      "h9_hw15"
+    ],
+    [
+      "h9_928",
+      "h9_hw14"
+    ],
+    [
+      "h9_hw16",
+      "h9_hw15"
+    ],
+    [
+      "h9_932",
+      "h9_hw16"
+    ],
+    [
+      "h9_933",
+      "h9_hw16"
+    ],
+    [
+      "h9_hw17",
+      "h9_hw16"
+    ],
+    [
+      "h9_hw18",
+      "h9_hw17"
+    ],
+    [
+      "h9_vending",
+      "h9_hw18"
+    ],
+    [
+      "h9_hw13",
+      "h9_stairs_up_3"
+    ],
+    [
+      "h9_hw18",
+      "h9_hw19"
+    ],
+    [
+      "h9_hw19",
+      "h9_stairs_up_3"
+    ],
+    [
+      "h9_hw19",
+      "h9_hw13"
+    ],
+    [
+      "h9_hw19",
+      "h9_hw11"
+    ],
+    [
+      "h9_hw11",
+      "h9_hw7"
+    ],
+    [
+      "h9_escalator_from_h8",
+      "h9_937"
+    ],
+    [
+      "h9_937",
+      "h9_hw11"
+    ],
+    [
+      "h9_hw20",
+      "h9_hw11"
+    ],
+    [
+      "h9_hw20",
+      "h9_escalator_from_h8"
+    ],
+    [
+      "h9_966_1",
+      "h9_hw20"
+    ],
+    [
+      "h9_966",
+      "h9_hw20"
+    ],
+    [
+      "h9_966",
+      "h9_966_2"
+    ],
+    [
+      "h9_hw20",
+      "h9_hw21"
+    ],
+    [
+      "h9_hw21",
+      "h9_966"
+    ],
+    [
+      "h9_hw21",
+      "h9_stairs_up_4"
+    ],
+    [
+      "h9_958",
+      "h9_hw21"
+    ],
+    [
+      "h9_hw22",
+      "h9_hw21"
+    ],
+    [
+      "h9_hw22",
+      "h9_961_8"
+    ],
+    [
+      "h9_961_7",
+      "h9_hw23"
+    ],
+    [
+      "h9_hw23",
+      "h9_hw22"
+    ],
+    [
+      "h9_hw23",
+      "h9_961_3"
+    ],
+    [
+      "h9_hw23",
+      "h9_961_1"
+    ],
+    [
+      "h9_961_2",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_4",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_5",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_10",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_9",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_12",
+      "h9_hw23"
+    ],
+    [
+      "h9_961_11",
+      "h9_hw23"
+    ],
+    [
+      "h9_hw23",
+      "h9_961_14"
+    ],
+    [
+      "h9_hw23",
+      "h9_961_13"
+    ],
+    [
+      "h9_961_15",
+      "h9_hw23"
+    ],
+    [
+      "h9_hw23",
+      "h9_961_17"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_17"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_15"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_13"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_11"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_9"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_10"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_12"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_14"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_19"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_21"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_23"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_26"
+    ],
+    [
+      "h9_hw24",
+      "h9_961_25"
+    ],
+    [
+      "h9_hw24",
+      "h9_hw23"
+    ],
+    [
+      "h9_hw25",
+      "h9_hw24"
+    ],
+    [
+      "h9_hw25",
+      "h9_961_26"
+    ],
+    [
+      "h9_hw25",
+      "h9_961_25"
+    ],
+    [
+      "h9_hw25",
+      "h9_961_23"
+    ],
+    [
+      "h9_hw25",
+      "h9_961_21"
+    ],
+    [
+      "h9_hw25",
+      "h9_961_27"
+    ],
+    [
+      "h9_961_28",
+      "h9_hw25"
+    ],
+    [
+      "h9_hw26",
+      "h9_hw25"
+    ],
+    [
+      "h9_961_29",
+      "h9_hw26"
+    ],
+    [
+      "h9_961_30",
+      "h9_hw26"
+    ],
+    [
+      "h9_961_31",
+      "h9_hw26"
+    ],
+    [
+      "h9_961_33",
+      "h9_hw26"
+    ],
+    [
+      "h9_hw27",
+      "h9_hw26"
+    ],
+    [
+      "h9_hw27",
+      "h9_961_33"
+    ],
+    [
+      "h9_941",
+      "h9_hw27"
+    ],
+    [
+      "h9_929_25",
+      "h9_941"
+    ],
+    [
+      "h9_hw28",
+      "h9_hw27"
+    ],
+    [
+      "h9_943",
+      "h9_hw28"
+    ],
+    [
+      "h9_945",
+      "h9_hw28"
+    ],
+    [
+      "h9_hw29",
+      "h9_hw28"
+    ],
+    [
+      "h9_hw29",
+      "h9_945"
+    ],
+    [
+      "h9_hw29",
+      "h9_hw20"
+    ],
+    [
+      "h9_hw20",
+      "h9_937"
+    ]
+  ],
+  "scale_factor": 0.05
+}

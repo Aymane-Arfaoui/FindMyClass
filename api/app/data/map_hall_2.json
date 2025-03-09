@@ -3,187 +3,261 @@
     {
       "id": "h2_elevator",
       "x": 679.65,
-      "y": 239.4
+      "y": 239.4,
+      "floor_number": "2",
+      "poi_type": "elevator"
     },
     {
       "id": "h2_escalator_to_h2",
       "x": 756.83,
-      "y": 232.05
+      "y": 232.05,
+      "floor_number": "2",
+      "poi_type": "escalator"
     },
     {
       "id": "h2_stairs_to_h1",
       "x": 799.09,
-      "y": 232.05
+      "y": 232.05,
+      "floor_number": "2",
+      "poi_type": "stairs"
     },
     {
       "id": "h2_escalator_to_h1",
       "x": 607.98,
-      "y": 230.21
+      "y": 230.21,
+      "floor_number": "2",
+      "poi_type": "escalator"
     },
     {
       "id": "h2_stairs2_to_h1",
       "x": 565.71,
-      "y": 228.37
+      "y": 228.37,
+      "floor_number": "2",
+      "poi_type": "stairs"
     },
     {
       "id": "h2_hw1",
       "x": 707.21,
-      "y": 366.19
+      "y": 366.19,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_260",
       "x": 881.79,
-      "y": 377.22
+      "y": 377.22,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_224_1",
       "x": 488.53,
-      "y": 314.74
+      "y": 314.74,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_hw2",
       "x": 694.35,
-      "y": 487.48
+      "y": 487.48,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_escalator_to_h4",
       "x": 560.2,
-      "y": 480.13
+      "y": 480.13,
+      "floor_number": "2",
+      "poi_type": "escalator"
     },
     {
       "id": "h2_escalator_from_h4",
       "x": 545.5,
-      "y": 368.03
+      "y": 368.03,
+      "floor_number": "2",
+      "poi_type": "escalator"
     },
     {
       "id": "h2_224",
       "x": 484.85,
-      "y": 491.16
+      "y": 491.16,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_280",
       "x": 927.73,
-      "y": 553.64
+      "y": 553.64,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_281]",
       "x": 892.81,
-      "y": 557.31
+      "y": 557.31,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_222",
       "x": 832.17,
-      "y": 555.47
+      "y": 555.47,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_217",
       "x": 690.67,
-      "y": 557.31
+      "y": 557.31,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_hw3",
       "x": 565.71,
-      "y": 577.53
+      "y": 577.53,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_hw4",
       "x": 157.75,
-      "y": 573.85
+      "y": 573.85,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_hw5",
       "x": 573.06,
-      "y": 821.94
+      "y": 821.94,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_hw6",
       "x": 457.29,
-      "y": 827.45
+      "y": 827.45,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_hw7",
       "x": 459.13,
-      "y": 759.45
+      "y": 759.45,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_239",
       "x": 449.94,
-      "y": 757.62
+      "y": 757.62,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_men_bathroom_2",
       "x": 459.13,
-      "y": 737.4
+      "y": 737.4,
+      "floor_number": "2",
+      "poi_type": "bathroom"
     },
     {
       "id": "h2_women_bathroom_2",
       "x": 479.34,
-      "y": 753.94
+      "y": 753.94,
+      "floor_number": "2",
+      "poi_type": "bathroom"
     },
     {
       "id": "h2_water",
       "x": 87.92,
-      "y": 540.77
+      "y": 540.77,
+      "floor_number": "2",
+      "poi_type": "water"
     },
     {
       "id": "h2_290",
       "x": 155.91,
-      "y": 526.07
+      "y": 526.07,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_hw8",
       "x": 58.52,
-      "y": 469.1
+      "y": 469.1,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_290_1",
       "x": 69.54,
-      "y": 450.73
+      "y": 450.73,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_209",
       "x": 65.87,
-      "y": 331.28
+      "y": 331.28,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_205",
       "x": 95.27,
-      "y": 345.98
+      "y": 345.98,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_231",
       "x": 157.75,
-      "y": 678.6
+      "y": 678.6,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_hw9",
       "x": 155.91,
-      "y": 733.73
+      "y": 733.73,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_hw10",
       "x": 343.35,
-      "y": 744.75
+      "y": 744.75,
+      "floor_number": "2",
+      "poi_type": "hallway"
     },
     {
       "id": "h2_men_bathroom_1",
       "x": 326.81,
-      "y": 691.46
+      "y": 691.46,
+      "floor_number": "2",
+      "poi_type": "bathroom"
     },
     {
       "id": "h2_women_bathroom_1",
       "x": 369.08,
-      "y": 691.46
+      "y": 691.46,
+      "floor_number": "2",
+      "poi_type": "bathroom"
     },
     {
       "id": "h2_outside",
       "x": 343.35,
-      "y": 842.15
+      "y": 842.15,
+      "floor_number": "2",
+      "poi_type": "room"
     },
     {
       "id": "h2_219",
       "x": 501.39,
-      "y": 632.66
+      "y": 632.66,
+      "floor_number": "2",
+      "poi_type": "room"
     }
   ],
   "edges": [
