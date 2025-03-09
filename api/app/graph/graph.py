@@ -7,12 +7,15 @@ from typing import List, Optional
 
 # Node class with neighbors and distance calculation
 class Node:
-    def __init__(self, node_id, x_svg, y_svg, scale_factor=1):
+    def __init__(self, node_id, x_svg, y_svg,floor_number, poi_type,scale_factor=1):
         self.id = node_id
         self.x_svg = x_svg
         self.y_svg = y_svg
+        self.floor_number = floor_number
         self.scale_factor = scale_factor
         self.neighbors = {}  # neighbor_id: distance
+        self.poi_type = poi_type
+        
 
     def distance_to(self, other_node):
         dx = (self.x_svg - other_node.x_svg) * self.scale_factor
@@ -28,6 +31,9 @@ class Node:
 
     def set_scale_factor(self, scale_factor):
         self.scale_factor = scale_factor
+    
+    def set_floor_number(self, floor_number):
+        self.floor_number = floor_number
 
 # Graph class managing nodes and edges
 class Graph:
@@ -102,7 +108,7 @@ class Graph:
         """
         
         # First, find the shortest path using Dijkstra
-        first_path_result = self.find_shortest_path(self, start_id, end_id)
+        first_path_result = self.find_shortest_path(start_id, end_id)
         if not first_path_result:
             return []  # No path found
 
@@ -132,11 +138,11 @@ class Graph:
                     del temp_graph.nodes[node_id]
 
                 # Find spur path from spur node to end node
-                spur_path_result = self.find_shortest_path(temp_graph, spur_node_id, end_id)
+                spur_path_result = temp_graph.find_shortest_path(spur_node_id, end_id)
 
                 if spur_path_result and spur_path_result["path"]:
                     total_path_ids = root_path_ids[:-1] + spur_path_result["path"]
-                    total_distance = self.calculate_total_distance(self, total_path_ids)
+                    total_distance = self.calculate_total_distance(total_path_ids)
                     candidate = {"path": total_path_ids, "distance": total_distance}
                     if candidate not in potential_paths:
                         potential_paths.append(candidate)
@@ -170,10 +176,13 @@ def load_graph_from_json(g: Optional[Graph], filepath, scale_factor=0.5):
         g = Graph(scale_factor)
 
     for n in data["nodes"]:
-        g.add_node(Node(n["id"], n["x"], n["y"]))
+        g.add_node(Node(n["id"], n["x"], n["y"],n["floor_number"],n["poi_type"], scale_factor))
 
     for edge in data["edges"]:
         g.add_edge(edge[0], edge[1])
+        g.add_edge(edge[1], edge[0])
+
+
     
     return g
 
