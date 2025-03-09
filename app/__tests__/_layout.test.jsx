@@ -3,23 +3,13 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import {Stack,useRouter, useSegments} from 'expo-router';
 import react from "react";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-jest.mock('@react-native-async-storage/async-storage', () => require('@react-native-async-storage/async-storage/jest/async-storage-mock') );
 
-//mocking the useRouter
-jest.mock('expo-router',
-    ()=> (
-        {
-            useRouter: jest.fn(),
-            useSegments:jest.fn(),
-            Stack:jest.fn()
-        }
-));
 describe('Layout Component', () => {
     afterEach(
         ()=> {AsyncStorage.clear();}
     );
 
-    it('should reroute to /home if user exists and (auth) is not present in the route segment',  async () => {
+    it('should reroute to /homemap if user exists and (auth) is not present in the route segment',  async () => {
         const user=JSON.stringify({name:"asd"});
         await AsyncStorage.setItem('@user',user);
         //returning the segment that should be there if the user is authenticated
@@ -27,7 +17,7 @@ describe('Layout Component', () => {
         const replace = jest.fn();
         useRouter.mockReturnValue({replace: replace});
         render(<RootLayout/>);
-       await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/home');});
+       await waitFor(()=>{expect(replace).toHaveBeenCalledWith('/homemap');});
 
     });
 

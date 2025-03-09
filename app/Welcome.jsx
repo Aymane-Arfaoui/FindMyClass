@@ -96,7 +96,7 @@ const Welcome = () => {
 
         {isLoading && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#0000ff" />
+            <ActivityIndicator size="large" color= {theme.colors.primary} />
           </View>
         )}
       </View>
