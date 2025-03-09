@@ -22,3 +22,6 @@ def logged_in():
         "email": user_info['email'],
         "picture": user_info['picture']
     })
+
+
+
