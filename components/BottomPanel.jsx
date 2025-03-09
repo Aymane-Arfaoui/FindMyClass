@@ -3,7 +3,7 @@ import {Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} f
 import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
-
+import PropTypes from "prop-types";
 const BottomPanel = ({transportMode, routeDetails, routes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
@@ -167,6 +167,11 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
         </Animated.View>
     );
 };
+BottomPanel.propTypes={
+    transportMode:PropTypes.string,
+    routeDetails:PropTypes.object,
+    routes:PropTypes.array
+}
 
 
 const styles = StyleSheet.create({

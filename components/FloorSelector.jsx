@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
+import PropTypes from 'prop-types';
 
 const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => {
     if (floorKeys.length <= 1) return null;
@@ -53,7 +54,11 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
         </View>
     );
 };
-
+FloorSelector.propTypes={
+    floorKeys:PropTypes.array,
+    selectedFloorKey: PropTypes.string,
+    setSelectedFloorKey:PropTypes.func
+}
 export default FloorSelector;
 
 const styles = StyleSheet.create({

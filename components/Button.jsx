@@ -2,7 +2,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { theme } from '../constants/theme'
 import Loading from './Loading'
-import { hp, wp } from '../helpers/common'
+import { hp } from '../helpers/common'
+import PropTypes from "prop-types";
 
 const Button = ({
     buttonStyle,
@@ -34,7 +35,14 @@ const Button = ({
     </Pressable>
   )
 }
-
+Button.propTypes={
+    buttonStyle:PropTypes.object,
+    textStyle:PropTypes.object,
+    title:PropTypes.string,
+    onPress:PropTypes.func,
+    loading:PropTypes.bool,
+    hasShadow:PropTypes.bool
+}
 export default Button
 
 const styles = StyleSheet.create({

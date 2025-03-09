@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {Animated, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {theme} from "@/constants/theme";
 import {Ionicons} from "@expo/vector-icons";
+import PropTypes from "prop-types";
 
 const categories = [
     {name: "Restaurants", type: "restaurant", icon: "fast-food-outline", mapIcon: "fast-food", color: "gray"},
@@ -77,7 +78,9 @@ export default function PlaceFilterButtons({onSelectCategory}) {
         </View>
     );
 }
-
+PlaceFilterButtons.propTypes={
+    onSelectCategory:PropTypes.func
+}
 const styles = StyleSheet.create({
     container: {
         alignItems: "center",
