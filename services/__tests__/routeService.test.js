@@ -129,7 +129,6 @@ describe('fetchRoutes', () => {
         polyline.decode.mockReturnValue([[1,2]]);
         getNextShuttleTime.mockReturnValue(new Error('test'));
         const result = await fetchRoutes('origin', 'dest', 'transit');
-        console.log(result)
         expect(result).toEqual([]);
     });
 
