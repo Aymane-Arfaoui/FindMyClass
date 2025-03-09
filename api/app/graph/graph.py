@@ -162,7 +162,7 @@ class Graph:
  # Load graph from JSON file
 
 
-def load_graph_from_json(g: Optional[Graph], filepath, scale_factor=1):
+def load_graph_from_json(g: Optional[Graph], filepath, scale_factor=0.5):
     with open(filepath) as f:
         data = json.load(f)
     
