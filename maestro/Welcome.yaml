@@ -1,0 +1,5 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- assertVisible: "Welcome"
+- assertVisible: "CONTINUE WITH GOOGLE"
+- assertVisible: "GET STARTED"

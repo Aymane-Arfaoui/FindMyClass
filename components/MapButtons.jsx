@@ -2,43 +2,42 @@ import React, {useEffect, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {theme} from "@/constants/theme";
 import PropTypes from "prop-types";
-const MapButtons = ({onPress}) => {
-    const [selectedButton, setSelectedButton] = useState('SGW');
 
-    const locations = {
+
+const MapButtons = ({onPress}) => {
+const [selectedButton, setSelectedButton] = useState('SGW');
+const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
-        Loyola: [-73.6405, 45.4582] // Loyola Coordinates
+        Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
     };
 
     useEffect(() => {
-        onPress(locations.SGW);
+        onPress(locations[selectedLocation]);
     }, []);
 
     const handlePress = (location) => {
-        const coordinates = locations[location];
-
-        if (selectedButton === location) {
-            onPress(coordinates);
-        } else {
-            setSelectedButton(location);
-            onPress(coordinates);
-        }
+        setSelectedLocation(location);
+        onPress(locations[location]);
     };
 
     return (
-        <View style={styles.buttonContainer} testID={'map-buttons'}>
-            {Object.keys(locations).map((location) => (
+        <View style={styles.buttonContainer} testID={'map-toggle-button'}>
+            <View style={styles.toggleWrapper}>
                 <TouchableOpacity
-                    key={location}
-                    style={[styles.button, selectedButton === location && styles.selectedButton]}
-                    onPress={() => handlePress(location)}
-                    testID={location}
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
                 >
-                    <Text style={[styles.buttonText, selectedButton === location && styles.selectedButtonText]}>
-                        {location}
-                    </Text>
+                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
                 </TouchableOpacity>
-            ))}
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
+                    onPress={() => handlePress('Loyola')}
+                    testID={'loyola-button'}
+                >
+                    <Text style={[styles.label, selectedLocation === 'Loyola' && styles.activeLabel]}>Loyola</Text>
+                </TouchableOpacity>
+            </View>
         </View>
     );
 };
@@ -49,42 +48,42 @@ MapButtons.propTypes={
 const styles = StyleSheet.create({
     buttonContainer: {
         position: 'absolute',
-        top: 100,
-        left: 0,
+        top: 95,
+        left: 110,
         right: 0,
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         zIndex: 10,
-        marginTop: 10,
+        width: 180,
+        height: 45,
     },
-    button: {
+    toggleWrapper: {
+        flexDirection: 'row',
         backgroundColor: theme.colors.white,
-        marginHorizontal: 15,
-        height: 50,
-        width: 110,
-        borderRadius: theme.radius.md,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        shadowColor: theme.colors.dark,
-        shadowOffset: {width: 4, height: 4},
-        shadowOpacity: 0.3,
-        shadowRadius: theme.radius.xs,
+        borderRadius: 20,
+        padding: 2,
         elevation: 5,
     },
-    buttonText: {
-        color: theme.colors.text,
-        fontSize: 17,
-        fontWeight: theme.fonts.bold,
+    toggleButton: {
+        flex: 1,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 20,
     },
-    selectedButton: {
+    activeButton: {
         backgroundColor: theme.colors.blueDark,
     },
-    selectedButtonText: {
-        color: theme.colors.white,
+    label: {
+        fontSize: 15,
+        fontWeight: 'bold',
+        color: theme.colors.text,
     },
+    activeLabel: {
+        color: theme.colors.white,
+    }
 });
 
 export default MapButtons;

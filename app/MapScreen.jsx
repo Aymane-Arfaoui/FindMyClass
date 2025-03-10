@@ -17,6 +17,7 @@ import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
+import IndoorSearchBar from "@/components/IndoorSearchBar";
 
 const MapScreen = () => {
     const route = useRoute();
@@ -64,6 +65,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
 
     const handlePress = (section) => {
         setSelectedSection(section);
+        resetTransform(section);
     };
     const scale = useRef(new Animated.Value(1)).current;
     const translateX = useRef(new Animated.Value(0)).current;
@@ -71,23 +73,46 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
     const onPinchEvent = Animated.event([{nativeEvent: {scale}}], {
         useNativeDriver: false,
     });
-    const resetTransform = () => {
-        Animated.timing(scale, {
-            toValue: 1,
-            duration: 300,
-            useNativeDriver: false,
-        }).start();
-        Animated.timing(translateX, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: false,
-        }).start();
-        Animated.timing(translateY, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: false,
-        }).start();
+    const resetTransform = (section = null) => {
+        if (section && section.x !== undefined && section.y !== undefined) {
+            Animated.parallel([
+                Animated.timing(translateX, {
+                    toValue: -section.x + width / 2,
+                    duration: 500,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(translateY, {
+                    toValue: -section.y + height / 2,
+                    duration: 500,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(scale, {
+                    toValue: 0.5,
+                    duration: 500,
+                    useNativeDriver: false,
+                }),
+            ]).start();
+        } else {
+            Animated.parallel([
+                Animated.timing(scale, {
+                    toValue: 1,
+                    duration: 300,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(translateX, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: false,
+                }),
+                Animated.timing(translateY, {
+                    toValue: 0,
+                    duration: 300,
+                    useNativeDriver: false,
+                }),
+            ]).start();
+        }
     };
+
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -155,12 +180,19 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                         </View>
                     </ScrollView>
 
-                    {/* Floor Selector */}
+                    <IndoorSearchBar
+                        navigation={navigation}
+                        setSelectedFloorKey={setSelectedFloorKey}
+                        setSelectedSection={setSelectedSection}
+                        resetTransform={resetTransform}
+                    />
+
                     <FloorSelector
                         floorKeys={floorKeys}
                         selectedFloorKey={selectedFloorKey}
                         setSelectedFloorKey={(floor) => {
                             setSelectedFloorKey(floor);
+                            setSelectedSection(null);
                             resetTransform();
                         }}
                     />
@@ -181,7 +213,7 @@ export default MapScreen;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.backgroundDark,
+        backgroundColor: theme.colors.grayDark,
     },
     noDataText: {
         fontSize: 18,
@@ -195,14 +227,14 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 50,
+        top: 60,
         left: 0,
         paddingVertical: 8,
         paddingHorizontal: 15,
         borderRadius: theme.radius.lg,
         elevation: 5,
         zIndex: 10,
-        shadowColor: '#000',
+        shadowColor: theme.colors.text,
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 3,
