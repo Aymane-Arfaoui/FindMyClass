@@ -48,7 +48,14 @@ jobs:
           cat coverage/lcov.info | head -n 50 || echo "❌ lcov.info not found"
           echo "Showing Jest coverage summary..."
           cat coverage/coverage-final.json | jq
-
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install tox and any other packages
+        run: pip install tox
+      - name: Run tox
+        run: tox -e py
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
@@ -60,5 +67,6 @@ jobs:
             -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
             -Dsonar.exclusions=**/__tests__/**
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -Dsonar.python.coverage.reportPaths=/api/coverage.xml
             -Dsonar.coverage.exclusions=**/__tests__/**
             -Dsonar.verbose=true
