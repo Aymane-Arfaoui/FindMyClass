@@ -11,6 +11,7 @@ navigation_routes = Blueprint('indoorNavigation', __name__)
 
 g = {}
 
+
 @navigation_routes.route('/indoorNavigation', methods=['GET'])
 @cross_origin()
 def indoor_navigation():
