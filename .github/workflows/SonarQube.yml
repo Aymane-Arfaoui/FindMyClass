@@ -38,6 +38,11 @@ jobs:
           echo "Running tests to generate coverage..."
           npm run test:ci -- --coverage --runInBand --forceExit --all
         continue-on-error: true
+      - name: 🧪 Check Python Coverage XML File
+        if: always()
+        run: |
+          echo "Checking if coverage.xml file exists..."
+          ls -l api/coverage.xml || echo "❌ coverage.xml not found"
 
       - name: 🛠 Debug Coverage Files
         if: always()
@@ -62,11 +67,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.organization=aymane-arfaoui
-            -Dsonar.projectKey=Aymane-Arfaoui_FindMyClass
-            -Dsonar.sources=Config,api,app,components,constants,context,helpers,services
-            -Dsonar.exclusions=**/__tests__/**
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -Dsonar.python.coverage.reportPaths=/api/coverage.xml
-            -Dsonar.coverage.exclusions=**/__tests__/**
-            -Dsonar.verbose=true
+            -D sonar.organization=aymane-arfaoui
+            -D sonar.projectKey=Aymane-Arfaoui_FindMyClass
+            -D sonar.sources=Config,api,app,components,constants,context,helpers,services
+            -D sonar.exclusions=**/__tests__/**
+            -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
+            -D sonar.python.coverage.reportPaths=/api/coverage.xml
+            -D sonar.coverage.exclusions=**/__tests__/**
+            -D sonar.verbose=true
