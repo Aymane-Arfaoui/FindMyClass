@@ -26,10 +26,23 @@ describe('fetchRoutes', () => {
                 status: 'OK',
                 routes: [
                     {
-                        legs: [{ distance: { text: '10 km' }, duration: { text: '30 min' } }],
-                    },
-                ],
-            },
+                        overview_polyline: { points: 'encodedPolylineString' },
+                        legs: [
+                            {
+                                distance: { text: '10 km' },
+                                duration: { text: '15 mins' },
+                                steps: [
+                                    {
+                                        html_instructions: 'Turn right onto Main St.',
+                                        distance: { text: '200 meters' },
+                                        maneuver: 'turn-right'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         });
         polyline.decode.mockReturnValue([[1,2]]);
         getNextShuttleTime.mockResolvedValue('2025-02-23T10:00:00Z');
@@ -46,9 +59,24 @@ describe('fetchRoutes', () => {
             data: {
                 status: 'OK',
                 routes: [
-                    {legs: [{ distance: { text: '5 km' }, duration: { text: '10 min' } }],},
-                ],
-            },
+                    {
+                        overview_polyline: { points: 'encodedPolylineString' },
+                        legs: [
+                            {
+                                distance: { text: '10 km' },
+                                duration: { text: '15 min' },
+                                steps: [
+                                    {
+                                        html_instructions: 'Turn right onto Main St.',
+                                        distance: { text: '200 meters' },
+                                        maneuver: 'turn-right'
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                ]
+            }
         });
 
         polyline.decode.mockReturnValue([[1,2]]);
@@ -56,7 +84,7 @@ describe('fetchRoutes', () => {
         const result = await fetchRoutes('origin', 'dest', 'driving');
 
         expect(result.length).toBe(1); // Only 1 Google route
-        expect(result[0].duration).toBe('10 min');
+        expect(result[0].duration).toBe('15 min');
     });
 
     it('should return an empty array if origin or destination is missing', async () => {
@@ -100,10 +128,8 @@ describe('fetchRoutes', () => {
 
         polyline.decode.mockReturnValue([[1,2]]);
         getNextShuttleTime.mockReturnValue(new Error('test'));
-        // Act
         const result = await fetchRoutes('origin', 'dest', 'transit');
-
-        // Assert
-        expect(result.length).toBe(1);
+        expect(result).toEqual([]);
     });
+
 });

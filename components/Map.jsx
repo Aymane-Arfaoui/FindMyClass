@@ -1,16 +1,16 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useEffect} from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import {StyleSheet, View} from 'react-native';
 import {theme} from "@/constants/theme";
-import {getUserLocation} from "@/services/userService";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
 import Config from 'react-native-config';
 import { Ionicons } from '@expo/vector-icons';
-
+import PropTypes from "prop-types";
 
 const MAPBOX_ACCESS_TOKEN=Config.MAPBOX_ACCESS_TOKEN;
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
+
 
 const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress, places, onSelectedPOI }) => {
 
@@ -139,7 +139,19 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
         </View>
     );
 };
-
+Map.propTypes={
+    onBuildingPress:PropTypes.func,
+    selectedLocation:PropTypes.any,
+    userLocation:PropTypes.any,
+    centerCoordinate:PropTypes.any,
+    routes:PropTypes.array,
+    selectedRoute:PropTypes.object,
+    onMapPress:PropTypes.func,
+    cameraRef:PropTypes.object,
+    onRoutePress:PropTypes.func,
+    places:PropTypes.array,
+    onSelectedPOI:PropTypes.func
+}
 let styles;
 styles = StyleSheet.create({
     container: {flex: 1},

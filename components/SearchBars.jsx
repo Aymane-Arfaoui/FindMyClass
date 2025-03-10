@@ -5,6 +5,7 @@ import {theme} from '@/constants/theme';
 import {hp, wp} from '@/helpers/common';
 import TransportOptions from "@/components/TransportOptions";
 import Config from 'react-native-config';
+import PropTypes from "prop-types";
 
 const GOOGLE_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
@@ -14,7 +15,8 @@ const SearchBars = ({
                         onBackPress,
                         modeSelected,
                         setModeSelected,
-                        travelTimes
+                        travelTimes,
+                        setTravelTimes
 
                     }) => {
 
@@ -220,5 +222,13 @@ const styles = StyleSheet.create({
     },
 });
 
-
+SearchBars.propTypes={
+    currentLocation:PropTypes.any,
+    destination:PropTypes.any,
+    onBackPress:PropTypes.func,
+    modeSelected:PropTypes.string,
+    setModeSelected:PropTypes.func,
+    travelTimes:PropTypes.object,
+    setTravelTimes:PropTypes.func
+}
 export default SearchBars;

@@ -1,6 +1,7 @@
 import React from 'react';
 import {StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import PropTypes from "prop-types";
 
 const ScreenWrapper = ({ children, containerStyle }) => {
     return (
@@ -15,5 +16,8 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 });
+ScreenWrapper.propTypes={
+    containerStyle:PropTypes.object
+}
 
 export default ScreenWrapper;

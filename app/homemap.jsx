@@ -595,6 +595,7 @@ export default function Homemap() {
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
+                        setTravelTimes={setTravelTimes}
                     />
                     <BottomPanel
                         transportMode={modeSelected}
