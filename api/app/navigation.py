@@ -1,8 +1,10 @@
 import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-import app.graph.Graph as Graph
-from collections import defaultdict
+from app.graph.Graph import Graph
+
+# import app.graph.Graph as Graph
+# from collections import defaultdict
 
 navigation_routes = Blueprint('indoorNavigation', __name__)
 
@@ -23,11 +25,9 @@ def indoor_navigation():
         return jsonify({"error": "Missing required parameters 'startId' and 'endId'"}), 400
 
     if campus not in g:
-        g[campus] = Graph.Graph()
-        for root, dirs, files in os.walk(f'app/data/campus_jsons/{campus}'):
-            for file in files:
-                if file.endswith('.json'):
-                    g[campus] = Graph.load_graph_from_json(g[campus], os.path.join(root, file))
+        g[campus] = Graph()
+        g[campus].load_from_json_folder(f'app/data/campus_jsons/{campus}')
+        
 
     path = g[campus].find_shortest_path(start_id, end_id)
 
