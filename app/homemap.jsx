@@ -17,7 +17,6 @@ import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
 
 
-
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
@@ -448,7 +447,6 @@ export default function Homemap() {
             )}
 
 
-
             {/*{!isDirectionsView && (*/}
             {/*    <View style={styles.filterButtonsContainer}>*/}
             {/*        <PlaceFilterButtons*/}
@@ -569,8 +567,10 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
     },
     backButton: {
+        marginTop: 1,
         padding: 2,
-        marginRight: 2,
+        marginRight: 1,
+        marginLeft: -7,
     },
     searchWrapper: {
         flex: 1,
@@ -579,6 +579,7 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.primary,
         width: 40,
         height: 40,
+        marginTop: 50,
         borderRadius: 20,
         justifyContent: "center",
         alignItems: "center",
