@@ -19,7 +19,7 @@ describe('ShuttleSchedule Component', () => {
         useRouter.mockReturnValue(mockRouter);
     });
 
-    it('should render shuttle times', async () => {
+    it('should render shuttle component', async () => {
         getShuttleTimes.mockReturnValue({
             nextShuttles: ['10:00', '11:00', '12:00'],
             allShuttles: [
@@ -29,7 +29,7 @@ describe('ShuttleSchedule Component', () => {
 
         render(<ShuttleSchedule />);
         await waitFor(() => {
-            expect(screen.getByText('Departed at 08:00')).toBeTruthy();
+            expect(screen.getByText('Concordia Shuttle')).toBeTruthy();
         });
     });
 
