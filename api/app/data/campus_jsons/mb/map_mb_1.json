@@ -1,0 +1,489 @@
+{
+  "nodes": [
+    {
+      "id": "mb_1_elevator",
+      "x": 499.73,
+      "y": 620.27,
+      "floor_number": "1",
+      "poi_type": "elevator"
+    },
+    {
+      "id": "mb_1_hw1",
+      "x": 407.51,
+      "y": 620.27,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_338",
+      "x": 406.09,
+      "y": 601.82,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_hw2",
+      "x": 408.93,
+      "y": 667.09,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_stairs",
+      "x": 394.74,
+      "y": 671.34,
+      "floor_number": "1",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "mb_1_301",
+      "x": 406.09,
+      "y": 694.04,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_309",
+      "x": 393.32,
+      "y": 590.47,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_hw3",
+      "x": 414.6,
+      "y": 536.56,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_315",
+      "x": 394.74,
+      "y": 537.97,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_310",
+      "x": 485.54,
+      "y": 536.56,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_hw4",
+      "x": 303.93,
+      "y": 479.8,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw5",
+      "x": 302.52,
+      "y": 248.54,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_349",
+      "x": 357.85,
+      "y": 215.9,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_347",
+      "x": 441.56,
+      "y": 184.69,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_335",
+      "x": 303.93,
+      "y": 530.88,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_entrance_1",
+      "x": 688.43,
+      "y": 994.83,
+      "floor_number": "1",
+      "poi_type": "entrance"
+    },
+    {
+      "id": "mb_1_entrance_2",
+      "x": 821.8,
+      "y": 91.05,
+      "floor_number": "1",
+      "poi_type": "entrance"
+    },
+    {
+      "id": "mb_1_stairs_to_mb_s2",
+      "x": 874.3,
+      "y": 176.18,
+      "floor_number": "1",
+      "poi_type": "stairs"
+    },
+    {
+      "id": "mb_1_hw6",
+      "x": 762.21,
+      "y": 93.89,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw7",
+      "x": 755.12,
+      "y": 198.88,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw8",
+      "x": 688.43,
+      "y": 194.62,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw9",
+      "x": 689.85,
+      "y": 78.28,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_294",
+      "x": 668.57,
+      "y": 78.28,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_210",
+      "x": 633.1,
+      "y": 218.74,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_hw10",
+      "x": 745.19,
+      "y": 614.59,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw11",
+      "x": 638.77,
+      "y": 616.01,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_hw12",
+      "x": 643.03,
+      "y": 919.64,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_escalator_to_mb_s2",
+      "x": 743.77,
+      "y": 824.57,
+      "floor_number": "1",
+      "poi_type": "escalator"
+    },
+    {
+      "id": "mb_1_hw13",
+      "x": 408.93,
+      "y": 905.45,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_434",
+      "x": 407.51,
+      "y": 928.15,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_women_bathroom",
+      "x": 435.88,
+      "y": 874.23,
+      "floor_number": "1",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "mb_1_water",
+      "x": 406.09,
+      "y": 879.91,
+      "floor_number": "1",
+      "poi_type": "water"
+    },
+    {
+      "id": "mb_1_accessibility_bathroom",
+      "x": 387.64,
+      "y": 858.63,
+      "floor_number": "1",
+      "poi_type": "accessibility_bathroom"
+    },
+    {
+      "id": "mb_1_men_bathroom",
+      "x": 380.55,
+      "y": 872.81,
+      "floor_number": "1",
+      "poi_type": "bathroom"
+    },
+    {
+      "id": "mb_1_hw14",
+      "x": 257.11,
+      "y": 892.68,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_437",
+      "x": 255.69,
+      "y": 878.49,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_494",
+      "x": 203.2,
+      "y": 898.35,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_hw15",
+      "x": 600.47,
+      "y": 750.8,
+      "floor_number": "1",
+      "poi_type": "hallway"
+    },
+    {
+      "id": "mb_1_130",
+      "x": 577.77,
+      "y": 814.64,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_134",
+      "x": 566.41,
+      "y": 791.94,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_132",
+      "x": 525.27,
+      "y": 831.67,
+      "floor_number": "1",
+      "poi_type": "room"
+    },
+    {
+      "id": "mb_1_210__",
+      "x": 635.94,
+      "y": 532.3,
+      "floor_number": "1",
+      "poi_type": "room"
+    }
+  ],
+  "edges": [
+    [
+      "mb_1_hw1",
+      "mb_1_elevator"
+    ],
+    [
+      "mb_1_hw1",
+      "mb_1_338"
+    ],
+    [
+      "mb_1_hw1",
+      "mb_1_hw2"
+    ],
+    [
+      "mb_1_stairs",
+      "mb_1_hw2"
+    ],
+    [
+      "mb_1_301",
+      "mb_1_hw2"
+    ],
+    [
+      "mb_1_309",
+      "mb_1_338"
+    ],
+    [
+      "mb_1_hw3",
+      "mb_1_315"
+    ],
+    [
+      "mb_1_hw3",
+      "mb_1_338"
+    ],
+    [
+      "mb_1_310",
+      "mb_1_hw3"
+    ],
+    [
+      "mb_1_hw3",
+      "mb_1_hw4"
+    ],
+    [
+      "mb_1_hw4",
+      "mb_1_hw5"
+    ],
+    [
+      "mb_1_349",
+      "mb_1_hw5"
+    ],
+    [
+      "mb_1_349",
+      "mb_1_347"
+    ],
+    [
+      "mb_1_335",
+      "mb_1_hw4"
+    ],
+    [
+      "mb_1_hw6",
+      "mb_1_entrance_2"
+    ],
+    [
+      "mb_1_hw6",
+      "mb_1_stairs_to_mb_s2"
+    ],
+    [
+      "mb_1_hw7",
+      "mb_1_hw6"
+    ],
+    [
+      "mb_1_hw7",
+      "mb_1_stairs_to_mb_s2"
+    ],
+    [
+      "mb_1_hw7",
+      "mb_1_hw8"
+    ],
+    [
+      "mb_1_hw9",
+      "mb_1_hw8"
+    ],
+    [
+      "mb_1_hw9",
+      "mb_1_294"
+    ],
+    [
+      "mb_1_hw8",
+      "mb_1_210"
+    ],
+    [
+      "mb_1_hw7",
+      "mb_1_hw10"
+    ],
+    [
+      "mb_1_hw10",
+      "mb_1_hw11"
+    ],
+    [
+      "mb_1_hw11",
+      "mb_1_elevator"
+    ],
+    [
+      "mb_1_hw11",
+      "mb_1_hw12"
+    ],
+    [
+      "mb_1_hw12",
+      "mb_1_entrance_1"
+    ],
+    [
+      "mb_1_escalator_to_mb_s2",
+      "mb_1_hw12"
+    ],
+    [
+      "mb_1_hw12",
+      "mb_1_hw13"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_434"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_women_bathroom"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_water"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_accessibility_bathroom"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_men_bathroom"
+    ],
+    [
+      "mb_1_hw13",
+      "mb_1_hw14"
+    ],
+    [
+      "mb_1_hw14",
+      "mb_1_437"
+    ],
+    [
+      "mb_1_hw14",
+      "mb_1_494"
+    ],
+    [
+      "mb_1_hw15",
+      "mb_1_hw11"
+    ],
+    [
+      "mb_1_hw15",
+      "mb_1_hw12"
+    ],
+    [
+      "mb_1_hw15",
+      "mb_1_130"
+    ],
+    [
+      "mb_1_130",
+      "mb_1_134"
+    ],
+    [
+      "mb_1_130",
+      "mb_1_132"
+    ],
+    [
+      "mb_1_hw11",
+      "mb_1_210__"
+    ],
+    [
+      "mb_1_elevator",
+      "mb_s2_elevator"
+    ],
+    [
+      "mb_1_escalator_to_mb_s2",
+      "mb_s2_escalator_to_mb_1"
+    ],
+    [
+      "mb_1_stairs_to_mb_s2",
+      "mb_s2_stairs_to_mb_1"
+    ],
+    [
+      "mb_1_stairs",
+      "mb_s2_stairs_2"
+    ]
+  ],
+  "scale_factor": 0.05
+}

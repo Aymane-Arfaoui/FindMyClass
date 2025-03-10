@@ -10,7 +10,6 @@ current_room = None
 clicked = False 
 font = cv2.FONT_HERSHEY_SIMPLEX  
 
-
 root = tk.Tk()
 root.withdraw()  
 

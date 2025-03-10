@@ -2,11 +2,12 @@
 # this file implement algroithm for shortest path and graph implementation
 
 import networkx as nx
-from typing import List, Tuple, Dict
+from typing import List
 import json
 import os
 
 class IndoorRouter:
+    
     def __init__(self):
 
         self.graph = nx.Graph()
@@ -62,6 +63,7 @@ class IndoorRouter:
         if start not in self.nodes or destination not in self.nodes:
             return {"error": "Start or end node not found in the graph"}
         try:
+            
             #djikstra algorithm
             path = nx.shortest_path(
                 self.graph,
