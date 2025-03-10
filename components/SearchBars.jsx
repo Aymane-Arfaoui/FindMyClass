@@ -1,24 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import {
-    View,
-    TextInput,
-    TouchableOpacity,
-    StyleSheet,
-    Platform,
-} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@/constants/theme';
-import { hp, wp } from '../helpers/common';
+import React, {useEffect, useState} from 'react';
+import {Platform, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {theme} from '@/constants/theme';
+import {hp, wp} from '@/helpers/common';
 import TransportOptions from "@/components/TransportOptions";
+import Config from 'react-native-config';
 
+const GOOGLE_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
-const GOOGLE_API_KEY = 'AIzaSyA2EELpYVG4YYVXKG3lOXkIcf-ppaIfa80';
+const SearchBars = ({
+                        currentLocation,
+                        destination,
+                        onBackPress,
+                        modeSelected,
+                        setModeSelected,
+                        travelTimes
 
-const SearchBars = ({ currentLocation, destination, onBackPress }) => {
+                    }) => {
+
     const [startLocation, setStartLocation] = useState('Fetching current location...');
     const [endLocation, setEndLocation] = useState(destination || 'Destination');
-    const [modeSelected, setModeSelected] = useState('walking');
-
 
     useEffect(() => {
         if (currentLocation?.geometry?.coordinates) {
@@ -40,20 +41,42 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
                 });
         }
     }, [currentLocation]);
-
-
-    const fetchRoutesData = async (origin, destination) => {
+    const fetchRoutesData = async (originAddress, destinationAddress) => {
         const modes = ['driving', 'transit', 'walking', 'bicycling'];
         const updatedTravelTimes = {};
 
         await Promise.all(
             modes.map(async (mode) => {
                 try {
-                    const response = await fetch(`https://maps.googleapis.com/maps/api/directions/json?origin=${origin}&destination=${destination}&mode=${mode}&key=${GOOGLE_API_KEY}`);
+                    const url = `https://maps.googleapis.com/maps/api/directions/json
+          ?origin=${encodeURIComponent(originAddress)}
+          &destination=${encodeURIComponent(destinationAddress)}
+          &mode=${mode}
+          &alternatives=true
+          &key=${GOOGLE_API_KEY}`.replace(/\s+/g, '');
+
+                    const response = await fetch(url);
                     const data = await response.json();
 
-                    if (data.routes.length > 0) {
-                        updatedTravelTimes[mode] = data.routes[0].legs[0].duration.text;
+                    if (data.routes && data.routes.length > 0) {
+                        const bestRoute = data.routes.reduce((shortest, cur) => {
+                            return (cur.legs[0].duration.value < shortest.legs[0].duration.value)
+                                ? cur
+                                : shortest;
+                        });
+
+                        const durationSec = bestRoute.legs[0].duration.value;
+                        const hours = Math.floor(durationSec / 3600);
+                        const minutes = Math.ceil((durationSec % 3600) / 60);
+
+                        let label;
+                        if (hours > 0) {
+                            label = `${hours}h ${minutes} min`;
+                        } else {
+                            label = `${minutes} min`;
+                        }
+
+                        updatedTravelTimes[mode] = label;
                     } else {
                         updatedTravelTimes[mode] = 'N/A';
                     }
@@ -67,6 +90,22 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
         return updatedTravelTimes;
     };
 
+
+    useEffect(() => {
+        if (
+            startLocation &&
+            endLocation &&
+            startLocation !== 'Fetching current location...' &&
+            endLocation !== 'Destination'
+        ) {
+            (async () => {
+                const times = await fetchRoutesData(startLocation, endLocation);
+                setTravelTimes(times);
+            })();
+        }
+    }, [startLocation, endLocation]);
+
+    const [suggestions, setSuggestions] = useState([]);
     const handleAddressChange = (text, isStart) => {
         if (text.length > 2) {
             fetch(
@@ -91,15 +130,15 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
     };
 
     return (
-        <View style={styles.container}>
+        <View style={styles.container} testID={'search-bars'}>
 
             <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-                <Ionicons name="chevron-back" size={26} color="white" />
+                <Ionicons name="chevron-back" size={26} color="white"/>
             </TouchableOpacity>
 
 
             <View style={styles.inputContainer}>
-                <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.icon} />
+                <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.icon}/>
                 <TextInput
                     style={styles.input}
                     value={startLocation}
@@ -110,7 +149,7 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
 
 
             <View style={styles.inputContainer}>
-                <Ionicons name="location-sharp" size={16} color={theme.colors.primary} style={styles.icon} />
+                <Ionicons name="location-sharp" size={16} color={theme.colors.primary} style={styles.icon}/>
                 <TextInput
                     style={styles.input}
                     value={endLocation}
@@ -118,8 +157,12 @@ const SearchBars = ({ currentLocation, destination, onBackPress }) => {
                     placeholder="Destination"
                 />
             </View>
-            <TransportOptions modeSelected={modeSelected} setModeSelected={setModeSelected} />
 
+            <TransportOptions
+                modeSelected={modeSelected}
+                setModeSelected={setModeSelected}
+                travelTimes={travelTimes}
+            />
         </View>
     );
 };
@@ -138,7 +181,7 @@ const styles = StyleSheet.create({
         zIndex: 100,
         elevation: 10,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: hp(0.5) },
+        shadowOffset: {width: 0, height: hp(0.5)},
         shadowOpacity: 0.2,
         shadowRadius: wp(3),
     },
@@ -161,7 +204,7 @@ const styles = StyleSheet.create({
         marginTop: hp(1.2),
         elevation: 2,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: hp(0.3) },
+        shadowOffset: {width: 0, height: hp(0.3)},
         shadowOpacity: 0.1,
         shadowRadius: wp(2),
     },
@@ -176,10 +219,6 @@ const styles = StyleSheet.create({
         color: 'black',
     },
 });
-
-
-
-
 
 
 export default SearchBars;
