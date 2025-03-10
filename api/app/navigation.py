@@ -2,6 +2,7 @@ import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from app.graph.Graph2 import Graph
+from pathlib import Path
 
 # import app.graph.Graph as Graph
 # from collections import defaultdict
@@ -17,8 +18,8 @@ def indoor_navigation():
     start_id = request.args.get('startId')
     end_id = request.args.get('endId')
     campus = request.args.get('campus')
-
-    if os.path.exists(f'app/data/campus_jsons/{campus}') is False:
+    file_path = Path(f'app/data/campus_jsons/{campus}')
+    if os.path.exists(file_path) is False:
         return jsonify({"error": "Campus not found"}), 400
 
     if not start_id or not end_id:
@@ -26,7 +27,7 @@ def indoor_navigation():
 
     if campus not in g:
         g[campus] = Graph()
-        g[campus].load_from_json_folder(f'app/data/campus_jsons/{campus}')
+        g[campus].load_from_json_folder(file_path)
         
 
     path = g[campus].find_shortest_path(start_id, end_id)

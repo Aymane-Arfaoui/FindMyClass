@@ -1,11 +1,13 @@
 import pytest
-from app.graph.Graph2 import Graph
+from Graph2 import Graph
+from pathlib import Path
 
 @pytest.fixture(scope="module")
 def graph():
     SCALE_FACTOR_METERS_PER_UNIT = 0.05
     graph = Graph(scale_factor=SCALE_FACTOR_METERS_PER_UNIT)
-    graph.load_from_json_folder('api/app/data/campus_jsons/hall')
+    file_path = Path(f'app/data/campus_jsons/hall')
+    graph.load_from_json_folder(file_path)
     return graph
 
 def test_find_shortest_path_exists(graph):
