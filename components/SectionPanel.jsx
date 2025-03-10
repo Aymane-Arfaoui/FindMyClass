@@ -24,7 +24,7 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
     );
 };
 SectionPanel.propTypes={
-    selectedSection: PropTypes.object,
+    selectedSection: PropTypes.bool,
     onClose: PropTypes.func,
     panHandlers: PropTypes.any,
     panelY: PropTypes.object

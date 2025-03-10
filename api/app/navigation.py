@@ -1,12 +1,13 @@
 import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-import app.graph.Graph as Graph
+from app.graph.graph import Graph
 
 
 navigation_routes = Blueprint('indoorNavigation', __name__)
 
 g = {}
+
 
 @navigation_routes.route('/indoorNavigation', methods=['GET'])
 @cross_origin()
