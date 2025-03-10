@@ -1,0 +1,6 @@
+[run]
+omit =
+    app/Services/*
+    app/data/*
+    tests/*
+    app/test.py
