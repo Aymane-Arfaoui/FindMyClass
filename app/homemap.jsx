@@ -334,7 +334,6 @@ export default function Homemap() {
     };
 
 
-
     const handleClosePanel = () => {
         Animated.timing(panelY, {
             toValue: 500,
@@ -370,43 +369,85 @@ export default function Homemap() {
         })
     ).current;
 
-    const fetchPlacesOfInterest = async (category) => {
-        if (!currentLocation) return;
+    let isFetchingPlaces = false; // Prevent multiple requests
 
+    const fetchPlacesOfInterest = async (category) => {
+        if (!currentLocation || isFetchingPlaces) {
+            // console.warn("Fetch aborted: No location data or request already in progress.");
+            return;
+        }
+
+        isFetchingPlaces = true;
         setPlaces([]); // Reset places list
 
         const {coordinates} = currentLocation.geometry;
-        const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json
-    ?location=${coordinates[1]},${coordinates[0]}
-    &radius=1000
-    &type=${category}
-    &key=${GOOGLE_PLACES_API_KEY}`.replace(/\s+/g, '');
+        if (!coordinates || coordinates.length !== 2) {
+            // console.error("Invalid location coordinates:", coordinates);
+            isFetchingPlaces = false;
+            return;
+        }
+
+        const requestBody = {
+            includedTypes: [category],
+            maxResultCount: 10,
+            locationRestriction: {
+                circle: {
+                    center: {latitude: coordinates[1], longitude: coordinates[0]},
+                    radius: 1000,
+                },
+            },
+        };
+
+        const url = `https://places.googleapis.com/v1/places:searchNearby`;
+
+        // console.log("Fetching places of interest:", requestBody);
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                    "X-Goog-FieldMask": "places.id,places.displayName,places.location",
+                },
+                body: JSON.stringify(requestBody),
+            });
+
             const data = await response.json();
-            if (data.results) {
-                const formattedPlaces = data.results.map((place) => ({
+            // console.log("Places API Response:", data);
+
+            if (data.places && data.places.length > 0) {
+                const formattedPlaces = data.places.map((place) => ({
                     type: "Feature",
                     geometry: {
                         type: "Point",
                         coordinates: [
-                            place.geometry.location.lng,
-                            place.geometry.location.lat,
+                            place.location.longitude,
+                            place.location.latitude,
                         ],
                     },
-                    name: place.name,
-                    place_id: place.place_id || null,
+                    name: place.displayName?.text || "Unnamed Place",
+                    place_id: place.id || null,
                     category: category,
                 }));
+
                 setPlaces(formattedPlaces);
+                // console.log("Places updated:", formattedPlaces);
+            } else {
+                // console.warn("No places found.");
             }
         } catch (error) {
-            console.error("Error fetching places of interest:", error);
+            // console.error("Error fetching places of interest:", error);
+        } finally {
+            isFetchingPlaces = false;
         }
     };
 
     const handlePOIPress = async (place) => {
+        if (!place || !place.place_id) {
+            // console.error("Invalid place selected:", place);
+            return;
+        }
 
         setSelectedLocation(place);
 
@@ -416,18 +457,29 @@ export default function Homemap() {
             useNativeDriver: true,
         }).start();
 
-        try {
-            const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&fields=name,rating,formatted_address,photos&key=${GOOGLE_PLACES_API_KEY}`;
-            const response = await fetch(url);
-            const data = await response.json();
+        const url = `https://places.googleapis.com/v1/places/${place.place_id}`;
+        // console.log(`Fetching place details: ${url}`);
 
-            if (data.result) {
-                setBuildingDetails(data.result);
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                    "X-Goog-FieldMask": "displayName,formattedAddress,photos",
+                },
+            });
+
+            const data = await response.json();
+            // console.log("Place details fetched:", data);
+
+            if (data) {
+                setBuildingDetails(data);
             } else {
-                console.warn("No details found for this place.");
+                // console.warn("No details found for this place.");
             }
         } catch (error) {
-            console.error("Error fetching POI details:", error);
+            // console.error("Error fetching POI details:", error);
         }
     };
 
