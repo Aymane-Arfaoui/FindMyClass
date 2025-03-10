@@ -15,7 +15,7 @@ root = tk.Tk()
 root.withdraw()  
 
 def get_room_number():
-    return simpledialog.askstring("Room Input", "Enter room number or 'done' to close):")
+    return simpledialog.askstring("room input", "entre room number:")
 
 def click_event(event, x, y, flags, params):
 
@@ -28,7 +28,7 @@ def click_event(event, x, y, flags, params):
             coordinates[current_room] = [x, y]
             print(f'✓ Saved for room {current_room}: ({x}, {y})')
 
-            cv2.putText(img, ".", (x, y), font, 1, (255, 0, 0), 2)  # Blue dot
+            cv2.putText(img, ".", (x, y), font, 1, (255, 0, 0), 2)  
             cv2.imshow("Floor Plan", img)
 
             clicked = True  

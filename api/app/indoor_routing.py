@@ -57,7 +57,7 @@ class IndoorRouter:
         """Calculate Euclidean distance between two points"""
         return ((pos1[0] - pos2[0]) ** 2 + (pos1[1] - pos2[1]) ** 2) ** 0.5
     
-    #find the shortest path (djikstra)
+    #djikstara
     def _find_shortest_path(self, start: str, destination: str) -> List[str]:
         if start not in self.nodes or destination not in self.nodes:
             return {"error": "Start or end node not found in the graph"}
@@ -82,7 +82,60 @@ class IndoorRouter:
                     "distance":round(total_distance, 2)}
         except nx.NetworkXNoPath:
             return {"error": "No path found between start and destination"}
+
+    # Add a new method to find path through multiple destinations
+    def find_path_through_destinations(self, start: str, destinations: List[str]) -> Dict:
+        """
+        Find the shortest path that visits multiple destinations in the given order.
         
+        Args:
+            start: Starting node ID
+            destinations: List of destination node IDs to visit in order
+        
+        Returns:
+            Dictionary containing the complete path, coordinates, and total distance
+        """
+        if start not in self.nodes:
+            return {"error": f"Start node '{start}' not found in the graph"}
+        
+        for dest in destinations:
+            if dest not in self.nodes:
+                return {"error": f"Destination node '{dest}' not found in the graph"}
+        
+        # Initialize result
+        complete_path = []
+        complete_coordinates = []
+        total_distance = 0
+        
+        # Start with the initial node
+        current = start
+        
+        # Visit each destination in order
+        for destination in destinations:
+            # Find path from current position to next destination
+            result = self._find_shortest_path(current, destination)
+            
+            if "error" in result:
+                return result
+            
+            # For the first segment, add the entire path
+            if not complete_path:
+                complete_path.extend(result["path"])
+                complete_coordinates.extend(result["coordinates"])
+            else:
+                # For subsequent segments, skip the first node as it's already in the path
+                complete_path.extend(result["path"][1:])
+                complete_coordinates.extend(result["coordinates"][1:])
+            
+            total_distance += result["distance"]
+            current = destination
+        
+        return {
+            "path": complete_path,
+            "coordinates": complete_coordinates,
+            "distance": round(total_distance, 2)
+        }
+
 if __name__ == "__main__":
     router = IndoorRouter()
     
@@ -97,6 +150,18 @@ if __name__ == "__main__":
         print(f"Route: {' -> '.join(result['path'])}")
         print(f"Distance: {result['distance']}")
         print(f"Coordinates: {result['coordinates']}")
+    
+    # Test finding a path through multiple destinations
+    multi_dest_result = router.find_path_through_destinations('101', ['110', '115', '118'])
+    
+    print("\nTesting multi-destination path finding:")
+    if "error" in multi_dest_result:
+        print(f"Error: {multi_dest_result['error']}")
+    else:
+        print(f"Path from 101 through multiple destinations:")
+        print(f"Route: {' -> '.join(multi_dest_result['path'])}")
+        print(f"Distance: {multi_dest_result['distance']}")
+        print(f"Coordinates: {multi_dest_result['coordinates']}")
 
 
 
