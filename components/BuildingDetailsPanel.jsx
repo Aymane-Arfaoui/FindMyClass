@@ -2,7 +2,8 @@ import React from "react";
 import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
-import {useNavigation} from "@react-navigation/native";
+import { useNavigation } from "@react-navigation/native";
+import PropTypes from "prop-types";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
@@ -65,7 +66,7 @@ function BuildingDetailsPanel({
                             {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
                                 <Image
                                     source={{
-                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
+                                        uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
                                     }}
                                     style={styles.buildingImage}
                                     resizeMode="cover"
@@ -79,12 +80,14 @@ function BuildingDetailsPanel({
                             )}
 
                             <Text style={styles.buildingDetails}>
-                                {buildingDetails.formattedAddress || "No address available"}
+                                {buildingDetails.formatted_address}
                             </Text>
                         </>
                     )}
 
+
                     <TouchableOpacity style={styles.directionButton}
+                                      testID={'direction-button'}
                                       onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
                         <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
                         <Text style={styles.directionButtonText}>Get Directions</Text>
@@ -93,10 +96,10 @@ function BuildingDetailsPanel({
                         <TouchableOpacity
                             style={styles.indoorMapButton}
                             onPress={() => {
-                                navigation.navigate("MapScreen", {buildingKey});
+                                navigation.navigate("MapScreen", { buildingKey });
                             }}
                         >
-                            <Ionicons name="map" size={22} color={theme.colors.white}/>
+                            <Ionicons name="map" size={22} color={theme.colors.white} />
                             <Text style={styles.indoorMapButtonText}>Indoor Map</Text>
                         </TouchableOpacity>
                     )}
@@ -105,6 +108,20 @@ function BuildingDetailsPanel({
         </Animated.View>
     );
 };
+
+BuildingDetailsPanel.propTypes={
+    selectedBuilding:PropTypes.any,
+    buildingDetails:PropTypes.any,
+    panHandlers:PropTypes.any,
+    panelY:PropTypes.any,
+    onClose:PropTypes.func,
+    onDirectionPress:PropTypes.func,
+    currentLocation:PropTypes.any,
+    mode:PropTypes.string,
+    GOOGLE_PLACES_API_KEY:PropTypes.string,
+    loading:PropTypes.bool,
+
+}
 
 export default BuildingDetailsPanel;
 
@@ -163,7 +180,7 @@ const styles = StyleSheet.create({
     },
     buildingImage: {
         width: "100%",
-        height: 200,
+        height: 180,
         borderRadius: 15,
         marginBottom: 12,
         backgroundColor: "#f0f0f0",
@@ -194,7 +211,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         shadowColor: theme.colors.dark,
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.15,
         shadowRadius: 5,
         elevation: 6,
@@ -205,4 +222,6 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginLeft: 8,
     },
+
+
 });
