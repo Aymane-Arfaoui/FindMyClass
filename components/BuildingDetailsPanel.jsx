@@ -2,7 +2,7 @@ import React from "react";
 import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
-import { useNavigation } from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
@@ -60,30 +60,29 @@ function BuildingDetailsPanel({
                         {selectedBuilding?.name || "Loading..."}
                     </Text>
 
-                        {buildingDetails && (
-                            <>
-                                {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
-                                    <Image
-                                        source={{
-                                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
-                                        }}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                ) : (
-                                    <Image
-                                        source={{uri: DEFAULT_IMAGE_URL}}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                )}
+                    {buildingDetails && (
+                        <>
+                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
+                                <Image
+                                    source={{
+                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
+                                    }}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                />
+                            ) : (
+                                <Image
+                                    source={{uri: DEFAULT_IMAGE_URL}}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                />
+                            )}
 
-                                <Text style={styles.buildingDetails}>
-                                    {buildingDetails.formatted_address}
-                                </Text>
-                            </>
-                        )}
-
+                            <Text style={styles.buildingDetails}>
+                                {buildingDetails.formattedAddress || "No address available"}
+                            </Text>
+                        </>
+                    )}
 
                     <TouchableOpacity style={styles.directionButton}
                                       onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
@@ -94,10 +93,10 @@ function BuildingDetailsPanel({
                         <TouchableOpacity
                             style={styles.indoorMapButton}
                             onPress={() => {
-                                navigation.navigate("MapScreen", { buildingKey });
+                                navigation.navigate("MapScreen", {buildingKey});
                             }}
                         >
-                            <Ionicons name="map" size={22} color={theme.colors.white} />
+                            <Ionicons name="map" size={22} color={theme.colors.white}/>
                             <Text style={styles.indoorMapButtonText}>Indoor Map</Text>
                         </TouchableOpacity>
                     )}
@@ -164,7 +163,7 @@ const styles = StyleSheet.create({
     },
     buildingImage: {
         width: "100%",
-        height: 180,
+        height: 200,
         borderRadius: 15,
         marginBottom: 12,
         backgroundColor: "#f0f0f0",
@@ -195,7 +194,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         shadowColor: theme.colors.dark,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.15,
         shadowRadius: 5,
         elevation: 6,
@@ -206,6 +205,4 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginLeft: 8,
     },
-
-
 });

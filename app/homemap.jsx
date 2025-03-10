@@ -218,90 +218,122 @@ export default function Homemap() {
         }
     }, [modeSelected, currentOrigin, currentDestination]);
 
+    const [lastFetchedPlaceId, setLastFetchedPlaceId] = useState(null);
+
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
+        // console.log(" handleBuildingPress triggered with:", { building, lng, lat });
         setLoading(true);
-        if (building) {
-            const [buildingLng, buildingLat] = building.textPosition || [lng, lat];
-            const offsetLat = (buildingLat || lat) - 0.0010;
-            setSelectedLocation(
-                {
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [buildingLng || lng, offsetLat],
-                    },
-                    name: building.name || "Unnamed Building",
-                }
-            );
-            const {name} = building;
 
-
-            fetch(
-                `https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=${encodeURIComponent(
-                    name
-                )}&inputtype=textquery&fields=place_id&locationbias=circle:2000@${buildingLat || lat},${buildingLng || lng}&key=${GOOGLE_PLACES_API_KEY}`
-            )
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.candidates.length > 0) {
-                        const placeId = data.candidates[0].place_id;
-
-                        fetch(
-                            `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=name,rating,formatted_address,opening_hours,photos&key=${GOOGLE_PLACES_API_KEY}`
-                        ).then((detailsResponse) => detailsResponse.json()).then((detailsData) => {
-                            if (detailsData.result) {
-                                setBuildingDetails(detailsData.result);
-                            } else {
-                                setBuildingDetails(null);
-                            }
-                        }).catch((error) => {
-                            console.error("Error fetching building details:", error);
-                            setBuildingDetails(null);
-                        });
-
-                    } else {
-                        setBuildingDetails(null);
-                    }
-                }).catch((error) => {
-                console.error("Error fetching building details:", error);
-                setBuildingDetails(null);
-            });
-
-        } else if (lng !== null && lat !== null) {
-            const offsetLat = lat - 0.0010;
-            fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${GOOGLE_PLACES_API_KEY}`)
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.results.length > 0) {
-                        const placeDetails = data.results[0];
-                        setBuildingDetails(placeDetails);
-                        setSelectedLocation({
-                            type: "Feature",
-                            geometry: {
-                                type: "Point",
-                                coordinates: [lng, lat],
-                            },
-                        });
-                    } else {
-                        setBuildingDetails(null);
-                        setSelectedLocation(null);
-                        setRoutes([]);
-                        setFastestRoute(null);
-                    }
-                }).catch((error) => {
-                console.error("Error fetching building details:", error);
-                setBuildingDetails(null);
-            });
+        if (!building && (lng === null || lat === null)) {
+            console.error("⚠️ No building or coordinates provided.");
+            setLoading(false);
+            return;
         }
 
+        let placeId = null;
+        let buildingLng = lng, buildingLat = lat;
+
+        if (building) {
+            buildingLng = building.textPosition ? building.textPosition[0] : lng;
+            buildingLat = building.textPosition ? building.textPosition[1] : lat;
+
+            // console.log(` Searching for place using 'searchText' API: ${building.name}`);
+
+            if (building.name === lastFetchedPlaceId) {
+                console.log("⚡ Skipping duplicate search, place already fetched.");
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const placeSearchUrl = "https://places.googleapis.com/v1/places:searchText";
+                const requestBody = {
+                    textQuery: building.name,
+                    locationBias: {
+                        circle: {
+                            center: {
+                                latitude: buildingLat,
+                                longitude: buildingLng
+                            },
+                            radius: 2000.0
+                        }
+                    },
+                    pageSize: 1
+                };
+
+                // console.log(` Place search request:`, requestBody);
+                const response = await fetch(placeSearchUrl, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                        "X-Goog-FieldMask": "places.id"
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+
+                const data = await response.json();
+                // console.log("Place search response:", data);
+
+                if (data.places && data.places.length > 0) {
+                    placeId = data.places[0].id;
+                    setLastFetchedPlaceId(placeId); // Store last fetched place ID
+                } else {
+                    // console.warn(" No place found.");
+                }
+            } catch (error) {
+                // console.error(" Error fetching place ID:", error);
+            }
+        }
+
+        if (placeId) {
+            // console.log(`Found Place ID: ${placeId}, fetching details...`);
+            try {
+                const placeDetailsUrl = `https://places.googleapis.com/v1/places/${placeId}`;
+                // console.log(`Place details request: ${placeDetailsUrl}`);
+
+                const detailsResponse = await fetch(placeDetailsUrl, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                        "X-Goog-FieldMask": "displayName,formattedAddress,primaryType,googleMapsUri,photos"
+                    }
+                });
+
+                const detailsData = await detailsResponse.json();
+                // console.log("Place details response:", detailsData);
+
+                if (detailsData) {
+                    setBuildingDetails(detailsData);
+                } else {
+                    setBuildingDetails(null);
+                }
+            } catch (error) {
+                // console.error("Error fetching building details:", error);
+                setBuildingDetails(null);
+            }
+        }
+
+        setSelectedLocation({
+            type: "Feature",
+            geometry: {
+                type: "Point",
+                coordinates: [buildingLng, buildingLat]
+            },
+            name: building?.name || "Unknown Location"
+        });
 
         Animated.timing(panelY, {
             toValue: 0,
             duration: 300,
-            useNativeDriver: true,
+            useNativeDriver: true
         }).start();
+
         setLoading(false);
     };
+
+
 
     const handleClosePanel = () => {
         Animated.timing(panelY, {
