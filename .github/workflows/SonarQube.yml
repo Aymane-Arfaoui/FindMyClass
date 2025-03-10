@@ -38,11 +38,6 @@ jobs:
           echo "Running tests to generate coverage..."
           npm run test:ci -- --coverage --runInBand --forceExit --all
         continue-on-error: true
-      - name: 🧪 Check Python Coverage XML File
-        if: always()
-        run: |
-          echo "Checking if coverage.xml file exists..."
-          ls -l api/coverage.xml || echo "❌ coverage.xml not found"
 
       - name: 🛠 Debug Coverage Files
         if: always()
