@@ -39,3 +39,8 @@ yarn-error.*
 
 app-example
 /coverage/
+
+# misc
+*/__pycache__
+__pycache__/
+__pycache__
