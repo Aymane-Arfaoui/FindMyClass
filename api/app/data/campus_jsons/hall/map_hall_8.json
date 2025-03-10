@@ -1129,6 +1129,42 @@
     [
       "h8_841",
       "h8_hw24"
+    ],
+    [
+      "h8_elevator",
+      "h1_elevator"
+    ],
+    [
+      "h8_elevator",
+      "h2_elevator"
+    ],
+    [
+      "h8_elevator",
+      "h9_elevator"
+    ],
+    [
+      "h8_escalator_to_h9",
+      "h9_escalator_from_h8"
+    ],
+    [
+      "h8_escalator_from_h7",
+      "h2_escalator_from_h4"
+    ],
+    [
+      "h8_stairs_4",
+      "h9_stairs_up_2"
+    ],
+    [
+      "h8_stairs_1",
+      "h9_stairs_up_1"
+    ],
+    [
+      "h8_stairs_2",
+      "h9_stairs_up_4"
+    ],
+    [
+      "h8_stairs_3",
+      "h9_stairs_up_3"
     ]
   ],
   "scale_factor": 0.05

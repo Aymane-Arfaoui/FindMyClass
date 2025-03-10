@@ -531,6 +531,22 @@
     [
       "mb_s2_escalator_to_mb_1",
       "mb_s2_hw14"
+    ],
+    [
+      "mb_s2_elevator",
+      "mb_1_elevator"
+    ],
+    [
+      "mb_s2_escalator_to_mb_1",
+      "mb_1_escalator_to_mb_s2"
+    ],
+    [
+      "mb_s2_stairs_to_mb_1",
+      "mb_1_stairs_to_mb_s2"
+    ],
+    [
+      "mb_s2_stairs_2",
+      "mb_1_stairs"
     ]
   ],
   "scale_factor": 0.05
