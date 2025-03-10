@@ -3,6 +3,7 @@ import {StyleSheet, TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {getUserLocation} from '@/services/userService';
 import {theme} from "@/constants/theme";
+import PropTypes from 'prop-types';
 
 const LiveLocationButton = ({onPress}) => {
     const handleLiveLocationPress = async () => {
@@ -39,5 +40,7 @@ const styles = StyleSheet.create({
         elevation: 10,
     },
 });
-
+LiveLocationButton.propTypes={
+    onPress:PropTypes.func
+}
 export default LiveLocationButton;

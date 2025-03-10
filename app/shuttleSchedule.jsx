@@ -79,7 +79,7 @@ const ShuttleSchedule = () => {
             <StatusBar style="light" />
             <View style={styles.header}></View>
             <View style={styles.concordiaShuttleBox}>
-                <TouchableOpacity onPress={handleGoBack}>
+                <TouchableOpacity onPress={handleGoBack} testID={'back-button'}>
                     <Icon name="chevron-left" size={25} color={theme.colors.dark} style={styles.chevronLeft} />
                 </TouchableOpacity>
                 <Text style={styles.concordiaShuttleText}>Concordia Shuttle</Text>

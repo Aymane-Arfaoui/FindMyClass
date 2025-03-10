@@ -21,8 +21,6 @@ import IndoorSearchBar from "@/components/IndoorSearchBar";
 
 const MapScreen = () => {
     const route = useRoute();
-    const navigation = useNavigation();
-
     const {buildingKey} = route.params || {};
 
     if (!buildingKey || !floorsData[buildingKey]) {
@@ -32,6 +30,10 @@ const MapScreen = () => {
             </View>
         );
     }
+    return (<InnerMapScreen buildingKey={buildingKey}/>);
+};
+const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+    const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -135,6 +137,7 @@ const MapScreen = () => {
                                         <Rect width="100%" height="100%" fill={theme.colors.backgroundDark}/>
                                         {sections.map((section, index) => (
                                             <Path
+                                                testID={`section-${index}`}
                                                 key={index}
                                                 d={section.d}
                                                 fill={
@@ -160,6 +163,7 @@ const MapScreen = () => {
                                         ))}
                                         {poiImage && (
                                             <SvgImage
+                                                testID={'svg-image'}
                                                 href={poiImage}
                                                 x="0"
                                                 y="0"

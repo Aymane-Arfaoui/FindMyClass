@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { theme } from "@/constants/theme";
+import React, {useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {theme} from "@/constants/theme";
+import PropTypes from "prop-types";
 
-const MapButtons = ({ onPress }) => {
-    const [selectedLocation, setSelectedLocation] = useState('SGW');
 
-    const locations = {
+const MapButtons = ({onPress}) => {
+const [selectedButton, setSelectedButton] = useState('SGW');
+const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
         Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
     };
@@ -40,6 +41,9 @@ const MapButtons = ({ onPress }) => {
         </View>
     );
 };
+MapButtons.propTypes={
+    onPress:PropTypes.func
+}
 
 const styles = StyleSheet.create({
     buttonContainer: {
