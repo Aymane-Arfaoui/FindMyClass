@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Animated,
     PanResponder,
@@ -18,8 +18,14 @@ import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
 
+
+import mapHall2 from '../api/app/data/campus_jsons/hall/map_hall_2.json';
+
+
 const MapScreen = () => {
     const route = useRoute();
+    const navigation = useNavigation();
+
     const {buildingKey} = route.params || {};
 
     if (!buildingKey || !floorsData[buildingKey]) {
@@ -29,10 +35,6 @@ const MapScreen = () => {
             </View>
         );
     }
-    return (<InnerMapScreen buildingKey={buildingKey}/>);
-};
-const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
-    const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -89,6 +91,56 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
         }).start();
     };
 
+
+    const getPathFromNodes = (nodeIds) => {
+        const coordinates = nodeIds.map(nodeId => {
+            const node = mapHall2.nodes.find(n => n.id === nodeId);
+            return node ? `${node.x},${1132 - node.y}` : null;
+        }).filter(coord => coord !== null);
+
+        return `M${coordinates.join(' L')}`;
+    };
+
+    // const selectedPath = path ? getPathFromNodes(path) : null; // Use the path from the API
+    const [path, setPath] = useState(null); // to store the path data
+    const [selectedPath, setSelectedPath] = useState(null); // to store the computed path
+
+
+    useEffect(() => {
+        if (path) {
+            const nodeIds = path; // pass the path from API as node IDs
+            const newPath = getPathFromNodes(nodeIds); // get the new path
+            setSelectedPath(newPath); // update the selectedPath
+        }
+    }, [path]);
+
+
+    const handleShowDirections = async (endId) => {
+        const startId = "h2_209"; // fixed starting point
+        const campus = "hall"; // specify the campus folder
+
+        try {
+            const response = await fetch(
+                // `http://10.0.2.2:5000/indoorNavigation?startId=${startId}&endId=${endId}&campus=${campus}`
+                `http://10.0.2.2:5000/indoorNavigation?startId=h2_231&endId=h2_260&campus=hall`
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Path data received:", data);
+                console.log("Path data received3:", data.path.path);
+                setPath(data.path.path); // Assuming the API returns a path
+            } else {
+                console.error("Error fetching data");
+            }
+        } catch (error) {
+            console.error("Request failed", error);
+        }
+    };
+
+
+
+
     return (
         <GestureHandlerRootView style={styles.container}>
             <TouchableWithoutFeedback onPress={() => setSelectedSection(null)}>
@@ -110,6 +162,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                 >
                                     <Svg width="100%" height="100%" viewBox={viewBox}>
                                         <Rect width="100%" height="100%" fill={theme.colors.backgroundDark}/>
+
                                         {sections.map((section, index) => (
                                             <Path
                                                 key={index}
@@ -147,6 +200,33 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                                 pointerEvents="none"
                                             />
                                         )}
+                                        {selectedPath && (
+                                            <Path
+                                                d={selectedPath}
+                                                fill="none"
+                                                stroke={theme.colors.primaryLight}
+                                                strokeWidth="6"
+                                            />
+                                        )}
+
+                                        {/*{poiImage && (*/}
+
+                                        {/*//     <Path*/}
+                                        {/*//     d={`M87.75,588.6 L87.92,560.77 L565.71,577.53 L690.67,627.53 L690.67,888.21`}*/}
+                                        {/*//     fill="none"*/}
+                                        {/*//     stroke={theme.colors.primaryLight}*/}
+                                        {/*//     strokeWidth="6"*/}
+                                        {/*// />)}*/}
+
+                                        {/*    <Path*/}
+                                        {/*    d={selectedPath}*/}
+                                        {/*    fill="none"*/}
+                                        {/*    stroke={theme.colors.primaryLight}*/}
+                                        {/*    strokeWidth="6"*/}
+                                        {/*/>)}*/}
+
+
+
                                     </Svg>
                                 </Animated.View>
                             </PinchGestureHandler>
@@ -167,6 +247,8 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                         onClose={() => setSelectedSection(null)}
                         panHandlers={panResponder.panHandlers}
                         panelY={panelY}
+                        onShowDirections={() => handleShowDirections(selectedSection?.id)}
+
                     />
                 </View>
             </TouchableWithoutFeedback>
