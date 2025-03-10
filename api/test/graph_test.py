@@ -19,9 +19,6 @@ def graph():
                         os.path.join(root, file),
                         scale_factor=SCALE_FACTOR_METERS_PER_UNIT
                     )
-
-    #json_dir = os.path.abspath('./app/data/campus_jsons/hall')
-    #raise FileNotFoundError(f"Looking for JSON files in: {json_dir}, Current working directory: {os.getcwd()}")     
     if not json_files_found:
         raise FileNotFoundError("No JSON files found in the directory!")
 
