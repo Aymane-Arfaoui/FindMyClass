@@ -36,7 +36,6 @@ export const getNextShuttleTime = () => {
     return null;
 };
 
-// THIS FUNCTION DISPLAYS THE SHUTTLE SCHEDULE BUT GIVES ERRORS IN THE BOTTOM PANEL
 export const getShuttleTimes = (count) => {
     const now = new Date();
     const currentTime = now.getHours() * 60 + now.getMinutes();
@@ -79,7 +78,6 @@ export const getShuttleTimes = (count) => {
 
 
 export const getShuttleTravelTime = () => ({
-    //should be 30 minutes, changed it for testing
-    duration: "50 min",
+    duration: "30 min",
     distance: "7.5 km"
 });

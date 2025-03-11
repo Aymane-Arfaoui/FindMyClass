@@ -132,7 +132,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                             <TouchableOpacity
                                 testID={'switch-route-button'}
                                 style={styles.shuttleSwitchRouteButton}
-                                onPress={() => router.push('/shuttleScheduleTest')}
+                                onPress={() => router.push('/shuttleSchedule')}
                             >
                                 <View style={styles.switchRouteContent}>
                                     <Text style={styles.shuttleSwitchRouteText}>Go</Text>
