@@ -5,7 +5,7 @@ import PropTypes from "prop-types";
 
 
 const MapButtons = ({onPress}) => {
-const [selectedButton, setSelectedButton] = useState('SGW');
+const [selectedLocation, setSelectedLocation] = useState('SGW');
 const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
         Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
