@@ -1,6 +1,7 @@
 import pytest
 from Graph2 import Graph
 from pathlib import Path
+import os
 
 @pytest.fixture(scope="module")
 def graph():
@@ -47,3 +48,6 @@ def test_multifloor_stairh1_to_h2(graph):
     neighbors_of_stairs_h1 = list(graph.graph.neighbors("h1_stairs_up_2"))
 
     assert "h2_stairs_to_h1" in neighbors_of_stairs_h1
+
+if __name__ == '__main__':
+    pytest.main(['-v', os.path.abspath(__file__)])
