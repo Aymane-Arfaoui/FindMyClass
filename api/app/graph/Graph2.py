@@ -25,6 +25,9 @@ class Graph:
         return (dx**2 + dy**2)**0.5
 
     def load_from_json_folder(self, folder_path: str):
+        if not os.path.exists(folder_path):
+            raise FileNotFoundError(f"Folder not found: {folder_path}")
+        
         for root, _, files in os.walk(folder_path):
             for file in files:
                 if file.endswith('.json'):
