@@ -55,6 +55,7 @@ jobs:
       - name: Install tox and any other packages
         run: pip install tox
       - name: Run tox
+        if: always()
         run: tox -e py || true
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
@@ -67,6 +68,6 @@ jobs:
             -D sonar.sources=Config,api,app,components,constants,context,helpers,services
             -D sonar.exclusions=**/__tests__/**
             -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -D sonar.python.coverage.reportPaths=coverage-reports/coverage.xml
+            -D sonar.python.coverage.reportPaths=coverage.xml
             -D sonar.coverage.exclusions=**/__tests__/**
             -D sonar.verbose=true
