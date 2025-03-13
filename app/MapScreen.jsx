@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {
     Animated,
     PanResponder,
@@ -17,10 +17,27 @@ import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
+
+
+import mapHall1 from '../api/app/data/campus_jsons/hall/map_hall_2.json';
+import mapHall2 from '../api/app/data/campus_jsons/hall/map_hall_2.json';
+import mapHall8 from '../api/app/data/campus_jsons/hall/map_hall_8.json';
+import mapHall9 from '../api/app/data/campus_jsons/hall/map_hall_9.json';
+
+import mapMB1 from '../api/app/data/campus_jsons/mb/map_mb_1.json';
+import mapMBS2 from '../api/app/data/campus_jsons/mb/map_mb_s2.json';
+
+import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
+
+
+import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
+
 
 const MapScreen = () => {
     const route = useRoute();
+    const navigation = useNavigation();
+
     const {buildingKey} = route.params || {};
 
     if (!buildingKey || !floorsData[buildingKey]) {
@@ -30,10 +47,10 @@ const MapScreen = () => {
             </View>
         );
     }
-    return (<InnerMapScreen buildingKey={buildingKey}/>);
-};
-const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
-    const navigation = useNavigation();
+//     return (<InnerMapScreen buildingKey={buildingKey}/>);
+// };
+// const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+//     const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -65,7 +82,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
 
     const handlePress = (section) => {
         setSelectedSection(section);
-        resetTransform(section);
+        // resetTransform(section);
     };
     const scale = useRef(new Animated.Value(1)).current;
     const translateX = useRef(new Animated.Value(0)).current;
@@ -73,44 +90,128 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
     const onPinchEvent = Animated.event([{nativeEvent: {scale}}], {
         useNativeDriver: false,
     });
-    const resetTransform = (section = null) => {
-        if (section && section.x !== undefined && section.y !== undefined) {
-            Animated.parallel([
-                Animated.timing(translateX, {
-                    toValue: -section.x + width / 2,
-                    duration: 500,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(translateY, {
-                    toValue: -section.y + height / 2,
-                    duration: 500,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(scale, {
-                    toValue: 0.5,
-                    duration: 500,
-                    useNativeDriver: false,
-                }),
-            ]).start();
-        } else {
-            Animated.parallel([
-                Animated.timing(scale, {
-                    toValue: 1,
-                    duration: 300,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(translateX, {
-                    toValue: 0,
-                    duration: 300,
-                    useNativeDriver: false,
-                }),
-                Animated.timing(translateY, {
-                    toValue: 0,
-                    duration: 300,
-                    useNativeDriver: false,
-                }),
-            ]).start();
+    const resetTransform = () => {
+        Animated.timing(scale, {
+            toValue: 1,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+        Animated.timing(translateX, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+        Animated.timing(translateY, {
+            toValue: 0,
+            duration: 300,
+            useNativeDriver: false,
+        }).start();
+    };
+
+
+    const getPathFromNodes = (nodeIds) => {
+        const coordinates = nodeIds.map(nodeId => {
+            let node = null;
+            if (buildingKey == 'Hall'){
+                if (selectedFloorKey == 1) {
+                    node = mapHall1.nodes.find(n => n.id === nodeId);
+                }
+                else if (selectedFloorKey == 2){
+                    node = mapHall2.nodes.find(n => n.id === nodeId);
+                }
+                else if (selectedFloorKey == 8){
+                    node = mapHall8.nodes.find(n => n.id === nodeId);
+                }
+                else if (selectedFloorKey == 9){
+                    node = mapHall9.nodes.find(n => n.id === nodeId);
+                }
+            }
+
+            else if (buildingKey == "MB"){
+                if (selectedFloorKey == "S2") {
+                    node = mapMB1.nodes.find(n => n.id === nodeId);
+                }
+                else if (selectedFloorKey == "S1"){
+                    node = mapMBS2.nodes.find(n => n.id === nodeId);
+                }
+
+            }
+
+            else if (buildingKey == "CC"){
+                if (selectedFloorKey == "1") {
+                    node = mapCC1.nodes.find(n => n.id === nodeId);
+                }
+            }
+
+
+            return node ? `${node.x},${1132 - node.y}` : null;
+        }).filter(coord => coord !== null);
+
+        return `M${coordinates.join(' L')}`;
+    };
+
+    // const selectedPath = path ? getPathFromNodes(path) : null;
+    const [path, setPath] = useState(null);
+    const [selectedPath, setSelectedPath] = useState(null);
+
+    const [showSearchBar, setShowSearchBar] = useState(false);
+
+    const [startLocationIndoor, setStartLocationIndoor] = useState("");
+
+    useEffect(() => {
+        if (path) {
+            const nodeIds = path;
+            const newPath = getPathFromNodes(nodeIds);
+            setSelectedPath(newPath);
         }
+    }, [path]);
+
+
+    const transformId = (id) => {
+        const [letter, number] = id.split("-");
+        const floorNumber = number.charAt(0);
+        return `${letter.toLowerCase()}${floorNumber}_${number}`;
+    };
+
+
+    const handleShowDirections = async (endId) => {
+        const transformedStartLocationIndoor = transformId(startLocationIndoor)
+        const transformedEndId = transformId(endId);
+
+        // const startId = "h8_815"; // Only use for testing, remove later.
+        const campus = "hall"; // Only use for testing, remove later.
+
+        console.log({endId}) // Used only for testing, remove later.
+        console.log({ endId, transformedEndId }); // Used only for testing, remove later.
+
+        // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
+
+        try {
+            const response = await fetch(
+                `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${campus}`
+                // `http://10.0.2.2:5000/indoorNavigation?startId=h2_205&endId=h2_260&campus=hall` // Only use for testing, remove later.
+            );
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log("Start location: ", transformedStartLocationIndoor, ", end location: ", transformedEndId);
+                console.log("Path data received:", data);
+                console.log("Path data received TEST:", data.path.path);
+                setPath(data.path.path);
+            } else {
+                console.error("Error fetching data");
+            }
+        } catch (error) {
+            console.error("Request failed", error);
+        }
+    };
+
+    const handleShowDirectionsTemp = () => {
+        setShowSearchBar(true);
+    };
+
+    const closeIndoorSearchBars = (bool) => {
+        setShowSearchBar(false);
     };
 
 
@@ -121,7 +222,21 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                         <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
                     </TouchableOpacity>
+
+                    {showSearchBar && (
+
+                        <IndoorSearchBars
+                            startLocation={startLocationIndoor}
+                            setStartLocation={setStartLocationIndoor}
+                            // startLocation={selectedSection?.id}
+                            destination={selectedSection?.id}
+                            onBackPress={() => closeIndoorSearchBars(false)}
+                        />
+
+                    )}
+
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+
                         <View style={[styles.mapContainer, {aspectRatio}]}>
                             <PinchGestureHandler onGestureEvent={onPinchEvent}>
                                 <Animated.View
@@ -134,7 +249,8 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                     }}
                                 >
                                     <Svg width="100%" height="100%" viewBox={viewBox}>
-                                        <Rect width="100%" height="100%" fill={theme.colors.backgroundDark}/>
+                                        <Rect width="100%" height="100%" fill={theme.colors.grayDark}/>
+
                                         {sections.map((section, index) => (
                                             <Path
                                                 testID={`section-${index}`}
@@ -161,6 +277,8 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                                 }
                                             />
                                         ))}
+
+
                                         {poiImage && (
                                             <SvgImage
                                                 testID={'svg-image'}
@@ -174,6 +292,34 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                                 pointerEvents="none"
                                             />
                                         )}
+                                        {selectedPath && (
+
+                                            <Path
+                                                d={selectedPath}
+                                                fill="none"
+                                                stroke={theme.colors.primaryLight}
+                                                strokeWidth="6"
+                                            />
+                                        )}
+
+                                        {/*{poiImage && (*/}
+
+                                        {/*//     <Path*/}
+                                        {/*//     d={`M87.75,588.6 L87.92,560.77 L565.71,577.53 L690.67,627.53 L690.67,888.21`}*/}
+                                        {/*//     fill="none"*/}
+                                        {/*//     stroke={theme.colors.primaryLight}*/}
+                                        {/*//     strokeWidth="6"*/}
+                                        {/*// />)}*/}
+
+                                        {/*    <Path*/}
+                                        {/*    d={selectedPath}*/}
+                                        {/*    fill="none"*/}
+                                        {/*    stroke={theme.colors.primaryLight}*/}
+                                        {/*    strokeWidth="6"*/}
+                                        {/*/>)}*/}
+
+
+
                                     </Svg>
                                 </Animated.View>
                             </PinchGestureHandler>
@@ -192,7 +338,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                         selectedFloorKey={selectedFloorKey}
                         setSelectedFloorKey={(floor) => {
                             setSelectedFloorKey(floor);
-                            setSelectedSection(null);
+                            // setSelectedSection(null);
                             resetTransform();
                         }}
                     />
@@ -201,6 +347,10 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                         onClose={() => setSelectedSection(null)}
                         panHandlers={panResponder.panHandlers}
                         panelY={panelY}
+                        onShowDirections={() => handleShowDirections(selectedSection?.id)}
+                        onShowDirectionsTemp={handleShowDirectionsTemp}
+
+
                     />
                 </View>
             </TouchableWithoutFeedback>
@@ -227,14 +377,14 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 60,
+        top: 50,
         left: 0,
         paddingVertical: 8,
         paddingHorizontal: 15,
         borderRadius: theme.radius.lg,
         elevation: 5,
         zIndex: 10,
-        shadowColor: theme.colors.text,
+        shadowColor: '#000',
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 3,
