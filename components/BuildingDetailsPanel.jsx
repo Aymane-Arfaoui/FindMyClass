@@ -66,7 +66,7 @@ function BuildingDetailsPanel({
                             {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
                                 <Image
                                     source={{
-                                        uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
+                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
                                     }}
                                     style={styles.buildingImage}
                                     resizeMode="cover"
@@ -80,7 +80,7 @@ function BuildingDetailsPanel({
                             )}
 
                             <Text style={styles.buildingDetails}>
-                                {buildingDetails.formatted_address}
+                                {buildingDetails.formattedAddress || "No address available"}
                             </Text>
                         </>
                     )}
@@ -107,7 +107,7 @@ function BuildingDetailsPanel({
             )}
         </Animated.View>
     );
-};
+}
 
 BuildingDetailsPanel.propTypes={
     selectedBuilding:PropTypes.any,
