@@ -1,22 +1,22 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {theme} from "@/constants/theme";
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from "@/constants/theme";
 import PropTypes from "prop-types";
 
+const MapButtons = ({ onPress }) => {
+    const [selectedButton, setSelectedButton] = useState('SGW');
 
-const MapButtons = ({onPress}) => {
-const [selectedButton, setSelectedButton] = useState('SGW');
-const locations = {
+    const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
         Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
     };
 
     useEffect(() => {
-        onPress(locations[selectedLocation]);
-    }, []);
+        onPress(locations[selectedButton]);
+    }, [selectedButton]);
 
     const handlePress = (location) => {
-        setSelectedLocation(location);
+        setSelectedButton(location);
         onPress(locations[location]);
     };
 
@@ -24,26 +24,27 @@ const locations = {
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
                 <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    style={[styles.toggleButton, selectedButton === 'SGW' && styles.activeButton]}
                     onPress={() => handlePress('SGW')}
                     testID={'sgw-button'}
                 >
-                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
+                    <Text style={[styles.label, selectedButton === 'SGW' && styles.activeLabel]}>SGW</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
+                    style={[styles.toggleButton, selectedButton === 'Loyola' && styles.activeButton]}
                     onPress={() => handlePress('Loyola')}
                     testID={'loyola-button'}
                 >
-                    <Text style={[styles.label, selectedLocation === 'Loyola' && styles.activeLabel]}>Loyola</Text>
+                    <Text style={[styles.label, selectedButton === 'Loyola' && styles.activeLabel]}>Loyola</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
-MapButtons.propTypes={
-    onPress:PropTypes.func
-}
+
+MapButtons.propTypes = {
+    onPress: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
     buttonContainer: {
