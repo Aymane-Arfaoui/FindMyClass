@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-from api.app.graph.Graph2 import Graph
+from app.graph.Graph2 import Graph
 from pathlib import Path
 
 # import app.graph.Graph as Graph
