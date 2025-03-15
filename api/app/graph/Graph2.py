@@ -25,6 +25,9 @@ class Graph:
         return (dx**2 + dy**2)**0.5
 
     def load_from_json_folder(self, folder_path: str):
+        if not os.path.exists(folder_path):
+            raise FileNotFoundError(f"Folder not found: {folder_path}")
+        
         for root, _, files in os.walk(folder_path):
             for file in files:
                 if file.endswith('.json'):
@@ -34,7 +37,13 @@ class Graph:
                         # Add nodes
                         for node_data in data["nodes"]:
                             self.add_node(node_data)
-                        # Add edges
+        # Add edges after all nodes have been added
+        for root, _, files in os.walk(folder_path):
+            for file in files:
+                if file.endswith('.json'):
+                    full_path = os.path.join(root, file)
+                    with open(full_path) as f:
+                        data = json.load(f)
                         for edge_pair in data["edges"]:
                             if len(edge_pair) == 2:
                                 self.add_edge(edge_pair[0], edge_pair[1])
