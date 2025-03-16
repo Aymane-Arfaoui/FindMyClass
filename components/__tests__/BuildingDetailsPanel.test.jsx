@@ -123,13 +123,13 @@ describe('<BuildingDetailsPanel />', () => {
         await user.press(screen.getByTestId('indoor-map-button'));
         expect(mockNavigate).toHaveBeenCalledWith('MapScreen', {buildingKey: 'Hall'});
     });
-    it('should navigate to "MapScreen" with key CC when indoor map button is pressed and central building is selected', () => {
+    it('should navigate to "MapScreen" with key CC when indoor map button is pressed and CC is selected', async () => {
 
         render(
             <BuildingDetailsPanel
                 selectedBuilding={{name: "Central Building"}}
                 buildingDetails={mockBuildingDetails}
-                panHandlers={{}} // mock panHandlers if needed
+                panHandlers={{}}
                 panelY={0}
                 onClose={mockOnClose}
                 onDirectionPress={mockOnDirectionPress}
@@ -140,9 +140,9 @@ describe('<BuildingDetailsPanel />', () => {
             />
         );
 
-        const user=userEvent.setup()
-        user.press(screen.getByTestId('indoor-map-button'));
-        expect(mockNavigate).toHaveBeenCalledWith('MapScreen', { buildingKey: 'Hall' });
+        const user = userEvent.setup()
+        await user.press(screen.getByTestId('indoor-map-button'));
+        expect(mockNavigate).toHaveBeenCalledWith('MapScreen', {buildingKey: 'CC'});
     });
     it('should navigate to "MapScreen" with key MB when indoor map button is pressed and MB is selected', async () => {
 
@@ -150,7 +150,7 @@ describe('<BuildingDetailsPanel />', () => {
             <BuildingDetailsPanel
                 selectedBuilding={{name: "John Molson"}}
                 buildingDetails={mockBuildingDetails}
-                panHandlers={{}} // mock panHandlers if needed
+                panHandlers={{}}
                 panelY={0}
                 onClose={mockOnClose}
                 onDirectionPress={mockOnDirectionPress}
