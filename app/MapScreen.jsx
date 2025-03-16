@@ -163,8 +163,60 @@ const MapScreen = () => {
             const nodeIds = path;
             const newPath = getPathFromNodes(nodeIds);
             setSelectedPath(newPath);
+
+
+            const floorChanges = [];
+            let lastFloor = null;
+
+            nodeIds.forEach((nodeId, index) => {
+                const node = getNodeData(nodeId);
+
+                if (node) {
+                    const currentFloor = node.floor_number;
+                    if (lastFloor !== null && currentFloor !== lastFloor) {
+                        floorChanges.push({
+                            transitionNode: node,
+                            previousFloor: lastFloor,
+                            newFloor: currentFloor
+                        });
+                    }
+                    lastFloor = currentFloor;
+                }
+            });
+
+            // if (floorChanges.length > 0) {
+            //     floorChanges.forEach(change => {
+            //         alert(`Change floors from ${change.previousFloor} to ${change.newFloor} using ${change.transitionNode.poi_type}`);
+            //     });
+            // }
+            if (floorChanges.length > 0) {
+                let message = "There are floor changes in you path, you need to go:\n";
+                floorChanges.forEach(change => {
+                    message += `- From ${change.previousFloor} to ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
+                });
+                alert(message);
+            }
         }
-    }, [path]);
+
+
+    }, [path, selectedFloorKey]);
+
+
+
+
+    const getNodeData = (nodeId) => {
+        let node = null;
+        if (buildingKey === 'Hall') {
+            node = [...mapHall1.nodes, ...mapHall2.nodes, ...mapHall8.nodes, ...mapHall9.nodes].find(n => n.id === nodeId);
+        } else if (buildingKey === "MB") {
+            node = [...mapMB1.nodes, ...mapMBS2.nodes].find(n => n.id === nodeId);
+        } else if (buildingKey === "CC") {
+            node = mapCC1.nodes.find(n => n.id === nodeId);
+        }
+        return node;
+    };
+
+
 
 
     const transformId = (id) => {
@@ -213,6 +265,8 @@ const MapScreen = () => {
     const closeIndoorSearchBars = (bool) => {
         setShowSearchBar(false);
     };
+
+
 
 
     return (
@@ -337,10 +391,20 @@ const MapScreen = () => {
                         floorKeys={floorKeys}
                         selectedFloorKey={selectedFloorKey}
                         setSelectedFloorKey={(floor) => {
+                            if (path) {
+                                // Check if the selected floor is in the path
+                                const validFloors = path.map(nodeId => getNodeData(nodeId)?.floor_number);
+                                if (!validFloors.includes(floor)) {
+                                    setPath(null);  // Reset path if the floor is not in the path
+                                    setSelectedPath(null);
+                                    setShowSearchBar(false);
+                                }
+                            }
                             setSelectedFloorKey(floor);
-                            // setSelectedSection(null);
                             resetTransform();
                         }}
+                        onChangeUpdateRoute={() => handleShowDirections(selectedSection?.id)} //ADD HERE
+                        // onChangeUpdateRouteTemp={handleShowDirectionsTemp} //ADD HERE
                     />
                     <SectionPanel
                         selectedSection={selectedSection}
