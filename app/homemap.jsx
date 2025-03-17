@@ -81,48 +81,89 @@ export default function Homemap() {
     }, [selectedLocation, modeSelected]);
 
     async function fetchAllModesData(originStr, destinationStr) {
-        const modes = ['driving', 'transit', 'walking', 'bicycling'];
+        const modes = ['DRIVE', 'TRANSIT', 'WALK', 'BICYCLE'];
         const updatedTravelTimes = {
-            driving: 'N/A',
-            transit: 'N/A',
-            walking: 'N/A',
-            bicycling: 'N/A',
+            DRIVE: 'N/A',
+            TRANSIT: 'N/A',
+            WALK: 'N/A',
+            BICYCLE: 'N/A',
         };
+
+        const API_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
+
+        // Convert string coordinates to numbers
+        const [originLat, originLng] = originStr.split(",").map(Number);
+        const [destinationLat, destinationLng] = destinationStr.split(",").map(Number);
 
         await Promise.all(
             modes.map(async (mode) => {
-                const url = `https://maps.googleapis.com/maps/api/directions/json
-        ?origin=${encodeURIComponent(originStr)}
-        &destination=${encodeURIComponent(destinationStr)}
-        &mode=${mode}
-        &alternatives=true
-        &key=${GOOGLE_PLACES_API_KEY}`
-                    .replace(/\s+/g, '');
+                const requestBody = {
+                    origin: {
+                        location: {
+                            latLng: { latitude: originLat, longitude: originLng }
+                        }
+                    },
+                    destination: {
+                        location: {
+                            latLng: { latitude: destinationLat, longitude: destinationLng }
+                        }
+                    },
+                    travelMode: mode, // DRIVE, TRANSIT, WALK, BICYCLE
+                    computeAlternativeRoutes: true,
+                    languageCode: "en-US",
+                    units: "METRIC"
+                };
+
+                // Only add routingPreference for DRIVE mode
+                if (mode === "DRIVE") {
+                    requestBody.routingPreference = "TRAFFIC_AWARE";
+                }
 
                 try {
-                    const resp = await fetch(url);
-                    const data = await resp.json();
-                    if (data.routes && data.routes.length > 0) {
-                        const bestRoute = data.routes.reduce((shortest, cur) =>
-                            cur.legs[0].duration.value < shortest.legs[0].duration.value
-                                ? cur
-                                : shortest
-                        );
-                        const durSec = bestRoute.legs[0].duration.value;
-                        const hours = Math.floor(durSec / 3600);
-                        const minutes = Math.ceil((durSec % 3600) / 60);
+                    const resp = await fetch(API_URL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
+                            "X-Goog-FieldMask": "routes.legs.duration"
+                        },
+                        body: JSON.stringify(requestBody)
+                    });
 
-                        let label;
-                        if (hours > 0) {
-                            label = `${hours}h ${minutes} min`;
-                        } else {
-                            label = `${minutes} min`;
-                        }
-
-                        updatedTravelTimes[mode] = label;
+                    if (!resp.ok) {
+                        const errorText = await resp.text(); // Get response error details
+                        throw new Error(`HTTP Error: ${resp.status} - ${errorText}`);
                     }
+
+                    const data = await resp.json();
+
+                    if (!data.routes || data.routes.length === 0) {
+                        console.warn(`No valid routes returned for mode: ${mode}`);
+                        return;
+                    }
+
+                    // Find the shortest route based on duration
+                    const bestRoute = data.routes.reduce((shortest, cur) => {
+                        const shortestDuration = parseInt(shortest.legs[0].duration.replace("s", ""), 10);
+                        const currentDuration = parseInt(cur.legs[0].duration.replace("s", ""), 10);
+                        return currentDuration < shortestDuration ? cur : shortest;
+                    });
+
+                    if (!bestRoute.legs || bestRoute.legs.length === 0) {
+                        console.warn(`No duration data available for mode: ${mode}`);
+                        return;
+                    }
+
+                    // Extract numeric duration value
+                    const durSec = parseInt(bestRoute.legs[0].duration.replace("s", ""), 10);
+
+                    const hours = Math.floor(durSec / 3600);
+                    const minutes = Math.ceil((durSec % 3600) / 60);
+
+                    updatedTravelTimes[mode] = hours > 0 ? `${hours}h ${minutes} min` : `${minutes} min`;
+
                 } catch (err) {
-                    console.error(`Error fetching ${mode}`, err);
+                    console.error(`Failed to fetch ${mode}: ${err.message}`);
                 }
             })
         );
@@ -578,12 +619,12 @@ export default function Homemap() {
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
-                        setTravelTimes={setTravelTimes}
                     />
                     <BottomPanel
                         transportMode={modeSelected}
                         routeDetails={fastestRoute}
                         routes={routes}
+                        travelTimes={travelTimes}
                     />
                 </>
             )}
