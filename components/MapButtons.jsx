@@ -13,7 +13,7 @@ const locations = {
 
     useEffect(() => {
         onPress(locations[selectedLocation]);
-    }, []);
+    }, [selectedLocation]);
 
     const handlePress = (location) => {
         setSelectedLocation(location);
@@ -41,9 +41,10 @@ const locations = {
         </View>
     );
 };
-MapButtons.propTypes={
-    onPress:PropTypes.func
-}
+
+MapButtons.propTypes = {
+    onPress: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
     buttonContainer: {
