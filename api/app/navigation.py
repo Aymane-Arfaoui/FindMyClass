@@ -20,6 +20,7 @@ def indoor_navigation():
     end_id = request.args.get('endId')
     campus = request.args.get('campus')
     file_path = Path(f'app/data/campus_jsons/{campus}')
+
     if os.path.exists(file_path) is False:
         return jsonify({"error": "Campus not found"}), 400
 
