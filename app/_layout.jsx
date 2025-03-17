@@ -1,7 +1,7 @@
-import { View, Text } from 'react-native'
 import React from 'react'
 import { Stack, useRouter, useSegments } from 'expo-router'
-import { AuthProvider, useAuth } from '../context/auth'
+import { AuthProvider, useAuth } from '@/context/auth'
+import {ThemeProvider} from "@/context/ThemeProvider";
 
 function RootLayoutNav() {
   const { user, loading } = useAuth();
@@ -31,7 +31,9 @@ function RootLayoutNav() {
 export default function RootLayout() {
   return (
     <AuthProvider testID={'root-layout'}>
+      <ThemeProvider>
       <RootLayoutNav />
+      </ThemeProvider>
     </AuthProvider>
   );
 }
