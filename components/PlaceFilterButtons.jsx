@@ -49,11 +49,11 @@ export default function PlaceFilterButtons({onSelectCategory}) {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.toggleButton} onPress={toggleExpansion}>
+            <TouchableOpacity style={styles.toggleButton} onPress={toggleExpansion} testID="toggle-button">
                 <Ionicons name={expanded ? "close-outline" : getFilterIcon()} size={24} color="white"/>
             </TouchableOpacity>
             {expanded && (
-                <Animated.View style={[styles.buttonsWrapper, {transform: [{translateY}]}]}>
+                <Animated.View style={[styles.buttonsWrapper, {transform: [{translateY}]}]} testID="buttons-wrapper">
                     {categories.map((category) => (
                         <TouchableOpacity
                             key={category.type}

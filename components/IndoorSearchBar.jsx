@@ -117,7 +117,7 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
                 onChangeText={handleSearch}
             />
             {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
+                <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton} testID="clear-button">
                     <Ionicons name="close-circle" size={20} color={theme.colors.grayDark} />
                 </TouchableOpacity>
             )}
