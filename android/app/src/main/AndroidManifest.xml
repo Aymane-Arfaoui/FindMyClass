@@ -48,6 +48,15 @@
         <category android:name="android.intent.category.BROWSABLE"/>
         <data android:scheme="com.aymanearfaoui.findmyclass" android:host="oauth2redirect"/>
       </intent-filter>
+
+      <!--fixing an issue-->
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW"/>
+        <category android:name="android.intent.category.DEFAULT"/>
+        <category android:name="android.intent.category.BROWSABLE"/>
+        <data android:scheme="com.aymanearfaoui.findmyclass" android:host="expo-development-client"/>
+      </intent-filter>
+
     </activity>
   </application>
 </manifest>
