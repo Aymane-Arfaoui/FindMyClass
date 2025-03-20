@@ -9,7 +9,7 @@ const WeekNavigation = ({onSelectDate}) => {
         const today = new Date();
         return Array.from({length: 6}, (_, i) => {
             const day = new Date();
-            day.setDate(today.getDate() + i); // Only today and future days
+            day.setDate(today.getDate() + i);
             return {
                 date: day.toISOString().split('T')[0],
                 label: day.toLocaleDateString('en-US', {weekday: 'short'}),
