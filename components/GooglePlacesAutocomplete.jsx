@@ -79,9 +79,9 @@ const GooglePlacesAutocomplete = ({address, onAddressSelect, autoFocus}) => {
     };
 
     return (
-        <View style={styles.inputContainer}>
+        <View style={styles.googleAutoInputContainer}>
             <TextInput
-                style={styles.input}
+                style={styles.googleAutoInput}
                 value={inputText}
                 onChangeText={(text) => {
                     setInputText(text);
@@ -92,37 +92,40 @@ const GooglePlacesAutocomplete = ({address, onAddressSelect, autoFocus}) => {
             />
 
             {inputText.length > 0 && (
-                <TouchableOpacity style={styles.clearButton} onPress={handleClearInput}>
+                <TouchableOpacity style={styles.googleAutoClearButton} onPress={handleClearInput}>
                     <Ionicons name="close-circle" size={20} color={theme.colors.grayDark}/>
                 </TouchableOpacity>
             )}
 
             {showList && (
-                <View style={styles.suggestionsContainer}>
+                <View style={styles.googleAutoSuggestionsContainer}>
                     <FlatList
                         data={predictions}
                         keyExtractor={(item) => item.placePrediction.placeId}
                         keyboardShouldPersistTaps="handled"
                         renderItem={({item}) => (
                             <TouchableOpacity
-                                style={styles.suggestionItem}
+                                style={styles.googleAutoSuggestionItem}
                                 onPress={() => handleAddressSelect(item)}
                             >
-                                <Text style={styles.suggestionText}>{item.placePrediction.text.text}</Text>
+                                <Text style={styles.googleAutoSuggestionText}>
+                                    {item.placePrediction.text.text}
+                                </Text>
                             </TouchableOpacity>
                         )}
                     />
                 </View>
             )}
         </View>
+
     );
 };
 
 const styles = StyleSheet.create({
-    inputContainer: {
+    googleAutoInputContainer: {
         position: "relative",
     },
-    input: {
+    googleAutoInput: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -130,14 +133,14 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontSize: 16,
     },
-    clearButton: {
+    googleAutoClearButton: {
         position: "absolute",
         right: 10,
         top: "50%",
         transform: [{translateY: -10}],
         padding: 1,
     },
-    suggestionsContainer: {
+    googleAutoSuggestionsContainer: {
         position: "absolute",
         top: 50,
         left: 0,
@@ -151,16 +154,17 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: theme.colors.gray,
     },
-    suggestionItem: {
+    googleAutoSuggestionItem: {
         paddingVertical: 12,
         paddingHorizontal: 10,
         borderBottomWidth: 1,
         borderBottomColor: "#ddd",
     },
-    suggestionText: {
+    googleAutoSuggestionText: {
         fontSize: 16,
     },
 });
+
 
 GooglePlacesAutocomplete.propTypes = {
     address: PropTypes.string,

@@ -43,31 +43,42 @@ const CreateTask = ({isVisible, onClose}) => {
 
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
-            <View style={styles.modalContainer}>
-                <View style={styles.bottomSheet}>
-                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <View style={styles.createTaskModalContainer}>
+                <View style={styles.createTaskBottomSheet}>
+                    <TouchableOpacity onPress={onClose} style={styles.createTaskCloseButton}>
                         <Ionicons name="close-circle" size={32} color="#333"/>
                     </TouchableOpacity>
-                    <Text style={styles.headerText}>Create New Task</Text>
+                    <Text style={styles.createTaskHeaderText}>Create New Task</Text>
                     <View>
-                        <TextInput style={styles.input} value={taskName} onChangeText={setTaskName}
-                                   placeholder="Task Name"/>
+                        <TextInput
+                            style={styles.createTaskInput}
+                            value={taskName}
+                            onChangeText={setTaskName}
+                            placeholder="Task Name"
+                        />
                         <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
 
-                        <Text style={styles.label}>Date</Text>
-                        <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.inputButton}>
-                            <Text style={styles.inputText}>{date.toDateString()}</Text>
+                        <Text style={styles.createTaskLabel}>Date</Text>
+                        <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
+                            <Text style={styles.createTaskInputText}>{date.toDateString()}</Text>
                         </TouchableOpacity>
-                        <DatePicker modal open={openDatePicker} date={date} mode="date" minimumDate={new Date()}
-                                    onConfirm={(selectedDate) => {
-                                        setOpenDatePicker(false);
-                                        setDate(selectedDate);
-                                    }} onCancel={() => setOpenDatePicker(false)}
+                        <DatePicker
+                            modal
+                            open={openDatePicker}
+                            date={date}
+                            mode="date"
+                            minimumDate={new Date()}
+                            onConfirm={(selectedDate) => {
+                                setOpenDatePicker(false);
+                                setDate(selectedDate);
+                            }}
+                            onCancel={() => setOpenDatePicker(false)}
                         />
 
-                        <View style={styles.allDayContainer}>
-                            <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)} style={styles.allDayToggle}>
-                                <Text style={styles.label}>All Day Event</Text>
+                        <View style={styles.createTaskAllDayContainer}>
+                            <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)}
+                                              style={styles.createTaskAllDayToggle}>
+                                <Text style={styles.createTaskLabel}>All Day Event</Text>
                                 <Switch
                                     value={allDayEvent}
                                     onValueChange={(value) => {
@@ -83,78 +94,93 @@ const CreateTask = ({isVisible, onClose}) => {
                                     trackColor={{
                                         false: theme.colors.lightGray,
                                         true: theme.colors.primary
-                                    }}  // Change false state color
-                                    thumbColor={allDayEvent ? theme.colors.white : theme.colors.darkGray}  // Adjust thumb color
+                                    }}
+                                    thumbColor={allDayEvent ? theme.colors.white : theme.colors.darkGray}
                                 />
                             </TouchableOpacity>
                         </View>
 
-
-                        {/* Show Time Pickers only if All Day is OFF */}
                         {!allDayEvent && (
                             <>
-                                <Text style={styles.label}>Start Time</Text>
+                                <Text style={styles.createTaskLabel}>Start Time</Text>
                                 <TouchableOpacity onPress={() => setOpenStartTimePicker(true)}
-                                                  style={styles.inputButton}>
-                                    <Text style={styles.inputText}>{formatTime(startTime)}</Text>
+                                                  style={styles.createTaskInputButton}>
+                                    <Text style={styles.createTaskInputText}>{formatTime(startTime)}</Text>
                                 </TouchableOpacity>
-                                <DatePicker modal open={openStartTimePicker} date={startTime} mode="time"
-                                            onConfirm={(selectedTime) => {
-                                                setOpenStartTimePicker(false);
-                                                setStartTime(selectedTime);
-                                            }} onCancel={() => setOpenStartTimePicker(false)}
+                                <DatePicker
+                                    modal
+                                    open={openStartTimePicker}
+                                    date={startTime}
+                                    mode="time"
+                                    onConfirm={(selectedTime) => {
+                                        setOpenStartTimePicker(false);
+                                        setStartTime(selectedTime);
+                                    }}
+                                    onCancel={() => setOpenStartTimePicker(false)}
                                 />
 
-                                <Text style={styles.label}>End Time</Text>
-                                <TouchableOpacity onPress={() => setOpenEndTimePicker(true)} style={styles.inputButton}>
-                                    <Text style={styles.inputText}>{formatTime(endTime)}</Text>
+                                <Text style={styles.createTaskLabel}>End Time</Text>
+                                <TouchableOpacity onPress={() => setOpenEndTimePicker(true)}
+                                                  style={styles.createTaskInputButton}>
+                                    <Text style={styles.createTaskInputText}>{formatTime(endTime)}</Text>
                                 </TouchableOpacity>
-                                <DatePicker modal open={openEndTimePicker} date={endTime} mode="time"
-                                            minimumDate={startTime}
-                                            onConfirm={(selectedTime) => {
-                                                setOpenEndTimePicker(false);
-                                                setEndTime(selectedTime);
-                                            }} onCancel={() => setOpenEndTimePicker(false)}
+                                <DatePicker
+                                    modal
+                                    open={openEndTimePicker}
+                                    date={endTime}
+                                    mode="time"
+                                    minimumDate={startTime}
+                                    onConfirm={(selectedTime) => {
+                                        setOpenEndTimePicker(false);
+                                        setEndTime(selectedTime);
+                                    }}
+                                    onCancel={() => setOpenEndTimePicker(false)}
                                 />
                             </>
                         )}
 
-                        <Text style={styles.label}>Notes</Text>
-                        <TextInput style={styles.textArea} value={notes} onChangeText={setNotes} placeholder="Add notes"
-                                   multiline/>
+                        <Text style={styles.createTaskLabel}>Notes</Text>
+                        <TextInput
+                            style={styles.createTaskTextArea}
+                            value={notes}
+                            onChangeText={setNotes}
+                            placeholder="Add notes"
+                            multiline
+                        />
 
-                        <TouchableOpacity style={styles.saveButton} onPress={handleSaveEvent}>
-                            <Text style={styles.saveButtonText}>Create Event</Text>
+                        <TouchableOpacity style={styles.createTaskSaveButton} onPress={handleSaveEvent}>
+                            <Text style={styles.createTaskSaveButtonText}>Create Event</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
             </View>
         </Modal>
+
     );
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
+    createTaskModalContainer: {
         flex: 1,
         justifyContent: "flex-end",
         backgroundColor: "rgba(0,0,0,0.5)",
     },
-    bottomSheet: {
+    createTaskBottomSheet: {
         backgroundColor: theme.colors.white,
         padding: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
-    closeButton: {
+    createTaskCloseButton: {
         alignSelf: "flex-end",
     },
-    headerText: {
+    createTaskHeaderText: {
         fontSize: 20,
         fontWeight: "bold",
         marginBottom: 15,
         textAlign: "center",
     },
-    input: {
+    createTaskInput: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -162,7 +188,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontSize: 16,
     },
-    inputButton: {
+    createTaskInputButton: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -171,10 +197,10 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.gray,
         alignItems: "center",
     },
-    inputText: {
+    createTaskInputText: {
         fontSize: 16,
     },
-    textArea: {
+    createTaskTextArea: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -183,12 +209,12 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontSize: 16,
     },
-    label: {
+    createTaskLabel: {
         fontSize: 16,
         fontWeight: "bold",
         marginBottom: 5,
     },
-    saveButton: {
+    createTaskSaveButton: {
         flexDirection: "row",
         marginTop: 12,
         backgroundColor: theme.colors.primary,
@@ -198,21 +224,22 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: 10,
     },
-    saveButtonText: {
+    createTaskSaveButtonText: {
         color: theme.colors.white,
         fontSize: 16,
         fontWeight: "bold",
         marginLeft: 8,
     },
-    allDayToggle: {
+    createTaskAllDayToggle: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 10,
     },
-    allDayContainer: {
+    createTaskAllDayContainer: {
         marginBottom: 10,
     },
 });
+
 
 export default CreateTask;

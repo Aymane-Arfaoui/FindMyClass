@@ -45,15 +45,15 @@ const EditList = ({isVisible, onClose, taskData}) => {
 
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
-            <View style={styles.modalContainer}>
-                <View style={styles.bottomSheet}>
-                    <TouchableOpacity onPress={onClose} style={styles.closeButton}>
+            <View style={styles.editTaskModalContainer}>
+                <View style={styles.editTaskBottomSheet}>
+                    <TouchableOpacity onPress={onClose} style={styles.editTaskCloseButton}>
                         <Ionicons name="close-circle" size={32} color="#333"/>
                     </TouchableOpacity>
-                    <Text style={styles.headerText}>Edit Task</Text>
+                    <Text style={styles.editTaskHeaderText}>Edit Task</Text>
 
                     <TextInput
-                        style={styles.input}
+                        style={styles.editTaskInput}
                         value={taskName}
                         onChangeText={setTaskName}
                         placeholder="Task Name"
@@ -69,18 +69,16 @@ const EditList = ({isVisible, onClose, taskData}) => {
                             autoFocus={true}
                         />
                     ) : (
-                        <TouchableOpacity onPress={() => setIsEditingAddress(true)} style={styles.input}>
-                            <Text style={[styles.inputText, !address && styles.placeholderText]}>
+                        <TouchableOpacity onPress={() => setIsEditingAddress(true)} style={styles.editTaskInput}>
+                            <Text style={[styles.editTaskInputText, !address && styles.editTaskPlaceholderText]}>
                                 {address || "Enter Address"}
                             </Text>
                         </TouchableOpacity>
-
                     )}
 
-
-                    <Text style={styles.label}>Date</Text>
-                    <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.inputButton}>
-                        <Text style={styles.inputText}>{date.toDateString()}</Text>
+                    <Text style={styles.editTaskLabel}>Date</Text>
+                    <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.editTaskInputButton}>
+                        <Text style={styles.editTaskInputText}>{date.toDateString()}</Text>
                     </TouchableOpacity>
                     <DatePicker
                         modal
@@ -95,9 +93,10 @@ const EditList = ({isVisible, onClose, taskData}) => {
                     />
 
                     {/* All Day Toggle */}
-                    <View style={styles.allDayContainer}>
-                        <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)} style={styles.allDayToggle}>
-                            <Text style={styles.label}>All Day Event</Text>
+                    <View style={styles.editTaskAllDayContainer}>
+                        <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)}
+                                          style={styles.editTaskAllDayToggle}>
+                            <Text style={styles.editTaskLabel}>All Day Event</Text>
                             <Switch
                                 value={allDayEvent}
                                 onValueChange={(value) => {
@@ -119,9 +118,10 @@ const EditList = ({isVisible, onClose, taskData}) => {
                     {/* Start & End Time (Hidden if All Day is selected) */}
                     {!allDayEvent && (
                         <>
-                            <Text style={styles.label}>Start Time</Text>
-                            <TouchableOpacity onPress={() => setOpenStartTimePicker(true)} style={styles.inputButton}>
-                                <Text style={styles.inputText}>{formatTime(startTime)}</Text>
+                            <Text style={styles.editTaskLabel}>Start Time</Text>
+                            <TouchableOpacity onPress={() => setOpenStartTimePicker(true)}
+                                              style={styles.editTaskInputButton}>
+                                <Text style={styles.editTaskInputText}>{formatTime(startTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
                                 modal
@@ -135,9 +135,10 @@ const EditList = ({isVisible, onClose, taskData}) => {
                                 onCancel={() => setOpenStartTimePicker(false)}
                             />
 
-                            <Text style={styles.label}>End Time</Text>
-                            <TouchableOpacity onPress={() => setOpenEndTimePicker(true)} style={styles.inputButton}>
-                                <Text style={styles.inputText}>{formatTime(endTime)}</Text>
+                            <Text style={styles.editTaskLabel}>End Time</Text>
+                            <TouchableOpacity onPress={() => setOpenEndTimePicker(true)}
+                                              style={styles.editTaskInputButton}>
+                                <Text style={styles.editTaskInputText}>{formatTime(endTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
                                 modal
@@ -153,46 +154,47 @@ const EditList = ({isVisible, onClose, taskData}) => {
                         </>
                     )}
 
-                    <Text style={styles.label}>Notes</Text>
+                    <Text style={styles.editTaskLabel}>Notes</Text>
                     <TextInput
-                        style={styles.textArea}
+                        style={styles.editTaskTextArea}
                         value={notes}
                         onChangeText={setNotes}
                         placeholder="Add notes"
                         multiline
                     />
 
-                    <TouchableOpacity style={styles.saveButton} onPress={handleUpdateEvent}>
-                        <Text style={styles.saveButtonText}>Update Event</Text>
+                    <TouchableOpacity style={styles.editTaskSaveButton} onPress={handleUpdateEvent}>
+                        <Text style={styles.editTaskSaveButtonText}>Update Event</Text>
                     </TouchableOpacity>
                 </View>
             </View>
         </Modal>
+
     );
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
+    editTaskModalContainer: {
         flex: 1,
         justifyContent: "flex-end",
         backgroundColor: "rgba(0,0,0,0.5)",
     },
-    bottomSheet: {
+    editTaskBottomSheet: {
         backgroundColor: theme.colors.white,
         padding: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
     },
-    closeButton: {
+    editTaskCloseButton: {
         alignSelf: "flex-end",
     },
-    headerText: {
+    editTaskHeaderText: {
         fontSize: 20,
         fontWeight: "bold",
         marginBottom: 15,
         textAlign: "center",
     },
-    input: {
+    editTaskInput: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -200,7 +202,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontSize: 16,
     },
-    inputButton: {
+    editTaskInputButton: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -209,10 +211,10 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.gray,
         alignItems: "center",
     },
-    inputText: {
+    editTaskInputText: {
         fontSize: 16,
     },
-    textArea: {
+    editTaskTextArea: {
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -221,12 +223,12 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         fontSize: 16,
     },
-    label: {
+    editTaskLabel: {
         fontSize: 16,
         fontWeight: "bold",
         marginBottom: 5,
     },
-    saveButton: {
+    editTaskSaveButton: {
         flexDirection: "row",
         marginTop: 12,
         backgroundColor: theme.colors.primary,
@@ -236,23 +238,24 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         marginBottom: 10,
     },
-    saveButtonText: {
+    editTaskSaveButtonText: {
         color: theme.colors.white,
         fontSize: 16,
         fontWeight: "bold",
     },
-    allDayToggle: {
+    editTaskAllDayToggle: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
         marginBottom: 10,
     },
-    allDayContainer: {
+    editTaskAllDayContainer: {
         marginBottom: 10,
     },
-    placeholderText: {
+    editTaskPlaceholderText: {
         color: theme.colors.gray,
-    }
+    },
 });
+
 
 export default EditList;
