@@ -126,15 +126,15 @@ const SearchBars = ({
         isStart ? setStartLocation(text) : setEndLocation(text);
     };
 
-    const handleSuggestionSelect = (suggestion, isStart) => {
-        isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
-        setSuggestions([]);
-    };
+    // const handleSuggestionSelect = (suggestion, isStart) => {
+    //     isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
+    //     setSuggestions([]);
+    // };
 
     return (
         <View style={styles.container} testID={'search-bars'}>
 
-            <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+            <TouchableOpacity testID={'back-button'} onPress={onBackPress} style={styles.backButton}>
                 <Ionicons name="chevron-back" size={26} color="white"/>
             </TouchableOpacity>
 
