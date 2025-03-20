@@ -5,12 +5,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from "@/constants/theme";
 import Config from 'react-native-config';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import PropTypes from 'prop-types';
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 const MainSearchBar = ({ onLocationSelect, onBuildingPress }) => {
     const [isListening, setIsListening] = useState(false);
-    const [recognizedText, setRecognizedText] = useState('');
     const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
     const [inputText, setInputText] = useState('');
     const googleRef = useRef(null);
@@ -41,7 +41,6 @@ const MainSearchBar = ({ onLocationSelect, onBuildingPress }) => {
     useSpeechRecognitionEvent("result", (event) => {
         if (event.results && event.results.length > 0) {
             const text = event.results[0].transcript;
-            setRecognizedText(text);
             googleRef?.current?.setAddressText(text);
             setInputText(text);
         }
@@ -132,6 +131,11 @@ const MainSearchBar = ({ onLocationSelect, onBuildingPress }) => {
             />
         </View>
     );
+};
+
+MainSearchBar.propTypes = {
+    onLocationSelect: PropTypes.func.isRequired,
+    onBuildingPress: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
