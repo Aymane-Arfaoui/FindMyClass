@@ -62,31 +62,31 @@ function BuildingDetailsPanel({
                         {selectedBuilding?.name || "Loading..."}
                     </Text>
 
-                        {buildingDetails && (
-                            <>
-                                {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
-                                    <Image
-                                        source={{
-                                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
-                                        }}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                        testID={'building-image'}
-                                    />
-                                ) : (
-                                    <Image
-                                        source={{uri: DEFAULT_IMAGE_URL}}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                        testID={'default-image'}
-                                    />
-                                )}
+                    {buildingDetails && (
+                        <>
+                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
+                                <Image
+                                    source={{
+                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
+                                    }}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'building-image'}
+                                />
+                            ) : (
+                                <Image
+                                    source={{uri: DEFAULT_IMAGE_URL}}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'default-image'}
+                                />
+                            )}
 
-                                <Text style={styles.buildingDetails}>
-                                    {buildingDetails.formatted_address}
-                                </Text>
-                            </>
-                        )}
+                            <Text style={styles.buildingDetails}>
+                                {buildingDetails.formattedAddress || "No address available"}
+                            </Text>
+                        </>
+                    )}
 
 
                     <TouchableOpacity style={styles.directionButton}
@@ -111,7 +111,7 @@ function BuildingDetailsPanel({
             )}
         </Animated.View>
     );
-};
+}
 
 BuildingDetailsPanel.propTypes={
     selectedBuilding:PropTypes.any,

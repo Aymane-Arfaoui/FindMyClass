@@ -1,97 +1,225 @@
-import React, {useRef} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {GooglePlacesAutocomplete} from 'react-native-google-places-autocomplete';
+import React, {useCallback, useEffect, useState} from 'react';
+import {Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from "@/constants/theme";
 import Config from 'react-native-config';
-import PropTypes from "prop-types";
-const GOOGLE_PLACES_API_KEY=Config.GOOGLE_PLACES_API_KEY;
+import debounce from 'lodash.debounce';
+import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent} from 'expo-speech-recognition';
 
-const SearchBar = ({onLocationSelect, onBuildingPress}) => {
-    const googleRef = useRef(null);
-    return (
-        <View style={styles.container}>
-            <GooglePlacesAutocomplete
-                ref={googleRef}
-                placeholder="Search Here"
-                minLength={2}
-                fetchDetails={true}
-                onPress={(data, details = null) => {
-                    if (details) {
-                        const { lat, lng } = details.geometry.location;
-                        onLocationSelect([lng, lat]);
-                        if (onBuildingPress) {
-                            const building = {
-                                name: details.name || data.description,
-                                textPosition: [lng, lat],
-                            };
-                            onBuildingPress(building, lng, lat);
+const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
+const GOOGLE_PLACES_URL = "https://places.googleapis.com/v1/places:autocomplete";
+
+const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
+    const [inputText, setInputText] = useState('');
+    const [predictions, setPredictions] = useState([]);
+    const [sessionToken, setSessionToken] = useState(generateSessionToken());
+    const [isListening, setIsListening] = useState(false);
+    const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
+
+
+    useEffect(() => {
+        setSessionToken(generateSessionToken());
+        checkMicrophonePermission();
+    }, []);
+
+    function generateSessionToken() {
+        return Math.random().toString(36).substring(2, 15);
+    }
+
+    const checkMicrophonePermission = async () => {
+        try {
+            const {granted} = await ExpoSpeechRecognitionModule.getPermissionsAsync();
+            setHasMicrophonePermission(granted);
+            if (!granted) requestMicrophonePermission();
+        } catch (error) {
+            Alert.alert("❌ Permission check error:", error.toString());
+        }
+    };
+
+    const requestMicrophonePermission = async () => {
+        try {
+            const {status} = await ExpoSpeechRecognitionModule.requestPermissionsAsync();
+            setHasMicrophonePermission(status === "granted");
+        } catch (error) {
+            Alert.alert("❌ Permission request error:", error.toString());
+        }
+    };
+
+    useSpeechRecognitionEvent("result", (event) => {
+        if (event.results && event.results.length > 0) {
+            const text = event.results[0].transcript;
+            setInputText(text);
+            fetchPredictions(text);
+        }
+    });
+
+    useSpeechRecognitionEvent("end", () => setIsListening(false));
+
+    const startVoiceRecognition = async () => {
+        if (!hasMicrophonePermission) {
+            Alert.alert("Permission Required", "Microphone access is needed for voice search.");
+            return;
+        }
+
+        try {
+            setIsListening(true);
+            ExpoSpeechRecognitionModule.start({
+                lang: "en-US",
+                interimResults: false,
+                maxAlternatives: 1,
+            });
+        } catch (error) {
+            setIsListening(false);
+
+        }
+    };
+
+    const fetchPredictions = async (text) => {
+        if (!text) {
+            setPredictions([]);
+            return;
+        }
+        try {
+            const response = await fetch(GOOGLE_PLACES_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+                    'X-Goog-FieldMask': 'suggestions.placePrediction.placeId,suggestions.placePrediction.text'
+                },
+                body: JSON.stringify({
+                    input: text,
+                    sessionToken: sessionToken,
+                    includedPrimaryTypes: ["establishment"],
+                    locationBias: {
+                        circle: {
+                            center: {latitude: 45.5017, longitude: -73.5673},
+                            radius: 10000
                         }
                     }
-                }}
-                query={{
-                    key: GOOGLE_PLACES_API_KEY,
-                    language: 'en',
-                    components: 'country:CA',
-                    types: 'establishment',
-                }}
-                styles={{
-                    container: styles.autocompleteContainer,
-                    textInputContainer: styles.inputContainer,
-                    textInput: styles.textInput,
-                    listView: styles.listView,
-                    row: styles.suggestionRow,
-                    description: styles.descriptionText,
-                    poweredContainer: styles.poweredContainer,
-                }}
-                renderLeftButton={() => (
-                    <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon} />
-                )}
-                enablePoweredByContainer={false}
-            />
+                })
+            });
+            const data = await response.json();
+            setPredictions(data.suggestions || []);
+        } catch (error) {
 
+        }
+    };
+
+    const debouncedFetchPredictions = useCallback(debounce(fetchPredictions, 500), []);
+
+    const clearInput = () => {
+        setInputText('');
+        setPredictions([]);
+    };
+
+    const handlePlaceSelect = async (selectedItem) => {
+        const placeId = selectedItem?.placePrediction?.placeId;
+        const placeText = selectedItem?.placePrediction?.text?.text || "";
+
+        if (!placeId) {
+            Alert.alert("Error", "Could not retrieve location details.");
+            return;
+        }
+
+
+        setInputText(placeText);
+        setPredictions([]);
+
+        try {
+            const placeDetailsUrl = `https://places.googleapis.com/v1/places/${placeId}?key=${GOOGLE_PLACES_API_KEY}&fields=location,displayName,formattedAddress`;
+
+            const response = await fetch(placeDetailsUrl);
+            const result = await response.json();
+
+
+            if (result?.error) {
+                Alert.alert("Error", `Google API Error: ${result.error.message}`);
+                return;
+            }
+
+            if (result?.location?.latitude && result?.location?.longitude) {
+                const {latitude, longitude} = result.location;
+                onLocationSelect([longitude, latitude]);
+
+                if (onBuildingPress) {
+                    const building = {
+                        name: result?.displayName?.text || "Unknown Location",
+                        textPosition: [longitude, latitude],
+                    };
+                    onBuildingPress(building, longitude, latitude);
+                }
+            } else {
+                Alert.alert("Error", "Could not retrieve full location details.");
+            }
+        } catch (error) {
+            Alert.alert("Error", "Failed to fetch place details.");
+        }
+    };
+
+
+    return (
+        <View style={styles.container}>
+            <View style={styles.searchContainer}>
+                <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon}/>
+                <TextInput
+                    style={styles.textInput}
+                    placeholder="Search Here"
+                    value={inputText}
+                    onChangeText={(text) => {
+                        setInputText(text);
+                        debouncedFetchPredictions(text);
+                    }}
+                />
+                {inputText.length > 0 ? (
+                    <TouchableOpacity style={styles.closeButton} onPress={clearInput}>
+                        <Ionicons name="close-circle" size={22} color={theme.colors.grayDark}/>
+                    </TouchableOpacity>
+                ) : (
+                    <TouchableOpacity style={styles.micButton} onPress={startVoiceRecognition}>
+                        <Ionicons name={isListening ? "mic-off" : "mic"} size={22} color={theme.colors.grayDark}/>
+                    </TouchableOpacity>
+                )}
+            </View>
+            <FlatList
+                data={predictions}
+                keyExtractor={(item) => item.placePrediction.placeId}
+                renderItem={({item}) => (
+                    <TouchableOpacity style={styles.suggestionRow} onPress={() => handlePlaceSelect(item)}>
+                        <Text style={styles.descriptionText}>{item.placePrediction.text.text}</Text>
+                    </TouchableOpacity>
+                )}
+                style={styles.listView}
+            />
         </View>
     );
 };
-SearchBar.propTypes={
-    onLocationSelect:PropTypes.func,
-    onBuildingPress:PropTypes.func
-}
+
+export default MainSearchBar;
+
+
 const styles = StyleSheet.create({
     container: {
-        backgroundColor: 'transparent',
-        paddingTop: 10,
-        zIndex: 100,
-    },
-    autocompleteContainer: {
         flex: 1,
-        position: "relative",
     },
-    inputContainer: {
-        backgroundColor: 'transparent',
-        borderTopWidth: 0,
-        borderBottomWidth: 0,
-    },
-    textInput: {
-        height: 50,
-        fontSize: 16,
-        borderRadius: 25,
+    searchContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: theme.colors.white,
-        paddingHorizontal: 40,
-        borderWidth: 0,
+        borderRadius: 25,
+        paddingLeft: 40,
+        paddingRight: 45,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.2,
         shadowRadius: 4,
         elevation: 4,
-        color: theme.colors.black,
-        placeholderTextColor: theme.colors.grayDark,
     },
-    searchIcon: {
-        position: "absolute",
-        left: 15,
-        top: 15,
-        zIndex: 10,
+    textInput: {
+        flex: 1,
+        height: 50,
+        fontSize: 16,
+        color: theme.colors.black,
     },
     listView: {
         position: 'absolute',
@@ -107,31 +235,32 @@ const styles = StyleSheet.create({
         maxHeight: 200,
     },
     suggestionRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
         paddingVertical: 10,
         paddingHorizontal: 5,
-    },
-    suggestionItem: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        flexWrap: 'wrap',
-    },
-    locationIcon: {
-        marginRight: 10,
-    },
-    suggestionText: {
-        fontSize: 14,
-        flexShrink: 1,
-        maxWidth: '85%',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.gray,
+        backgroundColor: theme.colors.white,
     },
     descriptionText: {
         fontSize: 14,
     },
-    poweredContainer: {
-        display: 'none',
+    searchIcon: {
+        position: "absolute",
+        left: 15,
+        top: 14,
+        zIndex: 10,
+    },
+    micButton: {
+        position: "absolute",
+        right: 15,
+        top: 14,
+        zIndex: 10,
+    },
+    closeButton: {
+        position: "absolute",
+        right: 15,
+        top: 14,
+        zIndex: 10,
     },
 });
 
-
-export default SearchBar;
