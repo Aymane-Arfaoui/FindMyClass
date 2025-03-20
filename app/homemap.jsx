@@ -30,13 +30,11 @@ export default function Homemap() {
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
     const cameraRef = useRef(null);
     const [isDirectionsView, setIsDirectionsView] = useState(false);
-    const [routeDetails, setRouteDetails] = useState(null);
     const [modeSelected, setModeSelected] = useState('walking');
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
     const [places, setPlaces] = useState([]);
-    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
         let isMounted = true;
@@ -131,8 +129,9 @@ export default function Homemap() {
                     });
 
                     if (!resp.ok) {
-                        const errorText = await resp.text(); // Get response error details
-                        throw new Error(`HTTP Error: ${resp.status} - ${errorText}`);
+                        const errorText = await resp.text();
+                        console.error(`HTTP Error: ${resp.status} - ${errorText}`);
+                        return;
                     }
 
                     const data = await resp.json();
@@ -189,20 +188,13 @@ export default function Homemap() {
                 setRoutes(routes);
                 setFastestRoute(routes[0]);
 
-                setRouteDetails({
-                    distance: routes[0].distance,
-                    duration: routes[0].duration
-                });
-
             } else {
                 setRoutes([]);
                 setFastestRoute(null);
-                setRouteDetails(null);
             }
         } catch (error) {
             setRoutes([]);
             setFastestRoute(null);
-            setRouteDetails(null);
         } finally {
             setLoading(false);
         }
@@ -543,7 +535,6 @@ export default function Homemap() {
                     {/* Filter Button (Now Functional) */}
                     <PlaceFilterButtons
                         onSelectCategory={(category) => {
-                            setSelectedCategory(category);
                             if (category) {
                                 fetchPlacesOfInterest(category);
                             } else {
@@ -553,23 +544,6 @@ export default function Homemap() {
                     />
                 </View>
             )}
-
-
-            {/*{!isDirectionsView && (*/}
-            {/*    <View style={styles.filterButtonsContainer}>*/}
-            {/*        <PlaceFilterButtons*/}
-            {/*            onSelectCategory={(category) => {*/}
-            {/*                setSelectedCategory(category);*/}
-            {/*                if (category) {*/}
-            {/*                    fetchPlacesOfInterest(category);*/}
-            {/*                } else {*/}
-            {/*                    setPlaces([]);*/}
-            {/*                }*/}
-            {/*            }}*/}
-            {/*        />*/}
-            {/*    </View>*/}
-
-            {/*)}*/}
 
             {!isDirectionsView && (
                 <View style={styles.mapButtonsContainer}>
@@ -614,7 +588,7 @@ export default function Homemap() {
                 <>
                     <SearchBars
                         currentLocation={currentLocation}
-                        destination={buildingDetails?.formatted_address}
+                        destination={buildingDetails?.formattedAddress}
                         onBackPress={() => switchToRegularMapView(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
