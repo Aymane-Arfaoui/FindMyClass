@@ -1,7 +1,7 @@
 jest.useFakeTimers()
 import React from 'react';
 import {render, fireEvent, waitFor, userEvent, screen} from '@testing-library/react-native';
-import Homemap from '../Homemap'; 
+import Homemap from '../homemap.jsx';
 import { getUserLocation } from '@/services/userService';
 import { fetchRoutes } from '@/services/routeService';
 import {useRouter} from "expo-router";
