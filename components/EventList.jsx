@@ -56,12 +56,27 @@ const EventList = ({events, onUpdate}) => {
                         </View>
 
                         <View style={styles.eventDetails}>
-                            <Text style={[
-                                styles.eventTitle,
-                                event.itemType === 'task' ? styles.taskTitle : styles.calendarTitle
-                            ]}>
-                                {event.summary}
-                            </Text>
+                            <View style={styles.eventHeader}>
+                                <Text style={[
+                                    styles.eventTitle,
+                                    event.itemType === 'task' ? styles.taskTitle : styles.calendarTitle
+                                ]}>
+                                    {event.summary}
+                                </Text>
+                                {event.itemType === 'event' && (
+                                    <View style={[
+                                        styles.calendarSourceBadge,
+                                        { backgroundColor: event.calendarColor || '#4285F4' }
+                                    ]}>
+                                        <Text style={styles.calendarSourceText}>
+                                            {event.calendarName === 'Main' ? 'Main' : 
+                                             event.calendarName.includes('@') ? 
+                                             event.calendarName.split('@')[0] : 
+                                             event.calendarName}
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
                             <Text style={styles.eventSubtitle}>{event.description || "No additional details"}</Text>
                             <View style={styles.locationContainer}>
                                 <Ionicons name="location-outline" size={16} color={theme.colors.grayDark}/>
@@ -156,6 +171,12 @@ const styles = StyleSheet.create({
     eventDetails: {
         flex: 1,
     },
+    eventHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: 2,
+    },
     eventTitle: {
         fontSize: 16,
         fontWeight: "600",
@@ -191,5 +212,18 @@ const styles = StyleSheet.create({
     },
     editButton: {
         padding: 8,
+    },
+    calendarSourceBadge: {
+        paddingHorizontal: 8,
+        paddingVertical: 4,
+        borderRadius: 12,
+        marginLeft: 8,
+        opacity: 0.9,
+    },
+    calendarSourceText: {
+        color: '#FFFFFF',
+        fontSize: 12,
+        fontWeight: '500',
+        textTransform: 'capitalize',
     },
 });
