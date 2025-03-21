@@ -82,6 +82,5 @@ jobs:
             -D sonar.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
             -D sonar.python.coverage.reportPaths=api/coverage.xml
-            -D sonar.python.coverage.reportPaths=coverage.xml
             -D sonar.coverage.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.verbose=true
