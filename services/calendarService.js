@@ -27,49 +27,23 @@ class CalendarService {
         this.listeners.forEach(listener => listener(this.events));
     }
 
-    async fetchCalendars(token) {
+    async fetchAndUpdateEvents(token) {
         try {
+            const timeMin = new Date().toISOString();
+            const timeMax = new Date();
+            timeMax.setDate(timeMax.getDate() + 30); // Get events for next 30 days
+
             const response = await fetch(
-                `https://www.googleapis.com/calendar/v3/users/me/calendarList`,
+                `https://www.googleapis.com/calendar/v3/calendars/primary/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&orderBy=startTime&singleEvents=true`,
                 {
                     headers: { Authorization: `Bearer ${token}` },
                 }
             );
             const data = await response.json();
-            return data.items || [];
-        } catch (error) {
-            console.warn('Error fetching calendars:', error);
-            return [];
-        }
-    }
+            this.events = data.items || [];
 
-    async fetchAndUpdateEvents(token) {
-        try {
-            const timeMin = new Date().toISOString();
-            const timeMax = new Date();
-            timeMax.setDate(timeMax.getDate() + 30);
-
-            const calendars = await this.fetchCalendars(token);
-            let allEvents = [];
-
-            for (const calendar of calendars) {
-                const response = await fetch(
-                    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&orderBy=startTime&singleEvents=true`,
-                    {
-                        headers: { Authorization: `Bearer ${token}` },
-                    }
-                );
-                const data = await response.json();
-                const events = (data.items || []).map(event => ({
-                    ...event,
-                    calendarId: calendar.id,
-                    calendarSummary: calendar.summary,
-                }));
-                allEvents = [...allEvents, ...events];
-            }
-
-            this.events = allEvents;
             await AsyncStorage.setItem("@calendar", JSON.stringify(this.events));
+
             this.notifyListeners();
             return this.events;
         } catch (error) {

@@ -165,20 +165,9 @@ const Calendar = ({ events: propEvents }) => {
                             </View>
                             <View style={styles.eventDetails}>
                                 <Text style={styles.eventTitle}>{event.summary}</Text>
-                                <View style={styles.eventInfo}>
-                                    <View style={styles.infoRow}>
-                                        <Ionicons name="location-outline" size={16} color={theme.colors.gray} />
-                                        <Text style={styles.eventLocation}>
-                                            {event.location || 'No location specified'}
-                                        </Text>
-                                    </View>
-                                    <View style={styles.infoRow}>
-                                        <Ionicons name="calendar-outline" size={16} color={theme.colors.gray} />
-                                        <Text style={styles.eventCalendar}>
-                                            from {event.calendarSummary || 'Unknown Calendar'}
-                                        </Text>
-                                    </View>
-                                </View>
+                                {event.location && (
+                                    <Text style={styles.eventLocation}>{event.location}</Text>
+                                )}
                             </View>
                             {activeEvent === event && (
                                 <TouchableOpacity
@@ -271,26 +260,10 @@ const styles = StyleSheet.create({
         color: theme.colors.dark,
         marginBottom: hp(0.5),
     },
-    eventInfo: {
-        marginTop: hp(0.5),
-    },
-    infoRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: hp(0.3),
-    },
     eventLocation: {
         fontSize: hp(1.6),
         color: theme.colors.dark,
         opacity: 0.7,
-        marginLeft: hp(0.5),
-        flex: 1,
-    },
-    eventCalendar: {
-        fontSize: hp(1.6),
-        color: theme.colors.gray,
-        marginLeft: hp(0.5),
-        flex: 1,
     },
     directionButton: {
         backgroundColor: theme.colors.primary,
