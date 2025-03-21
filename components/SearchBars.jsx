@@ -126,10 +126,10 @@ const SearchBars = ({
         isStart ? setStartLocation(text) : setEndLocation(text);
     };
 
-    // const handleSuggestionSelect = (suggestion, isStart) => {
-    //     isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
-    //     setSuggestions([]);
-    // };
+    const handleSuggestionSelect = (suggestion, isStart) => {
+        isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
+        setSuggestions([]);
+    };
 
     return (
         <View style={styles.container} testID={'search-bars'}>
