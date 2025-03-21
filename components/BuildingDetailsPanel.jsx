@@ -44,6 +44,7 @@ function BuildingDetailsPanel({
             style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
         >
             <TouchableOpacity
+                testID={'close-button'}
                 onPress={onClose}
                 style={styles.closeButton}
                 activeOpacity={0.7}
@@ -54,7 +55,7 @@ function BuildingDetailsPanel({
             <View style={styles.dragBar}/>
 
             {loading ? (
-                <ActivityIndicator size="large" color={theme.colors.primary}/>
+                <ActivityIndicator size="large" color={theme.colors.primary} testID={'loading-indicator'}/>
             ) : (
                 <>
                     <Text style={styles.buildingName}>
@@ -70,12 +71,14 @@ function BuildingDetailsPanel({
                                         }}
                                         style={styles.buildingImage}
                                         resizeMode="cover"
+                                        testID={'building-image'}
                                     />
                                 ) : (
                                     <Image
                                         source={{uri: DEFAULT_IMAGE_URL}}
                                         style={styles.buildingImage}
                                         resizeMode="cover"
+                                        testID={'default-image'}
                                     />
                                 )}
 
@@ -94,6 +97,7 @@ function BuildingDetailsPanel({
                     </TouchableOpacity>
                     {buildingKey && (
                         <TouchableOpacity
+                            testID={'indoor-map-button'}
                             style={styles.indoorMapButton}
                             onPress={() => {
                                 navigation.navigate("MapScreen", { buildingKey });

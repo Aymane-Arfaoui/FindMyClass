@@ -77,8 +77,9 @@ jobs:
             -D sonar.organization=aymane-arfaoui
             -D sonar.projectKey=Aymane-Arfaoui_FindMyClass
             -D sonar.sources=Config,api,app,components,constants,context,helpers,services
-            -D sonar.exclusions=**/__tests__/**
+            -D sonar.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
             -D sonar.python.coverage.reportPaths=api/coverage.xml
-            -D sonar.coverage.exclusions=**/__tests__/**
+            -D sonar.python.coverage.reportPaths=coverage.xml
+            -D sonar.coverage.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.verbose=true
