@@ -62,6 +62,7 @@ jobs:
             pip install flask_session
             pip install dotenv
             pip install flask_cors
+            pip install coverage
             cd ./api
             coverage run -m pytest
             coverage xml -i
