@@ -54,7 +54,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install tox and any other packages
         run: pip install tox
-      - name: Run tox
+      - name: Run python test
         if: always()
         run: |
             pip install pytest
@@ -67,7 +67,11 @@ jobs:
             cd ./api
             coverage run -m pytest
             coverage xml -i
+            echo "Checking if coverage directory exists..."
+            ls -l coverage || echo "❌ Coverage folder not found"
             cd ../
+            echo "Checking if coverage directory exists..."
+            ls -l ./api/coverage || echo "❌ Coverage folder not found"
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
