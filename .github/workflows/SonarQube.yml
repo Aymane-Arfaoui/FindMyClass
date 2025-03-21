@@ -70,6 +70,9 @@ jobs:
             cd ../
             echo "Checking if coverage directory exists..."
             ls -l ./api/coverage.xml || echo "❌ Coverage folder not found"
+      - name: fix code coverage paths
+        run: |
+            sed -i 's/\/home\/runner\/work\/FindMyClass\/FindMyClass\//\/github\/workspace\//g' api/coverage.xml
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
