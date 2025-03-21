@@ -1,14 +1,14 @@
-import { Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { StatusBar } from 'expo-status-bar';
-import { theme } from '../constants/theme';
-import { hp, wp } from '../helpers/common';
+import { theme } from '@/constants/theme';
+import { hp, wp } from '@/helpers/common';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUserInfo } from '../services/userService';
-import { getCalendarEvents } from '../services/calendarService';
+import { getUserInfo } from '@/services/userService';
+import { calendarService } from '@/services/calendarService';
 import { useRouter } from 'expo-router';
 import GoogleLoginButton from '../assets/images/google-color.png';
 import BackgroundImg from '../assets/images/background-generic-1.png';
@@ -33,26 +33,25 @@ const Welcome = () => {
 
   async function handleSignInWithGoogle() {
     if (response?.type === "success") {
-      setLoading(true); // Show loading while processing
+      setLoading(true);
       const userData = await getUserInfo(response.authentication.accessToken);
       if (userData) {
-        const events = await getCalendarEvents(response.authentication.accessToken);
-        await AsyncStorage.setItem("@calendar", JSON.stringify(events));
+        await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
+        await calendarService.fetchAndUpdateEvents(response.authentication.accessToken);
         router.replace("/home");
       }
-      setLoading(false); // Hide loading after processing
+      setLoading(false);
     }
   }
 
-  
   const handleGoogleSignIn = async () => {
-    setLoading(true); // Show loading when starting authentication
+    setLoading(true);
     try {
       await promptAsync();
     } catch (error) {
       console.error('Authentication error:', error);
     } finally {
-      setLoading(false); // Hide loading on error or completion
+      setLoading(false);
     }
   };
 
@@ -80,7 +79,7 @@ const Welcome = () => {
               </TouchableOpacity>
             </View>
 
-          <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
                   testID={'welcome-button'}
                   style={styles.welcomeButton}
@@ -88,19 +87,16 @@ const Welcome = () => {
               >
                 <Text style={styles.welcomeButtonText}>GET STARTED</Text>
               </TouchableOpacity>
-
             </View>
+          </ImageBackground>
 
-
-        </ImageBackground>
-
-        {isLoading && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color= {theme.colors.primary} />
-          </View>
-        )}
-      </View>
-    </ScreenWrapper>
+          {isLoading && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+              </View>
+          )}
+        </View>
+      </ScreenWrapper>
   );
 };
 
