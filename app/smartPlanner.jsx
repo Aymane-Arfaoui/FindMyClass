@@ -11,7 +11,6 @@ import EventList from "@/components/EventList";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import CreateTask from "@/components/CreateTask";
 
-
 const SmartPlanner = () => {
     const router = useRouter();
     const currentDate = new Date();
@@ -20,29 +19,58 @@ const SmartPlanner = () => {
     const monthYear = currentDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
     const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
     const [events, setEvents] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
-
-    const handleEventAdded = (updatedEvents) => {
-        setEvents(updatedEvents);
+    const handleTaskCreated = (newTask) => {
+        setTasks(prevTasks => [...prevTasks, newTask]);
     };
 
-
     useEffect(() => {
-        loadEvents();
+        loadEventsAndTasks();
     }, [selectedDate]);
 
-    const loadEvents = async () => {
+    const loadEventsAndTasks = async () => {
+        // Load calendar events
         const storedEvents = await AsyncStorage.getItem("@calendar");
         if (storedEvents) {
             const parsedEvents = JSON.parse(storedEvents);
             const filteredEvents = parsedEvents.filter(event => {
                 const eventDate = new Date(event.start?.dateTime || event.start?.date).toISOString().split('T')[0];
                 return eventDate === selectedDate;
-            });
+            }).map(event => ({...event, itemType: 'event'}));
             setEvents(filteredEvents);
         }
+
+        // Load tasks
+        const storedTasks = await AsyncStorage.getItem("tasks");
+        if (storedTasks) {
+            const parsedTasks = JSON.parse(storedTasks);
+            const filteredTasks = parsedTasks.filter(task => {
+                const taskDate = new Date(task.date).toISOString().split('T')[0];
+                return taskDate === selectedDate;
+            }).map(task => ({
+                itemType: 'task',
+                summary: task.taskName,
+                description: task.notes,
+                location: task.address,
+                start: { dateTime: task.allDayEvent ? null : task.startTime },
+                end: { dateTime: task.allDayEvent ? null : task.endTime },
+                allDayEvent: task.allDayEvent,
+                id: task.id
+            }));
+            setTasks(filteredTasks);
+        }
     };
+
+    // Combine and sort all items
+    const allItems = [...events, ...tasks].sort((a, b) => {
+        if (a.allDayEvent) return -1;
+        if (b.allDayEvent) return 1;
+        const aTime = a.start?.dateTime ? new Date(a.start.dateTime) : new Date(0);
+        const bTime = b.start?.dateTime ? new Date(b.start.dateTime) : new Date(0);
+        return aTime - bTime;
+    });
 
     return (
         <ScreenWrapper>
@@ -65,13 +93,19 @@ const SmartPlanner = () => {
                     <TouchableOpacity style={styles.addButton} onPress={() => setIsAddModalVisible(true)}>
                         <Ionicons name="add" size={28} color="white"/>
                     </TouchableOpacity>
-                    <CreateTask isVisible={isAddModalVisible} onClose={() => setIsAddModalVisible(false)}
-                                onEventAdded={handleEventAdded}/>
+                    <CreateTask 
+                        isVisible={isAddModalVisible} 
+                        onClose={() => setIsAddModalVisible(false)}
+                        onTaskCreated={(newTask) => {
+                            handleTaskCreated(newTask);
+                            loadEventsAndTasks(); // Reload all items after creating a task
+                        }}
+                    />
                 </View>
             </View>
             <WeekNavigation selectedDate={selectedDate} onSelectDate={setSelectedDate}/>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
-                <EventList events={events}/>
+                <EventList events={allItems} onUpdate={loadEventsAndTasks}/>
             </ScrollView>
             <AppNavigationPanel/>
         </ScreenWrapper>

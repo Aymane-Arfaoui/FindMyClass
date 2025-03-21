@@ -17,6 +17,7 @@ const EventList = ({events, onUpdate}) => {
             date: event.start?.dateTime ? new Date(event.start.dateTime) : new Date(),
             startTime: event.start?.dateTime ? new Date(event.start.dateTime) : "All Day",
             endTime: event.end?.dateTime ? new Date(event.end.dateTime) : "All Day",
+            allDayEvent: event.allDayEvent || false,
         };
         setSelectedEvent(taskData);
         setIsEditVisible(true);
@@ -31,10 +32,21 @@ const EventList = ({events, onUpdate}) => {
         <View style={styles.container}>
             {events.length > 0 ? (
                 events.map((event, index) => (
-                    <View key={index} style={styles.eventCard}>
+                    <View key={event.id || index} style={[
+                        styles.eventCard,
+                        event.itemType === 'task' ? styles.taskCard : styles.calendarCard
+                    ]}>
+                        <View style={[
+                            styles.cardAccent,
+                            event.itemType === 'task' ? styles.taskAccent : styles.calendarAccent
+                        ]} />
                         <View style={styles.eventTimeContainer}>
-                            <Text style={styles.eventTime}>
-                                {event.start?.dateTime
+                            <Text style={[
+                                styles.eventTime,
+                                event.itemType === 'task' ? styles.taskTime : styles.calendarTime
+                            ]}>
+                                {event.allDayEvent ? "All day" :
+                                 event.start?.dateTime
                                     ? new Date(event.start.dateTime).toLocaleTimeString([], {
                                         hour: "2-digit",
                                         minute: "2-digit",
@@ -44,7 +56,12 @@ const EventList = ({events, onUpdate}) => {
                         </View>
 
                         <View style={styles.eventDetails}>
-                            <Text style={styles.eventTitle}>{event.summary}</Text>
+                            <Text style={[
+                                styles.eventTitle,
+                                event.itemType === 'task' ? styles.taskTitle : styles.calendarTitle
+                            ]}>
+                                {event.summary}
+                            </Text>
                             <Text style={styles.eventSubtitle}>{event.description || "No additional details"}</Text>
                             <View style={styles.locationContainer}>
                                 <Ionicons name="location-outline" size={16} color={theme.colors.grayDark}/>
@@ -52,9 +69,14 @@ const EventList = ({events, onUpdate}) => {
                             </View>
                         </View>
 
-                        <TouchableOpacity onPress={() => handleEditPress(event)}>
-                            <Ionicons name="ellipsis-vertical" size={22} color={theme.colors.grayDark}/>
-                        </TouchableOpacity>
+                        {event.itemType === 'task' && (
+                            <TouchableOpacity 
+                                style={styles.editButton} 
+                                onPress={() => handleEditPress(event)}
+                            >
+                                <Ionicons name="ellipsis-vertical" size={22} color={theme.colors.grayDark}/>
+                            </TouchableOpacity>
+                        )}
                     </View>
                 ))
             ) : (
@@ -94,25 +116,55 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
         elevation: 2,
         alignItems: "center",
+        overflow: 'hidden',
+    },
+    cardAccent: {
+        position: 'absolute',
+        left: 0,
+        top: 0,
+        bottom: 0,
+        width: 4,
+    },
+    taskAccent: {
+        backgroundColor: theme.colors.primary,
+    },
+    calendarAccent: {
+        backgroundColor: '#4285F4', // Google Calendar blue
+    },
+    taskCard: {
+        backgroundColor: '#FAFAFA',
+    },
+    calendarCard: {
+        backgroundColor: '#FFFFFF',
     },
     eventTimeContainer: {
         width: 80,
         marginRight: 10,
         alignItems: "center",
+        marginLeft: 8,
     },
     eventTime: {
         fontSize: 14,
-        fontWeight: "bold",
-        color: theme.colors.dark,
-        opacity: 0.8,
+        fontWeight: "600",
+    },
+    taskTime: {
+        color: theme.colors.primary,
+    },
+    calendarTime: {
+        color: '#4285F4',
     },
     eventDetails: {
         flex: 1,
     },
     eventTitle: {
         fontSize: 16,
-        fontWeight: "bold",
+        fontWeight: "600",
+    },
+    taskTitle: {
         color: theme.colors.dark,
+    },
+    calendarTitle: {
+        color: '#1A73E8',
     },
     eventSubtitle: {
         fontSize: 14,
@@ -122,7 +174,7 @@ const styles = StyleSheet.create({
     eventLocation: {
         fontSize: 14,
         color: theme.colors.grayDark,
-        marginTop: 5,
+        marginLeft: 4,
     },
     noEventsContainer: {
         alignItems: "center",
@@ -136,5 +188,8 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         marginTop: 5,
+    },
+    editButton: {
+        padding: 8,
     },
 });
