@@ -49,7 +49,7 @@ const MapScreen = () => {
     }
 //     return (<InnerMapScreen buildingKey={buildingKey}/>);
 // };
-// const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+// const InnerMapScreen = ({buildingKey}) => {
 //     const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
@@ -192,7 +192,7 @@ const MapScreen = () => {
             if (floorChanges.length > 0) {
                 let message = "There are floor changes in you path, you need to go:\n";
                 floorChanges.forEach(change => {
-                    message += `- From ${change.previousFloor} to ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
+                    message += `- From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
                 alert(message);
             }
@@ -233,6 +233,7 @@ const MapScreen = () => {
         // const startId = "h8_815"; // Only use for testing, remove later.
         const campus = "hall"; // Only use for testing, remove later.
 
+        console.log({startLocationIndoor}) // Used only for testing, remove later.
         console.log({endId}) // Used only for testing, remove later.
         console.log({ endId, transformedEndId }); // Used only for testing, remove later.
 
@@ -262,6 +263,14 @@ const MapScreen = () => {
         setShowSearchBar(true);
     };
 
+    useEffect(() => {
+        if (startLocationIndoor && selectedSection?.id) {
+            handleShowDirections(selectedSection.id);
+            handleShowDirectionsTemp();
+        }
+    }, [startLocationIndoor, selectedSection?.id]);
+
+
     const closeIndoorSearchBars = (bool) => {
         setShowSearchBar(false);
     };
@@ -282,9 +291,20 @@ const MapScreen = () => {
                         <IndoorSearchBars
                             startLocation={startLocationIndoor}
                             setStartLocation={setStartLocationIndoor}
+
+
+                            onShowDirectionsUpdate={() => handleShowDirections(selectedSection?.id)}
+                            onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
+
                             // startLocation={selectedSection?.id}
                             destination={selectedSection?.id}
                             onBackPress={() => closeIndoorSearchBars(false)}
+
+                            navigation={navigation}
+                            // setSelectedFloorKey={setSelectedFloorKey}
+                            // setSelectedSection={setSelectedSection}
+                            resetTransform={resetTransform}
+
                         />
 
                     )}
@@ -392,10 +412,9 @@ const MapScreen = () => {
                         selectedFloorKey={selectedFloorKey}
                         setSelectedFloorKey={(floor) => {
                             if (path) {
-                                // Check if the selected floor is in the path
                                 const validFloors = path.map(nodeId => getNodeData(nodeId)?.floor_number);
                                 if (!validFloors.includes(floor)) {
-                                    setPath(null);  // Reset path if the floor is not in the path
+                                    setPath(null);
                                     setSelectedPath(null);
                                     setShowSearchBar(false);
                                 }

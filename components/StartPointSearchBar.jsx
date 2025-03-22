@@ -31,8 +31,8 @@ const StartPointSearchBar = ({ navigation,
         setSearchQuery('');
         setSearchResults([]);
         setSearchActive(false);
-        // setSelectedSection(null);  // Remove selection
-        resetTransform();  // Reset zoom and position
+        // setSelectedSection(null);
+        resetTransform();
     };
 
     const handleSearchStartLocation = (query) => {
