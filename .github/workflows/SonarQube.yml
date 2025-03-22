@@ -65,7 +65,7 @@ jobs:
             pip install coverage
             cd ./api
             coverage run -m pytest
-            coverage xml -i
+            coverage xml 
             echo "Checking if coverage directory exists..."
             ls -l coverage.xml || echo "❌ Coverage folder not found"
             cd ../
