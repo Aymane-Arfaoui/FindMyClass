@@ -63,14 +63,8 @@ jobs:
             pip install dotenv
             pip install flask_cors
             pip install coverage
-            cd ./api
             coverage run -m pytest
-            coverage xml 
-            echo "Checking if coverage directory exists..."
-            ls -l coverage.xml || echo "❌ Coverage folder not found"
-            cd ../
-            echo "Checking if coverage directory exists..."
-            ls -l ./api/coverage.xml || echo "❌ Coverage folder not found"
+            coverage xml
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
@@ -82,6 +76,6 @@ jobs:
             -D sonar.sources=Config,api,app,components,constants,context,helpers,services
             -D sonar.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
-            -D sonar.python.coverage.reportPaths=api/coverage.xml
+            -D sonar.python.coverage.reportPaths=coverage.xml
             -D sonar.coverage.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
             -D sonar.verbose=true

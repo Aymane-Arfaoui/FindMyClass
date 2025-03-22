@@ -22,7 +22,13 @@ def indoor_navigation():
     campus = request.args.get('campus')
     print(start_id,end_id,campus)
     accessibility = request.args.get('accessibility')
-    file_path = Path(f'app/data/campus_jsons/{campus}')
+    current_directory = Path(os.getcwd())
+
+    #    If we're not in the 'api' directory, prepend it to the path
+    if 'api' not in current_directory.parts:
+        current_directory = current_directory / 'api'
+
+    file_path = current_directory / f'app/data/campus_jsons/{campus}'
 
     if os.path.exists(file_path) is False:
         return jsonify({"error": "Campus not found"}), 400
