@@ -84,7 +84,18 @@ const Calendar = ({ events: propEvents }) => {
 
             if (coordinates) {
                 console.warn(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
-                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
+                const encodedAddress = encodeURIComponent(event.location);
+                router.push({
+                    pathname: "/homemap",
+                    params: {
+                        lat: coordinates.latitude.toString(),
+                        lng: coordinates.longitude.toString(),
+                        room: roomNumber,
+                        address: encodedAddress,
+                        directionsTriggered: 'true' // ✅ Key flag
+                    }
+                });
+
             } else {
                 console.error("Failed to fetch building coordinates.");
             }
@@ -143,14 +154,20 @@ const Calendar = ({ events: propEvents }) => {
                                 )}
                             </View>
                             {activeEvent === event && (
-                                <TouchableOpacity
-                                    style={styles.directionButton}
-                                    onPress={() => handleGetDirections(event)}
-                                >
-                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                                    <Text style={styles.directionButtonText}>Get Directions</Text>
-                                </TouchableOpacity>
+                                event.location ? (
+                                    <TouchableOpacity
+                                        style={styles.directionButton}
+                                        onPress={() => handleGetDirections(event)}
+                                    >
+                                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
+                                        <Text style={styles.directionButtonText}>Get Directions</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Text style={styles.noLocationText}>No location for this event</Text>
+                                )
                             )}
+
+
                         </TouchableOpacity>
                     ))
                 ) : (
@@ -261,6 +278,14 @@ const styles = StyleSheet.create({
         color: theme.colors.dark,
         opacity: 0.7,
     },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: 'gray',
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2), // align it visually with event content
+    },
+
 });
 
 export default Calendar;
