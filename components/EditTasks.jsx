@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View, Alert} from "react-native";
+import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
@@ -70,7 +70,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
 
             // Save back to storage
             await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-            
+
             onClose();
             if (onUpdate) {
                 onUpdate();
@@ -105,7 +105,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
 
                             // Save back to storage
                             await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-                            
+
                             onClose();
                             if (onUpdate) {
                                 onUpdate();
@@ -242,12 +242,12 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
 
                     <View style={styles.buttonContainer}>
                         <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTask}>
-                            <Ionicons name="trash-outline" size={24} color={theme.colors.white} />
+                            <Ionicons name="trash-outline" size={24} color={theme.colors.white}/>
                             <Text style={styles.deleteButtonText}>Delete Task</Text>
                         </TouchableOpacity>
 
                         <TouchableOpacity style={styles.editTaskSaveButton} onPress={handleUpdateTask}>
-                            <Ionicons name="save-outline" size={24} color={theme.colors.white} />
+                            <Ionicons name="save-outline" size={24} color={theme.colors.white}/>
                             <Text style={styles.editTaskSaveButtonText}>Update Task</Text>
                         </TouchableOpacity>
                     </View>
@@ -314,7 +314,7 @@ const styles = StyleSheet.create({
     },
     editTaskSaveButton: {
         flexDirection: 'row',
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.grayDark,
         paddingVertical: 14,
         paddingHorizontal: 20,
         borderRadius: 15,
@@ -333,7 +333,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 10,
+        marginBottom: 20,
     },
     editTaskAllDayContainer: {
         marginBottom: 10,
@@ -345,6 +345,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginTop: 20,
+        marginBottom: 20,
     },
     deleteButton: {
         flexDirection: 'row',
