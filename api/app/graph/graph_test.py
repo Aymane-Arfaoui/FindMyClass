@@ -7,7 +7,12 @@ import os
 def graph():
     SCALE_FACTOR_METERS_PER_UNIT = 0.05
     graph = Graph(scale_factor=SCALE_FACTOR_METERS_PER_UNIT)
-    file_path = Path(f'app/data/campus_jsons/hall')
+    current_directory = Path(os.getcwd())
+    # If we're not in the 'api' directory, prepend it to the path
+    if 'api' not in current_directory.parts:
+        current_directory = current_directory / 'api'
+
+    file_path = current_directory / f'app/data/campus_jsons/hall'
     graph.load_from_json_folder(file_path)
     return graph
 
