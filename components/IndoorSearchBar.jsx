@@ -11,6 +11,7 @@ import { floorsData } from "@/constants/floorData";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { parse, getBounds } from 'svg-path-bounds';
+import PropTypes from "prop-types";
 
 
 const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, resetTransform }) => {
@@ -139,7 +140,12 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
         </View>
     );
 };
-
+IndoorSearchBar.propTypes={
+    navigation: PropTypes.any,
+    setSelectedFloorKey: PropTypes.func,
+    setSelectedSection: PropTypes.func,
+    resetTransform: PropTypes.func
+}
 export default IndoorSearchBar;
 
 const styles = StyleSheet.create({

@@ -17,6 +17,7 @@ const styles = StyleSheet.create({
     },
 });
 ScreenWrapper.propTypes={
+    children: PropTypes.node,
     containerStyle:PropTypes.object
 }
 
