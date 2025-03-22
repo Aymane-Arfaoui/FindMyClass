@@ -1,6 +1,0 @@
-[run]
-branch = true
-relative_files = true
-include =
-    test/*
-    app/*
