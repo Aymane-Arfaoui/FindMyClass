@@ -9,6 +9,7 @@ import * as Google from 'expo-auth-session/providers/google';
 import { getUserInfo } from "@/services/userService";
 import { getCalendarEvents } from "@/services/calendarService";
 
+
 const { width } = Dimensions.get("window");
 
 WebBrowser.maybeCompleteAuthSession();
@@ -16,7 +17,7 @@ WebBrowser.maybeCompleteAuthSession();
 const AppNavigationPanel = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const [user,setUser] = React.useState(null);
+    const [user, setUser] = React.useState(null);
     const [isLoading, setLoading] = React.useState(false);
 
     const [request, response, promptAsync] = Google.useAuthRequest({
