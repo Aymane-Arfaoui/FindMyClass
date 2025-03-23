@@ -3,8 +3,8 @@ import {Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} fr
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from "@/constants/theme";
 import Config from 'react-native-config';
-import debounce from 'lodash.debounce';
-import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent} from 'expo-speech-recognition';
+import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
+import PropTypes from 'prop-types';
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 const GOOGLE_PLACES_URL = "https://places.googleapis.com/v1/places:autocomplete";
@@ -48,6 +48,7 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
     useSpeechRecognitionEvent("result", (event) => {
         if (event.results && event.results.length > 0) {
             const text = event.results[0].transcript;
+            googleRef?.current?.setAddressText(text);
             setInputText(text);
             fetchPredictions(text);
         }
@@ -195,8 +196,10 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
     );
 };
 
-export default MainSearchBar;
-
+MainSearchBar.propTypes = {
+    onLocationSelect: PropTypes.func.isRequired,
+    onBuildingPress: PropTypes.func.isRequired,
+};
 
 const styles = StyleSheet.create({
     container: {
