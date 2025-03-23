@@ -43,4 +43,4 @@ app-example
 # misc
 */__pycache__
 __pycache__/
-__pycache__
+*.pyc

@@ -8,6 +8,8 @@ import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchBuildingCoordinates } from "@/services/buildingService";
 import { calendarService } from '@/services/calendarService';
+import PropTypes from "prop-types";
+
 
 const Calendar = ({ events: propEvents }) => {
     const router = useRouter();
@@ -189,7 +191,9 @@ const Calendar = ({ events: propEvents }) => {
         </View>
     );
 };
-
+Calendar.propTypes={
+    events: PropTypes.any
+}
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',

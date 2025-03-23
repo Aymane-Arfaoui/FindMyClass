@@ -11,6 +11,7 @@ import { floorsData } from "@/constants/floorData";
 import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { parse, getBounds } from 'svg-path-bounds';
+import PropTypes from "prop-types";
 
 
 const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, resetTransform }) => {
@@ -117,7 +118,7 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
                 onChangeText={handleSearch}
             />
             {searchQuery.length > 0 && (
-                <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton}>
+                <TouchableOpacity onPress={handleClearSearch} style={styles.clearButton} testID="clear-button">
                     <Ionicons name="close-circle" size={20} color={theme.colors.grayDark} />
                 </TouchableOpacity>
             )}
@@ -139,7 +140,12 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
         </View>
     );
 };
-
+IndoorSearchBar.propTypes={
+    navigation: PropTypes.any,
+    setSelectedFloorKey: PropTypes.func,
+    setSelectedSection: PropTypes.func,
+    resetTransform: PropTypes.func
+}
 export default IndoorSearchBar;
 
 const styles = StyleSheet.create({
