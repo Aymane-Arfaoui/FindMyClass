@@ -52,11 +52,19 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python }}
-      - name: Install tox and any other packages
-        run: pip install tox
-      - name: Run tox
+      - name: Run python test
         if: always()
-        run: tox -e py || true
+        run: |
+            pip install pytest
+            pip install pytest-cov
+            pip install networkx
+            pip install flask
+            pip install flask_session
+            pip install dotenv
+            pip install flask_cors
+            pip install coverage
+            coverage run -m pytest
+            coverage xml
       - name: 🔍 Run SonarCloud Scan
         uses: sonarsource/sonarcloud-github-action@v2
         env:
@@ -66,7 +74,7 @@ jobs:
             -D sonar.organization=aymane-arfaoui
             -D sonar.projectKey=Aymane-Arfaoui_FindMyClass
             -D sonar.sources=Config,api,app,components,constants,context,helpers,services
-            -D sonar.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
+            -D sonar.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py,*/api/test/*
             -D sonar.javascript.lcov.reportPaths=coverage/lcov.info
             -D sonar.python.coverage.reportPaths=coverage.xml
             -D sonar.coverage.exclusions=**/__tests__/**,**/Services/coordinate_mapper.py
