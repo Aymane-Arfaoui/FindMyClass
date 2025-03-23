@@ -22,7 +22,7 @@ const Calendar = ({ events: propEvents }) => {
     }, []);
 
     useEffect(() => {
-        calendarService.addListener(updateEvents);
+        calendarService?.addListener(updateEvents);
 
         const fetchEventsOnMount = async () => {
             const storedEvents = await AsyncStorage.getItem("@calendar");
@@ -31,13 +31,13 @@ const Calendar = ({ events: propEvents }) => {
             }
             const token = await AsyncStorage.getItem("@accessToken");
             if (token) {
-                await calendarService.fetchAndUpdateEvents(token);
+                await calendarService?.fetchAndUpdateEvents(token);
             }
         };
         fetchEventsOnMount();
 
         return () => {
-            calendarService.removeListener(updateEvents);
+            calendarService?.removeListener(updateEvents);
         };
     }, [updateEvents]);
 
@@ -49,7 +49,7 @@ const Calendar = ({ events: propEvents }) => {
         setIsRefreshing(true);
         const token = await AsyncStorage.getItem("@accessToken");
         if (token) {
-            await calendarService.fetchAndUpdateEvents(token);
+            await calendarService?.fetchAndUpdateEvents(token);
         } else {
             setIsRefreshing(false);
             console.warn("No access token found. Please sign in again.");
