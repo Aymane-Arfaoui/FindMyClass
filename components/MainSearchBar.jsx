@@ -5,6 +5,7 @@ import {theme} from "@/constants/theme";
 import Config from 'react-native-config';
 import debounce from 'lodash.debounce';
 import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent} from 'expo-speech-recognition';
+import PropTypes from "prop-types";
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 const GOOGLE_PLACES_URL = "https://places.googleapis.com/v1/places:autocomplete";
@@ -193,6 +194,11 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
             />
         </View>
     );
+};
+
+MainSearchBar.propTypes = {
+    onLocationSelect: PropTypes.func.isRequired,
+    onBuildingPress: PropTypes.func.isRequired,
 };
 
 export default MainSearchBar;

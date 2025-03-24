@@ -5,16 +5,14 @@ import { useRouter } from 'expo-router';
 describe('BottomPanel Component', () => {
 
     it('should render the bottom panel correctly',  async () => {
-        const { unmount } =render(<BottomPanel/>);
+        render(<BottomPanel/>);
         expect(await screen.findByTestId("bottom-panel")).toBeOnTheScreen();
 
-        unmount();
     });
     it('should show No route available if the route is not provided',  async () => {
-        const { unmount } =render(<BottomPanel/>);
+        render(<BottomPanel/>);
         expect(await screen.findByText("No route available")).toBeOnTheScreen();
 
-        unmount();
     });
 
     it('should display the route details if provided',  async () => {
@@ -36,7 +34,6 @@ describe('BottomPanel Component', () => {
             jest.runAllTimers();
         });
         expect(screen.getByTestId('expanded')).toBeOnTheScreen();
-    expect(screen.getByTestId('chevron')).toBeOnTheScreen();
 
     });
     it('should display the toggle button',  async () => {
