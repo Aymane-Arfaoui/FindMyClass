@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View, Alert} from "react-native";
+import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
@@ -40,21 +40,18 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
 
     const saveTaskToStorage = async (newTask) => {
         try {
-           
+
             const existingTasksJson = await AsyncStorage.getItem('tasks');
             const existingTasks = existingTasksJson ? JSON.parse(existingTasksJson) : [];
-            
-            //eahc new task has its own id using the time
             const taskWithId = {
                 ...newTask,
-                id: Date.now().toString(), 
+                id: Date.now().toString(),
                 createdAt: new Date().toISOString()
             };
-            
-            // Add to array + save
+
             const updatedTasks = [...existingTasks, taskWithId];
             await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-            
+
             return taskWithId;
         } catch (error) {
             console.error('Error saving task:', error);
@@ -74,18 +71,17 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                 notes,
                 address,
                 date: date.toISOString(),
-                startTime: allDayEvent ? 'All Day' : startTime.toISOString(),
-                endTime: allDayEvent ? 'All Day' : endTime.toISOString(),
+                startTime: allDayEvent ? null : startTime.toISOString(),
+                endTime: allDayEvent ? null : endTime.toISOString(),
                 allDayEvent
             };
 
             const savedTask = await saveTaskToStorage(newTask);
-            
-    
+
+
             resetForm();
             onClose();
-            
-            // Notify parent component if callback exists ; On taskCXreated allows us to update the task list in the parent component
+
             if (onTaskCreated) {
                 onTaskCreated(savedTask);
             }

@@ -1,25 +1,25 @@
 export const lightColors = {
-    colors: {
-        primary: '#912238',        // Main brand color - deep maroon
-        primaryLight: '#B15A6C',   // Lighter version of primary for hover states
-        primaryDark: '#6D1A2A',    // Darker version of primary for depth
-        secondary: '#F5E6E8',      // Very light pink for subtle backgrounds
-        dark: '#1A1A1A',          // Near black for primary text
-        darkLight: '#4A4A4A',     // Softer dark for secondary text
-        gray: '#E5E5E5',          // Light gray for borders
-        grayDark: '#757575',      // Darker gray for subtle text
-        text: '#2D2D2D',          // Primary text color
-        textLight: '#6E6E6E',     // Secondary text color
-        white: '#FFFFFF',         // Pure white
-        button: '#912238',        // Using primary color for buttons
-        loading: '#912238',       // Matching button color
-        success: '#2D8A6B',       // Green for success states
-        warning: '#F0B775',       // Warm orange for warnings
-        error: '#D64045',         // Red for errors
-        background: '#FAFAFA', // Very light gray for backgrounds
-        blueDark: '#004085',      // Dark blue for the buttons
-        blueLight: '#1A73E8'      // Light blue for the buttons
-    },
+    primary: '#912238',        // Main brand color - deep maroon
+    primaryLight: '#B15A6C',   // Lighter version of primary for hover states
+    primaryDark: '#6D1A2A',    // Darker version of primary for depth
+    secondary: '#F5E6E8',      // Very light pink for subtle backgrounds
+    secondaryDark: '#D2A4A8',
+    dark: '#1A1A1A',          // Near black for primary text
+    darkLight: '#4A4A4A',     // Softer dark for secondary text
+    gray: '#E5E5E5',          // Light gray for borders
+    grayDark: '#757575',      // Darker gray for subtle text
+    text: '#2D2D2D',          // Primary text color
+    textLight: '#6E6E6E',     // Secondary text color
+    white: '#FFFFFF',         // Pure white
+    button: '#912238',        // Using primary color for buttons
+    loading: '#912238',       // Matching button color
+    success: '#2D8A6B',       // Green for success states
+    warning: '#F0B775',       // Warm orange for warnings
+    error: '#D64045',         // Red for errors
+    background: '#FAFAFA', // Very light gray for backgrounds
+    blueDark: '#004085',      // Dark blue for the buttons
+    blueLight: '#1A73E8'      // Light blue for the buttons
+
 }
 export const darkColors = {
     primary: '#A8324A',

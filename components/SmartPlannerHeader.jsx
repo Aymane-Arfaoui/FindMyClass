@@ -76,14 +76,14 @@ const styles = StyleSheet.create({
         alignItems: "center",
     },
     todayButton: {
-        backgroundColor: theme.colors.secondary,
+        backgroundColor: theme.colors.primary,
         paddingVertical: 10,
         paddingHorizontal: 15,
         borderRadius: 10,
         marginRight: 20,
     },
     todayText: {
-        color: theme.colors.primary,
+        color: theme.colors.white,
         fontWeight: "bold",
     },
     addButton: {

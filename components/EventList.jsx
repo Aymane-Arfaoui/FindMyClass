@@ -4,6 +4,13 @@ import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import EditTasks from "@/components/EditTasks";
 
+export const getLocalDateString = (dateInput) => {
+    if (!dateInput) return null;
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleDateString("en-CA");
+};
+
 const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute, resetSelectionFlag}) => {
     const [selectedRouteIds, setSelectedRouteIds] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
@@ -42,16 +49,10 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                     const isSelected = selectedRouteIds.includes(event.id);
 
                     const handleSelect = () => {
-                        const eventDate = new Date(event.start?.dateTime || event.start?.date)
-                            .toISOString()
-                            .split("T")[0];
-
+                        const eventDate = event.start?.date || getLocalDateString(event.start?.dateTime || event.date);
                         let updated = [...selectedRouteIds];
-
                         if (isSelected) {
                             updated = updated.filter(id => id !== event.id);
-
-                            // If no events left, reset the route selection date
                             if (updated.length === 0) {
                                 setRouteSelectionDate(null);
                             }
@@ -61,7 +62,6 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                                 return;
                             }
 
-                            // If first selection, set the route date
                             if (!routeSelectionDate) {
                                 setRouteSelectionDate(eventDate);
                             } else if (eventDate !== routeSelectionDate) {
@@ -80,7 +80,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                             routeDict[(idx + 1).toString()] = [
                                 e.summary,
                                 e.location || "No location",
-                                new Date(e.start?.dateTime || e.start?.date).toISOString().split("T")[0],
+                                eventDate,
                                 e.start?.dateTime
                                     ? new Date(e.start.dateTime).toLocaleTimeString([], {
                                         hour: "2-digit",
@@ -233,10 +233,10 @@ const styles = StyleSheet.create({
         width: 4,
     },
     taskAccent: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.secondaryDark,
     },
     calendarAccent: {
-        backgroundColor: theme.colors.blueDark,
+        backgroundColor: theme.colors.primary,
     },
     taskCard: {
         backgroundColor: '#FAFAFA',
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
         color: theme.colors.dark,
     },
     calendarTitle: {
-        color: theme.colors.blueDark,
+        color: theme.colors.dark,
     },
     eventSubtitle: {
         fontSize: 14,

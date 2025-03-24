@@ -3,19 +3,19 @@ import {ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'reac
 import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Ionicons} from '@expo/vector-icons';
-
 import ScreenWrapper from '../components/ScreenWrapper';
 import AppNavigationPanel from '@/components/AppNavigationPannel';
 import WeekNavigation from '@/components/WeekNavigation';
-import EventList from '@/components/EventList';
+import EventList, {getLocalDateString} from '@/components/EventList';
 import CreateTask from '@/components/CreateTask';
 import {theme} from '@/constants/theme';
 import SmartPlannerHeader from "@/components/SmartPlannerHeader";
 
+
 const SmartPlanner = () => {
     const router = useRouter();
     const currentDate = new Date();
-    const [selectedDate, setSelectedDate] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDate, setSelectedDate] = useState(getLocalDateString(new Date()));
     const [events, setEvents] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [isAddModalVisible, setIsAddModalVisible] = useState(false);
@@ -49,7 +49,12 @@ const SmartPlanner = () => {
             }
 
             const filteredEvents = parsedEvents.filter(event => {
-                const eventDate = new Date(event.start?.dateTime || event.start?.date).toISOString().split('T')[0];
+                let eventDate;
+                if (event.start?.date) {
+                    eventDate = event.start.date;
+                } else {
+                    eventDate = getLocalDateString(event.start?.dateTime);
+                }
                 const calendarName = event.calendarName || 'Main';
                 return eventDate === selectedDate && selectedCalendars[calendarName];
             }).map(event => ({
@@ -65,15 +70,20 @@ const SmartPlanner = () => {
         if (storedTasks) {
             const parsedTasks = JSON.parse(storedTasks);
             const filteredTasks = parsedTasks.filter(task => {
-                const taskDate = new Date(task.date).toISOString().split('T')[0];
+                const taskDate = getLocalDateString(task.date);
                 return taskDate === selectedDate;
             }).map(task => ({
                 itemType: 'task',
                 summary: task.taskName,
                 description: task.notes,
                 location: task.address,
-                start: {dateTime: task.allDayEvent ? null : task.startTime},
-                end: {dateTime: task.allDayEvent ? null : task.endTime},
+                start: task.allDayEvent
+                    ? {date: getLocalDateString(task.date)}
+                    : {dateTime: task.startTime},
+                end: task.allDayEvent
+                    ? {date: getLocalDateString(task.date)}
+                    : {dateTime: task.endTime},
+
                 allDayEvent: task.allDayEvent,
                 id: task.id
             }));
@@ -137,7 +147,7 @@ const SmartPlanner = () => {
             alert("Please select at least one event with an address.");
             return;
         }
-        // console.log("Submitting route:", selectedRouteEvents);
+        console.log("Submitting route:", selectedRouteEvents);
         setIsPlanRouteMode(false);
         setResetSelectionFlag(prev => !prev);
     };
