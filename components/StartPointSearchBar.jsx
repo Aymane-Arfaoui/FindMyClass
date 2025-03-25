@@ -36,7 +36,7 @@ const StartPointSearchBar = ({ navigation,
     };
 
     const handleSearchStartLocation = (query) => {
-        console.log("213123AAAAAAAAAAAAAAAAA23123123 TEST:" + query );
+        console.log("123AAA123 TEST:" + query );
         setSearchQuery(query);
         let results = [];
 
@@ -47,10 +47,10 @@ const StartPointSearchBar = ({ navigation,
         }
 
         Object.keys(floorsData).forEach((buildingKey) => {
-            const buildingFloors = floorsData[buildingKey];
+            const buildingFloorsSP = floorsData[buildingKey];
 
-            Object.keys(buildingFloors).forEach((floorKey) => {
-                const { sections } = buildingFloors[floorKey];
+            Object.keys(buildingFloorsSP).forEach((floorKey) => {
+                const { sections } = buildingFloorsSP[floorKey];
 
                 sections.forEach((section) => {
                     if (section.id.toLowerCase().includes(query.toLowerCase())) {
