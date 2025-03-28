@@ -52,7 +52,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
                 {routeDetails ? (
                     <View testID={'route-details'}>
                         <Text style={styles.text}>
-                            Duration: {matchedTime ? matchedTime : (selectedRoute?.duration || routeDetails?.duration || "N/A")}
+                            Duration: {matchedTime || selectedRoute?.duration || routeDetails?.duration || "N/A"}
                         </Text>
                         <Text style={styles.subText}>
                             {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
@@ -179,7 +179,8 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
 BottomPanel.propTypes={
     transportMode:PropTypes.string,
     routeDetails:PropTypes.object,
-    routes:PropTypes.array
+    routes:PropTypes.array,
+    travelTimes: PropTypes.object
 }
 
 

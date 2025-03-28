@@ -161,7 +161,6 @@ SearchBars.propTypes={
     onBackPress:PropTypes.func,
     modeSelected:PropTypes.string,
     setModeSelected:PropTypes.func,
-    travelTimes:PropTypes.object,
-    setTravelTimes:PropTypes.func
+    travelTimes:PropTypes.object
 }
 export default SearchBars;
