@@ -14,11 +14,12 @@ jest.mock('expo-router',
 jest.mock('expo-font');
 
 jest.mock('react-native-vector-icons/FontAwesome', () => 'Icon');
+jest.mock('@expo/vector-icons', () => ({
+    Ionicons: () => null,
+    FontAwesome:()=>null
+}));
 jest.mock('@react-navigation/native', () => ({
-    useNavigation: ()=>({
-        navigate:jest.fn(),
-        goBack:jest.fn()
-    }),
+    useNavigation: jest.fn(),
     useRoute: jest.fn(),
 }));
 

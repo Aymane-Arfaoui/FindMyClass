@@ -64,6 +64,7 @@ function BuildingDetailsPanel({
             style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
         >
             <TouchableOpacity
+                testID={'close-button'}
                 onPress={onClose}
                 style={styles.closeButton}
                 activeOpacity={0.7}
@@ -74,36 +75,38 @@ function BuildingDetailsPanel({
             <View style={styles.dragBar}/>
 
             {loading ? (
-                <ActivityIndicator size="large" color={theme.colors.primary}/>
+                <ActivityIndicator size="large" color={theme.colors.primary} testID={'loading-indicator'}/>
             ) : (
                 <>
                     <Text style={styles.buildingName}>
                         {selectedBuilding?.name || "Loading..."}
                     </Text>
 
-                        {buildingDetails && (
-                            <>
-                                {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
-                                    <Image
-                                        source={{
-                                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
-                                        }}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                ) : (
-                                    <Image
-                                        source={{uri: DEFAULT_IMAGE_URL}}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                )}
+                    {buildingDetails && (
+                        <>
+                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
+                                <Image
+                                    source={{
+                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
+                                    }}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'building-image'}
+                                />
+                            ) : (
+                                <Image
+                                    source={{uri: DEFAULT_IMAGE_URL}}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'default-image'}
+                                />
+                            )}
 
-                                <Text style={styles.buildingDetails}>
-                                    {buildingDetails.formatted_address}
-                                </Text>
-                            </>
-                        )}
+                            <Text style={styles.buildingDetails}>
+                                {buildingDetails.formattedAddress || "No address available"}
+                            </Text>
+                        </>
+                    )}
 
 
                     {!buildingKey && (
@@ -184,6 +187,7 @@ function BuildingDetailsPanel({
                     </Modal>
                     {buildingKey && (
                         <TouchableOpacity
+                            testID={'indoor-map-button'}
                             style={styles.indoorMapButton}
                             onPress={() => {
                                 navigation.navigate("MapScreen", { buildingKey });
@@ -197,7 +201,7 @@ function BuildingDetailsPanel({
             )}
         </Animated.View>
     );
-};
+}
 
 BuildingDetailsPanel.propTypes={
     selectedBuilding: PropTypes.any,

@@ -22,7 +22,7 @@ function hasIndoorMapBottomPanel(buildingName = "") {
 }
 
 
-const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding }) => {
+const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes }) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -53,6 +53,15 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
     const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle");
     const otherTransitRoutes = routes?.filter((r) => r.mode !== "shuttle");
 
+    const modeMapping = {
+        driving: "DRIVE",
+        transit: "TRANSIT",
+        walking: "WALK",
+        bicycling: "BICYCLE",
+    };
+
+    const matchedTime = selectedRoute ? travelTimes[modeMapping[selectedRoute.mode]] : null;
+
 
     const buildingKey = selectedBuilding ? hasIndoorMapBottomPanel(selectedBuilding.name) : null;
 
@@ -73,7 +82,7 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
                 {routeDetails ? (
                     <View testID={'route-details'}>
                         <Text style={styles.text}>
-                            {selectedRoute ? `Duration: ${selectedRoute.duration}` : `Duration: ${routeDetails?.duration || 'N/A'}`}
+                            Duration: {matchedTime || selectedRoute?.duration || routeDetails?.duration || "N/A"}
                         </Text>
                         <Text style={styles.subText}>
                             {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
@@ -215,6 +224,7 @@ BottomPanel.propTypes={
     routes:PropTypes.array,
     wantsClassroom: PropTypes.bool,
     selectedBuilding: PropTypes.object,
+    travelTimes: PropTypes.object
 }
 
 
@@ -427,4 +437,3 @@ const styles = StyleSheet.create({
 });
 
 export default BottomPanel;
-
