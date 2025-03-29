@@ -225,7 +225,6 @@ const MapScreen = () => {
         const buildingFloors = floorsData[buildingKey];
         let foundSection = null;
 
-        // Iterate through all floors of the current building
         Object.values(buildingFloors).forEach(floor => {
             const section = floor.sections.find(s => s.id === nodeId);
             if (section) {
@@ -275,6 +274,7 @@ const MapScreen = () => {
 
 
     // Change it to accept selectedSection only without .id (check current uses)
+    //Update: Function not in use anymore, remove later when sure it's not needed.
     const handleShowDirections = async (endId) => {
 
         if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId)){
@@ -402,7 +402,7 @@ const MapScreen = () => {
     useEffect(() => {
         if (startLocationIndoor && selectedSection?.id) {
             // handleShowDirections(selectedSection.id); // Change it to pass selectedSection only without .id
-            handleShowDirectionsSection(selectedSection); // Change it to pass selectedSection only without .id
+            handleShowDirectionsSection(selectedSection);
             handleShowDirectionsTemp();
         }
     }, [startLocationIndoor, selectedSection?.id]);
@@ -432,7 +432,7 @@ const MapScreen = () => {
 
                             // onShowDirectionsUpdate={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
                             // onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection?.selectedSection)} // Change it to pass selectedSection only without .id
-                            onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection)} // Change it to pass selectedSection only without .id
+                            onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection)}
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
                             // startLocation={selectedSection?.id}
@@ -563,7 +563,7 @@ const MapScreen = () => {
                         }}
                         // onChangeUpdateRoute={() => handleShowDirections(selectedSection?.id)}  // Change it to pass selectedSection only without .id
                         // onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection?.self)}  // Change it to pass selectedSection only without .id
-                        onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection)}  // Change it to pass selectedSection only without .id
+                        onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection)}
                         // onChangeUpdateRouteTemp={handleShowDirectionsTemp} //ADD HERE
                     />
                     <SectionPanel
@@ -573,7 +573,7 @@ const MapScreen = () => {
                         panelY={panelY}
                         // onShowDirections={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
                         // onShowDirections={() => handleShowDirectionsSection(selectedSection?.self)} // Change it to pass selectedSection only without .id
-                        onShowDirections={() => handleShowDirectionsSection(selectedSection)} // Change it to pass selectedSection only without .id
+                        onShowDirections={() => handleShowDirectionsSection(selectedSection)}
                         onShowDirectionsTemp={handleShowDirectionsTemp}
 
 

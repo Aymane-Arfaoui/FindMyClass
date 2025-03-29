@@ -39,6 +39,8 @@ export default function Homemap() {
     const [places, setPlaces] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
 
+    const [wantsClassroom, setWantsClassroom] = useState(false);
+
     useEffect(() => {
         let isMounted = true;
         const fetchInitialLocation = async () => {
@@ -167,10 +169,11 @@ export default function Homemap() {
             setLoading(false);
         }
     };
-    const handleDirectionPress = async (origin, dest, mode) => {
+    const handleDirectionPress = async (origin, dest, mode, wantsClassroom) => {
         setLoading(true);
         setCurrentOrigin(origin);
         setCurrentDestination(dest);
+        setWantsClassroom(wantsClassroom);
 
         try {
             const originCoords = origin.geometry?.coordinates;
@@ -184,7 +187,6 @@ export default function Homemap() {
             const formattedOrigin = `${originCoords[1]},${originCoords[0]}`;
             const formattedDestination = `${destCoords[1]},${destCoords[0]}`;
 
-
             const times = await fetchAllModesData(formattedOrigin, formattedDestination);
             setTravelTimes(times);
             await fetchRoutesData(formattedOrigin, formattedDestination, mode);
@@ -196,7 +198,6 @@ export default function Homemap() {
             setLoading(false);
         }
     };
-
     const handleRoutePress = (route) => {
         setFastestRoute(route);
     };
@@ -519,6 +520,8 @@ export default function Homemap() {
                         transportMode={modeSelected}
                         routeDetails={fastestRoute}
                         routes={routes}
+                        wantsClassroom={wantsClassroom}
+                        selectedBuilding={selectedLocation}
                     />
                 </>
             )}
