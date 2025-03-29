@@ -2,33 +2,48 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
-import PropTypes from "prop-types";
 
-const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY }) => {
+const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp  }) => {
     if (!selectedSection) return null;
 
     return (
         <Animated.View testID={'section-panel'}
-            {...panHandlers}
-            style={[styles.panelContainer, { transform: [{ translateY: panelY }] }]}
+                       {...panHandlers}
+                       style={[styles.panelContainer, { transform: [{ translateY: panelY }] }]}
         >
+
             <View style={styles.dragBar} />
 
             <View style={styles.panelContent}>
                 <Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>
+                {/*<Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>*/}
+
                 <TouchableOpacity onPress={onClose} style={styles.closeButton} testID={'close-section-button'}>
                     <Ionicons name="close-circle" size={32} color={theme.colors.dark} />
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.directionsButton}
+                    // onPress={onShowDirections}
+                    onPress={() => {
+                        onShowDirections();
+                        onShowDirectionsTemp();
+                    }}
+                >
+                    <Text style={styles.directionsButtonText}>Show Directions</Text>
+                </TouchableOpacity>
+
+
             </View>
         </Animated.View>
     );
 };
-SectionPanel.propTypes={
-    selectedSection: PropTypes.any,
-    onClose: PropTypes.func,
-    panHandlers: PropTypes.any,
-    panelY: PropTypes.object
-}
+// SectionPanel.propTypes={
+//     selectedSection: PropTypes.any,
+//     onClose: PropTypes.func,
+//     panHandlers: PropTypes.any,
+//     panelY: PropTypes.object
+// }
 
 export default SectionPanel;
 
@@ -88,4 +103,20 @@ const styles = StyleSheet.create({
         elevation: 6,
         zIndex: 10,
     },
+
+    directionsButton: {
+        marginTop: 15,
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        borderRadius: theme.radius.md,
+        alignSelf: 'flex-start',
+    },
+
+    directionsButtonText: {
+        fontSize: 16,
+        color: theme.colors.white,
+        fontWeight: 'bold',
+    },
+
 });
