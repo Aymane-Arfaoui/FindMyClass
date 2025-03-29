@@ -112,6 +112,7 @@ const MapScreen = () => {
     const getPathFromNodes = (nodeIds) => {
         const coordinates = nodeIds.map(nodeId => {
             let node = null;
+            let yDif = 0;
             if (buildingKey == 'Hall'){
                 if (selectedFloorKey == 1) {
                     node = mapHall1.nodes.find(n => n.id === nodeId);
@@ -125,6 +126,7 @@ const MapScreen = () => {
                 else if (selectedFloorKey == 9){
                     node = mapHall9.nodes.find(n => n.id === nodeId);
                 }
+                yDif = 1132;
             }
 
             else if (buildingKey == "MB"){
@@ -134,6 +136,7 @@ const MapScreen = () => {
                 else if (selectedFloorKey == "S1"){
                     node = mapMBS2.nodes.find(n => n.id === nodeId);
                 }
+                yDif = 1132;
 
             }
 
@@ -141,10 +144,12 @@ const MapScreen = () => {
                 if (selectedFloorKey == "1") {
                     node = mapCC1.nodes.find(n => n.id === nodeId);
                 }
+                yDif = 746;
+
             }
 
 
-            return node ? `${node.x},${1132 - node.y}` : null;
+            return node ? `${node.x},${yDif - node.y}` : null;
         }).filter(coord => coord !== null);
 
         return `M${coordinates.join(' L')}`;
@@ -231,11 +236,13 @@ const MapScreen = () => {
 
         if (foundSection) {
             if(foundSection !== ""){
-
-                return foundSection.ref_ID;
+                if(foundSection.ref_ID !== ""){
+                    return foundSection.ref_ID;
+                }
             }
         }
-        return null;    };
+        return null;
+    };
 
 
 
@@ -266,6 +273,7 @@ const MapScreen = () => {
         }
     };
 
+
     // Change it to accept selectedSection only without .id (check current uses)
     const handleShowDirections = async (endId) => {
 
@@ -279,19 +287,21 @@ const MapScreen = () => {
             const transformedEndId = getNodeDataRefID(endId);
 
             // const startId = "h8_815"; // Only use for testing, remove later.
+            // const campus = "hall"; // Only use for testing, remove later.
             const campus = "hall"; // Only use for testing, remove later.
 
             console.log({startLocationIndoor}) // Used only for testing, remove later.
             console.log({startLocationIndoor, transformedStartLocationIndoor}) // Used only for testing, remove later.
             console.log({endId}) // Used only for testing, remove later.
             console.log({endId, transformedEndId}); // Used only for testing, remove later.
+            console.log("BUILDING KEY: ", {buildingKey}); // Used only for testing, remove later.
 
             // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
 
             if (transformedStartLocationIndoor && transformedEndId) {
                 try {
                     const response = await fetch(
-                        `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${campus}`
+                        `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
                         // `http://10.0.2.2:5000/indoorNavigation?startId=h2_205&endId=h2_260&campus=hall` // Only use for testing, remove later.
                     );
 
@@ -321,13 +331,78 @@ const MapScreen = () => {
 
     };
 
+
+    const handleShowDirectionsSection = async (endId) => {
+        // const aa = endId.id;
+        // console.log("TEST88881111111118888: ",{aa})
+        if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)){
+            // console.log(startLocationIndoor)
+            // console.log(endId)
+            console.log("Success, both exist, route starting") // Only use for testing, remove later.
+            console.log({startLocationIndoor}) // Only use for testing, remove later.
+            const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
+            // const transformedStartLocationIndoor = startLocationIndoor.ref_ID
+
+            // const transformedEndId = transformId(endId);
+            const transformedEndId = endId.ref_ID;
+
+            // const startId = "h8_815"; // Only use for testing, remove later.
+            // const campus = "hall"; // Only use for testing, remove later.
+            const campus = "hall"; // Only use for testing, remove later.
+
+            console.log({startLocationIndoor}) // Used only for testing, remove later.
+            console.log({startLocationIndoor, transformedStartLocationIndoor}) // Used only for testing, remove later.
+            console.log({endId}) // Used only for testing, remove later.
+            console.log({endId, transformedEndId}); // Used only for testing, remove later.
+            console.log("BUILDING KEY: ", {buildingKey}); // Used only for testing, remove later.
+
+            // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
+
+            if (transformedStartLocationIndoor && transformedEndId) {
+                try {
+                    const response = await fetch(
+                        `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
+                        // `http://10.0.2.2:5000/indoorNavigation?startId=h2_205&endId=h2_260&campus=hall` // Only use for testing, remove later.
+                    );
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log("Start location: ", transformedStartLocationIndoor, ", end location: ", transformedEndId); // Only use for testing, remove later.
+                        console.log("Path data received:", data); // Only use for testing, remove later.
+                        console.log("Path data received TEST:", data.path.path); // Only use for testing, remove later.
+                        setPath(data.path.path);
+
+                        console.log("Path final first:", data.path.path); // Used only for testing, remove later.
+                        console.log("Path final:", path); // Used only for testing, remove later.
+
+                    } else {
+                        console.error("Error fetching data");
+                    }
+                } catch (error) {
+                    console.error("Request failed", error);
+                }
+            }
+            console.log("Path final 2:", path); // Used only for testing, remove later.
+
+        }
+        else{
+            const aa = endId.id;
+            console.log("TEST88881111111118888: ",{aa})
+
+            console.log("Not yet, waiting for start and end location.")
+        }
+        console.log("Path final 3:", path); // Used only for testing, remove later.
+
+    };
+
     const handleShowDirectionsTemp = () => {
         setShowSearchBar(true);
     };
 
     useEffect(() => {
         if (startLocationIndoor && selectedSection?.id) {
-            handleShowDirections(selectedSection.id); // Change it to pass selectedSection only without .id
+            // handleShowDirections(selectedSection.id); // Change it to pass selectedSection only without .id
+            handleShowDirectionsSection(selectedSection); // Change it to pass selectedSection only without .id
             handleShowDirectionsTemp();
         }
     }, [startLocationIndoor, selectedSection?.id]);
@@ -355,7 +430,9 @@ const MapScreen = () => {
                             setStartLocation={setStartLocationIndoor}
 
 
-                            onShowDirectionsUpdate={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
+                            // onShowDirectionsUpdate={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
+                            // onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection?.selectedSection)} // Change it to pass selectedSection only without .id
+                            onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection)} // Change it to pass selectedSection only without .id
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
                             // startLocation={selectedSection?.id}
@@ -484,7 +561,9 @@ const MapScreen = () => {
                             setSelectedFloorKey(floor);
                             resetTransform();
                         }}
-                        onChangeUpdateRoute={() => handleShowDirections(selectedSection?.id)}  // Change it to pass selectedSection only without .id
+                        // onChangeUpdateRoute={() => handleShowDirections(selectedSection?.id)}  // Change it to pass selectedSection only without .id
+                        // onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection?.self)}  // Change it to pass selectedSection only without .id
+                        onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection)}  // Change it to pass selectedSection only without .id
                         // onChangeUpdateRouteTemp={handleShowDirectionsTemp} //ADD HERE
                     />
                     <SectionPanel
@@ -492,7 +571,9 @@ const MapScreen = () => {
                         onClose={() => setSelectedSection(null)}
                         panHandlers={panResponder.panHandlers}
                         panelY={panelY}
-                        onShowDirections={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
+                        // onShowDirections={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
+                        // onShowDirections={() => handleShowDirectionsSection(selectedSection?.self)} // Change it to pass selectedSection only without .id
+                        onShowDirections={() => handleShowDirectionsSection(selectedSection)} // Change it to pass selectedSection only without .id
                         onShowDirectionsTemp={handleShowDirectionsTemp}
 
 
