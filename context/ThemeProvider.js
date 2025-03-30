@@ -9,17 +9,29 @@ export function ThemeProvider({ children }) {
 
     useEffect(() => {
         (async () => {
-            const storedTheme = await AsyncStorage.getItem('@theme');
-            if (storedTheme === 'dark') {
-                setIsDark(true);
+            try {
+                const storedTheme = await AsyncStorage.getItem('@theme');
+                if (storedTheme === 'dark') {
+                    setIsDark(true);
+                }
+            } catch (error) {
+                console.error('Error loading theme:', error);
+                // Fallback to light theme in case of error
+                setIsDark(false);
             }
         })();
     }, []);
 
     const toggleTheme = async () => {
-        const newValue = !isDark;
-        setIsDark(newValue);
-        await AsyncStorage.setItem('@theme', newValue ? 'dark' : 'light');
+        try {
+            const newValue = !isDark;
+            setIsDark(newValue);
+            await AsyncStorage.setItem('@theme', newValue ? 'dark' : 'light');
+        } catch (error) {
+            console.error('Error saving theme:', error);
+            // Revert the theme if saving fails
+            setIsDark(!newValue);
+        }
     };
 
     const theme = getTheme(isDark);

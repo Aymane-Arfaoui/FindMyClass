@@ -180,7 +180,7 @@ const Calendar = ({ events: propEvents }) => {
     };
 
     const handleEventPress = (event) => {
-        setActiveEvent(activeEvent === event ? null : event);
+        setActiveEvent(activeEvent?.id === event.id ? null : event);
     };
 
     return (
@@ -243,7 +243,7 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventDescription}>{item.description}</Text>
                                 )}
                             </View>
-                            {activeEvent === item && item.location && (
+                            {activeEvent?.id === item.id && item.location && (
                                 <TouchableOpacity
                                     style={styles.directionButton}
                                     onPress={() => handleGetDirections(item)}

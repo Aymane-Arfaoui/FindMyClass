@@ -34,61 +34,68 @@ const SmartPlanner = () => {
     }, [selectedDate, selectedCalendars]);
 
     const loadEventsAndTasks = async () => {
-        const storedEvents = await AsyncStorage.getItem("@calendar");
-        const storedTasks = await AsyncStorage.getItem("tasks");
+        try {
+            const storedEvents = await AsyncStorage.getItem("@calendar");
+            const storedTasks = await AsyncStorage.getItem("tasks");
 
-        if (storedEvents) {
-            const parsedEvents = JSON.parse(storedEvents);
-            const calendars = [...new Set(parsedEvents.map(event => event.calendarName || 'Main'))];
-            setAvailableCalendars(calendars);
+            if (storedEvents) {
+                const parsedEvents = JSON.parse(storedEvents);
+                const calendars = [...new Set(parsedEvents.map(event => event.calendarName || 'Main'))];
+                setAvailableCalendars(calendars);
 
-            if (Object.keys(selectedCalendars).length === 0) {
-                const initialCalendars = calendars.reduce((acc, cal) => ({...acc, [cal]: true}), {});
-                setSelectedCalendars(initialCalendars);
-                return;
+                if (Object.keys(selectedCalendars).length === 0) {
+                    const initialCalendars = calendars.reduce((acc, cal) => ({...acc, [cal]: true}), {});
+                    setSelectedCalendars(initialCalendars);
+                    return;
+                }
+
+                const filteredEvents = parsedEvents.filter(event => {
+                    let eventDate;
+                    if (event.start?.date) {
+                        eventDate = event.start.date;
+                    } else {
+                        eventDate = getLocalDateString(event.start?.dateTime);
+                    }
+                    const calendarName = event.calendarName || 'Main';
+                    return eventDate === selectedDate && selectedCalendars[calendarName];
+                }).map(event => ({
+                    ...event,
+                    itemType: 'event',
+                    calendarName: event.calendarName || 'Main',
+                    calendarColor: event.calendarColor || theme.colors.blueDark
+                }));
+
+                setEvents(filteredEvents);
             }
 
-            const filteredEvents = parsedEvents.filter(event => {
-                let eventDate;
-                if (event.start?.date) {
-                    eventDate = event.start.date;
-                } else {
-                    eventDate = getLocalDateString(event.start?.dateTime);
-                }
-                const calendarName = event.calendarName || 'Main';
-                return eventDate === selectedDate && selectedCalendars[calendarName];
-            }).map(event => ({
-                ...event,
-                itemType: 'event',
-                calendarName: event.calendarName || 'Main',
-                calendarColor: event.calendarColor || theme.colors.blueDark
-            }));
+            if (storedTasks) {
+                const parsedTasks = JSON.parse(storedTasks);
+                const filteredTasks = parsedTasks.filter(task => {
+                    const taskDate = getLocalDateString(task.date);
+                    return taskDate === selectedDate;
+                }).map(task => ({
+                    itemType: 'task',
+                    summary: task.taskName,
+                    description: task.notes,
+                    location: task.address,
+                    start: task.allDayEvent
+                        ? {date: getLocalDateString(task.date)}
+                        : {dateTime: task.startTime},
+                    end: task.allDayEvent
+                        ? {date: getLocalDateString(task.date)}
+                        : {dateTime: task.endTime},
+                    allDayEvent: task.allDayEvent,
+                    id: task.id
+                }));
 
-            setEvents(filteredEvents);
-        }
-
-        if (storedTasks) {
-            const parsedTasks = JSON.parse(storedTasks);
-            const filteredTasks = parsedTasks.filter(task => {
-                const taskDate = getLocalDateString(task.date);
-                return taskDate === selectedDate;
-            }).map(task => ({
-                itemType: 'task',
-                summary: task.taskName,
-                description: task.notes,
-                location: task.address,
-                start: task.allDayEvent
-                    ? {date: getLocalDateString(task.date)}
-                    : {dateTime: task.startTime},
-                end: task.allDayEvent
-                    ? {date: getLocalDateString(task.date)}
-                    : {dateTime: task.endTime},
-
-                allDayEvent: task.allDayEvent,
-                id: task.id
-            }));
-
-            setTasks(filteredTasks);
+                setTasks(filteredTasks);
+            }
+        } catch (error) {
+            console.error('Error loading events and tasks:', error);
+            // Set empty in case of errors
+            setEvents([]);
+            setTasks([]);
+            setAvailableCalendars([]);
         }
     };
 
