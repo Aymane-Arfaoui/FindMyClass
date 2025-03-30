@@ -20,7 +20,6 @@ def indoor_navigation():
     end_id = request.args.get('endId')
     destinations = request.args.getlist('destinations[]')
     campus = request.args.get('campus')
-    print(start_id,end_id,campus)
     accessibility = request.args.get('accessibility')
     current_directory = Path(os.getcwd())
 
@@ -43,11 +42,12 @@ def indoor_navigation():
         g[campus] = Graph()
         g[campus].load_from_json_folder(file_path)
 
-    if accessibility:
+    if accessibility.lower() == 'true':
         if campus not in accessibility_graph:
             accessibility_graph[campus] = Graph()
             accessibility_graph[campus].graph = get_sub_graph(g[campus])
         graph_to_use = accessibility_graph[campus]
+
     else:
         graph_to_use = g[campus]
 
