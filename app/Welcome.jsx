@@ -28,7 +28,7 @@ WebBrowser.maybeCompleteAuthSession();
 const Welcome = () => {
     const {isDark, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
-    const [response, promptAsync] = Google.useAuthRequest({
+    const [, response, promptAsync] = Google.useAuthRequest({
         webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
         iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
         androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
