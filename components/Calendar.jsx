@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
-import { theme } from '../constants/theme';
-import { hp } from '../helpers/common';
+import { theme } from '@/constants/theme';
+import { hp } from '@/helpers/common';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -148,7 +148,7 @@ const Calendar = ({ events: propEvents }) => {
     };
 
     const handleEventPress = (event) => {
-        setActiveEvent(activeEvent === event ? null : event);
+        setActiveEvent(activeEvent?.id === event.id ? null : event);
     };
 
     return (
@@ -205,7 +205,7 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventDescription}>{item.description}</Text>
                                 )}
                             </View>
-                            {activeEvent === item && item.location && (
+                            {activeEvent?.id === item.id && item.location && (
                                 <TouchableOpacity
                                     style={styles.directionButton}
                                     onPress={() => handleGetDirections(item)}
