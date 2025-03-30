@@ -4,7 +4,7 @@ import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
-const BottomPanel = ({transportMode, routeDetails, routes}) => {
+const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -35,6 +35,15 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
     const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle");
     const otherTransitRoutes = routes?.filter((r) => r.mode !== "shuttle");
 
+    const modeMapping = {
+        driving: "DRIVE",
+        transit: "TRANSIT",
+        walking: "WALK",
+        bicycling: "BICYCLE",
+    };
+
+    const matchedTime = selectedRoute ? travelTimes[modeMapping[selectedRoute.mode]] : null;
+
 
     return (
         <Animated.View style={[styles.container, {height: animatedHeight}]} testID={'bottom-panel'}>
@@ -43,7 +52,7 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
                 {routeDetails ? (
                     <View testID={'route-details'}>
                         <Text style={styles.text}>
-                            {selectedRoute ? `Duration: ${selectedRoute.duration}` : `Duration: ${routeDetails?.duration || 'N/A'}`}
+                            Duration: {matchedTime || selectedRoute?.duration || routeDetails?.duration || "N/A"}
                         </Text>
                         <Text style={styles.subText}>
                             {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
@@ -170,7 +179,8 @@ const BottomPanel = ({transportMode, routeDetails, routes}) => {
 BottomPanel.propTypes={
     transportMode:PropTypes.string,
     routeDetails:PropTypes.object,
-    routes:PropTypes.array
+    routes:PropTypes.array,
+    travelTimes: PropTypes.object
 }
 
 
@@ -370,4 +380,3 @@ const styles = StyleSheet.create({
 });
 
 export default BottomPanel;
-

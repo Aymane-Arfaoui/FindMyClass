@@ -15,8 +15,7 @@ const SearchBars = ({
                         onBackPress,
                         modeSelected,
                         setModeSelected,
-                        travelTimes,
-                        setTravelTimes
+                        travelTimes
 
                     }) => {
 
@@ -43,69 +42,7 @@ const SearchBars = ({
                 });
         }
     }, [currentLocation]);
-    const fetchRoutesData = async (originAddress, destinationAddress) => {
-        const modes = ['driving', 'transit', 'walking', 'bicycling'];
-        const updatedTravelTimes = {};
 
-        await Promise.all(
-            modes.map(async (mode) => {
-                try {
-                    const url = `https://maps.googleapis.com/maps/api/directions/json
-          ?origin=${encodeURIComponent(originAddress)}
-          &destination=${encodeURIComponent(destinationAddress)}
-          &mode=${mode}
-          &alternatives=true
-          &key=${GOOGLE_API_KEY}`.replace(/\s+/g, '');
-
-                    const response = await fetch(url);
-                    const data = await response.json();
-
-                    if (data.routes && data.routes.length > 0) {
-                        const bestRoute = data.routes.reduce((shortest, cur) => {
-                            return (cur.legs[0].duration.value < shortest.legs[0].duration.value)
-                                ? cur
-                                : shortest;
-                        });
-
-                        const durationSec = bestRoute.legs[0].duration.value;
-                        const hours = Math.floor(durationSec / 3600);
-                        const minutes = Math.ceil((durationSec % 3600) / 60);
-
-                        let label;
-                        if (hours > 0) {
-                            label = `${hours}h ${minutes} min`;
-                        } else {
-                            label = `${minutes} min`;
-                        }
-
-                        updatedTravelTimes[mode] = label;
-                    } else {
-                        updatedTravelTimes[mode] = 'N/A';
-                    }
-                } catch (error) {
-                    console.error(`Error fetching ${mode} route:`, error);
-                    updatedTravelTimes[mode] = 'Error';
-                }
-            })
-        );
-
-        return updatedTravelTimes;
-    };
-
-
-    useEffect(() => {
-        if (
-            startLocation &&
-            endLocation &&
-            startLocation !== 'Fetching current location...' &&
-            endLocation !== 'Destination'
-        ) {
-            (async () => {
-                const times = await fetchRoutesData(startLocation, endLocation);
-                setTravelTimes(times);
-            })();
-        }
-    }, [startLocation, endLocation]);
 
     const [suggestions, setSuggestions] = useState([]);
     const handleAddressChange = (text, isStart) => {
@@ -126,15 +63,11 @@ const SearchBars = ({
         isStart ? setStartLocation(text) : setEndLocation(text);
     };
 
-    const handleSuggestionSelect = (suggestion, isStart) => {
-        isStart ? setStartLocation(suggestion.description) : setEndLocation(suggestion.description);
-        setSuggestions([]);
-    };
 
     return (
         <View style={styles.container} testID={'search-bars'}>
 
-            <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+            <TouchableOpacity testID={'back-button'} onPress={onBackPress} style={styles.backButton}>
                 <Ionicons name="chevron-back" size={26} color="white"/>
             </TouchableOpacity>
 
@@ -228,7 +161,6 @@ SearchBars.propTypes={
     onBackPress:PropTypes.func,
     modeSelected:PropTypes.string,
     setModeSelected:PropTypes.func,
-    travelTimes:PropTypes.object,
-    setTravelTimes:PropTypes.func
+    travelTimes:PropTypes.object
 }
 export default SearchBars;

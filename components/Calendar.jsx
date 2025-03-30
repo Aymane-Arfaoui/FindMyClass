@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
-import { theme } from '../constants/theme';
-import { hp } from '../helpers/common';
+import { theme } from '@/constants/theme';
+import { hp } from '@/helpers/common';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {fetchBuildingCoordinates} from "@/services/buildingService";
+import { fetchBuildingCoordinates } from "@/services/buildingService";
+import { calendarService } from '@/services/calendarService';
+import PropTypes from "prop-types";
+
 
 const Calendar = ({ events: propEvents }) => {
     const router = useRouter();
@@ -14,11 +17,34 @@ const Calendar = ({ events: propEvents }) => {
     const [tasks, setTasks] = useState([]);
     const [selectedDate, setSelectedDate] = useState(getLocalDate());
     const [activeEvent, setActiveEvent] = useState(null);
+    const [isRefreshing, setIsRefreshing] = useState(false);
+
+    const updateEvents = useCallback((newEvents) => {
+        setEvents(newEvents);
+        setIsRefreshing(false);
+    }, []);
 
     useEffect(() => {
+        calendarService?.addListener(updateEvents);
         loadEvents();
         loadTasks();
-    }, [propEvents]);
+
+        const fetchEventsOnMount = async () => {
+            const storedEvents = await AsyncStorage.getItem("@calendar");
+            if (storedEvents) {
+                setEvents(JSON.parse(storedEvents));
+            }
+            const token = await AsyncStorage.getItem("@accessToken");
+            if (token) {
+                await calendarService?.fetchAndUpdateEvents(token);
+            }
+        };
+        fetchEventsOnMount();
+
+        return () => {
+            calendarService?.removeListener(updateEvents);
+        };
+    }, [updateEvents, propEvents]);
 
     function getLocalDate() {
         return new Date().toLocaleDateString('en-CA');
@@ -43,11 +69,17 @@ const Calendar = ({ events: propEvents }) => {
     const loadEvents = async () => {
         if (propEvents && propEvents.length > 0) {
             setEvents(propEvents);
+        }
+    };
+
+    const handleRefresh = async () => {
+        setIsRefreshing(true);
+        const token = await AsyncStorage.getItem("@accessToken");
+        if (token) {
+            await calendarService?.fetchAndUpdateEvents(token);
         } else {
-            const storedEvents = await AsyncStorage.getItem("@calendar");
-            if (storedEvents) {
-                setEvents(JSON.parse(storedEvents));
-            }
+            setIsRefreshing(false);
+            console.warn("No access token found. Please sign in again.");
         }
     };
 
@@ -158,7 +190,13 @@ const Calendar = ({ events: propEvents }) => {
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Calendar</Text>
-                <View style={{ width: 24 }} />
+                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing}>
+                    <Ionicons
+                        name={isRefreshing ? "sync" : "refresh"}
+                        size={24}
+                        color={isRefreshing ? theme.colors.gray : theme.colors.dark}
+                    />
+                </TouchableOpacity>
             </View>
             <RNCalendar
                 current={getLocalDate()}
@@ -210,7 +248,7 @@ const Calendar = ({ events: propEvents }) => {
                                     style={styles.directionButton}
                                     onPress={() => handleGetDirections(item)}
                                 >
-                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
                                     <Text style={styles.directionButtonText}>Get Directions</Text>
                                 </TouchableOpacity>
                             )}
@@ -225,7 +263,9 @@ const Calendar = ({ events: propEvents }) => {
         </View>
     );
 };
-
+Calendar.propTypes={
+    events: PropTypes.any
+}
 const styles = StyleSheet.create({
     container: {
         backgroundColor: '#fff',
