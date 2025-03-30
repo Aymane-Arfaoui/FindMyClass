@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {
     Animated,
     PanResponder,
@@ -13,15 +13,20 @@ import Svg, {Image as SvgImage, Path, Rect} from 'react-native-svg';
 import {GestureHandlerRootView, PinchGestureHandler} from 'react-native-gesture-handler';
 import {floorsData} from '@/constants/floorData';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
 import IndoorSearchBar from "@/components/IndoorSearchBar";
+import { useContext } from 'react';
+import { ThemeContext } from '@/context/ThemeProvider';
+
 
 const MapScreen = () => {
     const route = useRoute();
     const {buildingKey} = route.params || {};
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     if (!buildingKey || !floorsData[buildingKey]) {
         return (
@@ -34,7 +39,7 @@ const MapScreen = () => {
 };
 const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
     const navigation = useNavigation();
-
+    const styles = createStyles(theme);
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
     const [selectedFloorKey, setSelectedFloorKey] = useState(floorKeys[0]);
@@ -119,7 +124,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
             <TouchableWithoutFeedback onPress={() => setSelectedSection(null)}>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-                        <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
+                        <Ionicons name="chevron-back" size={28} color={theme.colors.dark} />
                     </TouchableOpacity>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                         <View style={[styles.mapContainer, {aspectRatio}]}>
@@ -134,7 +139,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                     }}
                                 >
                                     <Svg width="100%" height="100%" viewBox={viewBox}>
-                                        <Rect width="100%" height="100%" fill={theme.colors.backgroundDark}/>
+                                        <Rect width="100%" height="100%" fill={theme.colors.background}/>
                                         {sections.map((section, index) => (
                                             <Path
                                                 testID={`section-${index}`}
@@ -210,7 +215,8 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
 
 export default MapScreen;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.grayDark,
