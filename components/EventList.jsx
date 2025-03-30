@@ -337,7 +337,7 @@ const createStyles = (theme) => StyleSheet.create({
         opacity: 0.9,
     },
     calendarSourceText: {
-        color: theme.colors.white,
+        color: theme.colors.textCalendar,
         fontSize: 12,
         fontWeight: '500',
         textTransform: 'capitalize',

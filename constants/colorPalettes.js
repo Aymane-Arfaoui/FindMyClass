@@ -16,10 +16,10 @@ export const lightColors = {
     success: '#2D8A6B',       // Green for success states
     warning: '#F0B775',       // Warm orange for warnings
     error: '#D64045',         // Red for errors
-    background: '#FAFAFA', // Very light gray for backgrounds
+    background: '#FAFAFA',    // Very light gray for backgrounds
     backgroundNav: '#FAFAFA',
     blueDark: '#004085',      // Dark blue for the buttons
-    blueLight: '#1A73E8',// Light blue for the buttons
+    blueLight: '#1A73E8',     // Light blue for the buttons
     cardBackground: '#FFFFFF',
     cardBorder: 'rgb(231, 231, 231)',
     settingsCardBackground: '#ffffff',
@@ -30,16 +30,17 @@ export const lightColors = {
     inputPlaceholder: '#999999',
     loadingoverlay: 'rgba(255, 255, 255, 0.8)',
     marker: {
-        restaurant: '#ff8c00', // orange
-        cafe: '#8b4513',       // brown
-        atm: '#228b22',        // green
-        default: '#4682b4',    // steel blue
+        restaurant: '#ff8c00',
+        cafe: '#8b4513',
+        atm: '#228b22',
+        default: '#4682b4',
     },
     settingColor:'#999999',
+    textCalendar: '#fff'
 
 }
 export const darkColors = {
-    primary: '#912338',
+    primary: '#C5304B',
     primaryLight: '#C85C75',
     primaryDark: '#8B273C',
     secondary: '#2A2A2A',
@@ -51,8 +52,8 @@ export const darkColors = {
     text: '#E0E0E0',
     textLight: '#B3B3B3',
     white: '#FFFFFF',
-    button: '#A8324A',
-    loading: '#A8324A',
+    button: '#C5304B',
+    loading: '#C5304B',
     success: '#2D8A6B',
     warning: '#F0B775',
     error: '#D64045',
@@ -70,12 +71,13 @@ export const darkColors = {
     inputPlaceholder: '#B3B3B3',
     loadingoverlay: 'rgba(53, 54, 57, 0.8)',
     marker: {
-        restaurant: '#ffa94d', // lighter orange
-        cafe: '#deb887',       // burlywood
-        atm: '#50fa7b',        // neon green
-        default: '#66d9ef',    // light blue
+        restaurant: '#ffa94d',
+        cafe: '#deb887',
+        atm: '#50fa7b',
+        default: '#66d9ef',
     },
     settingColor:'#E5E5E5',
+    textCalendar: '#fff'
 
 };
 export const colorBlindLightColors = {
@@ -116,6 +118,7 @@ export const colorBlindLightColors = {
         default: '#56B4E9',
     },
     settingColor:'#999999',
+    textCalendar: '#000'
 
 };
 export const colorBlindDarkColors = {
@@ -156,5 +159,6 @@ export const colorBlindDarkColors = {
         default: '#89D0FF',
     },
     settingColor:'#E5E5E5',
+    textCalendar: '#000'
 };
 

@@ -21,6 +21,7 @@ import UserProfileIcon from '../assets/images/profile_icon.png';
 import LightBackgroundImg from '../assets/images/background-generic-1.png';
 import DarkBackgroundImg from '../assets/images/BackgroundDark.png';
 import {ThemeContext} from '@/context/ThemeProvider';
+import {StatusBar} from "expo-status-bar";
 
 
 const User = () => {
@@ -64,6 +65,7 @@ const User = () => {
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: isDark ? '#757575' : '#FAF8F5'}}>
+            <StatusBar style={isDark ? 'light' : 'dark'}/>
             <View style={{flex: 1}}>
 
                 <ImageBackground
