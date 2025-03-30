@@ -1,11 +1,16 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {theme} from '@/constants/theme';
+import { useContext } from 'react';
+import { ThemeContext } from '@/context/ThemeProvider';
+
 import {getLocalDateString} from './EventList'
 
 
 const WeekNavigation = ({onSelectDate}) => {
     const [selectedDay, setSelectedDay] = useState(getLocalDateString(new Date()));
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     const generateWeekDays = () => {
         const today = new Date();
@@ -53,11 +58,12 @@ const WeekNavigation = ({onSelectDate}) => {
 
 export default WeekNavigation;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     wrapper: {
         marginTop: -10,
         paddingBottom: 5,
-        backgroundColor: '#FAF8F5'
+        backgroundColor: theme.colors.smartPlannerHeader
     },
     container: {
         flexDirection: 'row',
