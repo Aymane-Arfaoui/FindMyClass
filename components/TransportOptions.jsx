@@ -1,16 +1,16 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import {theme} from '../constants/theme';
-import {hp, wp} from '../helpers/common';
+import {theme} from '@/constants/theme';
+import {hp, wp} from '@/helpers/common';
 import PropTypes from "prop-types";
 
-const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
+const TransportOptions = ({ modeSelected, setModeSelected, travelTimes }) => {
     const transportModes = [
-        {mode: 'driving', icon: 'car', time: travelTimes.driving},
-        {mode: 'transit', icon: 'bus', time: travelTimes.transit},
-        {mode: 'walking', icon: 'walking', time: travelTimes.walking},
-        {mode: 'bicycling', icon: 'bicycle', time: travelTimes.bicycling},
+        { mode: 'driving', icon: 'car', time: travelTimes.DRIVE },
+        { mode: 'transit', icon: 'bus', time: travelTimes.TRANSIT },
+        { mode: 'walking', icon: 'walking', time: travelTimes.WALK },
+        { mode: 'bicycling', icon: 'bicycle', time: travelTimes.BICYCLE },
     ];
     return (
         <View style={styles.container} testID={'transport-options'}>
@@ -94,7 +94,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
-
-
-

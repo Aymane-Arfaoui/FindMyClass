@@ -41,7 +41,7 @@
       [
         "@rnmapbox/maps",
         {
-          "mapboxAccessToken": "sk.eyJ1Ijoicnd6IiwiYSI6ImNtNm9peDZhdzE4NmQya3E0azV4dmYxenMifQ.5SH51Urj6KLeo-SHYbRTPw"
+          "mapboxAccessToken": "${process.env.MAPBOX_ACCESS_TOKEN}"
         }
       ]
     ],

@@ -3,11 +3,11 @@ PODS:
   - DoubleConversion (1.1.6)
   - EXApplication (6.0.2):
     - ExpoModulesCore
-  - EXConstants (17.0.7):
+  - EXConstants (17.0.8):
     - ExpoModulesCore
-  - Expo (52.0.31):
+  - Expo (52.0.40):
     - ExpoModulesCore
-  - ExpoAsset (11.0.4):
+  - ExpoAsset (11.0.5):
     - ExpoModulesCore
   - ExpoBlur (14.0.3):
     - ExpoModulesCore
@@ -17,21 +17,21 @@ PODS:
     - ZXingObjC/PDF417
   - ExpoCrypto (14.0.2):
     - ExpoModulesCore
-  - ExpoFileSystem (18.0.10):
+  - ExpoFileSystem (18.0.12):
     - ExpoModulesCore
-  - ExpoFont (13.0.3):
+  - ExpoFont (13.0.4):
     - ExpoModulesCore
   - ExpoHaptics (14.0.1):
     - ExpoModulesCore
   - ExpoHead (4.0.17):
     - ExpoModulesCore
-  - ExpoKeepAwake (14.0.2):
+  - ExpoKeepAwake (14.0.3):
     - ExpoModulesCore
   - ExpoLinking (7.0.5):
     - ExpoModulesCore
   - ExpoLocation (18.0.5):
     - ExpoModulesCore
-  - ExpoModulesCore (2.2.1):
+  - ExpoModulesCore (2.2.3):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1741,13 +1741,13 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - Yoga
-  - rnmapbox-maps (10.1.36):
+  - rnmapbox-maps (10.1.37):
     - MapboxMaps (~> 10.19.0)
     - React
     - React-Core
-    - rnmapbox-maps/DynamicLibrary (= 10.1.36)
+    - rnmapbox-maps/DynamicLibrary (= 10.1.37)
     - Turf
-  - rnmapbox-maps/DynamicLibrary (10.1.36):
+  - rnmapbox-maps/DynamicLibrary (10.1.37):
     - DoubleConversion
     - hermes-engine
     - MapboxMaps (~> 10.19.0)
@@ -2283,20 +2283,20 @@ SPEC CHECKSUMS:
   boost: 1dca942403ed9342f98334bf4c3621f011aa7946
   DoubleConversion: f16ae600a246532c4020132d54af21d0ddb2a385
   EXApplication: 27a524f5c3e671c6218220fba04752629466a1a9
-  EXConstants: 0472d3c23d97943fe3505306daf9cde8024365c2
-  Expo: f0d6d83fbc392a02f27972323e5b7f2a7e8969bf
-  ExpoAsset: a4cbc27a7cd24a6e87eb719603790b2cfa8dd326
+  EXConstants: a1f35b9aabbb3c6791f8e67722579b1ffcdd3f18
+  Expo: 2f39ef76a9b526e4d27e09903cac67ac083790ba
+  ExpoAsset: 0687fe05f5d051c4a34dd1f9440bd00858413cfe
   ExpoBlur: 567af66164e3043a9a30069594aed1ddf0a88d97
   ExpoCamera: e7b9cba1eebc957e7e4fc784762cc428ead5db6b
   ExpoCrypto: 1eaf79360c8135af1f2ebb133394fd3513ca9a3d
-  ExpoFileSystem: dfca98dde30460788cb9f6f51f177888fa021934
-  ExpoFont: 8b14db1afebf62e9774613a082e402985f4e747c
+  ExpoFileSystem: c8c19bf80d914c83dda3beb8569d7fb603be0970
+  ExpoFont: 773955186469acc5108ff569712a2d243857475f
   ExpoHaptics: e01cce0741d68c281853118eb0267f88d42c6b7a
   ExpoHead: 3d555eb5d0d68c478b9ea259337686c58de22c71
-  ExpoKeepAwake: 1f74cdf53ab3b3aeb7110f18eb053c92e7c3e710
+  ExpoKeepAwake: 2a5f15dd4964cba8002c9a36676319a3394c85c7
   ExpoLinking: 0381341519ca7180a3a057d20edb1cf6a908aaf4
   ExpoLocation: a4b472b3cb2d42f1a3f3d7e2ec0e7a4db061ea22
-  ExpoModulesCore: dfb93d3c19f8fc950aa2ef74a3733da065dbacef
+  ExpoModulesCore: 0bcea8c26791a8f0aed1d4a961f1165e1fc657d4
   ExpoSpeechRecognition: e2903152d2d2bbd4ea66a5fac7bb3e8db2df4882
   ExpoSplashScreen: 2625fffb137856c82c32d6f25e7ee97249bdc0ee
   ExpoSymbols: b9f255ce49868d46a73f30e12859efeb8117bcad
@@ -2375,7 +2375,7 @@ SPEC CHECKSUMS:
   ReactCommon: 832cdd669aeecd430d9ca1975d15676b38d0b263
   RNCAsyncStorage: a927b768986f83467b635cf6d7559e6edb46db7a
   RNGestureHandler: fc5ce5bf284640d3af6431c3a5c3bc121e98d045
-  rnmapbox-maps: 1ca868bbef077b293ab71153bd143a1167b783f8
+  rnmapbox-maps: 2357dbd70ac210efa94d70ab805b36b254c65d4d
   RNReanimated: 9ee6347ca0aa3cf78cae715455e781728ae142e2
   RNScreens: d022507f2b6d76c73335e9e35aedcf7bb2f791b0
   RNSVG: ea3e35f0375ac20449384fa89ce056ee0e0690ee
@@ -2385,6 +2385,6 @@ SPEC CHECKSUMS:
   Yoga: be6f55a028e86c83ae066f018e9b5d24ffc45436
   ZXingObjC: 8898711ab495761b2dbbdec76d90164a6d7e14c5
 
-PODFILE CHECKSUM: cdf022e9bcd97ae1518b05ef567debeeac6f6863
+PODFILE CHECKSUM: 84632defc7f8c779a2a4a83d1238ab07d0328507
 
 COCOAPODS: 1.16.2
