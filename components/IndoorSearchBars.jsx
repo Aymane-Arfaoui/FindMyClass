@@ -116,21 +116,25 @@ export default IndoorSearchBars;
 const styles = StyleSheet.create({
         containerIM: {
             backgroundColor: theme.colors.primary,
+
             paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
-            paddingHorizontal: wp(4),
-            paddingBottom: hp(1),
-            borderBottomLeftRadius: wp(6),
-            borderBottomRightRadius: wp(6),
             position: 'absolute',
+
             top: 0,
             left: 0,
             right: 0,
             zIndex: 100,
             elevation: 10,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: hp(0.5)},
+            shadowColor: theme.colors.dark,
             shadowOpacity: 0.2,
+            shadowOffset: {width: 0, height: hp(0.5)},
+
             shadowRadius: wp(3),
+            paddingHorizontal: wp(4),
+            paddingBottom: hp(1),
+            borderBottomLeftRadius: wp(6),
+            borderBottomRightRadius: wp(6),
+
         },
 
         backButtonIM: {

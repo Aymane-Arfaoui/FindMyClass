@@ -273,65 +273,6 @@ const MapScreen = () => {
     };
 
 
-    // Change it to accept selectedSection only without .id (check current uses)
-    //Update: Function not in use anymore, remove later when sure it's not needed.
-    const handleShowDirections = async (endId) => {
-
-        if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId)){
-            // console.log(startLocationIndoor)
-            // console.log(endId)
-            // const transformedStartLocationIndoor = transformId(startLocationIndoor)
-            const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
-
-            // const transformedEndId = transformId(endId);
-            const transformedEndId = getNodeDataRefID(endId);
-
-            // const startId = "h8_815"; // Only use for testing, remove later.
-            // const campus = "hall"; // Only use for testing, remove later.
-            const campus = "hall"; // Only use for testing, remove later.
-
-            console.log({startLocationIndoor}) // Used only for testing, remove later.
-            console.log({startLocationIndoor, transformedStartLocationIndoor}) // Used only for testing, remove later.
-            console.log({endId}) // Used only for testing, remove later.
-            console.log({endId, transformedEndId}); // Used only for testing, remove later.
-            console.log("BUILDING KEY: ", {buildingKey}); // Used only for testing, remove later.
-
-            // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
-
-            if (transformedStartLocationIndoor && transformedEndId) {
-                try {
-                    const response = await fetch(
-                        `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
-                        // `http://10.0.2.2:5000/indoorNavigation?startId=h2_205&endId=h2_260&campus=hall` // Only use for testing, remove later.
-                    );
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log("Start location: ", transformedStartLocationIndoor, ", end location: ", transformedEndId);
-                        console.log("Path data received:", data);
-                        console.log("Path data received TEST:", data.path.path);
-                        setPath(data.path.path);
-
-                        console.log("Path final:", path); // Used only for testing, remove later.
-
-                    } else {
-                        console.error("Error fetching data");
-                    }
-                } catch (error) {
-                    console.error("Request failed", error);
-                }
-            }
-            console.log("Path final 2:", path); // Used only for testing, remove later.
-
-        }
-        else{
-            console.log("Not yet, waiting for start and end location.")
-        }
-        console.log("Path final 3:", path); // Used only for testing, remove later.
-
-    };
-
-
     const handleShowDirectionsSection = async (endId) => {
         // const aa = endId.id;
         // console.log("TEST88881111111118888: ",{aa})
