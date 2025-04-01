@@ -1,6 +1,7 @@
 
+jest.useFakeTimers()
 import React from 'react';
-import {render, screen, userEvent} from '@testing-library/react-native';
+import {render, screen, userEvent,waitFor} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import User from '../user.jsx';
 
@@ -16,14 +17,17 @@ describe('User Component', () => {
         });
     });
 
-    it('renders correctly with default user info', () => {
-        render(<User />);
+    it('renders correctly with default user info', async () => {
+        const {unmount}=render(<User />);
 
+        await waitFor(()=>{
+            expect(screen.getByText('Welcome back')).toBeTruthy();
+            const calendarButton = screen.getByTestId('calendar-button');
+            expect(calendarButton).toBeTruthy();
+            expect(screen.getByText('See All')).toBeTruthy();
+        })
+        unmount()
 
-        expect(screen.getByText('Welcome back')).toBeTruthy();
-        const calendarButton = screen.getByTestId('calendar-button');
-        expect(calendarButton).toBeTruthy();
-        expect(screen.getByText('See All')).toBeTruthy();
     });
 
     it('navigates to calendar on calendar button press', async () => {
