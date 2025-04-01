@@ -33,7 +33,7 @@ const User = () => {
                       <Text style={styles.userName}>John Doe</Text>
                       </View>
             </View>
-            <TouchableOpacity onPress={() => router.push('/settingsPage')}>
+            <TouchableOpacity testID={'settings-button'} onPress={() => router.push('/settingsPage')}>
               <Image source={SettingsCog} style={styles.settingsIcon} />
             </TouchableOpacity>
           </View>

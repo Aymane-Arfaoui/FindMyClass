@@ -18,7 +18,7 @@ const Settings = () => {
     <SafeAreaView style={styles.container}>
       {/* Header Section */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+        <TouchableOpacity onPress={() => router.back()} style={styles.backButton} testID={'back-button'}>
           <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Settings</Text>
@@ -28,6 +28,7 @@ const Settings = () => {
       <View style={styles.settingContainer}>
         <Text style={styles.settingTitle}>Dark Mode</Text>
         <Switch
+            testID={'dark-mode-switch'}
           value={darkMode}
           onValueChange={toggleDarkMode}
           trackColor={{ false: '#767577', true: theme.colors.primary }}
@@ -40,6 +41,7 @@ const Settings = () => {
       <View style={styles.settingContainer}>
         <Text style={styles.settingTitle}>Color Blind Mode</Text>
         <Switch
+            testID={'color-blind-mode-switch'}
           value={colorBlindMode}
           onValueChange={toggleColorBlindMode}
           trackColor={{ false: '#767577', true: theme.colors.primary }}
