@@ -1,11 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CreateTask = ({isVisible, onClose}) => {
+const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     const now = new Date();
     const [taskName, setTaskName] = useState("");
     const [notes, setNotes] = useState("");
@@ -13,7 +14,7 @@ const CreateTask = ({isVisible, onClose}) => {
     const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date(now.getTime() + 60 * 60 * 1000));
-    const [allDayEvent, setAllDayEvent] = useState(false); // NEW State
+    const [allDayEvent, setAllDayEvent] = useState(false);
 
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openStartTimePicker, setOpenStartTimePicker] = useState(false);
@@ -37,8 +38,59 @@ const CreateTask = ({isVisible, onClose}) => {
 
     const formatTime = (time) => time.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
 
-    const handleSaveEvent = () => {
-        // Future implementation for adding tasks
+    const saveTaskToStorage = async (newTask) => {
+        try {
+
+            const existingTasksJson = await AsyncStorage.getItem('tasks');
+            const existingTasks = existingTasksJson ? JSON.parse(existingTasksJson) : [];
+            const taskWithId = {
+                ...newTask,
+                id: Date.now().toString(),
+                createdAt: new Date().toISOString()
+            };
+
+            const updatedTasks = [...existingTasks, taskWithId];
+            await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+
+            return taskWithId;
+        } catch (error) {
+            console.error('Error saving task:', error);
+            throw error;
+        }
+    };
+
+    const handleSaveEvent = async () => {
+        if (!taskName.trim()) {
+            Alert.alert('Error', 'Please enter a task name');
+            return;
+        }
+
+        try {
+            const newTask = {
+                taskName,
+                notes,
+                address,
+                date: date.toISOString(),
+                startTime: allDayEvent ? null : startTime.toISOString(),
+                endTime: allDayEvent ? null : endTime.toISOString(),
+                allDayEvent
+            };
+
+            const savedTask = await saveTaskToStorage(newTask);
+
+
+            resetForm();
+            onClose();
+
+            if (onTaskCreated) {
+                onTaskCreated(savedTask);
+            }
+
+            Alert.alert('Success', 'Task created successfully!');
+        } catch (error) {
+            Alert.alert('Error', 'Failed to save task. Please try again.');
+            console.error('Error in handleSaveEvent:', error);
+        }
     };
 
     return (
