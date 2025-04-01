@@ -96,38 +96,3 @@ class Graph:
             return paths
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return []
-
-    def find_paths_to_multiple_destinations(self, start_id: str, destination_ids: List[str]) -> Dict[str, Any]:
-        """
-        Find shortest paths sequentially through multiple destinations in the specified order.
-        Returns paths and distances for each segment, plus total distance.
-        """
-        paths_info = []
-        total_distance = 0
-        current_position = start_id
-
-        for dest_id in destination_ids:
-            try:
-                # Find path from current position to next destination
-                path = nx.dijkstra_path(self.graph, current_position, dest_id, weight='weight')
-                distance = nx.dijkstra_path_length(self.graph, current_position, dest_id, weight='weight')
-                
-                paths_info.append({
-                    "destination": dest_id,
-                    "path": path,
-                    "distance": distance
-                })
-                
-                total_distance += distance
-                current_position = dest_id  # Update current position for next destination
-                
-            except (nx.NetworkXNoPath, nx.NodeNotFound):
-                paths_info.append({
-                    "destination": dest_id,
-                    "error": "No path found or invalid destination"
-                })
-
-        return {
-            "paths": paths_info,
-            "total_distance": total_distance
-        }

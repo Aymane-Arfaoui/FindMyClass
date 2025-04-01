@@ -1,7 +1,7 @@
 import os
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
-from app.graph.Graph2 import Graph
+from api.app.graph.Graph2 import Graph
 from pathlib import Path
 
 # import app.graph.Graph as Graph
@@ -16,9 +16,9 @@ accessibility_graph = {}
 @navigation_routes.route('/indoorNavigation', methods=['GET'])
 @cross_origin()
 def indoor_navigation():
+    
     start_id = request.args.get('startId')
     end_id = request.args.get('endId')
-    destinations = request.args.getlist('destinations[]')
     campus = request.args.get('campus')
     print(start_id,end_id,campus)
     accessibility = request.args.get('accessibility')
@@ -33,11 +33,8 @@ def indoor_navigation():
     if os.path.exists(file_path) is False:
         return jsonify({"error": "Campus not found"}), 400
 
-    if not start_id:
-        return jsonify({"error": "Missing required parameter 'startId'"}), 400
-
-    if not end_id and not destinations:
-        return jsonify({"error": "Must provide either 'endId' or 'destinations[]'"}), 400
+    if not start_id or not end_id:
+        return jsonify({"error": "Missing required parameters 'startId' and 'endId'"}), 400
 
     if campus not in g:
         g[campus] = Graph()
@@ -47,21 +44,15 @@ def indoor_navigation():
         if campus not in accessibility_graph:
             accessibility_graph[campus] = Graph()
             accessibility_graph[campus].graph = get_sub_graph(g[campus])
-        graph_to_use = accessibility_graph[campus]
+
+        path = accessibility_graph[campus].find_shortest_path(start_id, end_id)
     else:
-        graph_to_use = g[campus]
+        path = g[campus].find_shortest_path(start_id, end_id)
 
-    if end_id:
-        path = graph_to_use.find_shortest_path(start_id, end_id)
-        if not path:
-            return jsonify({"error": "Destination inaccessible from Start location"}), 404
-        return jsonify({"path": path}), 200
+    if not path:
+        return jsonify({"error": "Destination inaccessible from Start location"}), 404
 
-    result = graph_to_use.find_paths_to_multiple_destinations(start_id, destinations)
-    if not result["paths"]:
-        return jsonify({"error": "No valid paths found"}), 404
-
-    return jsonify(result), 200
+    return jsonify({"path": path}), 200
 
 
 def get_sub_graph(g):
