@@ -1,12 +1,11 @@
 import React, {useEffect, useState} from "react";
-import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
+import {Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
+const EditList = ({isVisible, onClose, taskData}) => {
     const [taskName, setTaskName] = useState("");
     const [notes, setNotes] = useState("");
     const [address, setAddress] = useState("");
@@ -25,102 +24,24 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
             setNotes(taskData.notes || "");
             setAddress(taskData.address || "");
             setDate(taskData.date ? new Date(taskData.date) : new Date());
-            setAllDayEvent(taskData.allDayEvent || false);
 
-            if (taskData.allDayEvent) {
+            if (taskData.startTime === "All Day" || !taskData.endTime === "All Day") {
+                setAllDayEvent(true);
                 setStartTime(null);
                 setEndTime(null);
             } else {
-                setStartTime(taskData.startTime ? new Date(taskData.startTime) : new Date());
-                setEndTime(taskData.endTime ? new Date(taskData.endTime) : new Date());
+                setAllDayEvent(false);
+                setStartTime(new Date(taskData.startTime));
+                setEndTime(new Date(taskData.endTime));
             }
         }
     }, [taskData]);
 
+    const handleUpdateEvent = () => {
+        // Future implementation for updating task
+    };
+
     const formatTime = (time) => time ? time.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"}) : "N/A";
-
-    const handleUpdateTask = async () => {
-        if (!taskName.trim()) {
-            Alert.alert('Error', 'Please enter a task name');
-            return;
-        }
-
-        try {
-            // Get all tasks
-            const tasksJson = await AsyncStorage.getItem('tasks');
-            let tasks = tasksJson ? JSON.parse(tasksJson) : [];
-
-            // Find and update the task
-            const updatedTasks = tasks.map(task => {
-                if (task.id === taskData.id) {
-                    return {
-                        ...task,
-                        taskName,
-                        notes,
-                        address,
-                        date: date.toISOString(),
-                        startTime: allDayEvent ? 'All Day' : startTime.toISOString(),
-                        endTime: allDayEvent ? 'All Day' : endTime.toISOString(),
-                        allDayEvent,
-                        updatedAt: new Date().toISOString()
-                    };
-                }
-                return task;
-            });
-
-            // Save back to storage
-            await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-
-            onClose();
-            if (onUpdate) {
-                onUpdate();
-            }
-            Alert.alert('Success', 'Task updated successfully!');
-        } catch (error) {
-            console.error('Error updating task:', error);
-            Alert.alert('Error', 'Failed to update task. Please try again.');
-        }
-    };
-
-    const handleDeleteTask = async () => {
-        Alert.alert(
-            'Delete Task',
-            'Are you sure you want to delete this task?',
-            [
-                {
-                    text: 'Cancel',
-                    style: 'cancel',
-                },
-                {
-                    text: 'Delete',
-                    style: 'destructive',
-                    onPress: async () => {
-                        try {
-                            // Get all tasks
-                            const tasksJson = await AsyncStorage.getItem('tasks');
-                            let tasks = tasksJson ? JSON.parse(tasksJson) : [];
-
-                            // Filter out the task to delete
-                            const updatedTasks = tasks.filter(task => task.id !== taskData.id);
-
-                            // Save back to storage
-                            await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-
-                            onClose();
-                            if (onUpdate) {
-                                onUpdate();
-                            }
-                            Alert.alert('Success', 'Task deleted successfully!');
-                        } catch (error) {
-                            console.error('Error deleting task:', error);
-                            Alert.alert('Error', 'Failed to delete task. Please try again.');
-                        }
-                    },
-                },
-            ],
-            {cancelable: true},
-        );
-    };
 
     return (
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
@@ -171,6 +92,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                         onCancel={() => setOpenDatePicker(false)}
                     />
 
+                    {/* All Day Toggle */}
                     <View style={styles.editTaskAllDayContainer}>
                         <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)}
                                           style={styles.editTaskAllDayToggle}>
@@ -193,6 +115,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                         </TouchableOpacity>
                     </View>
 
+                    {/* Start & End Time (Hidden if All Day is selected) */}
                     {!allDayEvent && (
                         <>
                             <Text style={styles.editTaskLabel}>Start Time</Text>
@@ -240,20 +163,13 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                         multiline
                     />
 
-                    <View style={styles.buttonContainer}>
-                        <TouchableOpacity style={styles.deleteButton} onPress={handleDeleteTask}>
-                            <Ionicons name="trash-outline" size={24} color={theme.colors.white}/>
-                            <Text style={styles.deleteButtonText}>Delete Task</Text>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity style={styles.editTaskSaveButton} onPress={handleUpdateTask}>
-                            <Ionicons name="save-outline" size={24} color={theme.colors.white}/>
-                            <Text style={styles.editTaskSaveButtonText}>Update Task</Text>
-                        </TouchableOpacity>
-                    </View>
+                    <TouchableOpacity style={styles.editTaskSaveButton} onPress={handleUpdateEvent}>
+                        <Text style={styles.editTaskSaveButtonText}>Update Event</Text>
+                    </TouchableOpacity>
                 </View>
             </View>
         </Modal>
+
     );
 };
 
@@ -313,27 +229,25 @@ const styles = StyleSheet.create({
         marginBottom: 5,
     },
     editTaskSaveButton: {
-        flexDirection: 'row',
-        backgroundColor: theme.colors.grayDark,
+        flexDirection: "row",
+        marginTop: 12,
+        backgroundColor: theme.colors.primary,
         paddingVertical: 14,
-        paddingHorizontal: 20,
         borderRadius: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-        marginLeft: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        marginBottom: 10,
     },
     editTaskSaveButtonText: {
         color: theme.colors.white,
         fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 8,
+        fontWeight: "bold",
     },
     editTaskAllDayToggle: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
-        marginBottom: 20,
+        marginBottom: 10,
     },
     editTaskAllDayContainer: {
         marginBottom: 10,
@@ -341,29 +255,7 @@ const styles = StyleSheet.create({
     editTaskPlaceholderText: {
         color: theme.colors.gray,
     },
-    buttonContainer: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    deleteButton: {
-        flexDirection: 'row',
-        backgroundColor: theme.colors.error,
-        paddingVertical: 14,
-        paddingHorizontal: 20,
-        borderRadius: 15,
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-        marginRight: 10,
-    },
-    deleteButtonText: {
-        color: theme.colors.white,
-        fontSize: 16,
-        fontWeight: 'bold',
-        marginLeft: 8,
-    },
 });
 
-export default EditTasks;
+
+export default EditList;
