@@ -92,7 +92,7 @@ const GooglePlacesAutocomplete = ({address, onAddressSelect, autoFocus}) => {
             />
 
             {inputText.length > 0 && (
-                <TouchableOpacity style={styles.googleAutoClearButton} onPress={handleClearInput}>
+                <TouchableOpacity style={styles.googleAutoClearButton} testID={'clear-button'} onPress={handleClearInput}>
                     <Ionicons name="close-circle" size={20} color={theme.colors.grayDark}/>
                 </TouchableOpacity>
             )}

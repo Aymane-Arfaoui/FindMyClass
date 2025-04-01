@@ -11,6 +11,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
         <View style={styles.floorPanel}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
                 <TouchableOpacity
+                    testID={'back-arrow'}
                     style={[styles.arrowButton, floorKeys.indexOf(selectedFloorKey) === 0 && styles.arrowDisabled]}
                     onPress={() => {
                         const currentIndex = floorKeys.indexOf(selectedFloorKey);
@@ -41,6 +42,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
                     </TouchableOpacity>
                 ))}
                 <TouchableOpacity
+                    testID={'forward-arrow'}
                     style={[styles.arrowButton, floorKeys.indexOf(selectedFloorKey) === floorKeys.length - 1 && styles.arrowDisabled]}
                     onPress={() => {
                         const currentIndex = floorKeys.indexOf(selectedFloorKey);
