@@ -60,6 +60,9 @@ const MapScreen = () => {
     const {viewBox, sections = [], poiImage, width, height} = selectedFloorData;
     const aspectRatio = width / height;
     const panelY = useRef(new Animated.Value(0)).current;
+
+    const [multiFloorMessage, setMultiFloorMessage] = useState(null);
+
     const panResponder = useRef(
         PanResponder.create({
             onMoveShouldSetPanResponder: () => true,
@@ -199,7 +202,11 @@ const MapScreen = () => {
                 floorChanges.forEach(change => {
                     message += `- From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
-                alert(message);
+                setMultiFloorMessage(message);
+                // alert(message);
+            }
+            else{
+                setMultiFloorMessage("");
             }
         }
 
@@ -351,6 +358,9 @@ const MapScreen = () => {
 
     const closeIndoorSearchBars = (bool) => {
         setShowSearchBar(false);
+        setMultiFloorMessage("")
+        setSelectedPath(null)
+        setStartLocationIndoor("")
     };
 
 
@@ -517,7 +527,7 @@ const MapScreen = () => {
                         onShowDirections={() => handleShowDirectionsSection(selectedSection)}
                         onShowDirectionsTemp={handleShowDirectionsTemp}
                         showButtonDirections={!showSearchBar}
-
+                        multiFloorText={multiFloorMessage}
                     />
                 </View>
             </TouchableWithoutFeedback>

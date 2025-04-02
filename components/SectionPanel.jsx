@@ -3,8 +3,16 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 
-const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp, showButtonDirections }) => {
+const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp, showButtonDirections, multiFloorText }) => {
+
+    let showText = false;
+
     if (!selectedSection) return null;
+
+    showText = multiFloorText !== "";
+
+
+
 
     return (
         <Animated.View testID={'section-panel'}
@@ -21,6 +29,16 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
                 <TouchableOpacity onPress={onClose} style={styles.closeButtonSP_in} testID={'close-section-button'}>
                     <Ionicons name="close-circle" size={32} color={theme.colors.dark} />
                 </TouchableOpacity>
+
+                {showText && (
+
+                    <Text style={styles.multiFloorText}>
+                        <Ionicons name="warning" size={16} color={theme.colors.dark} />
+                        {" "}
+                        {multiFloorText}
+                    </Text>
+                )}
+
 
                 { showButtonDirections && (
                 <TouchableOpacity
@@ -52,7 +70,7 @@ export default SectionPanel;
 const styles = StyleSheet.create({
     panelContainer: {
         position: 'absolute',
-        bottom: 0,
+        bottom: -10,
         left: 0,
         right: 0,
         backgroundColor: theme.colors.white,
@@ -133,5 +151,10 @@ const styles = StyleSheet.create({
         color: theme.colors.white,
         fontWeight: 'bold',
     },
+    multiFloorText:{
+        fontSize: 16,
+        color: theme.colors.dark,
+        marginTop: 10,
+    }
 
 });
