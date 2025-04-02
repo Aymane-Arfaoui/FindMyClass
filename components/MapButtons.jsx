@@ -23,19 +23,20 @@ const locations = {
     return (
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
-                <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
-                </TouchableOpacity>
+
                 <TouchableOpacity
                     style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
                     onPress={() => handlePress('Loyola')}
                     testID={'loyola-button'}
                 >
                     <Text style={[styles.label, selectedLocation === 'Loyola' && styles.activeLabel]}>Loyola</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
                 </TouchableOpacity>
             </View>
         </View>

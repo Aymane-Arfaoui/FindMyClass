@@ -4,12 +4,15 @@ import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
+import {isShuttleRunningNow} from "@/services/shuttleService";
 const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const router = useRouter();
+
+    const isShuttleActive = isShuttleRunningNow();
 
     useEffect(() => {
         setSelectedRoute(routeDetails);
@@ -27,7 +30,6 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
 
     const handleRouteSelection = (route) => {
         setSelectedRoute(route);
-        // setExpanded(false);
         setModalVisible(true);
 
     };
@@ -133,7 +135,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
 
             {expanded && (
                 <ScrollView style={{marginTop: 10}} testID={'expanded'}>
-                    {shuttleRoutes?.map((route, index) => (
+                    {isShuttleActive && shuttleRoutes?.map((route, index) => (
                         <View key={index} style={styles.shuttleStepsContainer}>
                             <Text style={styles.shuttleStepText}>
                                 {route.mode.toUpperCase()} – {route.duration} – {route.distance}

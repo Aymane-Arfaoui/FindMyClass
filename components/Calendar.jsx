@@ -92,7 +92,7 @@ const Calendar = ({ events: propEvents }) => {
                         lng: coordinates.longitude.toString(),
                         room: roomNumber,
                         address: encodedAddress,
-                        directionsTriggered: 'true' // ✅ Key flag
+                        directionsTriggered: 'true'
                     }
                 });
 
@@ -283,7 +283,7 @@ const styles = StyleSheet.create({
         color: 'gray',
         alignSelf: 'flex-start',
         marginTop: hp(1),
-        marginLeft: hp(2), // align it visually with event content
+        marginLeft: hp(2),
     },
 
 });

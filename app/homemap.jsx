@@ -47,7 +47,7 @@ export default function Homemap() {
         lng = null,
         room = null,
         address = null,
-        directionsTriggered = null, // ✅ This is the trigger flag
+        directionsTriggered = null,
     } = useLocalSearchParams();
 
     const [destinationAddress, setDestinationAddress] = useState(null);
@@ -83,7 +83,7 @@ export default function Homemap() {
             currentLocation?.geometry?.coordinates &&
             currentDestination?.geometry?.coordinates
         ) {
-            setHasTriggeredDirections(true); // 🔒 Prevent rerun
+            setHasTriggeredDirections(true);
             handleDirectionPress(currentLocation, currentDestination, modeSelected);
         }
     }, [directionsTriggered, currentLocation, currentDestination, modeSelected, hasTriggeredDirections]);
@@ -165,7 +165,6 @@ export default function Homemap() {
                     units: "METRIC"
                 };
 
-                // Only add routingPreference for DRIVE mode
                 if (mode === "DRIVE") {
                     requestBody.routingPreference = "TRAFFIC_AWARE";
                 }
