@@ -1,4 +1,3 @@
-// Calendar.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
@@ -11,6 +10,26 @@ import { fetchBuildingCoordinates } from "@/services/buildingService";
 import { calendarService } from '@/services/calendarService';
 import PropTypes from "prop-types";
 
+const deduplicateEvents = (events) => {
+    const seen = new Set();
+    return events.filter((event) => {
+        const key = `${event.id}_${event.calendarName}_${event.start?.dateTime || event.start?.date}_${event.iCalUID || ''}`;
+        if (seen.has(key)) {
+            return false;
+        }
+        seen.add(key);
+        return true;
+    });
+};
+
+const generateUniqueKey = (item, index) => {
+    if (item.itemType === 'task') {
+        return `task_${item.id || index}_${item.start?.dateTime || item.start?.date || index}`;
+    }
+    const recurrenceId = item.recurringEventId ? `_recurrence_${item.recurringEventId}` : '';
+    return `event_${item.id}${recurrenceId}_${item.calendarName || 'primary'}_${item.start?.dateTime || item.start?.date}_${item.iCalUID || index}`;
+};
+
 const Calendar = ({ events: propEvents }) => {
     const router = useRouter();
     const [events, setEvents] = useState([]);
@@ -20,7 +39,7 @@ const Calendar = ({ events: propEvents }) => {
     const [isRefreshing, setIsRefreshing] = useState(false);
 
     const updateEvents = useCallback((newEvents) => {
-        setEvents(newEvents);
+        setEvents(deduplicateEvents(newEvents));
         setIsRefreshing(false);
     }, []);
 
@@ -31,14 +50,14 @@ const Calendar = ({ events: propEvents }) => {
         const fetchEventsOnMount = async () => {
             const storedEvents = await AsyncStorage.getItem("@calendar");
             if (storedEvents) {
-                setEvents(JSON.parse(storedEvents));
+                setEvents(deduplicateEvents(JSON.parse(storedEvents)));
             }
             const token = await AsyncStorage.getItem("@accessToken");
             if (token) {
                 await calendarService.fetchAndUpdateEvents(token);
             }
             if (propEvents && propEvents.length > 0) {
-                setEvents(prev => [...prev, ...propEvents]);
+                setEvents((prev) => deduplicateEvents([...prev, ...propEvents]));
             }
         };
         fetchEventsOnMount();
@@ -191,7 +210,7 @@ const Calendar = ({ events: propEvents }) => {
                 {allItems.length > 0 ? (
                     allItems.map((item, index) => (
                         <TouchableOpacity
-                            key={item.id || index}
+                            key={generateUniqueKey(item, index)}
                             style={[
                                 styles.eventCard,
                                 { borderLeftWidth: 4, borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : (item.calendarColor || theme.colors.primary) }
@@ -246,7 +265,6 @@ Calendar.propTypes = {
 };
 
 const styles = StyleSheet.create({
-    // Same styles as in your second version, with all properties included
     container: {
         backgroundColor: '#fff',
         borderRadius: 10,
