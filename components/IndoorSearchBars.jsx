@@ -24,8 +24,6 @@ const IndoorSearchBars = ({startLocation,
 
 
     useEffect(() => {
-        console.log("888888888 TEST:");
-        console.log("8888888888888888888888 TEST:" + localStart );
 
         setStartLocation(localStart)
         onShowDirectionsUpdate();

@@ -197,10 +197,11 @@ const MapScreen = () => {
             //         alert(`Change floors from ${change.previousFloor} to ${change.newFloor} using ${change.transitionNode.poi_type}`);
             //     });
             // }
+
             if (floorChanges.length > 0) {
                 let message = "There are floor changes in you path, you need to go:\n";
                 floorChanges.forEach(change => {
-                    message += `- From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
+                    message += `  - From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
                 setMultiFloorMessage(message);
                 // alert(message);
@@ -271,10 +272,10 @@ const MapScreen = () => {
 
     const checkNodeInFloorData = (nodeId) => {
         if (getFromFloorData(nodeId)) {
-            console.log(`Node ${nodeId} exists in floor data`);
+            // console.log(`Node ${nodeId} exists in floor data`);
             return true
         } else {
-            console.log(`Node ${nodeId} does not exist in floor data`);
+            // console.log(`Node ${nodeId} does not exist in floor data`);
             return false
         }
     };
@@ -286,8 +287,6 @@ const MapScreen = () => {
         if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)){
             // console.log(startLocationIndoor)
             // console.log(endId)
-            console.log("Success, both exist, route starting") // Only use for testing, remove later.
-            console.log({startLocationIndoor}) // Only use for testing, remove later.
             const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
             // const transformedStartLocationIndoor = startLocationIndoor.ref_ID
 
@@ -298,11 +297,6 @@ const MapScreen = () => {
             // const campus = "hall"; // Only use for testing, remove later.
             const campus = "hall"; // Only use for testing, remove later.
 
-            console.log({startLocationIndoor}) // Used only for testing, remove later.
-            console.log({startLocationIndoor, transformedStartLocationIndoor}) // Used only for testing, remove later.
-            console.log({endId}) // Used only for testing, remove later.
-            console.log({endId, transformedEndId}); // Used only for testing, remove later.
-            console.log("BUILDING KEY: ", {buildingKey}); // Used only for testing, remove later.
 
             // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
 
@@ -315,13 +309,7 @@ const MapScreen = () => {
 
                     if (response.ok) {
                         const data = await response.json();
-                        console.log("Start location: ", transformedStartLocationIndoor, ", end location: ", transformedEndId); // Only use for testing, remove later.
-                        console.log("Path data received:", data); // Only use for testing, remove later.
-                        console.log("Path data received TEST:", data.path.path); // Only use for testing, remove later.
                         setPath(data.path.path);
-
-                        console.log("Path final first:", data.path.path); // Used only for testing, remove later.
-                        console.log("Path final:", path); // Used only for testing, remove later.
 
                     } else {
                         console.error("Error fetching data");
@@ -330,16 +318,11 @@ const MapScreen = () => {
                     console.error("Request failed", error);
                 }
             }
-            console.log("Path final 2:", path); // Used only for testing, remove later.
 
         }
         else{
             const aa = endId.id;
-            console.log("TEST88881111111118888: ",{aa})
-
-            console.log("Not yet, waiting for start and end location.")
         }
-        console.log("Path final 3:", path); // Used only for testing, remove later.
 
     };
 
@@ -368,7 +351,8 @@ const MapScreen = () => {
 
     return (
         <GestureHandlerRootView style={styles.container}>
-            <TouchableWithoutFeedback onPress={() => setSelectedSection(null)}>
+            {/*<TouchableWithoutFeedback onPress={() => setSelectedSection(null)}>*/}
+            <TouchableWithoutFeedback>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
                         <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>

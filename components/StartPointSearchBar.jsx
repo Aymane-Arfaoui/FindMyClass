@@ -36,7 +36,6 @@ const StartPointSearchBar = ({ navigation,
     };
 
     const handleSearchStartLocation = (query) => {
-        console.log("123AAA123 TEST:" + query );
         setSearchQuery(query);
         let results = [];
 

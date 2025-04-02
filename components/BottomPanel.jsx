@@ -70,7 +70,7 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
             setModalVisible(false)
             router.push({ pathname: "MapScreen", params: { buildingKey } });
         } else {
-            console.log("No indoor map available for this building");
+            console.warn("No indoor map available for this building");
         }
     };
 
