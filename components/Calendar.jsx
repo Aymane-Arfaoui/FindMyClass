@@ -1,3 +1,4 @@
+// Calendar.jsx
 import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Calendar as RNCalendar } from 'react-native-calendars';
@@ -9,7 +10,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { fetchBuildingCoordinates } from "@/services/buildingService";
 import { calendarService } from '@/services/calendarService';
 import PropTypes from "prop-types";
-
 
 const Calendar = ({ events: propEvents }) => {
     const router = useRouter();
@@ -25,8 +25,7 @@ const Calendar = ({ events: propEvents }) => {
     }, []);
 
     useEffect(() => {
-        calendarService?.addListener(updateEvents);
-        loadEvents();
+        calendarService.addListener(updateEvents);
         loadTasks();
 
         const fetchEventsOnMount = async () => {
@@ -36,13 +35,16 @@ const Calendar = ({ events: propEvents }) => {
             }
             const token = await AsyncStorage.getItem("@accessToken");
             if (token) {
-                await calendarService?.fetchAndUpdateEvents(token);
+                await calendarService.fetchAndUpdateEvents(token);
+            }
+            if (propEvents && propEvents.length > 0) {
+                setEvents(prev => [...prev, ...propEvents]);
             }
         };
         fetchEventsOnMount();
 
         return () => {
-            calendarService?.removeListener(updateEvents);
+            calendarService.removeListener(updateEvents);
         };
     }, [updateEvents, propEvents]);
 
@@ -58,17 +60,10 @@ const Calendar = ({ events: propEvents }) => {
         try {
             const tasksJson = await AsyncStorage.getItem('tasks');
             if (tasksJson) {
-                const loadedTasks = JSON.parse(tasksJson);
-                setTasks(loadedTasks);
+                setTasks(JSON.parse(tasksJson));
             }
         } catch (error) {
             console.error('Error loading tasks:', error);
-        }
-    };
-
-    const loadEvents = async () => {
-        if (propEvents && propEvents.length > 0) {
-            setEvents(propEvents);
         }
     };
 
@@ -76,14 +71,13 @@ const Calendar = ({ events: propEvents }) => {
         setIsRefreshing(true);
         const token = await AsyncStorage.getItem("@accessToken");
         if (token) {
-            await calendarService?.fetchAndUpdateEvents(token);
+            await calendarService.fetchAndUpdateEvents(token);
         } else {
             setIsRefreshing(false);
             console.warn("No access token found. Please sign in again.");
         }
     };
 
-    // Combine events and tasks for marking dates
     const markedDates = [...events, ...tasks.map(task => ({
         start: { dateTime: task.date },
         type: 'task'
@@ -94,7 +88,7 @@ const Calendar = ({ events: propEvents }) => {
         if (eventDate) {
             acc[eventDate] = {
                 marked: true,
-                dotColor: item.type === 'task' ? theme.colors.secondary : theme.colors.primary,
+                dotColor: item.type === 'task' ? theme.colors.secondary : (item.calendarColor || theme.colors.primary),
             };
         }
         return acc;
@@ -108,42 +102,24 @@ const Calendar = ({ events: propEvents }) => {
         };
     }
 
-    // Get both events and tasks for selected date
-    const selectedDateEvents = events.filter(event => {
-        const eventDate = event.start?.dateTime
-            ? formatDateToLocalDate(event.start.dateTime)
-            : event.start?.date;
-        return eventDate === selectedDate;
-    });
-
-    const selectedDateTasks = tasks.filter(task => {
-        try {
-            const taskDate = formatDateToLocalDate(task.date);
-            return taskDate === selectedDate;
-        } catch (error) {
-            console.error('Error processing task date:', error, 'Task:', task);
-            return false;
-        }
-    });
-
-    // Combine and sort all items for the selected date
     const allItems = [
-        ...selectedDateEvents.map(event => ({ ...event, itemType: 'event' })),
-        ...selectedDateTasks.map(task => ({
+        ...events.map(event => ({ ...event, itemType: 'event' })),
+        ...tasks.map(task => ({
             itemType: 'task',
             summary: task.taskName,
             location: task.address,
             description: task.notes,
-            start: { 
-                dateTime: task.allDayEvent ? null : task.startTime 
-            },
-            end: { 
-                dateTime: task.allDayEvent ? null : task.endTime 
-            },
+            start: { dateTime: task.allDayEvent ? null : task.startTime },
+            end: { dateTime: task.allDayEvent ? null : task.endTime },
             allDayEvent: task.allDayEvent,
             id: task.id
         }))
-    ].sort((a, b) => {
+    ].filter(item => {
+        const itemDate = item.start?.dateTime
+            ? formatDateToLocalDate(item.start.dateTime)
+            : item.start?.date;
+        return itemDate === selectedDate;
+    }).sort((a, b) => {
         if (a.allDayEvent) return -1;
         if (b.allDayEvent) return 1;
         const aTime = a.start?.dateTime ? new Date(a.start.dateTime) : new Date(0);
@@ -159,15 +135,15 @@ const Calendar = ({ events: propEvents }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date(selectedDate + 'T00:00:00'));
 
-    const handleGetDirections = async (event) => {
-        if (!event.location) {
-            console.warn("No location available for this event.");
+    const handleGetDirections = async (item) => {
+        if (!item.location) {
+            console.warn("No location available for this item.");
             return;
         }
 
         try {
-            const coordinates = await fetchBuildingCoordinates(event.location);
-            const roomNumber = event.location.split('Rm')[1]?.trim();
+            const coordinates = await fetchBuildingCoordinates(item.location);
+            const roomNumber = item.location.split('Rm')[1]?.trim();
 
             if (coordinates) {
                 router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
@@ -179,8 +155,8 @@ const Calendar = ({ events: propEvents }) => {
         }
     };
 
-    const handleEventPress = (event) => {
-        setActiveEvent(activeEvent?.id === event.id ? null : event);
+    const handleEventPress = (item) => {
+        setActiveEvent(activeEvent?.id === item.id ? null : item);
     };
 
     return (
@@ -218,23 +194,24 @@ const Calendar = ({ events: propEvents }) => {
                             key={item.id || index}
                             style={[
                                 styles.eventCard,
-                                { borderLeftWidth: 4, borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary }
+                                { borderLeftWidth: 4, borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : (item.calendarColor || theme.colors.primary) }
                             ]}
                             onPress={() => handleEventPress(item)}
                         >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
-                                    {item.allDayEvent ? 'All day' : 
-                                     item.start?.dateTime ? 
-                                        new Date(item.start.dateTime).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        }) : 'All day'}
+                                    {item.allDayEvent ? 'All day' :
+                                        item.start?.dateTime ?
+                                            new Date(item.start.dateTime).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            }) : 'All day'}
                                 </Text>
                             </View>
                             <View style={styles.eventDetails}>
                                 <Text style={styles.eventTitle}>
                                     {item.itemType === 'task' ? '📝 ' : '📅 '}{item.summary}
+                                    {item.calendarName && ` (${item.calendarName})`}
                                 </Text>
                                 {item.location && (
                                     <Text style={styles.eventLocation}>{item.location}</Text>
@@ -263,10 +240,13 @@ const Calendar = ({ events: propEvents }) => {
         </View>
     );
 };
-Calendar.propTypes={
-    events: PropTypes.any
-}
+
+Calendar.propTypes = {
+    events: PropTypes.array
+};
+
 const styles = StyleSheet.create({
+    // Same styles as in your second version, with all properties included
     container: {
         backgroundColor: '#fff',
         borderRadius: 10,

@@ -42,11 +42,13 @@
       </intent-filter>
 
       <!-- ✅ Deep linking for Google OAuth -->
-      <intent-filter>
+      <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW"/>
         <category android:name="android.intent.category.DEFAULT"/>
         <category android:name="android.intent.category.BROWSABLE"/>
-        <data android:scheme="com.aymanearfaoui.findmyclass" android:host="oauth2redirect"/>
+        <data
+                android:scheme="com.aymanearfaoui.findmyclass"
+                android:host="oauth2redirect"/>
       </intent-filter>
       <intent-filter>
         <action android:name="android.intent.action.VIEW"/>

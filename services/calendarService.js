@@ -1,3 +1,4 @@
+// calendarService.js
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 class CalendarService {
@@ -31,10 +32,9 @@ class CalendarService {
         try {
             const timeMin = new Date().toISOString();
             const timeMax = new Date();
-            timeMax.setDate(timeMax.getDate() + 30); // Get events for next 30 days
+            timeMax.setDate(timeMax.getDate() + 30);
 
-            console.log('Fetching calendar list...');
-            // First, get list of all calendars
+            // Get all calendars
             const calendarListResponse = await fetch(
                 'https://www.googleapis.com/calendar/v3/users/me/calendarList',
                 {
@@ -42,11 +42,9 @@ class CalendarService {
                 }
             );
             const calendarList = await calendarListResponse.json();
-            console.log('Found calendars:', calendarList.items.map(cal => cal.summary));
-            
-            // Fetch events from each calendar
+
+            // Fetch events from all calendars
             const allEventsPromises = calendarList.items.map(async (calendar) => {
-                console.log(`Fetching events from calendar: ${calendar.summary}`);
                 const response = await fetch(
                     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&orderBy=startTime&singleEvents=true`,
                     {
@@ -54,8 +52,6 @@ class CalendarService {
                     }
                 );
                 const data = await response.json();
-                console.log(`Found ${data.items?.length || 0} events in calendar: ${calendar.summary}`);
-                // Add calendar source information to each event
                 return (data.items || []).map(event => ({
                     ...event,
                     calendarName: calendar.summary,
@@ -63,10 +59,8 @@ class CalendarService {
                 }));
             });
 
-            // Wait for all calendar events to be fetched
+            // Combine and sort all events
             const allEventsArrays = await Promise.all(allEventsPromises);
-            
-            // Combine all events into a single array
             this.events = allEventsArrays.flat().sort((a, b) => {
                 const aTime = new Date(a.start?.dateTime || a.start?.date);
                 const bTime = new Date(b.start?.dateTime || b.start?.date);
@@ -76,7 +70,6 @@ class CalendarService {
             await AsyncStorage.setItem("@calendar", JSON.stringify(this.events));
             this.notifyListeners();
             return this.events;
-
         } catch (error) {
             console.warn('Calendar fetch error:', error);
             const storedEvents = await AsyncStorage.getItem("@calendar");

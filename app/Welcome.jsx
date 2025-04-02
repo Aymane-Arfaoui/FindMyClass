@@ -12,14 +12,15 @@ import { calendarService } from '@/services/calendarService';
 import { useRouter } from 'expo-router';
 import GoogleLoginButton from '../assets/images/google-color.png';
 import BackgroundImg from '../assets/images/background-generic-1.png';
+import * as AuthSession from "expo-auth-session";
 
 WebBrowser.maybeCompleteAuthSession();
 
 const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
+    webClientId: '449179918461-mejaq67g7t50sjgjithtso285iv1a272.apps.googleusercontent.com',
     iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+    androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
     scopes: [
       'profile',
       'email',
@@ -30,8 +31,10 @@ const Welcome = () => {
       'https://www.googleapis.com/auth/calendar.settings.readonly',
       'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
     ],
-    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
-  });
+    redirectUri: AuthSession.makeRedirectUri({
+      scheme: 'com.aymanearfaoui.findmyclass',
+      path: 'oauth2redirect',
+    }),  });
 
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
