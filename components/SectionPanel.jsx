@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 
-const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp  }) => {
+const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp, showButtonDirections }) => {
     if (!selectedSection) return null;
 
     return (
@@ -18,10 +18,11 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
                 <Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>
                 {/*<Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>*/}
 
-                <TouchableOpacity onPress={onClose} style={styles.closeButton} testID={'close-section-button'}>
+                <TouchableOpacity onPress={onClose} style={styles.closeButtonSP_in} testID={'close-section-button'}>
                     <Ionicons name="close-circle" size={32} color={theme.colors.dark} />
                 </TouchableOpacity>
 
+                { showButtonDirections && (
                 <TouchableOpacity
                     style={styles.directionsButton}
                     // onPress={onShowDirections}
@@ -30,9 +31,10 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
                         onShowDirectionsTemp();
                     }}
                 >
-                    <Text style={styles.directionsButtonText}>Show Directions</Text>
+                    <Ionicons name="navigate" size={24} color={theme.colors.white} />
+                    {/*<Text style={styles.directionsButtonText}>Show Directions</Text>*/}
                 </TouchableOpacity>
-
+                )}
 
             </View>
         </Animated.View>
@@ -78,6 +80,7 @@ const styles = StyleSheet.create({
         flexDirection: 'column',
         alignItems: 'flex-start',
         paddingBottom: 15,
+        position: 'relative',
     },
     sectionTitle: {
         fontSize: 20,
@@ -89,10 +92,10 @@ const styles = StyleSheet.create({
         color: theme.colors.textLight,
         marginTop: 5,
     },
-    closeButton: {
+    closeButtonSP_in: {
         position: 'absolute',
-        right: 0,
-        top: -42,
+        right: -10,
+        top: -50,
         backgroundColor: theme.colors.white,
         borderRadius: 20,
         padding: 5,
@@ -105,12 +108,24 @@ const styles = StyleSheet.create({
     },
 
     directionsButton: {
-        marginTop: 15,
+        position: 'absolute',
+        right: 0,
+        top: -25,
+        bottom: 15,
+        width: 45,
+        height: 45,
+        borderRadius: 28,
         backgroundColor: theme.colors.primary,
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        borderRadius: theme.radius.md,
-        alignSelf: 'flex-start',
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: theme.colors.dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+
+        marginRight: 30,
+        marginTop: 15,
     },
 
     directionsButtonText: {

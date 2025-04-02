@@ -516,7 +516,7 @@ const MapScreen = () => {
                         // onShowDirections={() => handleShowDirectionsSection(selectedSection?.self)} // Change it to pass selectedSection only without .id
                         onShowDirections={() => handleShowDirectionsSection(selectedSection)}
                         onShowDirectionsTemp={handleShowDirectionsTemp}
-
+                        showButtonDirections={!showSearchBar}
 
                     />
                 </View>
