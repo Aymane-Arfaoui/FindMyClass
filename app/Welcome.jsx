@@ -18,24 +18,11 @@ WebBrowser.maybeCompleteAuthSession();
 
 const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '449179918461-mejaq67g7t50sjgjithtso285iv1a272.apps.googleusercontent.com',
-    iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+    iosClientId: '449179918461-olq0qduopb56j7ne61nrjrd6tm719cfq.apps.googleusercontent.com',
     androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
-    scopes: [
-      'profile',
-      'email',
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.readonly',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/calendar.events.readonly',
-      'https://www.googleapis.com/auth/calendar.settings.readonly',
-      'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
-    ],
-    redirectUri: AuthSession.makeRedirectUri({
-      scheme: 'com.aymanearfaoui.findmyclass',
-      path: 'oauth2redirect',
-    }),  });
-
+    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
+    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+  });
   const router = useRouter();
   const [isLoading, setLoading] = useState(false);
 
