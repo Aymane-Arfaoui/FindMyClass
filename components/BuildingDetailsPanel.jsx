@@ -18,6 +18,8 @@ function hasIndoorMap(buildingName = "") {
         buildingKey = "MB";
     } else if (lower.includes("cc") || lower.includes("central building")) {
         buildingKey = "CC";
+    }else if (lower.includes("vl") || lower.includes("vanier library")) {
+        buildingKey = "VL";
     }
 
     return buildingKey;
