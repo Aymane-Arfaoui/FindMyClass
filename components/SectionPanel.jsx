@@ -3,6 +3,8 @@ import { View, Text, TouchableOpacity, StyleSheet, Animated } from 'react-native
 import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 
+import PropTypes from 'prop-types';
+
 const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp, showButtonDirections, multiFloorText }) => {
 
     let showText = false;
@@ -58,12 +60,17 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
         </Animated.View>
     );
 };
-// SectionPanel.propTypes={
-//     selectedSection: PropTypes.any,
-//     onClose: PropTypes.func,
-//     panHandlers: PropTypes.any,
-//     panelY: PropTypes.object
-// }
+
+SectionPanel.propTypes={
+    selectedSection: PropTypes.object,
+    onClose: PropTypes.func,
+    panHandlers: PropTypes.object,
+    panelY: PropTypes.object,
+    onShowDirections: PropTypes.func,
+    onShowDirectionsTemp: PropTypes.func,
+    showButtonDirections: PropTypes.bool,
+    multiFloorText: PropTypes.string,
+}
 
 export default SectionPanel;
 

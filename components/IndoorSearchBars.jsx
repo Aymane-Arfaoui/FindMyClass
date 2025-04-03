@@ -7,6 +7,8 @@ import {hp, wp} from '@/helpers/common';
 import IndoorSearchBar from "@/components/IndoorSearchBar";
 import StartPointSearchBar from "@/components/StartPointSearchBar";
 
+import PropTypes from 'prop-types';
+
 const IndoorSearchBars = ({startLocation,
                               setStartLocation,
                               onShowDirectionsUpdate,
@@ -34,29 +36,12 @@ const IndoorSearchBars = ({startLocation,
     return (
         <View style={styles.containerIM} testID={'search-bars'}>
 
+
             <TouchableOpacity onPress={onBackPress} style={styles.backButtonIM}>
                 <Ionicons name="chevron-back" size={26} color="white"/>
             </TouchableOpacity>
 
 
-            {/*<View style={styles.inputContainerIM}>*/}
-            {/*    <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.iconIM}/>*/}
-            {/*    <TextInput*/}
-            {/*        style={styles.inputIM}*/}
-            {/*        value={localStart}*/}
-            {/*        onChangeText={(text) => setLocalStart(text)}*/}
-            {/*        placeholder="Starting Point"*/}
-            {/*    />*/}
-
-            {/*<IndoorSearchBar*/}
-            {/*    navigation={navigation}*/}
-            {/*    setSelectedFloorKey={setSelectedFloorKey}*/}
-            {/*    setSelectedSection={setSelectedSection}*/}
-            {/*    resetTransform={resetTransform}*/}
-            {/*/>*/}
-
-
-            {/*</View>*/}
             <View style={styles.inputContainerIMStart}>
 
                 <StartPointSearchBar
@@ -68,7 +53,7 @@ const IndoorSearchBars = ({startLocation,
                     searchQuery={localStart}
                     setSearchQuery={setLocalStart}
 
-                    // test={testFunc}
+
 
                 />
             </View>
@@ -83,31 +68,20 @@ const IndoorSearchBars = ({startLocation,
                 />
             </View>
 
-
-            {/*<View>*/}
-            {/*    <TouchableOpacity*/}
-            {/*        style={styles.confirmButton}*/}
-            {/*        // onPress={() => setStartLocation(localStart)}*/}
-
-            {/*        onPress={() => {*/}
-            {/*            setStartLocation(localStart)*/}
-            {/*            onShowDirectionsUpdate();*/}
-            {/*            onShowDirectionsUpdateTemp();*/}
-            {/*        }}*/}
-
-            {/*    >*/}
-
-            {/*        /!*<Text style={styles.buttonText}>Update Start Location</Text>*!/*/}
-            {/*        <Text style={styles.buttonText}>Show Directions</Text>*/}
-
-            {/*    </TouchableOpacity>*/}
-
-            {/*</View>*/}
         </View>
     );
 };
 
-
+IndoorSearchBars.propTypes = {
+    startLocation: PropTypes.string,
+    setStartLocation: PropTypes.func,
+    onShowDirectionsUpdate: PropTypes.func,
+    onShowDirectionsUpdateTemp: PropTypes.func,
+    destination: PropTypes.string,
+    onBackPress: PropTypes.func,
+    navigation: PropTypes.object,
+    resetTransform: PropTypes.func,
+};
 export default IndoorSearchBars;
 
 

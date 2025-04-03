@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import PropTypes from 'prop-types';
 
-const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute,onChangeUpdateRouteTemp }) => {
+const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute, onChangeUpdateRouteTemp }) => {
     if (floorKeys.length <= 1) return null;
 
     const testFunc = () => {
@@ -69,7 +69,9 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onCha
 FloorSelector.propTypes={
     floorKeys:PropTypes.array,
     selectedFloorKey: PropTypes.string,
-    setSelectedFloorKey:PropTypes.func
+    setSelectedFloorKey:PropTypes.func,
+    onChangeUpdateRoute: PropTypes.func,
+    onChangeUpdateRouteTemp: PropTypes.func,
 }
 export default FloorSelector;
 

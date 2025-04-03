@@ -47,10 +47,6 @@ const MapScreen = () => {
             </View>
         );
     }
-//     return (<InnerMapScreen buildingKey={buildingKey}/>);
-// };
-// const InnerMapScreen = ({buildingKey}) => {
-//     const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -158,7 +154,6 @@ const MapScreen = () => {
         return `M${coordinates.join(' L')}`;
     };
 
-    // const selectedPath = path ? getPathFromNodes(path) : null;
     const [path, setPath] = useState(null);
     const [selectedPath, setSelectedPath] = useState(null);
 
@@ -192,19 +187,12 @@ const MapScreen = () => {
                 }
             });
 
-            // if (floorChanges.length > 0) {
-            //     floorChanges.forEach(change => {
-            //         alert(`Change floors from ${change.previousFloor} to ${change.newFloor} using ${change.transitionNode.poi_type}`);
-            //     });
-            // }
-
             if (floorChanges.length > 0) {
                 let message = "There are floor changes in you path, you need to go:\n";
                 floorChanges.forEach(change => {
                     message += `  - From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
                 setMultiFloorMessage(message);
-                // alert(message);
             }
             else{
                 setMultiFloorMessage("");
@@ -282,29 +270,14 @@ const MapScreen = () => {
 
 
     const handleShowDirectionsSection = async (endId) => {
-        // const aa = endId.id;
-        // console.log("TEST88881111111118888: ",{aa})
         if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)){
-            // console.log(startLocationIndoor)
-            // console.log(endId)
             const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
-            // const transformedStartLocationIndoor = startLocationIndoor.ref_ID
-
-            // const transformedEndId = transformId(endId);
             const transformedEndId = endId.ref_ID;
-
-            // const startId = "h8_815"; // Only use for testing, remove later.
-            // const campus = "hall"; // Only use for testing, remove later.
-            const campus = "hall"; // Only use for testing, remove later.
-
-
-            // const transformedEndId = endId.replace(/([A-Za-z])-([0-9])/, "$1$2_");
 
             if (transformedStartLocationIndoor && transformedEndId) {
                 try {
                     const response = await fetch(
                         `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
-                        // `http://10.0.2.2:5000/indoorNavigation?startId=h2_205&endId=h2_260&campus=hall` // Only use for testing, remove later.
                     );
 
                     if (response.ok) {
@@ -332,7 +305,6 @@ const MapScreen = () => {
 
     useEffect(() => {
         if (startLocationIndoor && selectedSection?.id) {
-            // handleShowDirections(selectedSection.id); // Change it to pass selectedSection only without .id
             handleShowDirectionsSection(selectedSection);
             handleShowDirectionsTemp();
         }
@@ -365,18 +337,13 @@ const MapScreen = () => {
                             setStartLocation={setStartLocationIndoor}
 
 
-                            // onShowDirectionsUpdate={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
-                            // onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection?.selectedSection)} // Change it to pass selectedSection only without .id
                             onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection)}
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
-                            // startLocation={selectedSection?.id}
                             destination={selectedSection?.id}
                             onBackPress={() => closeIndoorSearchBars(false)}
 
                             navigation={navigation}
-                            // setSelectedFloorKey={setSelectedFloorKey}
-                            // setSelectedSection={setSelectedSection}
                             resetTransform={resetTransform}
 
                         />
@@ -450,22 +417,6 @@ const MapScreen = () => {
                                             />
                                         )}
 
-                                        {/*{poiImage && (*/}
-
-                                        {/*//     <Path*/}
-                                        {/*//     d={`M87.75,588.6 L87.92,560.77 L565.71,577.53 L690.67,627.53 L690.67,888.21`}*/}
-                                        {/*//     fill="none"*/}
-                                        {/*//     stroke={theme.colors.primaryLight}*/}
-                                        {/*//     strokeWidth="6"*/}
-                                        {/*// />)}*/}
-
-                                        {/*    <Path*/}
-                                        {/*    d={selectedPath}*/}
-                                        {/*    fill="none"*/}
-                                        {/*    stroke={theme.colors.primaryLight}*/}
-                                        {/*    strokeWidth="6"*/}
-                                        {/*/>)}*/}
-
 
 
                                     </Svg>
@@ -496,18 +447,13 @@ const MapScreen = () => {
                             setSelectedFloorKey(floor);
                             resetTransform();
                         }}
-                        // onChangeUpdateRoute={() => handleShowDirections(selectedSection?.id)}  // Change it to pass selectedSection only without .id
-                        // onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection?.self)}  // Change it to pass selectedSection only without .id
                         onChangeUpdateRoute={() => handleShowDirectionsSection(selectedSection)}
-                        // onChangeUpdateRouteTemp={handleShowDirectionsTemp} //ADD HERE
                     />
                     <SectionPanel
                         selectedSection={selectedSection}
                         onClose={() => setSelectedSection(null)}
                         panHandlers={panResponder.panHandlers}
                         panelY={panelY}
-                        // onShowDirections={() => handleShowDirections(selectedSection?.id)} // Change it to pass selectedSection only without .id
-                        // onShowDirections={() => handleShowDirectionsSection(selectedSection?.self)} // Change it to pass selectedSection only without .id
                         onShowDirections={() => handleShowDirectionsSection(selectedSection)}
                         onShowDirectionsTemp={handleShowDirectionsTemp}
                         showButtonDirections={!showSearchBar}

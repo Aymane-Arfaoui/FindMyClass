@@ -13,6 +13,7 @@ import { theme } from "@/constants/theme";
 import { parse, getBounds } from 'svg-path-bounds';
 import {hp} from "@/helpers/common";
 
+import PropTypes from 'prop-types';
 
 const StartPointSearchBar = ({ navigation,
                                  // setSelectedFloorKey,
@@ -22,7 +23,6 @@ const StartPointSearchBar = ({ navigation,
                                  setSearchQuery,
 
                              }) => {
-    // const [searchQuery, setSearchQuery] = useState('');
     const [searchActive, setSearchActive] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
 
@@ -128,6 +128,13 @@ const StartPointSearchBar = ({ navigation,
             )}
         </View>
     );
+};
+
+StartPointSearchBar.propTypes = {
+    navigation: PropTypes.object,
+    resetTransform: PropTypes.func,
+    searchQuery: PropTypes.string,
+    setSearchQuery: PropTypes.func,
 };
 
 export default StartPointSearchBar;
