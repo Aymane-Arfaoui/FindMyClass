@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {theme} from '@/constants/theme';
 import {getLocalDateString} from './EventList'
+import PropTypes from "prop-types";
 
 
 const WeekNavigation = ({onSelectDate}) => {
@@ -51,6 +52,9 @@ const WeekNavigation = ({onSelectDate}) => {
     );
 };
 
+WeekNavigation.propTypes={
+    onSelectDate: PropTypes.func
+}
 export default WeekNavigation;
 
 const styles = StyleSheet.create({

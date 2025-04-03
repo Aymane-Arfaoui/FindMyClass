@@ -3,6 +3,7 @@ import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import EditTasks from "@/components/EditTasks";
+import PropTypes from "prop-types";
 
 export const getLocalDateString = (dateInput) => {
     if (!dateInput) return null;
@@ -196,6 +197,9 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
     );
 };
 
+EventList.propTypes={
+    events:PropTypes.any,  onUpdate:PropTypes.func, isPlanRouteMode:PropTypes.bool, onSelectForRoute: PropTypes.func, resetSelectionFlag:PropTypes.any
+}
 export default EventList;
 
 const styles = StyleSheet.create({

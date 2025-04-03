@@ -5,6 +5,7 @@ import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PropTypes from "prop-types";
 
 const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     const now = new Date();
@@ -211,6 +212,9 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     );
 };
 
+CreateTask.propTypes={
+    isVisible:PropTypes.bool, onClose:PropTypes.func, onTaskCreated:PropTypes.func
+}
 const styles = StyleSheet.create({
     createTaskModalContainer: {
         flex: 1,

@@ -5,6 +5,7 @@ import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PropTypes from "prop-types";
 
 const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
     const [taskName, setTaskName] = useState("");
@@ -256,6 +257,10 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
         </Modal>
     );
 };
+
+EditTasks.propTypes={
+    isVisible:PropTypes.bool, onClose:PropTypes.func,taskData:PropTypes.any, onUpdate:PropTypes.func
+}
 
 const styles = StyleSheet.create({
     editTaskModalContainer: {

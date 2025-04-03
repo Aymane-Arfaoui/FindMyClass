@@ -18,6 +18,7 @@ import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
 import IndoorSearchBar from "@/components/IndoorSearchBar";
+import PropTypes from "prop-types";
 
 const MapScreen = () => {
     const route = useRoute();
@@ -207,7 +208,9 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
         </GestureHandlerRootView>
     );
 };
-
+InnerMapScreen.propTypes={
+    buildingKey:PropTypes.any
+}
 export default MapScreen;
 
 const styles = StyleSheet.create({
