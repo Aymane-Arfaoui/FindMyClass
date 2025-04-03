@@ -46,7 +46,7 @@ const Welcome = () => {
       const userData = await getUserInfo(response.authentication.accessToken);
       if (userData) {
         await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
-        await calendarService.fetchAndUpdateEvents(response.authentication.accessToken);
+        await calendarService?.fetchAndUpdateEvents(response.authentication.accessToken);
         router.replace("/home");
       }
       setLoading(false);
