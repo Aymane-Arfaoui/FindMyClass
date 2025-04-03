@@ -126,7 +126,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
             <View style={styles.editTaskModalContainer}>
                 <View style={styles.editTaskBottomSheet}>
-                    <TouchableOpacity onPress={onClose} style={styles.editTaskCloseButton}>
+                    <TouchableOpacity testID={'close-button'} onPress={onClose} style={styles.editTaskCloseButton}>
                         <Ionicons name="close-circle" size={32} color="#333"/>
                     </TouchableOpacity>
                     <Text style={styles.editTaskHeaderText}>Edit Task</Text>
@@ -176,6 +176,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                                           style={styles.editTaskAllDayToggle}>
                             <Text style={styles.editTaskLabel}>All Day Event</Text>
                             <Switch
+                                testID={'all-day-switch'}
                                 value={allDayEvent}
                                 onValueChange={(value) => {
                                     setAllDayEvent(value);
@@ -196,7 +197,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                     {!allDayEvent && (
                         <>
                             <Text style={styles.editTaskLabel}>Start Time</Text>
-                            <TouchableOpacity onPress={() => setOpenStartTimePicker(true)}
+                            <TouchableOpacity testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)}
                                               style={styles.editTaskInputButton}>
                                 <Text style={styles.editTaskInputText}>{formatTime(startTime)}</Text>
                             </TouchableOpacity>
@@ -213,7 +214,7 @@ const EditTasks = ({isVisible, onClose, taskData, onUpdate}) => {
                             />
 
                             <Text style={styles.editTaskLabel}>End Time</Text>
-                            <TouchableOpacity onPress={() => setOpenEndTimePicker(true)}
+                            <TouchableOpacity  testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)}
                                               style={styles.editTaskInputButton}>
                                 <Text style={styles.editTaskInputText}>{formatTime(endTime)}</Text>
                             </TouchableOpacity>

@@ -107,7 +107,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                         >
                             <View style={{width: 70, marginRight: 10, alignItems: 'center'}}>
                                 {isPlanRouteMode ? (
-                                    <TouchableOpacity onPress={handleSelect}>
+                                    <TouchableOpacity onPress={handleSelect} testID={'select-event-button'}>
                                         <Ionicons
                                             name={isSelected ? "radio-button-on" : "radio-button-off"}
                                             size={22}
@@ -169,6 +169,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                                 {/* Edit button only for tasks */}
                                 {event.itemType === 'task' && (
                                     <TouchableOpacity
+                                        testID={'edit-button'}
                                         style={styles.editButton}
                                         onPress={() => handleEditPress(event)}
                                     >
