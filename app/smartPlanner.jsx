@@ -169,7 +169,7 @@ const SmartPlanner = () => {
                 day={day}
                 weekday={weekday}
                 monthYear={monthYear}
-                onBack={() => router.push('/Welcome')}
+                onBack={() => router.back()}
                 onAddTask={() => setIsAddModalVisible(true)}
                 onPlanRoute={() => setIsPlanRouteMode(true)}
             />
