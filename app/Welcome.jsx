@@ -17,9 +17,8 @@ WebBrowser.maybeCompleteAuthSession();
 
 const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
-    iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+    iosClientId: '449179918461-olq0qduopb56j7ne61nrjrd6tm719cfq.apps.googleusercontent.com',
+    androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
     scopes: [
       'profile',
       'email',
