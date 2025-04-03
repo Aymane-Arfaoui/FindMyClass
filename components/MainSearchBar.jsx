@@ -164,6 +164,7 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
             <View style={styles.searchContainer}>
                 <Ionicons name="search-outline" size={20} color={theme.colors.grayDark} style={styles.searchIcon}/>
                 <TextInput
+                    testID={ 'search-input'}
                     style={styles.textInput}
                     placeholder="Search Here"
                     value={inputText}
@@ -173,11 +174,11 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
                     }}
                 />
                 {inputText.length > 0 ? (
-                    <TouchableOpacity style={styles.closeButton} onPress={clearInput}>
+                    <TouchableOpacity testID={'clear-input-button'}  style={styles.closeButton} onPress={clearInput}>
                         <Ionicons name="close-circle" size={22} color={theme.colors.grayDark}/>
                     </TouchableOpacity>
                 ) : (
-                    <TouchableOpacity style={styles.micButton} onPress={startVoiceRecognition}>
+                    <TouchableOpacity testID={'mic-button'} style={styles.micButton} onPress={startVoiceRecognition}>
                         <Ionicons name={isListening ? "mic-off" : "mic"} size={22} color={theme.colors.grayDark}/>
                     </TouchableOpacity>
                 )}
@@ -186,7 +187,7 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
                 data={predictions}
                 keyExtractor={(item) => item.placePrediction.placeId}
                 renderItem={({item}) => (
-                    <TouchableOpacity style={styles.suggestionRow} onPress={() => handlePlaceSelect(item)}>
+                    <TouchableOpacity testID={item.placePrediction.text.text} style={styles.suggestionRow} onPress={() => handlePlaceSelect(item)}>
                         <Text style={styles.descriptionText}>{item.placePrediction.text.text}</Text>
                     </TouchableOpacity>
                 )}
