@@ -1,11 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
-import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
 import {isShuttleRunningNow} from "@/services/shuttleService";
-
+import {ThemeContext} from "@/context/ThemeProvider";
 
 
 function hasIndoorMapBottomPanel(buildingName = "") {
@@ -24,7 +23,7 @@ function hasIndoorMapBottomPanel(buildingName = "") {
 }
 
 
-const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes }) => {
+const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -71,11 +70,13 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
     const handleGoInside = () => {
         if (buildingKey) {
             setModalVisible(false)
-            router.push({ pathname: "MapScreen", params: { buildingKey } });
+            router.push({pathname: "MapScreen", params: {buildingKey}});
         } else {
             console.warn("No indoor map available for this building");
         }
     };
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
 
     return (
@@ -104,7 +105,6 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
             </View>
 
 
-
             <Modal
                 testID={'modal'}
                 animationType="slide"
@@ -115,7 +115,8 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
                 <View style={styles.modalContainer}>
                     <ScrollView style={styles.stepsScroll}>
 
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup} testID={'close-button'}>
+                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup}
+                                          testID={'close-button'}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
 
@@ -126,24 +127,33 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
                                     <Text style={styles.subTextHeader}>{`Duration: ${selectedRoute.duration}`}</Text>
                                     <Text style={styles.subTextHeader}>{`Distance: ${selectedRoute.distance}`}</Text>
 
-                                    <Text style={[styles.subSubTextHeader, { marginTop: 10 }]}>Step-by-step Directions:</Text>
+                                    <Text style={[styles.subSubTextHeader, {marginTop: 10}]}>Step-by-step
+                                        Directions:</Text>
 
                                     {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
                                         selectedRoute.mode === "transit" ? (
                                             selectedRoute.steps.map((step, index) => (
                                                 <View key={index} style={styles.stepContainer} testID={'transit-steps'}>
-                                                    <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`Stops: ${step.num_stops || 0}`}</Text>
+                                                    <Text
+                                                        style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                                                    <Text
+                                                        style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
+                                                    <Text
+                                                        style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
+                                                    <Text
+                                                        style={styles.stepSubText}>{`Stops: ${step.num_stops || 0}`}</Text>
                                                 </View>
                                             ))
                                         ) : (
                                             selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer} testID={'other-mode-steps'}>
-                                                    <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
+                                                <View key={index} style={styles.stepContainer}
+                                                      testID={'other-mode-steps'}>
+                                                    <Text
+                                                        style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                                                    <Text
+                                                        style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
+                                                    <Text
+                                                        style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
                                                 </View>
                                             ))
                                         )
@@ -191,7 +201,7 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
                             >
                                 <View style={styles.switchRouteContent}>
                                     <Text style={styles.shuttleSwitchRouteText}>Go</Text>
-                                    <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white" />
+                                    <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white"/>
                                 </View>
                             </TouchableOpacity>
                         </View>
@@ -221,36 +231,36 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
         </Animated.View>
     );
 };
-BottomPanel.propTypes={
-    transportMode:PropTypes.string,
-    routeDetails:PropTypes.object,
-    routes:PropTypes.array,
+BottomPanel.propTypes = {
+    transportMode: PropTypes.string,
+    routeDetails: PropTypes.object,
+    routes: PropTypes.array,
     wantsClassroom: PropTypes.bool,
     selectedBuilding: PropTypes.object,
     travelTimes: PropTypes.object
 }
 
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         position: "absolute",
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.backgroundNav,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         padding: 16,
         shadowColor: theme.colors.dark,
-        shadowOffset: {width: 0, height: -2},
+        shadowOffset: {width: 0, height: -1},
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
+        shadowRadius: 8,
+        elevation: 10,
     },
     slideIndicator: {
         width: 40,
         height: 5,
-        backgroundColor: theme.colors.gray,
+        backgroundColor: theme.colors.line,
         borderRadius: 10,
         alignSelf: "center",
         marginBottom: 8,
@@ -263,22 +273,27 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 18,
         fontWeight: "bold",
-        color: theme.colors.primary,
+        color: theme.colors.text,
+    },
+    subText: {
+        fontSize: 16,
+        color: theme.colors.textLight,
+        marginTop: 2,
     },
     textHeader: {
-        fontSize: 30,
+        fontSize: 24,
         fontWeight: "bold",
         color: theme.colors.primary,
+        marginBottom: 8,
     },
     subTextHeader: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: theme.colors.dark,
+        fontSize: 18,
+        color: theme.colors.text,
     },
     subSubTextHeader: {
-        fontSize: 20,
-        fontWeight: "bold",
+        fontSize: 18,
         color: theme.colors.primary,
+        marginTop: 10,
     },
     button: {
         backgroundColor: theme.colors.blueDark,
@@ -288,125 +303,92 @@ const styles = StyleSheet.create({
     stepsContainer: {
         marginTop: 10,
         flexDirection: "row",
-        alignItems: "center",
         justifyContent: "space-between",
         width: "100%",
         paddingVertical: 10,
-    },
-    stepText: {
-        fontSize: 17,
-        marginVertical: 4,
-        color: theme.colors.dark,
-    },
-    publicTransportContainer: {
-        marginTop: 10,
-        alignItems: "center",
-    },
-    transportOption: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-        width: "100%",
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
-    },
-    transportText: {
-        fontSize: 16,
-        fontWeight: "600",
-        color: theme.colors.text,
-    },
-    transportTime: {
-        fontSize: 16,
-        color: theme.colors.blueLight,
-    },
-    switchRouteButton: {
-        backgroundColor: theme.colors.blueLight,
-        borderRadius: 25,
-        paddingVertical: 10,
-        paddingHorizontal: 15,
-        alignItems: "center",
-        justifyContent: "center",
-        flexDirection: "row",
-
     },
     stepContainer: {
         marginTop: 10,
-        padding: 10,
-        borderRadius: 10,
-        backgroundColor: theme.colors.gray,
+        padding: 12,
+        borderRadius: 12,
+        backgroundColor: theme.colors.cardBackground,
+        borderColor: theme.colors.cardBorder,
+        borderWidth: 1,
     },
-
+    stepText: {
+        fontSize: 16,
+        fontWeight: "500",
+        color: theme.colors.text,
+        marginBottom: 4,
+    },
+    stepSubText: {
+        fontSize: 14,
+        color: theme.colors.textLight,
+    },
+    switchRouteButton: {
+        backgroundColor: theme.colors.primary,
+        borderRadius: 25,
+        paddingVertical: 10,
+        paddingHorizontal: 15,
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "center",
+    },
     switchRouteContent: {
         flexDirection: "row",
         alignItems: "center",
         gap: 8,
     },
-
     switchRouteText: {
-        color: "white",
+        color: theme.colors.white,
         fontSize: 16,
         fontWeight: "bold",
     },
-
     modalContainer: {
         flex: 1,
         justifyContent: "flex-end",
         alignItems: "center",
         backgroundColor: "rgba(0, 0, 0, 0.5)",
     },
-    modalContent: {
-        backgroundColor: "white",
+    stepsScroll: {
+        maxHeight: "60%",
+        backgroundColor: theme.colors.cardBackground,
+        width: "100%",
         padding: 20,
-        borderRadius: 10,
-        width: "80%",
-        alignItems: "center",
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
     },
     closeButtonBP: {
         marginTop: 20,
         backgroundColor: theme.colors.blueDark,
-        borderRadius: theme.radius.md,
+        borderRadius: 20,
         padding: 12,
-        marginBottom: 50,
         alignItems: "center",
-
+        marginBottom: 50,
     },
-    closeButtonBPup:{
+    closeButtonBPup: {
         marginTop: 0,
         backgroundColor: theme.colors.blueDark,
-        borderRadius: theme.radius.md,
+        borderRadius: 20,
         padding: 12,
-        marginBottom: 15,
         alignItems: "center",
-
+        marginBottom: 15,
     },
     closeButtonText: {
-        color: "white",
+        color: theme.colors.white,
         fontWeight: "bold",
         fontSize: 16,
-
-    },
-    stepsScroll: {
-        maxHeight: "60%",
-        backgroundColor: theme.colors.white,
-        width: "100%",
-        paddingTop: 20,
-        paddingLeft: 20,
-        paddingRight: 20,
-        paddingBottom: 20,
-
     },
     shuttleStepsContainer: {
         marginTop: 10,
         flexDirection: "row",
-        alignItems: "center",
         justifyContent: "space-between",
+        alignItems: "center",
         width: "100%",
         paddingVertical: 10,
     },
     shuttleStepText: {
         fontSize: 16,
-        marginVertical: 4,
         color: theme.colors.text,
     },
     shuttleSwitchRouteButton: {
@@ -414,29 +396,28 @@ const styles = StyleSheet.create({
         borderRadius: 25,
         paddingVertical: 10,
         paddingHorizontal: 15,
+        flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        flexDirection: "row",
     },
     shuttleSwitchRouteText: {
         color: theme.colors.white,
         fontSize: 16,
-        fontWeight: theme.fonts.bold,
+        fontWeight: "bold",
     },
     goInsideButton: {
         marginTop: 10,
         backgroundColor: theme.colors.primary,
-        borderRadius: theme.radius.md,
+        borderRadius: 20,
         padding: 12,
         alignItems: "center",
     },
     goInsideButtonText: {
-        color: "white",
+        color: theme.colors.white,
         fontWeight: "bold",
         fontSize: 16,
     },
-
-
 });
+
 
 export default BottomPanel;
