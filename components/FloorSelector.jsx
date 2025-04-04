@@ -4,8 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 import PropTypes from 'prop-types';
 
-const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => {
+const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute, onChangeUpdateRouteTemp }) => {
     if (floorKeys.length <= 1) return null;
+
+    const testFunc = () => {
+
+        const currentIndex = floorKeys.indexOf(selectedFloorKey);
+        if (currentIndex < floorKeys.length - 1) setSelectedFloorKey(floorKeys[currentIndex + 1]);
+
+    };
+
 
     return (
         <View style={styles.floorPanel}>
@@ -45,8 +53,12 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
                     testID={'forward-arrow'}
                     style={[styles.arrowButton, floorKeys.indexOf(selectedFloorKey) === floorKeys.length - 1 && styles.arrowDisabled]}
                     onPress={() => {
-                        const currentIndex = floorKeys.indexOf(selectedFloorKey);
-                        if (currentIndex < floorKeys.length - 1) setSelectedFloorKey(floorKeys[currentIndex + 1]);
+                        onChangeUpdateRoute();
+                        onChangeUpdateRouteTemp();
+
+                        testFunc();
+                        // const currentIndex = floorKeys.indexOf(selectedFloorKey);
+                        // if (currentIndex < floorKeys.length - 1) setSelectedFloorKey(floorKeys[currentIndex + 1]);
                     }}
                     disabled={floorKeys.indexOf(selectedFloorKey) === floorKeys.length - 1}
                 >
@@ -59,7 +71,9 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey }) => 
 FloorSelector.propTypes={
     floorKeys:PropTypes.array,
     selectedFloorKey: PropTypes.string,
-    setSelectedFloorKey:PropTypes.func
+    setSelectedFloorKey:PropTypes.func,
+    onChangeUpdateRoute: PropTypes.func,
+    onChangeUpdateRouteTemp: PropTypes.func,
 }
 export default FloorSelector;
 

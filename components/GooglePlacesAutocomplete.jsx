@@ -1,15 +1,17 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, {useCallback, useContext, useEffect, useMemo, useState} from "react";
 import {FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import Config from "react-native-config";
 import debounce from "lodash.debounce";
-import {theme} from "@/constants/theme";
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 const GOOGLE_PLACES_URL = "https://places.googleapis.com/v1/places:autocomplete";
 
 const GooglePlacesAutocomplete = ({address, onAddressSelect, autoFocus}) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const [inputText, setInputText] = useState(address || "");
     const [predictions, setPredictions] = useState([]);
     const [sessionToken] = useState(generateSessionToken());
@@ -121,47 +123,50 @@ const GooglePlacesAutocomplete = ({address, onAddressSelect, autoFocus}) => {
     );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     googleAutoInputContainer: {
         position: "relative",
     },
     googleAutoInput: {
+        backgroundColor: theme.colors.inputBackground,
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
         padding: 12,
         marginBottom: 10,
         fontSize: 16,
+        color: theme.colors.text,
     },
     googleAutoClearButton: {
         position: "absolute",
         right: 10,
         top: "50%",
         transform: [{translateY: -10}],
-        padding: 1,
+        padding: 0,
     },
     googleAutoSuggestionsContainer: {
         position: "absolute",
         top: 50,
         left: 0,
         right: 0,
-        backgroundColor: "white",
+        backgroundColor: theme.colors.cardBackground,
         borderRadius: 10,
         elevation: 5,
         zIndex: 1000,
         maxHeight: 230,
         overflow: "hidden",
         borderWidth: 1,
-        borderColor: theme.colors.gray,
+        borderColor: theme.colors.cardBorder,
     },
     googleAutoSuggestionItem: {
         paddingVertical: 12,
         paddingHorizontal: 10,
         borderBottomWidth: 1,
-        borderBottomColor: "#ddd",
+        borderBottomColor: theme.colors.gray,
     },
     googleAutoSuggestionText: {
         fontSize: 16,
+        color: theme.colors.text,
     },
 });
 

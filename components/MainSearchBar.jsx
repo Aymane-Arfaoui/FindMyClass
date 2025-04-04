@@ -1,11 +1,11 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {Alert, FlatList, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {theme} from "@/constants/theme";
 import Config from 'react-native-config';
 import debounce from 'lodash.debounce';
 import {ExpoSpeechRecognitionModule, useSpeechRecognitionEvent} from 'expo-speech-recognition';
 import PropTypes from "prop-types";
+import {ThemeContext} from '@/context/ThemeProvider';
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 const GOOGLE_PLACES_URL = "https://places.googleapis.com/v1/places:autocomplete";
@@ -16,6 +16,8 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
     const [sessionToken, setSessionToken] = useState(generateSessionToken());
     const [isListening, setIsListening] = useState(false);
     const [hasMicrophonePermission, setHasMicrophonePermission] = useState(null);
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
 
     useEffect(() => {
@@ -167,6 +169,7 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
                     testID={ 'search-input'}
                     style={styles.textInput}
                     placeholder="Search Here"
+                    placeholderTextColor={theme.colors.textLight}
                     value={inputText}
                     onChangeText={(text) => {
                         setInputText(text);
@@ -205,14 +208,14 @@ MainSearchBar.propTypes = {
 export default MainSearchBar;
 
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
     },
     searchContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderRadius: 25,
         paddingLeft: 40,
         paddingRight: 45,
@@ -226,7 +229,7 @@ const styles = StyleSheet.create({
         flex: 1,
         height: 50,
         fontSize: 16,
-        color: theme.colors.black,
+        color: theme.colors.text,
     },
     listView: {
         position: 'absolute',
@@ -250,6 +253,7 @@ const styles = StyleSheet.create({
     },
     descriptionText: {
         fontSize: 14,
+        color: theme.colors.text,
     },
     searchIcon: {
         position: "absolute",
