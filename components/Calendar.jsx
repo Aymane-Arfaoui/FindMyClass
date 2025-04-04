@@ -170,7 +170,19 @@ const Calendar = ({ events: propEvents }) => {
             const roomNumber = event.location.split('Rm')[1]?.trim();
 
             if (coordinates) {
-                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
+                console.warn(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
+                const encodedAddress = encodeURIComponent(event.location);
+                router.push({
+                    pathname: "/homemap",
+                    params: {
+                        lat: coordinates.latitude.toString(),
+                        lng: coordinates.longitude.toString(),
+                        room: roomNumber,
+                        address: encodedAddress,
+                        directionsTriggered: 'true'
+                    }
+                });
+
             } else {
                 console.error("Failed to fetch building coordinates.");
             }
@@ -244,6 +256,7 @@ const Calendar = ({ events: propEvents }) => {
                                 )}
                             </View>
                             {activeEvent?.id === item.id && item.location && (
+                              event.location ? (
                                 <TouchableOpacity
                                     style={styles.directionButton}
                                     onPress={() => handleGetDirections(item)}
@@ -252,7 +265,12 @@ const Calendar = ({ events: propEvents }) => {
                                     <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
                                     <Text style={styles.directionButtonText}>Get Directions</Text>
                                 </TouchableOpacity>
+                                ) : (
+                                    <Text style={styles.noLocationText}>No location for this event</Text>
+                                )
                             )}
+
+
                         </TouchableOpacity>
                     ))
                 ) : (
@@ -370,6 +388,14 @@ const styles = StyleSheet.create({
         opacity: 0.6,
         marginTop: hp(0.5),
     },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: 'gray',
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2),
+    },
+
 });
 
 export default Calendar;

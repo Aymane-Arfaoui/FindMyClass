@@ -4,6 +4,8 @@ import {FontAwesome} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
+import {isShuttleRunningNow} from "@/services/shuttleService";
+
 
 
 function hasIndoorMapBottomPanel(buildingName = "") {
@@ -29,6 +31,8 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
     const [modalVisible, setModalVisible] = useState(false);
     const router = useRouter();
 
+    const isShuttleActive = isShuttleRunningNow();
+
     useEffect(() => {
         setSelectedRoute(routeDetails);
     }, [routeDetails]);
@@ -45,7 +49,6 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
 
     const handleRouteSelection = (route) => {
         setSelectedRoute(route);
-        // setExpanded(false);
         setModalVisible(true);
 
     };
@@ -175,7 +178,7 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
 
             {expanded && (
                 <ScrollView style={{marginTop: 10}} testID={'expanded'}>
-                    {shuttleRoutes?.map((route, index) => (
+                    {isShuttleActive && shuttleRoutes?.map((route, index) => (
                         <View key={index} style={styles.shuttleStepsContainer}>
                             <Text style={styles.shuttleStepText}>
                                 {route.mode.toUpperCase()} – {route.duration} – {route.distance}

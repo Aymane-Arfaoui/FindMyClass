@@ -61,6 +61,13 @@ const MapButtons = ({onPress}) => {
                 >
                     <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );

@@ -32,8 +32,26 @@ export const getNextShuttleTime = () => {
             return time;
         }
     }
-    // console.warn("No more shuttles today.");
+    console.log("No more shuttles today.------");
     return null;
+};
+
+export const isShuttleRunningNow = () => {
+    const now = new Date();
+    const currentTime = now.getHours() * 60 + now.getMinutes();
+    const today = now.getDay();
+
+    const scheduleType = (today >= 1 && today <= 4) ? "Monday-Thursday" : (today === 5 ? "Friday" : null);
+    if (!scheduleType) return false; // weekend
+
+    const times = SHUTTLE_SCHEDULE[scheduleType];
+    const firstTime = times[0].split(":").map(Number);
+    const lastTime = times[times.length - 1].split(":").map(Number);
+
+    const firstShuttle = firstTime[0] * 60 + firstTime[1];
+    const lastShuttle = lastTime[0] * 60 + lastTime[1];
+
+    return currentTime >= firstShuttle && currentTime <= lastShuttle;
 };
 
 export const getShuttleTimes = (count) => {

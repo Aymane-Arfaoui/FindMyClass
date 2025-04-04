@@ -15,6 +15,10 @@ import {useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
+import { useLocalSearchParams } from 'expo-router';
+
+
+
 
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
@@ -39,6 +43,55 @@ export default function Homemap() {
     const [placeDetailsCache, setPlaceDetailsCache] = useState({});
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
+
+
+    const params = useLocalSearchParams();
+    const {
+        lat = null,
+        lng = null,
+        room = null,
+        address = null,
+        directionsTriggered = null,
+    } = useLocalSearchParams();
+
+    const [destinationAddress, setDestinationAddress] = useState(null);
+    const [hasTriggeredDirections, setHasTriggeredDirections] = useState(false);
+
+
+
+    useEffect(() => {
+        if (lat && lng) {
+            const parsedLat = parseFloat(lat);
+            const parsedLng = parseFloat(lng);
+            const decodedAddress = address ? decodeURIComponent(address) : null;
+
+            const destinationPoint = {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [parsedLng, parsedLat],
+                },
+                name: decodedAddress || "Selected Location",
+            };
+
+            setSelectedLocation(destinationPoint);
+            setCurrentDestination(destinationPoint);
+            setDestinationAddress(decodedAddress);
+        }
+    }, [lat, lng, address]);
+
+    useEffect(() => {
+        if (
+            directionsTriggered === 'true' &&
+            !hasTriggeredDirections &&
+            currentLocation?.geometry?.coordinates &&
+            currentDestination?.geometry?.coordinates
+        ) {
+            setHasTriggeredDirections(true);
+            handleDirectionPress(currentLocation, currentDestination, modeSelected);
+        }
+    }, [directionsTriggered, currentLocation, currentDestination, modeSelected, hasTriggeredDirections]);
+
 
     useEffect(() => {
         let isMounted = true;
@@ -116,7 +169,6 @@ export default function Homemap() {
                     units: "METRIC"
                 };
 
-                // Only add routingPreference for DRIVE mode
                 if (mode === "DRIVE") {
                     requestBody.routingPreference = "TRAFFIC_AWARE";
                 }
@@ -591,12 +643,13 @@ export default function Homemap() {
                 <>
                     <SearchBars
                         currentLocation={currentLocation}
-                        destination={buildingDetails?.formattedAddress}
+                        destination={destinationAddress || buildingDetails?.formattedAddress}
                         onBackPress={() => switchToRegularMapView(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
                     />
+
                     <BottomPanel
                         transportMode={modeSelected}
                         routeDetails={fastestRoute}
