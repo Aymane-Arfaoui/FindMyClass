@@ -39,6 +39,7 @@ export const lightColors = {
     textCalendar: '#fff',
     roomFill: '#F3F4F6',
     floorFill: '#D1D5DB',
+    line:'#E5E5E5',
 }
 export const darkColors = {
     primary: '#912238',
@@ -51,7 +52,7 @@ export const darkColors = {
     gray: '#1A1A1A',
     grayDark: '#E5E5E5',
     text: '#E0E0E0',
-    textLight: '#B3B3B3',
+    textLight: '#757575',
     white: '#FFFFFF',
     button: '#912238',
     loading: '#912238',
@@ -82,6 +83,7 @@ export const darkColors = {
     indoorMap: '#E5E5E5',
     roomFill: '#5C5C5C',    // A soft dark that separates rooms from the darker floor
     floorFill: '#2B2B2B',
+    line:'#757575',
 
 };
 export const colorBlindLightColors = {
@@ -125,6 +127,7 @@ export const colorBlindLightColors = {
     textCalendar: '#000',
     roomFill: '#F5F5F5',     // Nearly white with a subtle contrast
     floorFill: '#CCCCCC',
+    line:'#E5E5E5',
 
 };
 export const colorBlindDarkColors = {
@@ -138,7 +141,7 @@ export const colorBlindDarkColors = {
     gray: '#1A1A1A',
     grayDark: '#E5E5E5',
     text: '#E0E0E0',
-    textLight: '#B3B3B3',
+    textLight: '#757575',
     white: '#FFFFFF',
     button: '#56B4E9',
     loading: '#56B4E9',
@@ -168,5 +171,6 @@ export const colorBlindDarkColors = {
     textCalendar: '#000',
     roomFill: '#3C3C3C',
     floorFill: '#202020',
+    line:'#757575',
 };
 
