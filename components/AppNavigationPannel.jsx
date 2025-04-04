@@ -1,122 +1,38 @@
 import * as React from "react";
-import {ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {usePathname, useRouter} from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import {getUserInfo} from "@/services/userService";
-import {getCalendarEvents} from "@/services/calendarService";
 import {ThemeContext} from '@/context/ThemeProvider';
-
+import {useMemo} from "react";
 
 const {width} = Dimensions.get("window");
-
-WebBrowser.maybeCompleteAuthSession();
 
 const AppNavigationPanel = () => {
     const {theme} = React.useContext(ThemeContext);
     const router = useRouter();
     const pathname = usePathname();
-    const [, setUser] = React.useState(null);
-    const [isLoading, setLoading] = React.useState(false);
-    const styles = createStyles(theme);
-
-
-    const [, response, promptAsync] = Google.useAuthRequest({
-        webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
-        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-        androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
-        scopes: [
-            'profile',
-            'email',
-            'https://www.googleapis.com/auth/calendar',
-            'https://www.googleapis.com/auth/calendar.readonly',
-            'https://www.googleapis.com/auth/calendar.events',
-            'https://www.googleapis.com/auth/calendar.events.readonly',
-            'https://www.googleapis.com/auth/calendar.settings.readonly',
-            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
-        ],
-        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect',
-    });
-
-    React.useEffect(() => {
-        checkUserSession();
-    }, []);
-
-    React.useEffect(() => {
-        if (response?.type === "success") {
-            handleGoogleSignIn(response.authentication.accessToken);
-        }
-    }, [response]);
-
-    const checkUserSession = async () => {
-        const storedUser = await AsyncStorage.getItem("@user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
-        }
-    };
-
-    const handleGoogleSignIn = async (accessToken) => {
-        try {
-            setLoading(true);
-            const userData = await getUserInfo(accessToken);
-            if (userData) {
-                await AsyncStorage.setItem("@user", JSON.stringify(userData));
-                setUser(userData);
-
-                const events = await getCalendarEvents(accessToken);
-                await AsyncStorage.setItem("@calendar", JSON.stringify(events));
-
-                router.replace("/home");
-            }
-        } catch (error) {
-            Alert.alert("Login Failed", "Could not retrieve user information.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleNavigation = async (route) => {
-        const storedUser = await AsyncStorage.getItem("@user");
-        let isValidUser ;
-
-        try {
-            const parsed = JSON.parse(storedUser);
-            isValidUser = parsed?.email !== undefined;
-        } catch (err) {
-            isValidUser = false;
-        }
-
-        if (isValidUser) {
-            router.push(route);
-        } else {
-            Alert.alert(
-                "Sign In Required",
-                "You need to sign in with Google to access this feature.",
-                [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "Sign In", onPress: () => promptAsync() }
-                ]
-            );
-        }
-    };
-
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     return (
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/smartPlanner")}
-                              testID={'button-navigate-to-home'}>
+            <TouchableOpacity
+                style={styles.navButton}
+                onPress={() => router.push("/smartPlanner")}
+                testID={'button-navigate-to-home'}
+            >
                 <Ionicons
-                    name="calendar-outline"
+                    name="list-outline"
                     size={26}
                     color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
                 />
                 <View style={pathname === "/smartPlanner" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")}
-                              testID={'button-navigate-to-homemap'}>
+            <TouchableOpacity
+                style={styles.navButton}
+                onPress={() => router.push("/homemap")}
+                testID={'button-navigate-to-homemap'}
+            >
                 <Ionicons
                     name="home-outline"
                     size={26}
@@ -125,10 +41,11 @@ const AppNavigationPanel = () => {
                 <View style={pathname === "/homemap" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
-
-            <TouchableOpacity style={styles.navButton} onPress={() => handleNavigation("/user")}
-                              testID={'button-navigate-to-user'}>
-
+            <TouchableOpacity
+                style={styles.navButton}
+                onPress={() => router.push("/user")}
+                testID={'button-navigate-to-user'}
+            >
                 <Ionicons
                     name="person-outline"
                     size={26}
@@ -136,12 +53,6 @@ const AppNavigationPanel = () => {
                 />
                 <View style={pathname === "/user" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
-
-            {isLoading && (
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary}/>
-                </View>
-            )}
         </View>
     );
 };
@@ -170,27 +81,12 @@ const createStyles = (theme) => StyleSheet.create({
         alignItems: "center",
         flex: 1,
     },
-    centerButton: {
-        justifyContent: "center",
-        alignItems: "center",
-    },
     dotIndicator: {
         width: 6,
         height: 6,
         borderRadius: 3,
         backgroundColor: theme.colors.primary,
         marginTop: 2,
-    },
-    loadingOverlay: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
     },
 });
 
