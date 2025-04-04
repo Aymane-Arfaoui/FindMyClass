@@ -1,8 +1,11 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from "prop-types";
 import {ThemeContext} from '@/context/ThemeProvider';
 
+
+const MapButtons = ({ onPress }) => {
+    const [selectedLocation, setSelectedLocation] = useState('SGW');
 
 const MapButtons = ({onPress}) => {
     const [selectedLocation, setSelectedLocation] = useState('SGW');
@@ -10,7 +13,7 @@ const MapButtons = ({onPress}) => {
     const styles = useMemo(() => createStyles(theme), [theme]);
     const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
-        Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
+        Loyola: [-73.6405, 45.4582]         // Loyola Coordinates
     };
 
     useEffect(() => {
@@ -51,14 +54,23 @@ const MapButtons = ({onPress}) => {
                     </Text>
 
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
 };
 
+
 MapButtons.propTypes = {
     onPress: PropTypes.func.isRequired,
 };
+
 
 const createStyles = (theme) =>
     StyleSheet.create({
@@ -72,7 +84,7 @@ const createStyles = (theme) =>
             alignItems: 'center',
             zIndex: 10,
             width: 180,
-            height: 45,
+            height: 45,      
         },
         toggleWrapper: {
             flexDirection: 'row',
