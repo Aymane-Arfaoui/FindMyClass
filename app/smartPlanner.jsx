@@ -154,7 +154,7 @@ const SmartPlanner = () => {
             alert("Please select at least one event with an address.");
             return;
         }
-        console.log("Submitting route:", selectedRouteEvents);
+        console.warn("Submitting route:", selectedRouteEvents);
         setIsPlanRouteMode(false);
         setResetSelectionFlag(prev => !prev);
     };
