@@ -83,7 +83,7 @@ const Home = () => {
                             <TouchableOpacity
                                 style={styles.actionCard}
                                 onPress={() => router.push("/smartPlanner")}
-                                testID={'calendar-button'}
+                                testID={'smart-planner-button'}
                             >
                                 <View style={styles.actionIconContainer}>
                                     <Ionicons name="calendar" size={24} color={theme.colors.primary}/>
