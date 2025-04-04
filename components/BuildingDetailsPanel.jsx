@@ -60,6 +60,7 @@ function BuildingDetailsPanel({
 
     return (
         <Animated.View
+            testID={'building-details-panel'}
             {...panHandlers}
             style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
         >

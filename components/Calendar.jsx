@@ -190,7 +190,7 @@ const Calendar = ({ events: propEvents }) => {
                     <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Calendar</Text>
-                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing}>
+                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing} testID={'refresh-button'}>
                     <Ionicons
                         name={isRefreshing ? "sync" : "refresh"}
                         size={24}
@@ -247,6 +247,7 @@ const Calendar = ({ events: propEvents }) => {
                                 <TouchableOpacity
                                     style={styles.directionButton}
                                     onPress={() => handleGetDirections(item)}
+                                    testID={'get-directions-button'}
                                 >
                                     <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
                                     <Text style={styles.directionButtonText}>Get Directions</Text>

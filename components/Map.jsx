@@ -1,17 +1,34 @@
-import React, {useEffect} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import MapboxGL from '@rnmapbox/maps';
 import {StyleSheet, View} from 'react-native';
-import {theme} from "@/constants/theme";
 import {concordiaBuildingsGeoJSON} from "@/constants/concordiaBuildings";
-import { Ionicons } from '@expo/vector-icons';
+import Config from 'react-native-config';
+import {Ionicons} from '@expo/vector-icons';
 import PropTypes from "prop-types";
-import Config from "react-native-config";
+import {ThemeContext} from '@/context/ThemeProvider';
 
 const MAPBOX_ACCESS_TOKEN = Config.MAPBOX_ACCESS_TOKEN;
 
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, routes, selectedRoute, onMapPress,cameraRef, onRoutePress, places, onSelectedPOI }) => {
+
+const Map = ({
+                 onBuildingPress,
+                 selectedLocation,
+                 userLocation,
+                 centerCoordinate,
+                 routes,
+                 selectedRoute,
+                 onMapPress,
+                 cameraRef,
+                 onRoutePress,
+                 places,
+                 onSelectedPOI
+             }) => {
+
+    const { theme, isDark, colorBlindMode } = useContext(ThemeContext);
+    const [styleLoaded, setStyleLoaded] = useState(false);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     useEffect(() => {
 
@@ -19,13 +36,27 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
             cameraRef.current.flyTo(selectedLocation, 800);
         }
     }, []);
-
+    const mapStyleURL = useMemo(() => {
+        if (colorBlindMode && isDark) {
+            return 'mapbox://styles/rwz/cm8nzp5wf005l01sddncm7d4m'; // Color Blind + Dark
+        } else if (colorBlindMode && !isDark) {
+            return 'mapbox://styles/rwz/cm8nzeycl005c01qr2k6rds82'; // Color Blind + Light
+        } else if (isDark) {
+            return 'mapbox://styles/rwz/cm8awc1o4007i01qrekqq35gd'; // Regular Dark
+        } else {
+            return 'mapbox://styles/rwz/cm6odl6aq01bn01qm3tc9eqif'; // Regular Light
+        }
+    }, [isDark, colorBlindMode]);
+    useEffect(() => {
+        setStyleLoaded(false);
+    }, [mapStyleURL]);
 
     return (
         <View style={styles.container}>
             <MapboxGL.MapView
+                key={mapStyleURL}
                 style={styles.map}
-                styleURL="mapbox://styles/rwz/cm6odl6aq01bn01qm3tc9eqif"
+                styleURL={mapStyleURL}
                 rotateEnabled={false}
                 attributionEnabled={false}
                 logoEnabled={false}
@@ -33,6 +64,7 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                 scrollEnabled={true}
                 compassEnabled={false}
                 onPress={() => onMapPress()}
+                onDidFinishLoadingStyle={() => setStyleLoaded(true)}
             >
 
                 <MapboxGL.Camera
@@ -43,31 +75,30 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                     animationDuration={500}
                 />
 
-                <MapboxGL.ShapeSource
-                    id="concordia-buildings"
-                    shape={concordiaBuildingsGeoJSON}
-                    onPress={(event) => {
-                        const feature = event.features && event.features[0];
-                        if (feature && feature.properties) {
-                            onBuildingPress(feature.properties);
-                        }
-                    }}
-                >
-                    <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
-                    <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
-                </MapboxGL.ShapeSource>
+                {styleLoaded && (
+                    <>
+                        <MapboxGL.ShapeSource
+                            id="concordia-buildings"
+                            shape={concordiaBuildingsGeoJSON}
+                            onPress={(event) => {
+                                const feature = event.features && event.features[0];
+                                if (feature && feature.properties) {
+                                    onBuildingPress(feature.properties);
+                                }
+                            }}
+                        >
+                            <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
+                            <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
+                        </MapboxGL.ShapeSource>
 
-               
-                {userLocation && (
-                    <MapboxGL.ShapeSource
-                        id="user-location-source"
-                        shape={userLocation}
-                    >
-                        <MapboxGL.CircleLayer
-                            id="user-location-layer"
-                            style={styles.userMarkerStyle}
-                        />
-                    </MapboxGL.ShapeSource>
+                        {styleLoaded && userLocation && (
+                            <MapboxGL.ShapeSource id="user-location-source" shape={userLocation}>
+                                <MapboxGL.CircleLayer id="user-location-layer" style={styles.userMarkerStyle} />
+                            </MapboxGL.ShapeSource>
+                        )}
+
+                        {/* You can include routes, POIs, endpoint, etc. here too */}
+                    </>
                 )}
 
                 {/* Places of Interest */}
@@ -76,88 +107,90 @@ const Map = ({onBuildingPress, selectedLocation, userLocation,centerCoordinate, 
                     let iconColor;
 
                     if (place.category === "restaurant") {
-                        iconName = "restaurant";
-                        iconColor = "#ff8c00"; // Orange
+                        iconName = "fast-food-outline";
+                        iconColor = theme.colors.marker.restaurant;
                     } else if (place.category === "cafe") {
-                        iconName = "cafe";
-                        iconColor = "#8b4513"; // SaddleBrown
+                        iconName = "cafe-outline";
+                        iconColor = theme.colors.marker.cafe;
                     } else if (place.category === "atm") {
-                        iconName = "cash";
-                        iconColor = "#228b22"; // ForestGreen
+                        iconName = "card-outline"; // Better representation of ATM
+                        iconColor = theme.colors.marker.atm;
                     } else {
-                        iconName = "location"; // Default marker
-                        iconColor = "#4682b4"; // SteelBlue
+                        iconName = "location";
+                        iconColor = theme.colors.marker.default;
                     }
 
                     return (
-                        <MapboxGL.PointAnnotation key={`place-${index}`} id={`place-${index}`} coordinate={place.geometry.coordinates} onSelected={() => onSelectedPOI(place)}>
-                            <Ionicons name={iconName} size={24} color={iconColor} />
-
+                        <MapboxGL.PointAnnotation key={`place-${index}`} id={`place-${index}`}
+                                                  coordinate={place.geometry.coordinates}
+                                                  onSelected={() => onSelectedPOI(place)}>
+                            <View style={{ zIndex: 1000 }}>
+                                <Ionicons name={iconName} size={24} color={iconColor} />
+                            </View>
                         </MapboxGL.PointAnnotation>
                     );
                 })}
 
-                 {/* Render the routes if available */}
+                {/* Render the routes if available */}
 
                 {routes && routes.length > 0 && routes.map((route, index) => {
 
-          const isSelected = selectedRoute && selectedRoute === route;
-          if (!(route.routeGeoJSON)) return null;
-          return (
-            <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}
-                onPress={() => onRoutePress(route)} // onPress to update selected route
-            >
-              <MapboxGL.LineLayer
-                id={`route-line-${index}`}
-                style={isSelected ? styles.selectedRoute : styles.route}
-              />
-            </MapboxGL.ShapeSource>
-          );
-        })}
+                    const isSelected = selectedRoute && selectedRoute === route;
+                    if (!(route.routeGeoJSON)) return null;
+                    return (
+                        <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}
+                                              onPress={() => onRoutePress(route)} // onPress to update selected route
+                        >
+                            <MapboxGL.LineLayer
+                                id={`route-line-${index}`}
+                                style={isSelected ? styles.selectedRoute : styles.route}
+                            />
+                        </MapboxGL.ShapeSource>
+                    );
+                })}
 
-                 {/* Render a marker at the endpoint of the selected route */}
-        {selectedRoute &&
-         selectedRoute.routeGeoJSON &&
-         selectedRoute.routeGeoJSON.geometry &&
-         selectedRoute.routeGeoJSON.geometry.coordinates &&
-         selectedRoute.routeGeoJSON.geometry.coordinates.length > 0 && (
-            <MapboxGL.PointAnnotation
-              id="selectedRouteEndpoint"
-              coordinate={
-                selectedRoute.routeGeoJSON.geometry.coordinates[
-                  selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
-                ]
-              }
-            >
-              <View style={styles.endpointMarker} />
+                {/* Render a marker at the endpoint of the selected route */}
+                {selectedRoute &&
+                    selectedRoute.routeGeoJSON &&
+                    selectedRoute.routeGeoJSON.geometry &&
+                    selectedRoute.routeGeoJSON.geometry.coordinates &&
+                    selectedRoute.routeGeoJSON.geometry.coordinates.length > 0 && (
+                        <MapboxGL.PointAnnotation
+                            id="selectedRouteEndpoint"
+                            coordinate={
+                                selectedRoute.routeGeoJSON.geometry.coordinates[
+                                selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
+                                    ]
+                            }
+                        >
+                            <View style={styles.endpointMarker}/>
 
-            </MapboxGL.PointAnnotation>
-         )}
+                        </MapboxGL.PointAnnotation>
+                    )}
 
             </MapboxGL.MapView>
         </View>
     );
 };
-Map.propTypes={
-    onBuildingPress:PropTypes.func,
-    selectedLocation:PropTypes.any,
-    userLocation:PropTypes.any,
-    centerCoordinate:PropTypes.any,
-    routes:PropTypes.array,
-    selectedRoute:PropTypes.object,
-    onMapPress:PropTypes.func,
-    cameraRef:PropTypes.object,
-    onRoutePress:PropTypes.func,
-    places:PropTypes.array,
-    onSelectedPOI:PropTypes.func
+Map.propTypes = {
+    onBuildingPress: PropTypes.func,
+    selectedLocation: PropTypes.any,
+    userLocation: PropTypes.any,
+    centerCoordinate: PropTypes.any,
+    routes: PropTypes.array,
+    selectedRoute: PropTypes.object,
+    onMapPress: PropTypes.func,
+    cameraRef: PropTypes.object,
+    onRoutePress: PropTypes.func,
+    places: PropTypes.array,
+    onSelectedPOI: PropTypes.func
 }
-let styles;
-styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {flex: 1},
     map: {flex: 1},
 
     buildingFill: {
-        fillColor: ["get", "color"],
+        fillColor: theme.colors.primary,
         fillOpacity: 0.8,
     },
     buildingLabel: {
@@ -221,3 +254,4 @@ styles = StyleSheet.create({
 });
 
 export default Map;
+

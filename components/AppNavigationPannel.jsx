@@ -1,26 +1,29 @@
 import * as React from "react";
-import { Dimensions, StyleSheet, TouchableOpacity, View, Alert, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { theme } from "@/constants/theme";
-import { usePathname, useRouter } from "expo-router";
+import {ActivityIndicator, Alert, Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {usePathname, useRouter} from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
-import { getUserInfo } from "@/services/userService";
-import { getCalendarEvents } from "@/services/calendarService";
+import {getUserInfo} from "@/services/userService";
+import {getCalendarEvents} from "@/services/calendarService";
+import {ThemeContext} from '@/context/ThemeProvider';
 
 
-const { width } = Dimensions.get("window");
+const {width} = Dimensions.get("window");
 
 WebBrowser.maybeCompleteAuthSession();
 
 const AppNavigationPanel = () => {
+    const {theme} = React.useContext(ThemeContext);
     const router = useRouter();
     const pathname = usePathname();
-    const [user, setUser] = React.useState(null);
+    const [, setUser] = React.useState(null);
     const [isLoading, setLoading] = React.useState(false);
+    const styles = createStyles(theme);
 
-    const [request, response, promptAsync] = Google.useAuthRequest({
+
+    const [, response, promptAsync] = Google.useAuthRequest({
         webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
         iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
         androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
@@ -76,7 +79,16 @@ const AppNavigationPanel = () => {
 
     const handleNavigation = async (route) => {
         const storedUser = await AsyncStorage.getItem("@user");
-        if (storedUser) {
+        let isValidUser ;
+
+        try {
+            const parsed = JSON.parse(storedUser);
+            isValidUser = parsed?.email !== undefined;
+        } catch (err) {
+            isValidUser = false;
+        }
+
+        if (isValidUser) {
             router.push(route);
         } else {
             Alert.alert(
@@ -90,61 +102,65 @@ const AppNavigationPanel = () => {
         }
     };
 
+
     return (
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/home")} testID={'button-navigate-to-home'}>
+            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/smartPlanner")}
+                              testID={'button-navigate-to-home'}>
                 <Ionicons
                     name="calendar-outline"
                     size={26}
-                    color={pathname === "/home" ? theme.colors.primary : theme.colors.grayDark}
+                    color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
                 />
-                <View style={pathname === "/home" ? styles.dotIndicator : null} />
+                <View style={pathname === "/smartPlanner" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")} testID={'button-navigate-to-homemap'}>
+            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")}
+                              testID={'button-navigate-to-homemap'}>
                 <Ionicons
                     name="home-outline"
                     size={26}
                     color={pathname === "/homemap" ? theme.colors.primary : theme.colors.grayDark}
                 />
-                <View style={pathname === "/homemap" ? styles.dotIndicator : null} />
+                <View style={pathname === "/homemap" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
 
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/user")} testID={'button-navigate-to-user'}>
+            <TouchableOpacity style={styles.navButton} onPress={() => handleNavigation("/user")}
+                              testID={'button-navigate-to-user'}>
 
                 <Ionicons
                     name="person-outline"
                     size={26}
                     color={pathname === "/user" ? theme.colors.primary : theme.colors.grayDark}
                 />
-                <View style={pathname === "/user" ? styles.dotIndicator : null} />
+                <View style={pathname === "/user" ? styles.dotIndicator : null}/>
             </TouchableOpacity>
 
             {isLoading && (
                 <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
+                    <ActivityIndicator size="large" color={theme.colors.primary}/>
                 </View>
             )}
         </View>
     );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     appNavigationPanel: {
         position: "absolute",
         bottom: 0,
         left: 0,
         width: width,
         height: 90,
-        backgroundColor: theme.colors.background,
+        backgroundColor: theme.colors.backgroundNav,
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: "center",
         borderTopLeftRadius: theme.radius.lg,
         borderTopRightRadius: theme.radius.lg,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
+        shadowOffset: {width: 0, height: -2},
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 5,
