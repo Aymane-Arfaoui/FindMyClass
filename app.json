@@ -37,6 +37,12 @@
           "resizeMode": "contain",
           "backgroundColor": "#ffffff"
         }
+      ],
+      [
+        "@rnmapbox/maps",
+        {
+          "mapboxAccessToken": "${process.env.MAPBOX_ACCESS_TOKEN}"
+        }
       ]
     ],
     "experiments": {

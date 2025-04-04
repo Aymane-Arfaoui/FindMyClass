@@ -19,7 +19,7 @@ def client(app):
 def test_missing_parameters(client):
     response = client.get('/indoorNavigation?startId=&endId=&campus=hall')
     assert response.status_code == 400
-    assert b"Missing required parameters" in response.data
+    assert b"Missing required parameter 'startId'" in response.data
 
 # Test for invalid campus (campus not found)
 def test_invalid_campus(client):
