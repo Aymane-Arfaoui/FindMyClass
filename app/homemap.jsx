@@ -52,7 +52,9 @@ export default function Homemap() {
         room = null,
         address = null,
         directionsTriggered = null,
+        fromCalendar = null, // <- NEW PARAM
     } = useLocalSearchParams();
+
 
     const [destinationAddress, setDestinationAddress] = useState(null);
     const [hasTriggeredDirections, setHasTriggeredDirections] = useState(false);
@@ -88,7 +90,7 @@ export default function Homemap() {
             currentDestination?.geometry?.coordinates
         ) {
             setHasTriggeredDirections(true);
-            handleDirectionPress(currentLocation, currentDestination, modeSelected);
+            handleDirectionPress(currentLocation, currentDestination, modeSelected, fromCalendar === 'true'); // <- pass it here
         }
     }, [directionsTriggered, currentLocation, currentDestination, modeSelected, hasTriggeredDirections]);
 
