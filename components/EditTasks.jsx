@@ -13,11 +13,13 @@ import { Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PropTypes from "prop-types";
 import { ThemeContext } from "@/context/ThemeProvider";
 
 const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
     const { theme } = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     const [taskName, setTaskName] = useState("");
     const [notes, setNotes] = useState("");
@@ -253,6 +255,11 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
         </Modal>
     );
 };
+
+
+EditTasks.propTypes={
+    isVisible:PropTypes.bool, onClose:PropTypes.func,taskData:PropTypes.any, onUpdate:PropTypes.func
+}
 
 const createStyles = (theme) => StyleSheet.create({
     editTaskModalContainer: {

@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { ThemeContext } from '@/context/ThemeProvider';
 
 import {getLocalDateString} from './EventList'
+import PropTypes from "prop-types";
 
 
 const WeekNavigation = ({onSelectDate}) => {
@@ -56,6 +57,9 @@ const WeekNavigation = ({onSelectDate}) => {
     );
 };
 
+WeekNavigation.propTypes={
+    onSelectDate: PropTypes.func
+}
 export default WeekNavigation;
 
 const createStyles = (theme) =>

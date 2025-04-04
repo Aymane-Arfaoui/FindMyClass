@@ -44,24 +44,34 @@ const Welcome = () => {
     redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
   });
 
-    const router = useRouter();
-    const [isLoading, setLoading] = useState(false);
+  const router = useRouter();
+  const [isLoading, setLoading] = useState(false);
 
-    useEffect(() => {
-        handleSignInWithGoogle();
-    }, [response]);
+  useEffect(() => {
+    handleSignInWithGoogle();
+  }, [response]);
 
-    async function handleSignInWithGoogle() {
-        if (response?.type === "success") {
-            setLoading(true); // Show loading while processing
-            const userData = await getUserInfo(response.authentication.accessToken);
-            if (userData) {
-                const events = await getCalendarEvents(response.authentication.accessToken);
-                await AsyncStorage.setItem("@calendar", JSON.stringify(events));
-                router.replace("/home");
-            }
-            setLoading(false); // Hide loading after processing
-        }
+  async function handleSignInWithGoogle() {
+    if (response?.type === "success") {
+      setLoading(true);
+      const userData = await getUserInfo(response.authentication.accessToken);
+      if (userData) {
+        await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
+        await calendarService?.fetchAndUpdateEvents(response.authentication.accessToken);
+        router.replace("/home");
+      }
+      setLoading(false);
+    }
+  }
+
+  const handleGoogleSignIn = async () => {
+    setLoading(true);
+    try {
+      await promptAsync();
+    } catch (error) {
+      console.error('Authentication error:', error);
+    } finally {
+      setLoading(false);
     }
 
 

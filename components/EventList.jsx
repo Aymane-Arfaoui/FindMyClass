@@ -2,7 +2,9 @@ import React, {useContext, useEffect, useMemo, useState} from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import EditTasks from "@/components/EditTasks";
+import PropTypes from "prop-types";
 import { ThemeContext } from '@/context/ThemeProvider';
+
 
 export const getLocalDateString = (dateInput) => {
     if (!dateInput) return null;
@@ -197,6 +199,9 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
     );
 };
 
+EventList.propTypes={
+    events:PropTypes.any,  onUpdate:PropTypes.func, isPlanRouteMode:PropTypes.bool, onSelectForRoute: PropTypes.func, resetSelectionFlag:PropTypes.any
+}
 export default EventList;
 
 const createStyles = (theme) => StyleSheet.create({

@@ -1,8 +1,9 @@
 import React, {useContext, useMemo} from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-// import EditTasks from "@/components/EditTasks";
+import PropTypes from "prop-types";
 import { ThemeContext } from '@/context/ThemeProvider'
+
 
 const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, day, weekday, monthYear}) => {
     const { theme } = useContext(ThemeContext);
@@ -36,6 +37,12 @@ const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, da
         </View>
     );
 };
+
+SmartPlannerHeader.propTypes={
+    onBack: PropTypes.func, onAddTask: PropTypes.func, onPlanRoute: PropTypes.func, isPlanRouteMode: PropTypes.bool, day: PropTypes.any, weekday: PropTypes.any, monthYear: PropTypes.any
+
+}
+
 
 const createStyles = (theme) => StyleSheet.create({
     headerContainer: {

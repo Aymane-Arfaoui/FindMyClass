@@ -1,6 +1,8 @@
 import React, {createContext, useEffect, useState} from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {getTheme} from '@/constants/theme';
+import { getTheme } from '@/constants/theme';
+import PropTypes from "prop-types";
+
 
 export const ThemeContext = createContext();
 
@@ -66,4 +68,7 @@ export function ThemeProvider({children}) {
             {children}
         </ThemeContext.Provider>
     );
+}
+ThemeProvider.propTypes={
+    children: PropTypes.node
 }
