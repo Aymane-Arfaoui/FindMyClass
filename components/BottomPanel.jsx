@@ -6,7 +6,28 @@ import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
 import {isShuttleRunningNow} from "@/services/shuttleService";
 
+const SGW_COORDS = {
+    latMin: 45.490,
+    latMax: 45.500,
+    lngMin: -73.590,
+    lngMax: -73.565,
+};
 
+const LOYOLA_COORDS = {
+    latMin: 45.440,
+    latMax: 45.460,
+    lngMin: -73.660,
+    lngMax: -73.620,
+};
+
+
+function isInSGW(lat, lng) {
+    return lat >= SGW_COORDS.latMin && lat <= SGW_COORDS.latMax && lng >= SGW_COORDS.lngMin && lng <= SGW_COORDS.lngMax;
+}
+
+function isInLoyola(lat, lng) {
+    return lat >= LOYOLA_COORDS.latMin && lat <= LOYOLA_COORDS.latMax && lng >= LOYOLA_COORDS.lngMin && lng <= LOYOLA_COORDS.lngMax;
+}
 
 function hasIndoorMapBottomPanel(buildingName = "") {
     const buildingNameLowerCase = buildingName.toLowerCase();
@@ -24,7 +45,7 @@ function hasIndoorMapBottomPanel(buildingName = "") {
 }
 
 
-const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes }) => {
+const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes, startLocation, endLocation,}) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -32,6 +53,14 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
     const router = useRouter();
 
     const isShuttleActive = isShuttleRunningNow();
+
+    const startInSGW = startLocation && isInSGW(startLocation.lat, startLocation.lng);
+    const endInSGW = endLocation && isInSGW(endLocation.lat, endLocation.lng);
+    const startInLoyola = startLocation && isInLoyola(startLocation.lat, startLocation.lng);
+    const endInLoyola = endLocation && isInLoyola(endLocation.lat, endLocation.lng);
+
+    const isInterCampusTrip = (startInSGW && endInLoyola) || (startInLoyola && endInSGW);
+
 
     useEffect(() => {
         setSelectedRoute(routeDetails);
@@ -53,7 +82,7 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
 
     };
 
-    const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle");
+    const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle" && isInterCampusTrip);
     const otherTransitRoutes = routes?.filter((r) => r.mode !== "shuttle");
 
     const modeMapping = {
@@ -227,9 +256,10 @@ BottomPanel.propTypes={
     routes:PropTypes.array,
     wantsClassroom: PropTypes.bool,
     selectedBuilding: PropTypes.object,
-    travelTimes: PropTypes.object
-}
-
+    travelTimes: PropTypes.object,
+    startLocation: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
+    endLocation: PropTypes.shape({ lat: PropTypes.number, lng: PropTypes.number }),
+};
 
 const styles = StyleSheet.create({
     container: {
