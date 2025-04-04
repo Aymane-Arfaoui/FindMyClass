@@ -1,11 +1,9 @@
 import React, {useState} from 'react';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {theme} from '@/constants/theme';
-import {getLocalDateString} from './EventList'
-
 
 const WeekNavigation = ({onSelectDate}) => {
-    const [selectedDay, setSelectedDay] = useState(getLocalDateString(new Date()));
+    const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
 
     const generateWeekDays = () => {
         const today = new Date();
@@ -13,12 +11,13 @@ const WeekNavigation = ({onSelectDate}) => {
             const day = new Date();
             day.setDate(today.getDate() + i);
             return {
-                date: getLocalDateString(day),
+                date: day.toISOString().split('T')[0],
                 label: day.toLocaleDateString('en-US', {weekday: 'short'}),
                 number: day.getDate()
             };
         });
     };
+
 
     const weekDays = generateWeekDays();
 

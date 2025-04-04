@@ -35,8 +35,6 @@ export default function Homemap() {
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
     const [places, setPlaces] = useState([]);
-    // Cache implementation to reduce api calls
-    const [placeDetailsCache, setPlaceDetailsCache] = useState({});
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
 
