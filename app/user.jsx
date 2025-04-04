@@ -1,5 +1,6 @@
 import {
     ActivityIndicator,
+    Alert,
     Image,
     ImageBackground,
     SafeAreaView,
@@ -10,19 +11,23 @@ import {
     View,
 } from 'react-native';
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import ScreenWrapper from '../components/ScreenWrapper';
 import {hp, wp} from '@/helpers/common';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {useRouter} from 'expo-router';
 import {Ionicons} from '@expo/vector-icons';
 import AppNavigationPanel from '@/components/AppNavigationPannel';
 import UserProfileIcon from '../assets/images/profile_icon.png';
-// import SettingsCog from '../assets/images/settings_cog.png';
 import LightBackgroundImg from '../assets/images/background-generic-1.png';
 import DarkBackgroundImg from '../assets/images/BackgroundDark.png';
 import {ThemeContext} from '@/context/ThemeProvider';
 import {StatusBar} from "expo-status-bar";
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import {getUserInfo} from "@/services/userService";
+import {getCalendarEvents} from "@/services/calendarService";
 
+
+WebBrowser.maybeCompleteAuthSession();
 
 const User = () => {
     const router = useRouter();
@@ -31,8 +36,24 @@ const User = () => {
     const [loading, setLoading] = useState(true);
     const {isDark, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
+    const [redirectToCalendar, setRedirectToCalendar] = useState(false);
 
-
+    const [, response, promptAsync] = Google.useAuthRequest({
+        webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
+        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+        scopes: [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly',
+            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+        ],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect',
+    });
     useEffect(() => {
         const fetchUserAndEvents = async () => {
             const user = await AsyncStorage.getItem('@user');
@@ -47,6 +68,13 @@ const User = () => {
         fetchUserAndEvents();
     }, []);
 
+
+    React.useEffect(() => {
+        if (response?.type === "success") {
+            handleGoogleSignIn(response.authentication.accessToken);
+        }
+    }, [response]);
+
     const todayEvents = useMemo(() => {
         const today = new Date().toISOString().split('T')[0];
         return calendarEvents.filter(event => {
@@ -55,13 +83,29 @@ const User = () => {
         });
     }, [calendarEvents]);
 
-    if (loading) {
-        return (
-            <ScreenWrapper>
-                <ActivityIndicator size="large" style={{flex: 1}}/>
-            </ScreenWrapper>
-        );
-    }
+    const handleGoogleSignIn = async (accessToken) => {
+        try {
+            setLoading(true);
+            const userData = await getUserInfo(accessToken);
+            if (userData) {
+                await AsyncStorage.setItem("@user", JSON.stringify(userData));
+                setUserInfo(userData);
+
+                const events = await getCalendarEvents(accessToken);
+                await AsyncStorage.setItem("@calendar", JSON.stringify(events));
+                setCalendarEvents(events);
+                if (redirectToCalendar) {
+                    setRedirectToCalendar(false); // reset flag
+                    router.push('/home');         // go to calendar
+                }
+            }
+        } catch (error) {
+            Alert.alert("Login Failed", "Could not retrieve user information.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
 
     return (
         <SafeAreaView style={{flex: 1, backgroundColor: isDark ? '#757575' : '#FAF8F5'}}>
@@ -84,18 +128,29 @@ const User = () => {
                             )}
                             <View style={styles.textContainer}>
                                 <Text style={styles.welcomeText}>Welcome back</Text>
-                                <Text style={styles.userName}>{userInfo?.given_name || 'User'}</Text>
+                                <Text style={styles.userName}>{userInfo?.given_name || 'Guest'}</Text>
                             </View>
                         </View>
                         <TouchableOpacity testID={'settings-button'} onPress={() => router.push('/settingsPage')}>
-                            <Ionicons name="settings-sharp" size={30} color= {theme.colors.settingColor} />
+                            <Ionicons name="settings-sharp" size={30} color={theme.colors.settingColor}/>
                         </TouchableOpacity>
                     </View>
 
                     {/* Calendar Block (Home style) */}
                     <View style={styles.calendarBlock}>
                         <TouchableOpacity
-                            onPress={() => router.push('/home')}
+                            onPress={async () => {
+                                const storedUser = await AsyncStorage.getItem('@user');
+                                if (!storedUser) {
+                                    setRedirectToCalendar(true); // <--- this sets the intent
+                                    Alert.alert("Google Sign-In Required", "Please sign in to access your calendar.", [
+                                        {text: "Cancel", style: "cancel"},
+                                        {text: "Sign In", onPress: () => promptAsync()}
+                                    ]);
+                                } else {
+                                    router.push('/home');
+                                }
+                            }}
                             testID={'calendar-button'}
                         >
                             <View style={styles.actionIconContainer}>
@@ -138,8 +193,13 @@ const User = () => {
                     </View>
 
                 </ScrollView>
-
+                {loading && (
+                    <View style={styles.loadingOverlay}>
+                        <ActivityIndicator size="large" color={theme.colors.primary}/>
+                    </View>
+                )}
             </View>
+
             <AppNavigationPanel/>
         </SafeAreaView>
     );
@@ -289,6 +349,17 @@ const createStyles = (theme) =>
             color: theme.colors.grayDark,
             textAlign: 'center',
             marginTop: 10,
+        },
+        loadingOverlay: {
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: theme.colors.loadingoverlay,
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
         },
     });
 export default User;

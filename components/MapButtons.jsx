@@ -4,16 +4,13 @@ import PropTypes from "prop-types";
 import {ThemeContext} from '@/context/ThemeProvider';
 
 
-const MapButtons = ({ onPress }) => {
-    const [selectedLocation, setSelectedLocation] = useState('SGW');
-
 const MapButtons = ({onPress}) => {
     const [selectedLocation, setSelectedLocation] = useState('SGW');
     const {theme, isDark} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
     const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
-        Loyola: [-73.6405, 45.4582]         // Loyola Coordinates
+        Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
     };
 
     useEffect(() => {
@@ -28,16 +25,6 @@ const MapButtons = ({onPress}) => {
     return (
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
-                <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text style={[
-                        styles.label,
-                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
-                    ]}>SGW</Text>
-                </TouchableOpacity>
                 <TouchableOpacity
                     style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
                     onPress={() => handlePress('Loyola')}
@@ -59,14 +46,10 @@ const MapButtons = ({onPress}) => {
                     onPress={() => handlePress('SGW')}
                     testID={'sgw-button'}
                 >
-                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
+                    <Text style={[
+                        styles.label,
+                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
+                    ]}>SGW</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -91,18 +74,28 @@ const createStyles = (theme) =>
             alignItems: 'center',
             zIndex: 10,
             width: 180,
-            height: 45,      
+            height: 45,
         },
         toggleWrapper: {
             flexDirection: 'row',
             backgroundColor: theme.colors.backgroundNav,
             borderRadius: 20,
             padding: 2,
-            elevation: 5,
+            ...Platform.select({
+                ios: {
+                    shadowColor: '#000',
+                    shadowOffset: {width: 0, height: 2},
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
+                },
+                android: {
+                    elevation: 5,
+                }
+            })
         },
         toggleButton: {
             flex: 1,
-            paddingVertical: 10,
+            paddingVertical: Platform.OS === 'ios' ? 12 : 10,
             paddingHorizontal: 20,
             justifyContent: 'center',
             alignItems: 'center',

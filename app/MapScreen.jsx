@@ -113,34 +113,26 @@ const MapScreen = () => {
         const coordinates = nodeIds.map(nodeId => {
             let node = null;
             let yDif = 0;
-            if (buildingKey == 'Hall'){
+            if (buildingKey == 'Hall') {
                 if (selectedFloorKey == 1) {
                     node = mapHall1.nodes.find(n => n.id === nodeId);
-                }
-                else if (selectedFloorKey == 2){
+                } else if (selectedFloorKey == 2) {
                     node = mapHall2.nodes.find(n => n.id === nodeId);
-                }
-                else if (selectedFloorKey == 8){
+                } else if (selectedFloorKey == 8) {
                     node = mapHall8.nodes.find(n => n.id === nodeId);
-                }
-                else if (selectedFloorKey == 9){
+                } else if (selectedFloorKey == 9) {
                     node = mapHall9.nodes.find(n => n.id === nodeId);
                 }
                 yDif = 1132;
-            }
-
-            else if (buildingKey == "MB"){
+            } else if (buildingKey == "MB") {
                 if (selectedFloorKey == "S2") {
                     node = mapMB1.nodes.find(n => n.id === nodeId);
-                }
-                else if (selectedFloorKey == "S1"){
+                } else if (selectedFloorKey == "S1") {
                     node = mapMBS2.nodes.find(n => n.id === nodeId);
                 }
                 yDif = 1132;
 
-            }
-
-            else if (buildingKey == "CC"){
+            } else if (buildingKey == "CC") {
                 if (selectedFloorKey == "1") {
                     node = mapCC1.nodes.find(n => n.id === nodeId);
                 }
@@ -172,7 +164,7 @@ const MapScreen = () => {
             const floorChanges = [];
             let lastFloor = null;
 
-            nodeIds.forEach((nodeId, index) => {
+            nodeIds.forEach((nodeId) => {
                 const node = getNodeData(nodeId);
 
                 if (node) {
@@ -194,16 +186,13 @@ const MapScreen = () => {
                     message += `  - From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
                 setMultiFloorMessage(message);
-            }
-            else{
+            } else {
                 setMultiFloorMessage("");
             }
         }
 
 
     }, [path, selectedFloorKey]);
-
-
 
 
     const getNodeData = (nodeId) => {
@@ -231,8 +220,8 @@ const MapScreen = () => {
 
 
         if (foundSection) {
-            if(foundSection !== ""){
-                if(foundSection.ref_ID !== ""){
+            if (foundSection !== "") {
+                if (foundSection.ref_ID !== "") {
                     return foundSection.ref_ID;
                 }
             }
@@ -240,13 +229,6 @@ const MapScreen = () => {
         return null;
     };
 
-
-
-    const transformId = (id) => {
-        const [letter, number] = id.split("-");
-        const floorNumber = number.charAt(0);
-        return `${letter.toLowerCase()}${floorNumber}_${number}`;
-    };
 
     const getFromFloorData = (nodeId) => {
         const buildingFloors = floorsData[buildingKey];
@@ -260,18 +242,12 @@ const MapScreen = () => {
     };
 
     const checkNodeInFloorData = (nodeId) => {
-        if (getFromFloorData(nodeId)) {
-            // console.log(`Node ${nodeId} exists in floor data`);
-            return true
-        } else {
-            // console.log(`Node ${nodeId} does not exist in floor data`);
-            return false
-        }
+        return getFromFloorData(nodeId);
     };
 
 
     const handleShowDirectionsSection = async (endId) => {
-        if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)){
+        if (checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)) {
             const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
             const transformedEndId = endId.ref_ID;
 
@@ -292,12 +268,7 @@ const MapScreen = () => {
                     console.error("Request failed", error);
                 }
             }
-
         }
-        else{
-            const aa = endId.id;
-        }
-
     };
 
     const handleShowDirectionsTemp = () => {
@@ -312,15 +283,12 @@ const MapScreen = () => {
     }, [startLocationIndoor, selectedSection?.id]);
 
 
-    const closeIndoorSearchBars = (bool) => {
+    const closeIndoorSearchBars = () => {
         setShowSearchBar(false);
         setMultiFloorMessage("")
         setSelectedPath(null)
         setStartLocationIndoor("")
     };
-
-
-
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -419,7 +387,6 @@ const MapScreen = () => {
                                         )}
 
 
-
                                     </Svg>
                                 </Animated.View>
                             </PinchGestureHandler>
@@ -465,8 +432,8 @@ const MapScreen = () => {
         </GestureHandlerRootView>
     );
 };
-InnerMapScreen.propTypes={
-    buildingKey:PropTypes.any
+MapScreen.propTypes = {
+    buildingKey: PropTypes.any
 }
 export default MapScreen;
 

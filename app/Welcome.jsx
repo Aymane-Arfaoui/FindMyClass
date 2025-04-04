@@ -15,7 +15,6 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserInfo} from '@/services/userService';
-import {getCalendarEvents} from '@/services/calendarService';
 import {useRouter} from 'expo-router';
 import GoogleLoginButton from '../assets/images/google-color.png';
 import {ThemeContext} from '@/context/ThemeProvider';
@@ -28,52 +27,41 @@ WebBrowser.maybeCompleteAuthSession();
 const Welcome = () => {
     const {isDark, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: '449179918461-olq0qduopb56j7ne61nrjrd6tm719cfq.apps.googleusercontent.com',
-    androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
-    scopes: [
-      'profile',
-      'email',
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.readonly',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/calendar.events.readonly',
-      'https://www.googleapis.com/auth/calendar.settings.readonly',
-      'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
-    ],
-    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
-  });
+    const [request, response, promptAsync] = Google.useAuthRequest({
+        iosClientId: '449179918461-olq0qduopb56j7ne61nrjrd6tm719cfq.apps.googleusercontent.com',
+        androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
+        scopes: [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly',
+            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+        ],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+    });
 
-  const router = useRouter();
-  const [isLoading, setLoading] = useState(false);
+    const router = useRouter();
+    const [isLoading, setLoading] = useState(false);
 
-  useEffect(() => {
-    handleSignInWithGoogle();
-  }, [response]);
+    useEffect(() => {
+        handleSignInWithGoogle();
+    }, [response]);
 
-  async function handleSignInWithGoogle() {
-    if (response?.type === "success") {
-      setLoading(true);
-      const userData = await getUserInfo(response.authentication.accessToken);
-      if (userData) {
-        await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
-        await calendarService?.fetchAndUpdateEvents(response.authentication.accessToken);
-        router.replace("/home");
-      }
-      setLoading(false);
+    async function handleSignInWithGoogle() {
+        if (response?.type === "success") {
+            setLoading(true);
+            const userData = await getUserInfo(response.authentication.accessToken);
+            if (userData) {
+                await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
+                await calendarService?.fetchAndUpdateEvents(response.authentication.accessToken);
+                router.replace("/home");
+            }
+            setLoading(false);
+        }
     }
-  }
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      await promptAsync();
-    } catch (error) {
-      console.error('Authentication error:', error);
-    } finally {
-      setLoading(false);
-    }
-
 
     const handleGoogleSignIn = async () => {
         setLoading(true);
@@ -136,8 +124,6 @@ const Welcome = () => {
         </SafeAreaView>
     );
 };
-
-export default Welcome;
 
 const createStyles = (theme) => StyleSheet.create({
     backgroundImage: {
@@ -246,3 +232,4 @@ const createStyles = (theme) => StyleSheet.create({
         zIndex: 1000,
     },
 });
+export default Welcome;

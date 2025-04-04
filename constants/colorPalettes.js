@@ -35,12 +35,13 @@ export const lightColors = {
         atm: '#228b22',
         default: '#4682b4',
     },
-    settingColor:'#999999',
-    textCalendar: '#fff'
-
+    settingColor: '#999999',
+    textCalendar: '#fff',
+    roomFill: '#F3F4F6',
+    floorFill: '#D1D5DB',
 }
 export const darkColors = {
-    primary: '#C5304B',
+    primary: '#912238',
     primaryLight: '#C85C75',
     primaryDark: '#8B273C',
     secondary: '#2A2A2A',
@@ -52,8 +53,8 @@ export const darkColors = {
     text: '#E0E0E0',
     textLight: '#B3B3B3',
     white: '#FFFFFF',
-    button: '#C5304B',
-    loading: '#C5304B',
+    button: '#912238',
+    loading: '#912238',
     success: '#2D8A6B',
     warning: '#F0B775',
     error: '#D64045',
@@ -76,8 +77,11 @@ export const darkColors = {
         atm: '#50fa7b',
         default: '#66d9ef',
     },
-    settingColor:'#E5E5E5',
-    textCalendar: '#fff'
+    settingColor: '#E5E5E5',
+    textCalendar: '#fff',
+    indoorMap: '#E5E5E5',
+    roomFill: '#5C5C5C',    // A soft dark that separates rooms from the darker floor
+    floorFill: '#2B2B2B',
 
 };
 export const colorBlindLightColors = {
@@ -117,8 +121,10 @@ export const colorBlindLightColors = {
         atm: '#009E73',
         default: '#56B4E9',
     },
-    settingColor:'#999999',
-    textCalendar: '#000'
+    settingColor: '#999999',
+    textCalendar: '#000',
+    roomFill: '#F5F5F5',     // Nearly white with a subtle contrast
+    floorFill: '#CCCCCC',
 
 };
 export const colorBlindDarkColors = {
@@ -158,7 +164,9 @@ export const colorBlindDarkColors = {
         atm: '#009E73',
         default: '#89D0FF',
     },
-    settingColor:'#E5E5E5',
-    textCalendar: '#000'
+    settingColor: '#E5E5E5',
+    textCalendar: '#000',
+    roomFill: '#3C3C3C',
+    floorFill: '#202020',
 };
 

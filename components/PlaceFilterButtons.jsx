@@ -14,7 +14,7 @@ export default function PlaceFilterButtons({onSelectCategory}) {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [expanded, setExpanded] = useState(false);
     const animation = useState(new Animated.Value(0))[0];
-    const { theme } = useContext(ThemeContext); // 👈 grab theme
+    const {theme} = useContext(ThemeContext); // 👈 grab theme
     const styles = useMemo(() => createStyles(theme), [theme]); //
 
     const handlePress = (category) => {
@@ -80,52 +80,52 @@ export default function PlaceFilterButtons({onSelectCategory}) {
         </View>
     );
 }
-PlaceFilterButtons.propTypes={
-    onSelectCategory:PropTypes.func
+PlaceFilterButtons.propTypes = {
+    onSelectCategory: PropTypes.func
 }
 const createStyles = (theme) =>
     StyleSheet.create({
-    container: {
-        alignItems: "center",
-    },
-    toggleButton: {
-        backgroundColor: theme.colors.blueDark,
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        justifyContent: "center",
-        alignItems: "center",
-        marginLeft: 10,
-    },
-    buttonsWrapper: {
-        position: "absolute",
-        top: 20,
-        left: -65,
-        alignItems: "flex-start",
-    },
-    button: {
-        flexDirection: "row",
-        alignItems: "center",
-        backgroundColor: theme.colors.white,
-        height: 45,
-        width: 130,
-        borderRadius: theme.radius.md,
-        justifyContent: "flex-start",
-        paddingHorizontal: 10,
-        marginTop: 5,
-        shadowColor: theme.colors.dark,
-        shadowOffset: {width: 2, height: 2},
-        shadowOpacity: 0.2,
-        shadowRadius: theme.radius.xs,
-        elevation: 4,
-    },
-    text: {
-        color: theme.colors.dark,
-        fontSize: 14,
-        fontWeight: "bold",
-        marginLeft: 8,
-    },
-    selectedText: {
-        color: '#fff',
-    },
-});
+        container: {
+            alignItems: "center",
+        },
+        toggleButton: {
+            backgroundColor: theme.colors.blueDark,
+            width: 40,
+            height: 40,
+            borderRadius: 20,
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 10,
+        },
+        buttonsWrapper: {
+            position: "absolute",
+            top: 20,
+            left: -65,
+            alignItems: "flex-start",
+        },
+        button: {
+            flexDirection: "row",
+            alignItems: "center",
+            backgroundColor: theme.colors.backgroundNav,
+            height: 45,
+            width: 130,
+            borderRadius: theme.radius.md,
+            justifyContent: "flex-start",
+            paddingHorizontal: 10,
+            marginTop: 5,
+            shadowColor: theme.colors.dark,
+            shadowOffset: {width: 2, height: 2},
+            shadowOpacity: 0.2,
+            shadowRadius: theme.radius.xs,
+            elevation: 4,
+        },
+        text: {
+            color: theme.colors.dark,
+            fontSize: 14,
+            fontWeight: "bold",
+            marginLeft: 8,
+        },
+        selectedText: {
+            color: '#fff',
+        },
+    });
