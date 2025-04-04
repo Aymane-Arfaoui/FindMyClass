@@ -465,7 +465,7 @@ const MapScreen = () => {
         </GestureHandlerRootView>
     );
 };
-InnerMapScreen.propTypes={
+MapScreen.propTypes={
     buildingKey:PropTypes.any
 }
 export default MapScreen;
