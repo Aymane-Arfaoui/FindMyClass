@@ -26,6 +26,7 @@ const Settings = () => {
                 <View style={[styles.settingCard, { backgroundColor: theme.colors.settingsCardBackground, borderColor: theme.colors.cardBorder }]}>
                     <Text style={[styles.settingTitle, { color: theme.colors.text }]}>Dark Mode</Text>
                     <Switch
+                        testID={'dark-mode-switch'}
                         value={isDark}
                         onValueChange={toggleTheme}
                         trackColor={{ false: theme.colors.gray, true: theme.colors.primary }}
@@ -37,6 +38,7 @@ const Settings = () => {
                 <View style={[styles.settingCard, { backgroundColor: theme.colors.settingsCardBackground, borderColor: theme.colors.cardBorder }]}>
                     <Text style={[styles.settingTitle, { color: theme.colors.text }]}>Color Blind Mode</Text>
                     <Switch
+                        testID={'color-blind-mode-switch'}
                         value={colorBlindMode}
                         onValueChange={toggleColorBlindMode}
                         trackColor={{ false: theme.colors.gray, true: theme.colors.primary }}

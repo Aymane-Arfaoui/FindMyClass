@@ -87,7 +87,7 @@ const User = () => {
                                 <Text style={styles.userName}>{userInfo?.given_name || 'User'}</Text>
                             </View>
                         </View>
-                        <TouchableOpacity onPress={() => router.push('/settingsPage')}>
+                        <TouchableOpacity testID={'settings-button'} onPress={() => router.push('/settingsPage')}>
                             <Ionicons name="settings-sharp" size={30} color= {theme.colors.settingColor} />
                         </TouchableOpacity>
                     </View>

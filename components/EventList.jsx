@@ -111,7 +111,8 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                         >
                             <View style={{width: 70, marginRight: 10, alignItems: 'center'}}>
                                 {isPlanRouteMode ? (
-                                    <TouchableOpacity onPress={handleSelect} style={styles.selectCircleWrapper}>
+
+                                    <TouchableOpacity onPress={handleSelect} style={styles.selectCircleWrapper} testID={'select-event-button'}>
                                         <View style={[
                                             styles.selectCircle,
                                             isSelected && styles.selectCircleSelected
@@ -172,6 +173,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                                 {/* Edit button only for tasks */}
                                 {event.itemType === 'task' && (
                                     <TouchableOpacity
+                                        testID={'edit-button'}
                                         style={styles.editButton}
                                         onPress={() => handleEditPress(event)}
                                     >

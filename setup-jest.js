@@ -14,6 +14,7 @@ jest.mock('expo-router',
 jest.mock('expo-font');
 
 jest.mock('react-native-vector-icons/FontAwesome', () => 'Icon');
+jest.mock('react-native-vector-icons/FontAwesome5',() => 'Icon');
 jest.mock('@expo/vector-icons', () => ({
     Ionicons: () => null,
     FontAwesome:()=>null

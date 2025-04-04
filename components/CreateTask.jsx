@@ -101,7 +101,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
             <View style={styles.createTaskModalContainer}>
                 <View style={styles.createTaskBottomSheet}>
-                    <TouchableOpacity onPress={onClose} style={styles.createTaskCloseButton}>
+                    <TouchableOpacity testID={'close-button'} onPress={onClose} style={styles.createTaskCloseButton}>
                         <Ionicons name="close-circle" size={32} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.createTaskHeaderText}>Create New Task</Text>
@@ -116,7 +116,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
 
                         <Text style={styles.createTaskLabel}>Date</Text>
-                        <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
+                        <TouchableOpacity testID={'date-picker-toggle'} onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
                             <Text style={styles.createTaskInputText}>{date.toDateString()}</Text>
                         </TouchableOpacity>
                         <DatePicker
@@ -131,6 +131,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                 setDate(selectedDate);
                             }}
                             onCancel={() => setOpenDatePicker(false)}
+                            testID={'date-picker-modal'}
                         />
 
                         <View style={styles.createTaskAllDayContainer}>
@@ -138,6 +139,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                               style={styles.createTaskAllDayToggle}>
                                 <Text style={styles.createTaskLabel}>All Day Event</Text>
                                 <Switch
+                                    testID={'all-day-switch'}
                                     value={allDayEvent}
                                     onValueChange={(value) => {
                                         setAllDayEvent(value);
@@ -161,12 +163,13 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         {!allDayEvent && (
                             <>
                                 <Text style={styles.createTaskLabel}>Start Time</Text>
-                                <TouchableOpacity onPress={() => setOpenStartTimePicker(true)}
+                                <TouchableOpacity  testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)}
                                                   style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(startTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
                                     modal
+                                    testID={'start-time-picker'}
                                     open={openStartTimePicker}
                                     date={startTime}
                                     mode="time"
@@ -179,11 +182,12 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                 />
 
                                 <Text style={styles.createTaskLabel}>End Time</Text>
-                                <TouchableOpacity onPress={() => setOpenEndTimePicker(true)}
+                                <TouchableOpacity  testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)}
                                                   style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(endTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
+                                    testID={'end-time-picker'}
                                     modal
                                     open={openEndTimePicker}
                                     date={endTime}

@@ -12,7 +12,7 @@ jest.mock('expo-auth-session/providers/google', ()=> (
 
 
 jest.mock('../../services/userService', ()=> ({getUserInfo: jest.fn()}));
-jest.mock('../../services/calendarService', ()=> ({getCalendarEvents: jest.fn(),}));
+jest.mock('../../services/calendarService', ()=> ({calendarService:{fetchAndUpdateEvents: jest.fn(),}}));
 
 describe('Welcome Component', () => {
     beforeEach(jest.clearAllMocks)
