@@ -81,6 +81,32 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
         setExpanded(!expanded);
     };
 
+
+    const parseMinutes = (durationStr) => {
+        const match = durationStr?.match(/(\d+)\s*min/);
+        return match ? parseInt(match[1], 10) : 0;
+    };
+
+    const parseMeters = (distanceStr) => {
+        if (!distanceStr) return 0;
+        if (distanceStr.includes("km")) {
+            const match = distanceStr.match(/([\d.]+)\s*km/);
+            return match ? parseFloat(match[1]) * 1000 : 0;
+        } else {
+            const match = distanceStr.match(/(\d+)\s*m/);
+            return match ? parseInt(match[1], 10) : 0;
+        }
+    };
+
+    const formatDistance = (meters) => {
+        return meters >= 1000
+            ? `${(meters / 1000).toFixed(1)} km`
+            : `${meters} m`;
+    };
+
+    const formatDuration = (minutes) => `${minutes} min`;
+
+
     const handleRouteSelection = async (route) => {
         if (route.mode === 'shuttle') {
             try {
@@ -104,31 +130,6 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                 );
 
                 const shuttleDetails = getShuttleTravelTime();
-
-                // Helpers
-                const parseMinutes = (durationStr) => {
-                    const match = durationStr?.match(/(\d+)\s*min/);
-                    return match ? parseInt(match[1], 10) : 0;
-                };
-
-                const parseMeters = (distanceStr) => {
-                    if (!distanceStr) return 0;
-                    if (distanceStr.includes("km")) {
-                        const match = distanceStr.match(/([\d.]+)\s*km/);
-                        return match ? parseFloat(match[1]) * 1000 : 0;
-                    } else {
-                        const match = distanceStr.match(/(\d+)\s*m/);
-                        return match ? parseInt(match[1], 10) : 0;
-                    }
-                };
-
-                const formatDistance = (meters) => {
-                    return meters >= 1000
-                        ? `${(meters / 1000).toFixed(1)} km`
-                        : `${meters} m`;
-                };
-
-                const formatDuration = (minutes) => `${minutes} min`;
 
                 const walkTo = walkToStop[0] || {};
                 const walkFrom = walkFromStop[0] || {};
@@ -273,7 +274,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                                     {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
                                         selectedRoute.mode === "transit" ? (
                                             selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer}>
+                                                <View key={index} style={styles.stepContainer} testID={'transit-steps'}>
                                                     <Text
                                                         style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
 
