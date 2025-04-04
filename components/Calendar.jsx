@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { Calendar as RNCalendar } from 'react-native-calendars';
-import { theme } from '@/constants/theme';
-import { hp } from '@/helpers/common';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Calendar as RNCalendar} from 'react-native-calendars';
+import {theme} from '@/constants/theme';
+import {hp} from '@/helpers/common';
+import {Ionicons} from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchBuildingCoordinates } from "@/services/buildingService";
-import { calendarService } from '@/services/calendarService';
+import {fetchBuildingCoordinates} from "@/services/buildingService";
+import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
 
 
-const Calendar = ({ events: propEvents }) => {
+const Calendar = ({events: propEvents}) => {
     const router = useRouter();
     const [events, setEvents] = useState([]);
     const [tasks, setTasks] = useState([]);
@@ -85,7 +85,7 @@ const Calendar = ({ events: propEvents }) => {
 
     // Combine events and tasks for marking dates
     const markedDates = [...events, ...tasks.map(task => ({
-        start: { dateTime: task.date },
+        start: {dateTime: task.date},
         type: 'task'
     }))].reduce((acc, item) => {
         const eventDate = item.start?.dateTime
@@ -128,17 +128,17 @@ const Calendar = ({ events: propEvents }) => {
 
     // Combine and sort all items for the selected date
     const allItems = [
-        ...selectedDateEvents.map(event => ({ ...event, itemType: 'event' })),
+        ...selectedDateEvents.map(event => ({...event, itemType: 'event'})),
         ...selectedDateTasks.map(task => ({
             itemType: 'task',
             summary: task.taskName,
             location: task.address,
             description: task.notes,
-            start: { 
-                dateTime: task.allDayEvent ? null : task.startTime 
+            start: {
+                dateTime: task.allDayEvent ? null : task.startTime
             },
-            end: { 
-                dateTime: task.allDayEvent ? null : task.endTime 
+            end: {
+                dateTime: task.allDayEvent ? null : task.endTime
             },
             allDayEvent: task.allDayEvent,
             id: task.id
@@ -199,7 +199,7 @@ const Calendar = ({ events: propEvents }) => {
         <View style={styles.container} testID={'calendar'}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
+                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Calendar</Text>
                 <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing} testID={'refresh-button'}>
@@ -230,18 +230,21 @@ const Calendar = ({ events: propEvents }) => {
                             key={item.id || index}
                             style={[
                                 styles.eventCard,
-                                { borderLeftWidth: 4, borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary }
+                                {
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary
+                                }
                             ]}
                             onPress={() => handleEventPress(item)}
                         >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
-                                    {item.allDayEvent ? 'All day' : 
-                                     item.start?.dateTime ? 
-                                        new Date(item.start.dateTime).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        }) : 'All day'}
+                                    {item.allDayEvent ? 'All day' :
+                                        item.start?.dateTime ?
+                                            new Date(item.start.dateTime).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            }) : 'All day'}
                                 </Text>
                             </View>
                             <View style={styles.eventDetails}>
@@ -255,22 +258,20 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventDescription}>{item.description}</Text>
                                 )}
                             </View>
-                            {activeEvent?.id === item.id && item.location && (
-                              event.location ? (
-                                <TouchableOpacity
-                                    style={styles.directionButton}
-                                    onPress={() => handleGetDirections(item)}
-                                    testID={'get-directions-button'}
-                                >
-                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
-                                    <Text style={styles.directionButtonText}>Get Directions</Text>
-                                </TouchableOpacity>
+                            {activeEvent?.id === item.id && (
+                                item.location ? (
+                                    <TouchableOpacity
+                                        style={styles.directionButton}
+                                        onPress={() => handleGetDirections(item)}
+                                        testID={'get-directions-button'}
+                                    >
+                                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                        <Text style={styles.directionButtonText}>Get Directions</Text>
+                                    </TouchableOpacity>
                                 ) : (
                                     <Text style={styles.noLocationText}>No location for this event</Text>
                                 )
                             )}
-
-
                         </TouchableOpacity>
                     ))
                 ) : (
@@ -282,7 +283,7 @@ const Calendar = ({ events: propEvents }) => {
         </View>
     );
 };
-Calendar.propTypes={
+Calendar.propTypes = {
     events: PropTypes.any
 }
 const styles = StyleSheet.create({
@@ -330,7 +331,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: hp(1.5),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
