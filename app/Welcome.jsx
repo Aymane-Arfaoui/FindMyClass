@@ -59,12 +59,6 @@ const Welcome = () => {
         const userData = await getUserInfo(response.authentication.accessToken);
         if (userData) {
           await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
-          // Temporarily comment out calendar sync for testing
-          // try {
-          //   await calendarService?.fetchAndUpdateEvents(response.authentication.accessToken);
-          // } catch (calendarError) {
-          //   console.error('Calendar sync error:', calendarError);
-          // }
           router.replace("/home");
         }
       } catch (error) {
