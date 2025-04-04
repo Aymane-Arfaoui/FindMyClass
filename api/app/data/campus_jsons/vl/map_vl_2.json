@@ -1,0 +1,510 @@
+{
+    "nodes": [
+        {
+            "id": "vl2_stairs_1",
+            "x": 267.3,
+            "y": 654.82,
+            "floor_number": "1",
+            "poi_type": "stairs"
+        },
+        {
+            "id": "vl2_hw1",
+            "x": 267.3,
+            "y": 683.76,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_men_bathroom",
+            "x": 247.5,
+            "y": 709.65,
+            "floor_number": "1",
+            "poi_type": "bathroom"
+        },
+        {
+            "id": "vl2_women_bathroom",
+            "x": 312.99,
+            "y": 709.65,
+            "floor_number": "1",
+            "poi_type": "bathroom"
+        },
+        {
+            "id": "vl2_hw2",
+            "x": 367.82,
+            "y": 685.28,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_hw3",
+            "x": 366.29,
+            "y": 752.29,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_203_2",
+            "x": 380.0,
+            "y": 740.11,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_203_3",
+            "x": 381.52,
+            "y": 761.43,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_hw4",
+            "x": 367.82,
+            "y": 820.83,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_204",
+            "x": 380.0,
+            "y": 825.39,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_205",
+            "x": 355.63,
+            "y": 836.06,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_hw5",
+            "x": 468.33,
+            "y": 686.8,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_203_1",
+            "x": 462.24,
+            "y": 714.22,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_hw6",
+            "x": 718.1,
+            "y": 683.76,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_hw7",
+            "x": 716.58,
+            "y": 770.57,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_201",
+            "x": 687.64,
+            "y": 770.57,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_240",
+            "x": 750.09,
+            "y": 829.96,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_297",
+            "x": 730.29,
+            "y": 860.42,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_297_1",
+            "x": 733.33,
+            "y": 890.88,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_hw8",
+            "x": 824.71,
+            "y": 778.18,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_stairs_2",
+            "x": 826.24,
+            "y": 819.3,
+            "floor_number": "1",
+            "poi_type": "stairs"
+        },
+        {
+            "id": "vl2_hw9",
+            "x": 415.03,
+            "y": 402.0,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_202_30",
+            "x": 413.51,
+            "y": 360.88,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_hw10",
+            "x": 535.34,
+            "y": 405.05,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_stairs_3",
+            "x": 515.55,
+            "y": 307.58,
+            "floor_number": "1",
+            "poi_type": "stairs"
+        },
+        {
+            "id": "vl2_elevator",
+            "x": 550.57,
+            "y": 306.06,
+            "floor_number": "1",
+            "poi_type": "elevator"
+        },
+        {
+            "id": "vl2_hw11",
+            "x": 593.22,
+            "y": 411.14,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_hw12",
+            "x": 594.74,
+            "y": 222.29,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_hw13",
+            "x": 718.1,
+            "y": 231.43,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_hw14",
+            "x": 849.08,
+            "y": 232.95,
+            "floor_number": "1",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "vl2_202_2",
+            "x": 855.17,
+            "y": 147.67,
+            "floor_number": "1",
+            "poi_type": "room"
+        },
+        {
+            "id": "vl2_stairs_4",
+            "x": 967.87,
+            "y": 167.46,
+            "floor_number": "1",
+            "poi_type": "stairs"
+        }
+    ],
+    "edges": [
+        [
+            "vl2_stairs_1",
+            "vl2_hw1"
+        ],
+        [
+            "vl2_hw1",
+            "vl2_men_bathroom"
+        ],
+        [
+            "vl2_hw1",
+            "vl2_women_bathroom"
+        ],
+        [
+            "vl2_hw1",
+            "vl2_hw2"
+        ],
+        [
+            "vl2_hw2",
+            "vl2_women_bathroom"
+        ],
+        [
+            "vl2_hw2",
+            "vl2_hw3"
+        ],
+        [
+            "vl2_hw3",
+            "vl2_203_2"
+        ],
+        [
+            "vl2_203_3",
+            "vl2_hw3"
+        ],
+        [
+            "vl2_hw3",
+            "vl2_hw4"
+        ],
+        [
+            "vl2_204",
+            "vl2_hw4"
+        ],
+        [
+            "vl2_205",
+            "vl2_hw4"
+        ],
+        [
+            "vl2_hw5",
+            "vl2_hw2"
+        ],
+        [
+            "vl2_203_1",
+            "vl2_hw5"
+        ],
+        [
+            "vl2_hw6",
+            "vl2_hw5"
+        ],
+        [
+            "vl2_hw6",
+            "vl2_hw7"
+        ],
+        [
+            "vl2_hw7",
+            "vl2_201"
+        ],
+        [
+            "vl2_hw7",
+            "vl2_240"
+        ],
+        [
+            "vl2_297",
+            "vl2_hw7"
+        ],
+        [
+            "vl2_297",
+            "vl2_297_1"
+        ],
+        [
+            "vl2_hw7",
+            "vl2_hw8"
+        ],
+        [
+            "vl2_stairs_2",
+            "vl2_hw8"
+        ],
+        [
+            "vl2_hw6",
+            "vl2_hw8"
+        ],
+        [
+            "vl2_hw9",
+            "vl2_hw2"
+        ],
+        [
+            "vl2_hw9",
+            "vl2_hw5"
+        ],
+        [
+            "vl2_202_30",
+            "vl2_hw9"
+        ],
+        [
+            "vl2_hw9",
+            "vl2_hw10"
+        ],
+        [
+            "vl2_hw10",
+            "vl2_stairs_3"
+        ],
+        [
+            "vl2_hw10",
+            "vl2_elevator"
+        ],
+        [
+            "vl2_hw10",
+            "vl2_hw11"
+        ],
+        [
+            "vl2_hw11",
+            "vl2_hw12"
+        ],
+        [
+            "vl2_hw12",
+            "vl2_hw13"
+        ],
+        [
+            "vl2_hw13",
+            "vl2_hw6"
+        ],
+        [
+            "vl2_hw13",
+            "vl2_hw14"
+        ],
+        [
+            "vl2_202_2",
+            "vl2_hw14"
+        ],
+        [
+            "vl2_stairs_4",
+            "vl2_hw14"
+        ],
+        [
+            "vl2_hw1",
+            "vl2_stairs_1"
+        ],
+        [
+            "vl2_men_bathroom",
+            "vl2_hw1"
+        ],
+        [
+            "vl2_women_bathroom",
+            "vl2_hw1"
+        ],
+        [
+            "vl2_hw2",
+            "vl2_hw1"
+        ],
+        [
+            "vl2_women_bathroom",
+            "vl2_hw2"
+        ],
+        [
+            "vl2_hw3",
+            "vl2_hw2"
+        ],
+        [
+            "vl2_203_2",
+            "vl2_hw3"
+        ],
+        [
+            "vl2_hw3",
+            "vl2_203_3"
+        ],
+        [
+            "vl2_hw4",
+            "vl2_hw3"
+        ],
+        [
+            "vl2_hw4",
+            "vl2_204"
+        ],
+        [
+            "vl2_hw4",
+            "vl2_205"
+        ],
+        [
+            "vl2_hw2",
+            "vl2_hw5"
+        ],
+        [
+            "vl2_hw5",
+            "vl2_203_1"
+        ],
+        [
+            "vl2_hw5",
+            "vl2_hw6"
+        ],
+        [
+            "vl2_hw7",
+            "vl2_hw6"
+        ],
+        [
+            "vl2_201",
+            "vl2_hw7"
+        ],
+        [
+            "vl2_240",
+            "vl2_hw7"
+        ],
+        [
+            "vl2_hw7",
+            "vl2_297"
+        ],
+        [
+            "vl2_297_1",
+            "vl2_297"
+        ],
+        [
+            "vl2_hw8",
+            "vl2_hw7"
+        ],
+        [
+            "vl2_hw8",
+            "vl2_stairs_2"
+        ],
+        [
+            "vl2_hw8",
+            "vl2_hw6"
+        ],
+        [
+            "vl2_hw2",
+            "vl2_hw9"
+        ],
+        [
+            "vl2_hw5",
+            "vl2_hw9"
+        ],
+        [
+            "vl2_hw9",
+            "vl2_202_30"
+        ],
+        [
+            "vl2_hw10",
+            "vl2_hw9"
+        ],
+        [
+            "vl2_stairs_3",
+            "vl2_hw10"
+        ],
+        [
+            "vl2_elevator",
+            "vl2_hw10"
+        ],
+        [
+            "vl2_hw11",
+            "vl2_hw10"
+        ],
+        [
+            "vl2_hw12",
+            "vl2_hw11"
+        ],
+        [
+            "vl2_hw13",
+            "vl2_hw12"
+        ],
+        [
+            "vl2_hw6",
+            "vl2_hw13"
+        ],
+        [
+            "vl2_hw14",
+            "vl2_hw13"
+        ],
+        [
+            "vl2_hw14",
+            "vl2_202_2"
+        ],
+        [
+            "vl2_hw14",
+            "vl2_stairs_4"
+        ]
+    ]
+}

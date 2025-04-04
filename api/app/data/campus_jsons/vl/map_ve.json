@@ -1,0 +1,681 @@
+{
+    "nodes": [
+        {
+            "id": "ve_stairs",
+            "x": 427.21,
+            "y": 1018.81,
+            "floor_number": "VE2",
+            "poi_type": "stairs"
+        },
+        {
+            "id": "ve_entrance",
+            "x": 736.38,
+            "y": 933.53,
+            "floor_number": "VE2",
+            "poi_type": "entrance"
+        },
+        {
+            "id": "ve_men_bathroom",
+            "x": 632.82,
+            "y": 916.77,
+            "floor_number": "VE2",
+            "poi_type": "bathroom"
+        },
+        {
+            "id": "ve_women_bathroom",
+            "x": 605.4,
+            "y": 916.77,
+            "floor_number": "VE2",
+            "poi_type": "bathroom"
+        },
+        {
+            "id": "ve_hw1",
+            "x": 619.11,
+            "y": 930.48,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_hw2",
+            "x": 443.97,
+            "y": 928.96,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_221",
+            "x": 419.6,
+            "y": 927.43,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_221_1",
+            "x": 396.75,
+            "y": 941.14,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw3",
+            "x": 445.49,
+            "y": 770.57,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_223_2",
+            "x": 369.34,
+            "y": 922.87,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_223_3",
+            "x": 335.83,
+            "y": 884.79,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_223_4",
+            "x": 421.12,
+            "y": 791.89,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_223",
+            "x": 419.6,
+            "y": 764.48,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw4",
+            "x": 443.97,
+            "y": 645.68,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_223_6",
+            "x": 419.6,
+            "y": 645.68,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_223_5",
+            "x": 361.72,
+            "y": 667.0,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw5",
+            "x": 443.97,
+            "y": 511.66,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_225",
+            "x": 419.6,
+            "y": 511.66,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_225_1",
+            "x": 390.66,
+            "y": 540.6,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_225_2",
+            "x": 367.82,
+            "y": 526.89,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_225_3",
+            "x": 366.29,
+            "y": 499.48,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_225_4",
+            "x": 386.09,
+            "y": 482.72,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw6",
+            "x": 457.67,
+            "y": 578.67,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_226",
+            "x": 538.39,
+            "y": 520.8,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_226_3",
+            "x": 523.16,
+            "y": 438.56,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_226_1",
+            "x": 523.16,
+            "y": 360.88,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw7",
+            "x": 450.06,
+            "y": 376.11,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_299_98",
+            "x": 419.6,
+            "y": 402.0,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_227",
+            "x": 421.12,
+            "y": 377.64,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_227_1",
+            "x": 351.06,
+            "y": 395.91,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_227_2",
+            "x": 334.31,
+            "y": 370.02,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_227_3",
+            "x": 348.02,
+            "y": 354.79,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_227_4",
+            "x": 395.23,
+            "y": 351.75,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_hw8",
+            "x": 442.44,
+            "y": 204.02,
+            "floor_number": "VE2",
+            "poi_type": "hallway"
+        },
+        {
+            "id": "ve_229",
+            "x": 419.6,
+            "y": 205.54,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_230",
+            "x": 463.76,
+            "y": 175.08,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_228_1",
+            "x": 495.75,
+            "y": 223.82,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_228_2",
+            "x": 552.1,
+            "y": 222.29,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_228_3",
+            "x": 616.06,
+            "y": 222.29,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_228_4",
+            "x": 654.14,
+            "y": 205.54,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_228_7",
+            "x": 603.88,
+            "y": 193.36,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_229_1",
+            "x": 386.09,
+            "y": 223.82,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_229_2",
+            "x": 364.77,
+            "y": 208.59,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_229_3",
+            "x": 367.82,
+            "y": 181.17,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        },
+        {
+            "id": "ve_229_4",
+            "x": 392.18,
+            "y": 165.94,
+            "floor_number": "VE2",
+            "poi_type": "room"
+        }
+    ],
+    "edges": [
+        [
+            "ve_entrance",
+            "ve_hw1"
+        ],
+        [
+            "ve_hw1",
+            "ve_women_bathroom"
+        ],
+        [
+            "ve_hw1",
+            "ve_men_bathroom"
+        ],
+        [
+            "ve_hw1",
+            "ve_hw2"
+        ],
+        [
+            "ve_hw2",
+            "ve_stairs"
+        ],
+        [
+            "ve_221",
+            "ve_hw2"
+        ],
+        [
+            "ve_221",
+            "ve_221_1"
+        ],
+        [
+            "ve_hw2",
+            "ve_hw3"
+        ],
+        [
+            "ve_221",
+            "ve_223_2"
+        ],
+        [
+            "ve_223_3",
+            "ve_221"
+        ],
+        [
+            "ve_hw3",
+            "ve_223_4"
+        ],
+        [
+            "ve_223",
+            "ve_hw3"
+        ],
+        [
+            "ve_hw3",
+            "ve_hw4"
+        ],
+        [
+            "ve_223_6",
+            "ve_hw4"
+        ],
+        [
+            "ve_223_5",
+            "ve_223_6"
+        ],
+        [
+            "ve_hw4",
+            "ve_hw5"
+        ],
+        [
+            "ve_225",
+            "ve_hw5"
+        ],
+        [
+            "ve_225",
+            "ve_225_1"
+        ],
+        [
+            "ve_225",
+            "ve_225_2"
+        ],
+        [
+            "ve_225",
+            "ve_225_3"
+        ],
+        [
+            "ve_225",
+            "ve_225_4"
+        ],
+        [
+            "ve_hw4",
+            "ve_hw6"
+        ],
+        [
+            "ve_hw6",
+            "ve_226"
+        ],
+        [
+            "ve_hw6",
+            "ve_hw5"
+        ],
+        [
+            "ve_226",
+            "ve_226_3"
+        ],
+        [
+            "ve_226",
+            "ve_226_1"
+        ],
+        [
+            "ve_hw5",
+            "ve_hw7"
+        ],
+        [
+            "ve_299_98",
+            "ve_hw7"
+        ],
+        [
+            "ve_227",
+            "ve_hw7"
+        ],
+        [
+            "ve_227",
+            "ve_227_1"
+        ],
+        [
+            "ve_227",
+            "ve_227_2"
+        ],
+        [
+            "ve_227",
+            "ve_227_3"
+        ],
+        [
+            "ve_227",
+            "ve_227_4"
+        ],
+        [
+            "ve_hw7",
+            "ve_hw8"
+        ],
+        [
+            "ve_hw8",
+            "ve_229"
+        ],
+        [
+            "ve_hw8",
+            "ve_230"
+        ],
+        [
+            "ve_hw8",
+            "ve_228_1"
+        ],
+        [
+            "ve_hw8",
+            "ve_228_2"
+        ],
+        [
+            "ve_hw8",
+            "ve_228_3"
+        ],
+        [
+            "ve_hw8",
+            "ve_228_4"
+        ],
+        [
+            "ve_hw8",
+            "ve_228_7"
+        ],
+        [
+            "ve_229",
+            "ve_229_1"
+        ],
+        [
+            "ve_229",
+            "ve_229_2"
+        ],
+        [
+            "ve_229",
+            "ve_229_3"
+        ],
+        [
+            "ve_229",
+            "ve_229_4"
+        ],
+        [
+            "ve_hw1",
+            "ve_entrance"
+        ],
+        [
+            "ve_women_bathroom",
+            "ve_hw1"
+        ],
+        [
+            "ve_men_bathroom",
+            "ve_hw1"
+        ],
+        [
+            "ve_hw2",
+            "ve_hw1"
+        ],
+        [
+            "ve_stairs",
+            "ve_hw2"
+        ],
+        [
+            "ve_hw2",
+            "ve_221"
+        ],
+        [
+            "ve_221_1",
+            "ve_221"
+        ],
+        [
+            "ve_hw3",
+            "ve_hw2"
+        ],
+        [
+            "ve_223_2",
+            "ve_221"
+        ],
+        [
+            "ve_221",
+            "ve_223_3"
+        ],
+        [
+            "ve_223_4",
+            "ve_hw3"
+        ],
+        [
+            "ve_hw3",
+            "ve_223"
+        ],
+        [
+            "ve_hw4",
+            "ve_hw3"
+        ],
+        [
+            "ve_hw4",
+            "ve_223_6"
+        ],
+        [
+            "ve_223_6",
+            "ve_223_5"
+        ],
+        [
+            "ve_hw5",
+            "ve_hw4"
+        ],
+        [
+            "ve_hw5",
+            "ve_225"
+        ],
+        [
+            "ve_225_1",
+            "ve_225"
+        ],
+        [
+            "ve_225_2",
+            "ve_225"
+        ],
+        [
+            "ve_225_3",
+            "ve_225"
+        ],
+        [
+            "ve_225_4",
+            "ve_225"
+        ],
+        [
+            "ve_hw6",
+            "ve_hw4"
+        ],
+        [
+            "ve_226",
+            "ve_hw6"
+        ],
+        [
+            "ve_hw5",
+            "ve_hw6"
+        ],
+        [
+            "ve_226_3",
+            "ve_226"
+        ],
+        [
+            "ve_226_1",
+            "ve_226"
+        ],
+        [
+            "ve_hw7",
+            "ve_hw5"
+        ],
+        [
+            "ve_hw7",
+            "ve_299_98"
+        ],
+        [
+            "ve_hw7",
+            "ve_227"
+        ],
+        [
+            "ve_227_1",
+            "ve_227"
+        ],
+        [
+            "ve_227_2",
+            "ve_227"
+        ],
+        [
+            "ve_227_3",
+            "ve_227"
+        ],
+        [
+            "ve_227_4",
+            "ve_227"
+        ],
+        [
+            "ve_hw8",
+            "ve_hw7"
+        ],
+        [
+            "ve_229",
+            "ve_hw8"
+        ],
+        [
+            "ve_230",
+            "ve_hw8"
+        ],
+        [
+            "ve_228_1",
+            "ve_hw8"
+        ],
+        [
+            "ve_228_2",
+            "ve_hw8"
+        ],
+        [
+            "ve_228_3",
+            "ve_hw8"
+        ],
+        [
+            "ve_228_4",
+            "ve_hw8"
+        ],
+        [
+            "ve_228_7",
+            "ve_hw8"
+        ],
+        [
+            "ve_229_1",
+            "ve_229"
+        ],
+        [
+            "ve_229_2",
+            "ve_229"
+        ],
+        [
+            "ve_229_3",
+            "ve_229"
+        ],
+        [
+            "ve_229_4",
+            "ve_229"
+        ]
+    ]
+}
