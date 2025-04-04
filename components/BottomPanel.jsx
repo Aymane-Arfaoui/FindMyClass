@@ -5,7 +5,26 @@ import {theme} from "@/constants/theme";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
 import {isShuttleRunningNow} from "@/services/shuttleService";
-const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
+
+
+
+function hasIndoorMapBottomPanel(buildingName = "") {
+    const buildingNameLowerCase = buildingName.toLowerCase();
+    let buildingKey = null;
+
+    if (buildingNameLowerCase.includes("hall building")) {
+        buildingKey = "Hall";
+    } else if (buildingNameLowerCase.includes("john molson") || buildingNameLowerCase.includes("mb ")) {
+        buildingKey = "MB";
+    } else if (buildingNameLowerCase.includes("cc") || buildingNameLowerCase.includes("central building")) {
+        buildingKey = "CC";
+    }
+
+    return buildingKey;
+}
+
+
+const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes }) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -47,6 +66,18 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
     const matchedTime = selectedRoute ? travelTimes[modeMapping[selectedRoute.mode]] : null;
 
 
+    const buildingKey = selectedBuilding ? hasIndoorMapBottomPanel(selectedBuilding.name) : null;
+
+    const handleGoInside = () => {
+        if (buildingKey) {
+            setModalVisible(false)
+            router.push({ pathname: "MapScreen", params: { buildingKey } });
+        } else {
+            console.warn("No indoor map available for this building");
+        }
+    };
+
+
     return (
         <Animated.View style={[styles.container, {height: animatedHeight}]} testID={'bottom-panel'}>
             <View style={styles.slideIndicator}/>
@@ -54,7 +85,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
                 {routeDetails ? (
                     <View testID={'route-details'}>
                         <Text style={styles.text}>
-                            Duration: {matchedTime ? matchedTime : (selectedRoute?.duration || routeDetails?.duration || "N/A")}
+                            Duration: {matchedTime || selectedRoute?.duration || routeDetails?.duration || "N/A"}
                         </Text>
                         <Text style={styles.subText}>
                             {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
@@ -125,6 +156,18 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
                             )}
                         </View>
 
+                        {wantsClassroom && buildingKey && (
+                            <TouchableOpacity
+                                style={styles.goInsideButton}
+                                // onPress={() => {
+                                //     // Placeholder for future functionality
+                                //     console.log("Go Inside pressed");
+                                // }}
+                                onPress={handleGoInside}
+                            >
+                                <Text style={styles.goInsideButtonText}>Go Inside</Text>
+                            </TouchableOpacity>
+                        )}
                         <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBP}>
                             <Text style={styles.closeButtonText}>Close</Text>
                         </TouchableOpacity>
@@ -181,7 +224,10 @@ const BottomPanel = ({transportMode, routeDetails, routes, travelTimes}) => {
 BottomPanel.propTypes={
     transportMode:PropTypes.string,
     routeDetails:PropTypes.object,
-    routes:PropTypes.array
+    routes:PropTypes.array,
+    wantsClassroom: PropTypes.bool,
+    selectedBuilding: PropTypes.object,
+    travelTimes: PropTypes.object
 }
 
 
@@ -322,6 +368,7 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.md,
         padding: 12,
         marginBottom: 50,
+        alignItems: "center",
 
     },
     closeButtonBPup:{
@@ -330,6 +377,7 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.md,
         padding: 12,
         marginBottom: 15,
+        alignItems: "center",
 
     },
     closeButtonText: {
@@ -375,7 +423,18 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: theme.fonts.bold,
     },
-
+    goInsideButton: {
+        marginTop: 10,
+        backgroundColor: theme.colors.primary,
+        borderRadius: theme.radius.md,
+        padding: 12,
+        alignItems: "center",
+    },
+    goInsideButtonText: {
+        color: "white",
+        fontWeight: "bold",
+        fontSize: 16,
+    },
 
 
 });

@@ -4,6 +4,7 @@ export const theme = {
       primaryLight: '#B15A6C',   // Lighter version of primary for hover states
       primaryDark: '#6D1A2A',    // Darker version of primary for depth
       secondary: '#F5E6E8',      // Very light pink for subtle backgrounds
+      secondaryDark: '#D2A4A8',
       dark: '#1A1A1A',          // Near black for primary text
       darkLight: '#4A4A4A',     // Softer dark for secondary text
       gray: '#E5E5E5',          // Light gray for borders
@@ -36,7 +37,12 @@ export const theme = {
     },
   };
 
-import {lightColors, darkColors} from "@/constants/colorPalettes";
+import {
+  lightColors,
+  darkColors,
+  colorBlindLightColors,
+  colorBlindDarkColors,
+} from "@/constants/colorPalettes";
 
 const fonts = {
   medium: '500',
@@ -54,9 +60,19 @@ const radius = {
   xxl: 20,
 };
 
-export function getTheme(isDark = false) {
+export function getTheme(isDark = false, colorBlindMode = false) {
+  let colors;
+
+  if (colorBlindMode && isDark) {
+    colors = colorBlindDarkColors;
+  } else if (colorBlindMode && !isDark) {
+    colors = colorBlindLightColors;
+  } else {
+    colors = isDark ? darkColors : lightColors;
+  }
+
   return {
-    colors: isDark ? darkColors : lightColors,
+    colors,
     fonts,
     radius,
   };
