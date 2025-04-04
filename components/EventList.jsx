@@ -1,9 +1,10 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {theme} from "@/constants/theme";
 import EditTasks from "@/components/EditTasks";
 import PropTypes from "prop-types";
+import { ThemeContext } from '@/context/ThemeProvider';
+
 
 export const getLocalDateString = (dateInput) => {
     if (!dateInput) return null;
@@ -17,6 +18,8 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isEditVisible, setIsEditVisible] = useState(false);
     const [routeSelectionDate, setRouteSelectionDate] = useState(null);
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     useEffect(() => {
         setSelectedRouteIds([]);
@@ -108,15 +111,14 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                         >
                             <View style={{width: 70, marginRight: 10, alignItems: 'center'}}>
                                 {isPlanRouteMode ? (
-                                    <TouchableOpacity onPress={handleSelect}>
-                                        <Ionicons
-                                            name={isSelected ? "radio-button-on" : "radio-button-off"}
-                                            size={22}
-                                            color={theme.colors.primary}
-                                        />
+                                    <TouchableOpacity onPress={handleSelect} style={styles.selectCircleWrapper}>
+                                        <View style={[
+                                            styles.selectCircle,
+                                            isSelected && styles.selectCircleSelected
+                                        ]}/>
                                     </TouchableOpacity>
                                 ) : (
-                                    <Text style={{fontSize: 14, fontWeight: '600', color: theme.colors.grayDark}}>
+                                    <Text style={{fontSize: 15, fontWeight: '600', color: theme.colors.grayDark}}>
                                         {event.start?.dateTime
                                             ? new Date(event.start.dateTime).toLocaleTimeString([], {
                                                 hour: '2-digit',
@@ -147,7 +149,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                                         {event.itemType === 'event' && (
                                             <View style={[
                                                 styles.calendarSourceBadge,
-                                                {backgroundColor: event.calendarColor || theme.colors.blueDark}
+                                                {backgroundColor: theme.colors.primary || theme.colors.blueDark}
                                             ]}>
                                                 <Text style={styles.calendarSourceText}>
                                                     {event.calendarName === 'Main' ? 'Main' :
@@ -202,14 +204,34 @@ EventList.propTypes={
 }
 export default EventList;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         paddingHorizontal: 20,
         marginTop: 20,
     },
+    selectCircleWrapper: {
+        width: 16,
+        height: 16,
+        borderRadius: 8,
+        borderWidth: 2,
+        borderColor: theme.colors.primary,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+
+    selectCircle: {
+        width: 8,
+        height: 8,
+        borderRadius: 4,
+        backgroundColor: 'transparent',
+    },
+
+    selectCircleSelected: {
+        backgroundColor: theme.colors.primary,
+    },
     eventCard: {
         flexDirection: "row",
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.SmartPlannerCards,
         padding: 15,
         borderRadius: 12,
         marginBottom: 10,
@@ -235,6 +257,8 @@ const styles = StyleSheet.create({
         top: 0,
         bottom: 0,
         width: 4,
+        borderTopLeftRadius: 8,
+        borderBottomLeftRadius: 8,
     },
     taskAccent: {
         backgroundColor: theme.colors.secondaryDark,
@@ -243,10 +267,10 @@ const styles = StyleSheet.create({
         backgroundColor: theme.colors.primary,
     },
     taskCard: {
-        backgroundColor: '#FAFAFA',
+        backgroundColor: theme.colors.SmartPlannerCards,
     },
     calendarCard: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.SmartPlannerCards,
     },
     eventTimeContainer: {
         width: 80,
@@ -285,12 +309,12 @@ const styles = StyleSheet.create({
     },
     eventSubtitle: {
         fontSize: 14,
-        color: theme.colors.grayDark,
+        color: theme.colors.textLight,
         marginTop: 2,
     },
     eventLocation: {
         fontSize: 14,
-        color: theme.colors.grayDark,
+        color: theme.colors.textLight,
         marginLeft: 6,
     },
     noEventsContainer: {
@@ -299,7 +323,7 @@ const styles = StyleSheet.create({
     },
     noEventsText: {
         fontSize: 16,
-        color: theme.colors.grayDark,
+        color: theme.colors.textLight,
     },
     locationContainer: {
         flexDirection: "row",
@@ -310,6 +334,7 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     calendarSourceBadge: {
+        backgroundColor: theme.colors.blueDark,
         paddingHorizontal: 8,
         paddingVertical: 4,
         borderRadius: 12,
@@ -317,7 +342,7 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     calendarSourceText: {
-        color: theme.colors.white,
+        color: theme.colors.textCalendar,
         fontSize: 12,
         fontWeight: '500',
         textTransform: 'capitalize',
