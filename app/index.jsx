@@ -1,4 +1,4 @@
-import { View, Text, Button, Image, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'expo-router'
 import ScreenWrapper from '../components/ScreenWrapper'
@@ -8,12 +8,9 @@ import 'react-native-get-random-values';
 
 const Index = () => {
     const router = useRouter();
-    
-    // EXTRA feature: fade-in animation
     const [fadeAnim] = useState(new Animated.Value(0));
 
     useEffect(() => {
-      // Fade-in
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 3000,
@@ -21,7 +18,6 @@ const Index = () => {
     }).start();
 
     const timer = setTimeout(() => {
-      // Fade-out
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 1000,
@@ -32,7 +28,7 @@ const Index = () => {
       // Can change this later if need less or more time
       setTimeout(() => {
         router.push('Welcome');
-      }, 1100); // fade-out duration from index
+      }, 1100);
     }, 3000);
 
     return () => clearTimeout(timer);
@@ -41,13 +37,11 @@ const Index = () => {
   return (
     <ScreenWrapper>
       <View style={styling.container}>
-        {/* <Image source={whiteLogo} style={styling.logo} /> */}
         <Animated.Image
             testID={'index-image'}
           source={whiteLogo} 
           style={[styling.logo, { opacity: fadeAnim }]} 
         />
-        {/* <Button title="Welcome" onPress={() => router.push('Welcome')} /> */}
       </View>
     </ScreenWrapper>
   )
