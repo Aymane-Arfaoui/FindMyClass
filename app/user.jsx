@@ -24,7 +24,7 @@ import {StatusBar} from "expo-status-bar";
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import {getUserInfo} from "@/services/userService";
-import {getCalendarEvents} from "@/services/calendarService";
+import {calendarService} from '@/services/calendarService';
 
 
 WebBrowser.maybeCompleteAuthSession();
@@ -39,9 +39,8 @@ const User = () => {
     const [redirectToCalendar, setRedirectToCalendar] = useState(false);
 
     const [, response, promptAsync] = Google.useAuthRequest({
-        webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
         iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-        androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+        androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
         scopes: [
             'profile',
             'email',
@@ -52,8 +51,9 @@ const User = () => {
             'https://www.googleapis.com/auth/calendar.settings.readonly',
             'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
         ],
-        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect',
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
     });
+
     useEffect(() => {
         const fetchUserAndEvents = async () => {
             const user = await AsyncStorage.getItem('@user');
@@ -89,17 +89,24 @@ const User = () => {
             const userData = await getUserInfo(accessToken);
             if (userData) {
                 await AsyncStorage.setItem("@user", JSON.stringify(userData));
+                await AsyncStorage.setItem("@accessToken", accessToken);
                 setUserInfo(userData);
 
-                const events = await getCalendarEvents(accessToken);
-                await AsyncStorage.setItem("@calendar", JSON.stringify(events));
-                setCalendarEvents(events);
-                if (redirectToCalendar) {
-                    setRedirectToCalendar(false); // reset flag
-                    router.push('/home');         // go to calendar
+                try {
+                    const events = await calendarService.fetchAndUpdateEvents(accessToken);
+                    await AsyncStorage.setItem("@calendar", JSON.stringify(events));
+                    setCalendarEvents(events);
+                    if (redirectToCalendar) {
+                        setRedirectToCalendar(false);
+                        router.push('/home');
+                    }
+                } catch (calendarError) {
+                    console.error('Calendar sync error:', calendarError);
+                    // Continue even if calendar sync fails
                 }
             }
         } catch (error) {
+            console.error('Sign in error:', error);
             Alert.alert("Login Failed", "Could not retrieve user information.");
         } finally {
             setLoading(false);
