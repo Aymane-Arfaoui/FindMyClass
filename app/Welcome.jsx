@@ -1,14 +1,14 @@
-import { Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
 import React, { useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, Text, View, Image, ScrollView, TouchableOpacity, ImageBackground, ActivityIndicator } from 'react-native';
 import ScreenWrapper from '../components/ScreenWrapper';
 import { StatusBar } from 'expo-status-bar';
-import { theme } from '../constants/theme';
-import { hp, wp } from '../helpers/common';
+import { theme } from '@/constants/theme';
+import { hp, wp } from '@/helpers/common';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getUserInfo } from '../services/userService';
-import { getCalendarEvents } from '../services/calendarService';
+import { getUserInfo } from '@/services/userService';
+import { calendarService } from '@/services/calendarService';
 import { useRouter } from 'expo-router';
 import GoogleLoginButton from '../assets/images/google-color.png';
 import BackgroundImg from '../assets/images/background-generic-1.png';
@@ -17,10 +17,18 @@ WebBrowser.maybeCompleteAuthSession();
 
 const Welcome = () => {
   const [request, response, promptAsync] = Google.useAuthRequest({
-    webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
-    iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
-    scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
+    iosClientId: '449179918461-olq0qduopb56j7ne61nrjrd6tm719cfq.apps.googleusercontent.com',
+    androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
+    scopes: [
+      'profile',
+      'email',
+      'https://www.googleapis.com/auth/calendar',
+      'https://www.googleapis.com/auth/calendar.readonly',
+      'https://www.googleapis.com/auth/calendar.events',
+      'https://www.googleapis.com/auth/calendar.events.readonly',
+      'https://www.googleapis.com/auth/calendar.settings.readonly',
+      'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+    ],
     redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
   });
 
@@ -33,26 +41,25 @@ const Welcome = () => {
 
   async function handleSignInWithGoogle() {
     if (response?.type === "success") {
-      setLoading(true); // Show loading while processing
+      setLoading(true);
       const userData = await getUserInfo(response.authentication.accessToken);
       if (userData) {
-        const events = await getCalendarEvents(response.authentication.accessToken);
-        await AsyncStorage.setItem("@calendar", JSON.stringify(events));
+        await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
+        await calendarService.fetchAndUpdateEvents(response.authentication.accessToken);
         router.replace("/home");
       }
-      setLoading(false); // Hide loading after processing
+      setLoading(false);
     }
   }
 
-  
   const handleGoogleSignIn = async () => {
-    setLoading(true); // Show loading when starting authentication
+    setLoading(true);
     try {
       await promptAsync();
     } catch (error) {
       console.error('Authentication error:', error);
     } finally {
-      setLoading(false); // Hide loading on error or completion
+      setLoading(false);
     }
   };
 
@@ -80,7 +87,7 @@ const Welcome = () => {
               </TouchableOpacity>
             </View>
 
-          <View style={styles.buttonContainer}>
+            <View style={styles.buttonContainer}>
               <TouchableOpacity
                   testID={'welcome-button'}
                   style={styles.welcomeButton}
@@ -88,19 +95,16 @@ const Welcome = () => {
               >
                 <Text style={styles.welcomeButtonText}>GET STARTED</Text>
               </TouchableOpacity>
-
             </View>
+          </ImageBackground>
 
-
-        </ImageBackground>
-
-        {isLoading && (
-          <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color= {theme.colors.primary} />
-          </View>
-        )}
-      </View>
-    </ScreenWrapper>
+          {isLoading && (
+              <View style={styles.loadingOverlay}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+              </View>
+          )}
+        </View>
+      </ScreenWrapper>
   );
 };
 

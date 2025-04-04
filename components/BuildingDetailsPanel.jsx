@@ -1,9 +1,10 @@
-import React from "react";
-import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import React, {useState} from "react";
+import {ActivityIndicator, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import { useNavigation } from "@react-navigation/native";
 import PropTypes from "prop-types";
+import {wp} from "@/helpers/common";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
@@ -38,12 +39,32 @@ function BuildingDetailsPanel({
                               }) {
     const buildingKey = hasIndoorMap(selectedBuilding?.name);
     const navigation = useNavigation();
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const handleDirectionPress = () => {
+        if (buildingKey) {
+            setModalVisible(true);
+        } else {
+            onDirectionPress(currentLocation, selectedBuilding, mode, false);
+        }
+    };
+
+    const handleModalResponse = (wantsClassroom) => {
+        setModalVisible(false);
+        if (wantsClassroom !== null) {
+            onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        }
+    };
+
+
     return (
         <Animated.View
             {...panHandlers}
             style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
         >
             <TouchableOpacity
+                testID={'close-button'}
                 onPress={onClose}
                 style={styles.closeButton}
                 activeOpacity={0.7}
@@ -54,46 +75,119 @@ function BuildingDetailsPanel({
             <View style={styles.dragBar}/>
 
             {loading ? (
-                <ActivityIndicator size="large" color={theme.colors.primary}/>
+                <ActivityIndicator size="large" color={theme.colors.primary} testID={'loading-indicator'}/>
             ) : (
                 <>
                     <Text style={styles.buildingName}>
                         {selectedBuilding?.name || "Loading..."}
                     </Text>
 
-                        {buildingDetails && (
-                            <>
-                                {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
-                                    <Image
-                                        source={{
-                                            uri: `https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${buildingDetails.photos[0].photo_reference}&key=${GOOGLE_PLACES_API_KEY}`,
-                                        }}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                ) : (
-                                    <Image
-                                        source={{uri: DEFAULT_IMAGE_URL}}
-                                        style={styles.buildingImage}
-                                        resizeMode="cover"
-                                    />
-                                )}
+                    {buildingDetails && (
+                        <>
+                            {buildingDetails.photos && buildingDetails.photos.length > 0 ? (
+                                <Image
+                                    source={{
+                                        uri: `https://places.googleapis.com/v1/${buildingDetails.photos[0].name}/media?maxWidthPx=1200&maxHeightPx=1200&key=${GOOGLE_PLACES_API_KEY}`,
+                                    }}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'building-image'}
+                                />
+                            ) : (
+                                <Image
+                                    source={{uri: DEFAULT_IMAGE_URL}}
+                                    style={styles.buildingImage}
+                                    resizeMode="cover"
+                                    testID={'default-image'}
+                                />
+                            )}
 
-                                <Text style={styles.buildingDetails}>
-                                    {buildingDetails.formatted_address}
+                            <Text style={styles.buildingDetails}>
+                                {buildingDetails.formattedAddress || "No address available"}
+                            </Text>
+                        </>
+                    )}
+
+
+                    {!buildingKey && (
+
+                    // <TouchableOpacity style={styles.directionButton}
+                    //                   testID={'direction-button'}
+                    //                   onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
+                    //     <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                    //     <Text style={styles.directionButtonText}>Get Directions</Text>
+                    // </TouchableOpacity>
+
+                        <TouchableOpacity
+                        style={styles.directionButton}
+                        testID={'direction-button'}
+                        onPress={handleDirectionPress}
+                        >
+                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
+                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                        </TouchableOpacity>
+
+                    )}
+
+                    {buildingKey && (
+                        // <TouchableOpacity style={styles.directionButton}
+                        //                   testID={'direction-button'}
+                        //                   onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
+                        //     <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                        //     <Text style={styles.directionButtonText}>Get Directions</Text>
+                        // </TouchableOpacity>
+                        <TouchableOpacity
+                            style={styles.directionButton}
+                            testID={'direction-button'}
+                            onPress={handleDirectionPress}
+                        >
+                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
+                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalText}>
+                                    Would you like to go to a specific classroom in the {buildingKey} building?
                                 </Text>
-                            </>
-                        )}
-
-
-                    <TouchableOpacity style={styles.directionButton}
-                                      testID={'direction-button'}
-                                      onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
-                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                        <Text style={styles.directionButtonText}>Get Directions</Text>
-                    </TouchableOpacity>
+                                <View style={styles.modalButtonContainer}>
+                                    <View style={styles.yesNoButtons}>
+                                        <TouchableOpacity
+                                            style={[styles.modalButton, styles.yesButton]}
+                                            onPress={() => handleModalResponse(true)}
+                                        >
+                                            <Ionicons name="map" size={18} color={theme.colors.white} />
+                                            <Text style={styles.modalButtonText}> Yes</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity
+                                            style={[styles.modalButton, styles.noButton]}
+                                            onPress={() => handleModalResponse(false)}
+                                        >
+                                            <Ionicons name="navigate-circle" size={18} color={theme.colors.white} />
+                                            <Text style={styles.modalButtonText}> No</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.cancelButton]}
+                                        onPress={() => handleModalResponse(null)}
+                                    >
+                                        <Ionicons name="arrow-undo" size={18} color={theme.colors.white} />
+                                        <Text style={styles.modalButtonText}> Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                     {buildingKey && (
                         <TouchableOpacity
+                            testID={'indoor-map-button'}
                             style={styles.indoorMapButton}
                             onPress={() => {
                                 navigation.navigate("MapScreen", { buildingKey });
@@ -107,10 +201,10 @@ function BuildingDetailsPanel({
             )}
         </Animated.View>
     );
-};
+}
 
 BuildingDetailsPanel.propTypes={
-    selectedBuilding:PropTypes.any,
+    selectedBuilding: PropTypes.any,
     buildingDetails:PropTypes.any,
     panHandlers:PropTypes.any,
     panelY:PropTypes.any,
@@ -224,4 +318,64 @@ const styles = StyleSheet.create({
     },
 
 
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        width: wp(100),
+    },
+    modalContent: {
+        backgroundColor: theme.colors.white,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+        elevation: 5,
+        width: wp(90),
+        minHeight: 200,
+
+    },
+    modalText: {
+        fontSize: 18,
+        color: theme.colors.dark,
+        marginBottom: 20,
+        textAlign: "center",
+    },
+    modalButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+    },
+    modalButton: {
+        flex: 1,
+        paddingVertical: 10,
+        marginHorizontal: 5,
+        borderRadius: 5,
+        alignItems: "center",
+        flexDirection: "row",
+        justifyContent: "center",
+    },
+    yesButton: {
+        backgroundColor: theme.colors.blueDark,
+    },
+    noButton: {
+        backgroundColor: theme.colors.primary,
+    },
+    cancelButton: {
+        backgroundColor: theme.colors.textLight,
+    },
+    modalButtonText: {
+        color: theme.colors.white,
+        fontSize: 18,
+        fontWeight: "bold",
+    },
+    modalButtonContainer: {
+        width: "100%",
+        height: 100,
+    },
+    yesNoButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
 });

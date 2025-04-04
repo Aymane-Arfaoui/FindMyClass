@@ -5,14 +5,16 @@ import { theme } from "@/constants/theme";
 const MapButtons = ({ onPress }) => {
     const [selectedLocation, setSelectedLocation] = useState('SGW');
 
-    const locations = {
+const MapButtons = ({onPress}) => {
+const [selectedLocation, setSelectedLocation] = useState('SGW');
+const locations = {
         SGW: [-73.5787, 45.4963],     // SGW Coordinates
         Loyola: [-73.6405, 45.4582]         // Loyola Coordinates
     };
 
     useEffect(() => {
         onPress(locations[selectedLocation]);
-    }, []);
+    }, [selectedLocation]);
 
     const handlePress = (location) => {
         setSelectedLocation(location);
@@ -39,6 +41,11 @@ const MapButtons = ({ onPress }) => {
             </View>
         </View>
     );
+};
+
+
+MapButtons.propTypes = {
+    onPress: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
