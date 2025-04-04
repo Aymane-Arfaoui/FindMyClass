@@ -1,3 +1,4 @@
+jest.useFakeTimers()
 import React from 'react';
 import { render, userEvent, screen } from '@testing-library/react-native';
 import BuildingDetailsPanel from '../BuildingDetailsPanel';
@@ -5,7 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 
 describe('BuildingDetailsPanel', () => {
     const mockBuildingDetails = {
-        formatted_address: "123 Main St, City, Country",
+        formattedAddress: "123 Main St, City, Country",
         photos: [{ photo_reference: '123abc' }],
     };
     const mockOnClose = jest.fn();

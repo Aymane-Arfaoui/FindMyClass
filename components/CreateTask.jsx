@@ -1,12 +1,16 @@
-import React, {useEffect, useState} from "react";
+import React, {useContext, useEffect, useMemo, useState} from "react";
 import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {theme} from "@/constants/theme";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
+
 
 const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const now = new Date();
     const [taskName, setTaskName] = useState("");
     const [notes, setNotes] = useState("");
@@ -97,12 +101,13 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
         <Modal animationType="slide" transparent visible={isVisible} onRequestClose={onClose}>
             <View style={styles.createTaskModalContainer}>
                 <View style={styles.createTaskBottomSheet}>
-                    <TouchableOpacity onPress={onClose} style={styles.createTaskCloseButton}>
-                        <Ionicons name="close-circle" size={32} color="#333"/>
+                    <TouchableOpacity testID={'close-button'} onPress={onClose} style={styles.createTaskCloseButton}>
+                        <Ionicons name="close-circle" size={32} color={theme.colors.text}/>
                     </TouchableOpacity>
                     <Text style={styles.createTaskHeaderText}>Create New Task</Text>
                     <View>
                         <TextInput
+                            placeholderTextColor={theme.colors.inputPlaceholder}
                             style={styles.createTaskInput}
                             value={taskName}
                             onChangeText={setTaskName}
@@ -111,7 +116,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
 
                         <Text style={styles.createTaskLabel}>Date</Text>
-                        <TouchableOpacity onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
+                        <TouchableOpacity testID={'date-picker-toggle'} onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
                             <Text style={styles.createTaskInputText}>{date.toDateString()}</Text>
                         </TouchableOpacity>
                         <DatePicker
@@ -119,12 +124,14 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                             open={openDatePicker}
                             date={date}
                             mode="date"
+                            theme={theme.mode === "dark" ? "dark" : "light"}
                             minimumDate={new Date()}
                             onConfirm={(selectedDate) => {
                                 setOpenDatePicker(false);
                                 setDate(selectedDate);
                             }}
                             onCancel={() => setOpenDatePicker(false)}
+                            testID={'date-picker-modal'}
                         />
 
                         <View style={styles.createTaskAllDayContainer}>
@@ -132,6 +139,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                               style={styles.createTaskAllDayToggle}>
                                 <Text style={styles.createTaskLabel}>All Day Event</Text>
                                 <Switch
+                                    testID={'all-day-switch'}
                                     value={allDayEvent}
                                     onValueChange={(value) => {
                                         setAllDayEvent(value);
@@ -144,10 +152,10 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                         }
                                     }}
                                     trackColor={{
-                                        false: theme.colors.lightGray,
+                                        false: '#fff',
                                         true: theme.colors.primary
                                     }}
-                                    thumbColor={allDayEvent ? theme.colors.white : theme.colors.darkGray}
+                                    thumbColor={allDayEvent ? '#fff' : theme.colors.darkgray}
                                 />
                             </TouchableOpacity>
                         </View>
@@ -155,15 +163,17 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         {!allDayEvent && (
                             <>
                                 <Text style={styles.createTaskLabel}>Start Time</Text>
-                                <TouchableOpacity onPress={() => setOpenStartTimePicker(true)}
+                                <TouchableOpacity  testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)}
                                                   style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(startTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
                                     modal
+                                    testID={'start-time-picker'}
                                     open={openStartTimePicker}
                                     date={startTime}
                                     mode="time"
+                                    theme={theme.mode === "dark" ? "dark" : "light"}
                                     onConfirm={(selectedTime) => {
                                         setOpenStartTimePicker(false);
                                         setStartTime(selectedTime);
@@ -172,11 +182,12 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                 />
 
                                 <Text style={styles.createTaskLabel}>End Time</Text>
-                                <TouchableOpacity onPress={() => setOpenEndTimePicker(true)}
+                                <TouchableOpacity  testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)}
                                                   style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(endTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
+                                    testID={'end-time-picker'}
                                     modal
                                     open={openEndTimePicker}
                                     date={endTime}
@@ -193,6 +204,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
 
                         <Text style={styles.createTaskLabel}>Notes</Text>
                         <TextInput
+                            placeholderTextColor={theme.colors.inputPlaceholder}
                             style={styles.createTaskTextArea}
                             value={notes}
                             onChangeText={setNotes}
@@ -211,14 +223,20 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     );
 };
 
-const styles = StyleSheet.create({
+
+CreateTask.propTypes={
+    isVisible:PropTypes.bool, onClose:PropTypes.func, onTaskCreated:PropTypes.func
+}
+
+const createStyles = (theme) => StyleSheet.create({
+
     createTaskModalContainer: {
         flex: 1,
         justifyContent: "flex-end",
         backgroundColor: "rgba(0,0,0,0.5)",
     },
     createTaskBottomSheet: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.cardBackground,
         padding: 20,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -231,28 +249,34 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginBottom: 15,
         textAlign: "center",
+        color: theme.colors.text,
     },
     createTaskInput: {
+        backgroundColor: theme.colors.inputBackground,
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
         padding: 12,
         marginBottom: 10,
         fontSize: 16,
+        color: theme.colors.text,
+        placeholderTextColor: theme.colors.inputPlaceholder
     },
     createTaskInputButton: {
+        backgroundColor: theme.colors.inputBackground,
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
         padding: 12,
         marginBottom: 10,
-        backgroundColor: theme.colors.gray,
         alignItems: "center",
     },
     createTaskInputText: {
         fontSize: 16,
+        color: theme.colors.text,
     },
     createTaskTextArea: {
+        backgroundColor: theme.colors.inputBackground,
         borderWidth: 1,
         borderColor: theme.colors.gray,
         borderRadius: 10,
@@ -260,11 +284,13 @@ const styles = StyleSheet.create({
         height: 100,
         marginBottom: 10,
         fontSize: 16,
+        color: theme.colors.text,
     },
     createTaskLabel: {
         fontSize: 16,
         fontWeight: "bold",
         marginBottom: 5,
+        color: theme.colors.text,
     },
     createTaskSaveButton: {
         flexDirection: "row",
@@ -277,7 +303,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
     createTaskSaveButtonText: {
-        color: theme.colors.white,
+        color: '#fff',
         fontSize: 16,
         fontWeight: "bold",
         marginLeft: 8,
@@ -292,6 +318,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
     },
 });
+
 
 
 export default CreateTask;
