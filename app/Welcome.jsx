@@ -15,7 +15,6 @@ import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {getUserInfo} from '@/services/userService';
-import {getCalendarEvents} from '@/services/calendarService';
 import {useRouter} from 'expo-router';
 import GoogleLoginButton from '../assets/images/google-color.png';
 import {ThemeContext} from '@/context/ThemeProvider';
@@ -63,17 +62,6 @@ const Welcome = () => {
       setLoading(false);
     }
   }
-
-  const handleGoogleSignIn = async () => {
-    setLoading(true);
-    try {
-      await promptAsync();
-    } catch (error) {
-      console.error('Authentication error:', error);
-    } finally {
-      setLoading(false);
-    }
-
 
     const handleGoogleSignIn = async () => {
         setLoading(true);
@@ -136,8 +124,6 @@ const Welcome = () => {
         </SafeAreaView>
     );
 };
-
-export default Welcome;
 
 const createStyles = (theme) => StyleSheet.create({
     backgroundImage: {
@@ -246,3 +232,4 @@ const createStyles = (theme) => StyleSheet.create({
         zIndex: 1000,
     },
 });
+export default Welcome;
