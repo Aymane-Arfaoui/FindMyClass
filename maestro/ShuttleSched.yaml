@@ -4,6 +4,7 @@ appId: com.aymanearfaoui.FindMyClass
 - tapOn:
     point: "50%,50%"
 - tapOn: " Get Directions"
+- assertVisible: "Destination"
 - tapOn:
     point: "38%,27%"
 - tapOn:

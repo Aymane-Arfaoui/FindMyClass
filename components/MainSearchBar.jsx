@@ -190,7 +190,7 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
                 data={predictions}
                 keyExtractor={(item) => item.placePrediction.placeId}
                 renderItem={({item}) => (
-                    <TouchableOpacity testID={item.placePrediction.text.text} style={styles.suggestionRow} onPress={() => handlePlaceSelect(item)}>
+                    <TouchableOpacity testID={item.placePrediction.text.text}  activeOpacity={0.7} style={styles.suggestionRow} onPress={() => handlePlaceSelect(item)}>
                         <Text style={styles.descriptionText}>{item.placePrediction.text.text}</Text>
                     </TouchableOpacity>
                 )}
@@ -204,8 +204,6 @@ MainSearchBar.propTypes = {
     onLocationSelect: PropTypes.func.isRequired,
     onBuildingPress: PropTypes.func.isRequired,
 };
-
-export default MainSearchBar;
 
 
 const createStyles = (theme) => StyleSheet.create({
@@ -236,7 +234,7 @@ const createStyles = (theme) => StyleSheet.create({
         top: 50,
         left: 0,
         right: 0,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderRadius: 10,
         marginTop: 5,
         paddingHorizontal: 10,
@@ -248,11 +246,11 @@ const createStyles = (theme) => StyleSheet.create({
         paddingVertical: 10,
         paddingHorizontal: 5,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
-        backgroundColor: theme.colors.white,
+        borderBottomColor: theme.colors.line,
+        backgroundColor: theme.colors.backgroundNav,
     },
     descriptionText: {
-        fontSize: 14,
+        fontSize: 15,
         color: theme.colors.text,
     },
     searchIcon: {
@@ -274,4 +272,4 @@ const createStyles = (theme) => StyleSheet.create({
         zIndex: 10,
     },
 });
-
+export default MainSearchBar;
