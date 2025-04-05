@@ -3,6 +3,7 @@ import {Dimensions, StyleSheet, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {usePathname, useRouter} from "expo-router";
 import {ThemeContext} from '@/context/ThemeProvider';
+import {useMemo} from "react";
 
 const {width} = Dimensions.get("window");
 
@@ -10,7 +11,7 @@ const AppNavigationPanel = () => {
     const {theme} = React.useContext(ThemeContext);
     const router = useRouter();
     const pathname = usePathname();
-    const styles = createStyles(theme);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     return (
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
@@ -20,7 +21,7 @@ const AppNavigationPanel = () => {
                 testID={'button-navigate-to-home'}
             >
                 <Ionicons
-                    name="calendar-outline"
+                    name="list-outline"
                     size={26}
                     color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
                 />
