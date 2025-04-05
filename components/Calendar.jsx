@@ -18,6 +18,7 @@ const Calendar = ({events: propEvents}) => {
     const [selectedDate, setSelectedDate] = useState(getLocalDate());
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [eventCoordinates, setEventCoordinates] = useState({});
 
     const updateEvents = useCallback((newEvents) => {
         setEvents(newEvents);
@@ -159,41 +160,54 @@ const Calendar = ({events: propEvents}) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date(selectedDate + 'T00:00:00'));
 
-    const handleGetDirections = async (event) => {
-        if (!event.location) {
-            console.warn("No location available for this event.");
+    const handleGetDirections = (event) => {
+        const coordinates = eventCoordinates[event.id];
+        if (!coordinates) {
+            console.warn("No coordinates available.");
             return;
         }
 
-        try {
-            const coordinates = await fetchBuildingCoordinates(event.location);
-            const roomNumber = event.location.split('Rm')[1]?.trim();
+        const roomNumber = event.location.split('Rm')[1]?.trim();
+        const encodedAddress = encodeURIComponent(event.location);
 
-            if (coordinates) {
-                console.warn(`Coordinates found: lat=${coordinates.latitude}, lng=${coordinates.longitude}, room=${roomNumber}`);
-                const encodedAddress = encodeURIComponent(event.location);
-                router.push({
-                    pathname: "/homemap",
-                    params: {
-                        lat: coordinates.latitude.toString(),
-                        lng: coordinates.longitude.toString(),
-                        room: roomNumber,
-                        address: encodedAddress,
-                        directionsTriggered: 'true'
-                    }
-                });
+        router.push({
+            pathname: "/homemap",
+            params: {
+                lat: coordinates.latitude.toString(),
+                lng: coordinates.longitude.toString(),
+                room: roomNumber,
+                address: encodedAddress,
+                directionsTriggered: 'true',
+                fromCalendar: 'true',
 
-            } else {
-                console.error("Failed to fetch building coordinates.");
             }
-        } catch (error) {
-            console.error('Error fetching building coordinates:', error);
+        });
+    };
+
+    function isValidLocation(location) {
+        return typeof location === 'string' && /Rm\s?\w+/.test(location);
+    }
+
+    const handleEventPress = async (event) => {
+        const isSameEvent = activeEvent?.id === event.id;
+        setActiveEvent(isSameEvent ? null : event);
+
+        if (!isSameEvent && event.location && eventCoordinates[event.id] === undefined) {
+            if (!isValidLocation(event.location)) {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+                return;
+            }
+
+            try {
+                const coords = await fetchBuildingCoordinates(event.location);
+                setEventCoordinates(prev => ({ ...prev, [event.id]: coords || null }));
+            } catch {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+            }
         }
     };
 
-    const handleEventPress = (event) => {
-        setActiveEvent(activeEvent?.id === event.id ? null : event);
-    };
+
 
     return (
         <View style={styles.container} testID={'calendar'}>
@@ -259,7 +273,7 @@ const Calendar = ({events: propEvents}) => {
                                 )}
                             </View>
                             {activeEvent?.id === item.id && (
-                                item.location ? (
+                                eventCoordinates[item.id] ? (
                                     <TouchableOpacity
                                         style={styles.directionButton}
                                         onPress={() => handleGetDirections(item)}
@@ -269,7 +283,9 @@ const Calendar = ({events: propEvents}) => {
                                         <Text style={styles.directionButtonText}>Get Directions</Text>
                                     </TouchableOpacity>
                                 ) : (
-                                    <Text style={styles.noLocationText}>No location for this event</Text>
+                                    <Text style={styles.noLocationText}>
+                                        No location
+                                    </Text>
                                 )
                             )}
                         </TouchableOpacity>
