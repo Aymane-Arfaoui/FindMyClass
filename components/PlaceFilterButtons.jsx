@@ -15,7 +15,7 @@ export default function PlaceFilterButtons({onSelectCategory}) {
     const [expanded, setExpanded] = useState(false);
     const animation = useState(new Animated.Value(0))[0];
     const {theme} = useContext(ThemeContext); // 👈 grab theme
-    const styles = useMemo(() => createStyles(theme), [theme]); //
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     const handlePress = (category) => {
         const newCategory = selectedCategory === category ? null : category;
