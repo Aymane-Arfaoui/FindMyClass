@@ -1,8 +1,12 @@
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { formatDateToLocalDate } from '@/helpers/utils'; // Import formatDateToLocalDate
+import { formatDateToLocalDate } from '@/helpers/utils';
 
 class ChatService {
+    constructor() {
+        this.lastRouteTasks = null;
+    }
+
     getBaseUrl() {
         let host;
         if (Platform.OS === 'ios') {
@@ -17,20 +21,21 @@ class ChatService {
         return url;
     }
 
-    async processMessage(query, date = formatDateToLocalDate(new Date())) {
+    async processMessage(query, date = formatDateToLocalDate(new Date()), displayedTasks = []) {
         console.log(`Processing message: "${query}"`);
 
         const isNavigation = this.isNavigationQuery(query);
-        console.log(`Is navigation query: ${isNavigation}`);
+        const isFeedback = this.isFeedbackQuery(query);
+        console.log(`Is navigation query: ${isNavigation}, Is feedback query: ${isFeedback}`);
 
         try {
             if (isNavigation) {
-                const response = await this.processNavigationQuery(query);
-                return response;
-            } else {
-                const response = await this.processTaskQuery(query, date);
-                return response;
+                return await this.processNavigationQuery(query);
             }
+            if (isFeedback) {
+                return await this.processFeedbackQuery(query);
+            }
+            return await this.processTaskQuery(query, date, displayedTasks);
         } catch (error) {
             console.error(`Error in processMessage: ${error.message}`, error);
             return {
@@ -69,7 +74,16 @@ class ChatService {
         return isNavQuery;
     }
 
-    async getTasks(date) {
+    isFeedbackQuery(query) {
+        const feedbackKeywords = [
+            "avoid outdoor", "skip outdoor", "include outdoor", "use outdoor",
+            "fix", "change", "adjust", "update", "modify", "better", "different"
+        ];
+        const queryLower = query.toLowerCase();
+        return feedbackKeywords.some(keyword => queryLower.includes(keyword));
+    }
+
+    async getTasks(date, displayedTasks = []) {
         try {
             const tasks = await AsyncStorage.getItem('tasks');
             if (!tasks) {
@@ -82,7 +96,12 @@ class ChatService {
                 const taskDate = formatDateToLocalDate(task.date);
                 return taskDate === date;
             });
-            console.log(`Filtered ${filteredTasks.length} tasks for date ${date}:`, filteredTasks);
+
+            const tasksToLog = filteredTasks.filter(task => {
+                return !displayedTasks.some(displayedTask => displayedTask.id === task.id);
+            });
+
+            console.log(`Filtered ${filteredTasks.length} tasks for date ${date}, excluding displayed tasks:`, tasksToLog);
             return filteredTasks;
         } catch (error) {
             console.error('Error retrieving tasks:', error);
@@ -125,13 +144,12 @@ class ChatService {
         }
     }
 
-    async processTaskQuery(query, date) {
+    async processTaskQuery(query, date, displayedTasks) {
         try {
             const url = `${this.getBaseUrl()}/chat/tasks`;
             console.log(`Sending task request to: ${url}`);
 
-            // Retrieve tasks from AsyncStorage, filtered by date
-            const tasks = await this.getTasks(date);
+            const tasks = await this.getTasks(date, displayedTasks);
 
             const requestBody = {
                 query,
@@ -166,6 +184,44 @@ class ChatService {
         }
     }
 
+    async processFeedbackQuery(query) {
+        try {
+            const url = `${this.getBaseUrl()}/chat/feedback`;
+            console.log(`Sending feedback request to: ${url}`);
+
+            const requestBody = {
+                query,
+                tasks: this.lastRouteTasks || []
+            };
+            console.log(`Feedback request body: ${JSON.stringify(requestBody, null, 2)}`);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                console.error(`Feedback response not ok: ${response.status} ${response.statusText}`);
+                const text = await response.text();
+                console.error(`Response text: ${text}`);
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(`Feedback response: ${JSON.stringify(data, null, 2)}`);
+
+            return data.response ? data : { content: "I need more information to process your feedback." };
+        } catch (error) {
+            console.error(`Error in processFeedbackQuery: ${error.message}`, error);
+            return {
+                content: "Sorry, I encountered an error while processing your feedback. Please try again."
+            };
+        }
+    }
+
     async processRoutePlanning(tasks) {
         try {
             const url = `${this.getBaseUrl()}/chat/plan_route`;
@@ -191,6 +247,8 @@ class ChatService {
 
             const data = await response.json();
             console.log(`Route planning response: ${JSON.stringify(data, null, 2)}`);
+
+            this.lastRouteTasks = tasks;
 
             return data.response ? data : { content: "I need more information to plan your route." };
         } catch (error) {
