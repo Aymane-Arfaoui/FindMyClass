@@ -32,7 +32,7 @@ export const getNextShuttleTime = () => {
             return time;
         }
     }
-    console.log("No more shuttles today.------");
+    // console.log("No more shuttles today.------");
     return null;
 };
 
