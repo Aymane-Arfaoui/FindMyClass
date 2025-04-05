@@ -1,9 +1,10 @@
-import React from "react";
-import {ActivityIndicator, Animated, Image, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import React, {useContext, useMemo, useState} from "react";
+import {ActivityIndicator, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {theme} from "@/constants/theme";
-import { useNavigation } from "@react-navigation/native";
+import {useNavigation} from "@react-navigation/native";
 import PropTypes from "prop-types";
+import {wp} from "@/helpers/common";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const DEFAULT_IMAGE_URL = "https://www.kpmb.com/wp-content/uploads/2016/06/0004_N76_300dpi-scaled.jpg";
 
@@ -23,7 +24,6 @@ function hasIndoorMap(buildingName = "") {
     return buildingKey;
 }
 
-
 function BuildingDetailsPanel({
                                   selectedBuilding,
                                   buildingDetails,
@@ -38,8 +38,30 @@ function BuildingDetailsPanel({
                               }) {
     const buildingKey = hasIndoorMap(selectedBuilding?.name);
     const navigation = useNavigation();
+
+    const [modalVisible, setModalVisible] = useState(false);
+
+    const handleDirectionPress = () => {
+        if (buildingKey) {
+            setModalVisible(true);
+        } else {
+            onDirectionPress(currentLocation, selectedBuilding, mode, false);
+        }
+    };
+
+    const handleModalResponse = (wantsClassroom) => {
+        setModalVisible(false);
+        if (wantsClassroom !== null) {
+            onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        }
+    };
+
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     return (
         <Animated.View
+            testID={'building-details-panel'}
             {...panHandlers}
             style={[styles.bottomPanel, {transform: [{translateY: panelY}]}]}
         >
@@ -89,21 +111,90 @@ function BuildingDetailsPanel({
                     )}
 
 
-                    <TouchableOpacity style={styles.directionButton}
-                                      testID={'direction-button'}
-                                      onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
-                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                        <Text style={styles.directionButtonText}>Get Directions</Text>
-                    </TouchableOpacity>
+                    {!buildingKey && (
+                        <TouchableOpacity
+                            style={styles.directionButton}
+                            testID={'direction-button'}
+                            onPress={handleDirectionPress}
+                        >
+                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                        </TouchableOpacity>
+
+                    )}
+
+                    {buildingKey && (
+                        <TouchableOpacity
+                            style={styles.directionButton}
+                            testID={'direction-button'}
+                            onPress={handleDirectionPress}
+                        >
+                            <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                            <Text style={styles.directionButtonText}>Get Directions</Text>
+                        </TouchableOpacity>
+                    )}
+
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={modalVisible}
+                        onRequestClose={() => setModalVisible(false)}
+                    >
+
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <TouchableOpacity
+                                    style={styles.modalCloseButton}
+                                    onPress={() => setModalVisible(false)}
+                                >
+                                    <Ionicons name="close-circle" size={28} color={theme.colors.white}/>
+                                </TouchableOpacity>
+                                <Text style={styles.modalText}>
+                                    Where would you like to go in the {buildingKey} building?
+                                </Text>
+                                <Text style={styles.modalSubText}>
+                                    Choose indoor directions (to a classroom) or outdoor directions to the building
+                                    entrance.
+                                </Text>
+                                <View style={styles.modalButtonContainer}>
+                                    <View style={styles.directionOptions}>
+                                        <TouchableOpacity
+                                            style={[styles.modalButton, styles.yesButton]}
+                                            onPress={() => handleModalResponse(true)}
+                                        >
+                                            <Ionicons name="layers" size={18} color={theme.colors.white}/>
+                                            <Text style={styles.modalButtonText}> Indoor</Text>
+                                        </TouchableOpacity>
+
+                                        <TouchableOpacity
+                                            style={[styles.modalButton, styles.noButton]}
+                                            onPress={() => handleModalResponse(false)}
+                                        >
+                                            <Ionicons name="navigate" size={18} color={theme.colors.white}/>
+                                            <Text style={styles.modalButtonText}> Outdoor</Text>
+                                        </TouchableOpacity>
+                                    </View>
+
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.cancelButton]}
+                                        onPress={() => handleModalResponse(null)}
+                                    >
+                                        <Ionicons name="arrow-undo" size={18} color={theme.colors.white}/>
+                                        <Text style={styles.modalButtonText}> Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
                     {buildingKey && (
                         <TouchableOpacity
                             testID={'indoor-map-button'}
                             style={styles.indoorMapButton}
                             onPress={() => {
-                                navigation.navigate("MapScreen", { buildingKey });
+                                navigation.navigate("MapScreen", {buildingKey});
                             }}
                         >
-                            <Ionicons name="map" size={22} color={theme.colors.white} />
+                            <Ionicons name="map" size={22} color={theme.colors.white}/>
                             <Text style={styles.indoorMapButtonText}>Indoor Map</Text>
                         </TouchableOpacity>
                     )}
@@ -113,35 +204,33 @@ function BuildingDetailsPanel({
     );
 }
 
-BuildingDetailsPanel.propTypes={
-    selectedBuilding:PropTypes.any,
-    buildingDetails:PropTypes.any,
-    panHandlers:PropTypes.any,
-    panelY:PropTypes.any,
-    onClose:PropTypes.func,
-    onDirectionPress:PropTypes.func,
-    currentLocation:PropTypes.any,
-    mode:PropTypes.string,
-    GOOGLE_PLACES_API_KEY:PropTypes.string,
-    loading:PropTypes.bool,
+BuildingDetailsPanel.propTypes = {
+    selectedBuilding: PropTypes.any,
+    buildingDetails: PropTypes.any,
+    panHandlers: PropTypes.any,
+    panelY: PropTypes.any,
+    onClose: PropTypes.func,
+    onDirectionPress: PropTypes.func,
+    currentLocation: PropTypes.any,
+    mode: PropTypes.string,
+    GOOGLE_PLACES_API_KEY: PropTypes.string,
+    loading: PropTypes.bool,
 
 }
 
-export default BuildingDetailsPanel;
-
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     bottomPanel: {
         position: "absolute",
         bottom: 0,
         width: "100%",
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         padding: 20,
         paddingBottom: 25,
         borderTopLeftRadius: theme.radius.xxl,
         borderTopRightRadius: theme.radius.xxl,
         shadowColor: theme.colors.dark,
-        shadowOffset: {width: 0, height: -3},
-        shadowOpacity: 0.2,
+        shadowOffset: {width: 0, height: -2},
+        shadowOpacity: 0.1,
         shadowRadius: 6,
         elevation: 8,
     },
@@ -149,12 +238,12 @@ const styles = StyleSheet.create({
         position: "absolute",
         top: -15,
         right: 2,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderRadius: 20,
         padding: 5,
         shadowColor: theme.colors.dark,
         shadowOffset: {width: 0, height: 3},
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.1,
         shadowRadius: 5,
         elevation: 6,
         zIndex: 10,
@@ -190,7 +279,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#f0f0f0",
         alignSelf: "center",
     },
-
     directionButton: {
         flexDirection: "row",
         marginTop: 12,
@@ -215,7 +303,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "center",
         shadowColor: theme.colors.dark,
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.15,
         shadowRadius: 5,
         elevation: 6,
@@ -226,6 +314,97 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         marginLeft: 8,
     },
+    modalOverlay: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0, 0, 0, 0.5)",
+        width: wp(100),
+    },
+    modalContent: {
+        backgroundColor: theme.colors.backgroundNav,
+        padding: 20,
+        borderRadius: 10,
+        alignItems: "center",
+        elevation: 5,
+        width: wp(90),
+        minHeight: 200,
+
+    },
+    modalText: {
+        fontSize: 18,
+        color: theme.colors.dark,
+        marginBottom: 20,
+        textAlign: "center",
+    },
+    modalButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        width: "100%",
+    },
+    yesButton: {
+        backgroundColor: theme.colors.blueDark,
+    },
+    noButton: {
+        backgroundColor: theme.colors.primary,
+    },
+    cancelButton: {
+        backgroundColor: theme.colors.textLight,
+    },
+    modalButtonContainer: {
+        width: "100%",
+        height: 100,
+    },
+    yesNoButtons: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 10,
+    },
+    modalSubText: {
+        fontSize: 14,
+        color: theme.colors.textLight,
+        textAlign: "center",
+        marginBottom: 16,
+    },
+    directionOptions: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        marginBottom: 14,
+        gap: 10,
+    },
+
+    modalButton: {
+        flex: 1,
+        paddingVertical: 12,
+        paddingHorizontal: 10,
+        marginHorizontal: 0,
+        borderRadius: 8,
+        alignItems: "center",
+        flexDirection: "row",
+        justifyContent: "center",
+        gap: 6,
+    },
+
+    modalButtonText: {
+        color: theme.colors.white,
+        fontSize: 16,
+        fontWeight: "600",
+    },
+    modalCloseButton: {
+        position: "absolute",
+        top: -15,
+        right: 2,
+        backgroundColor: theme.colors.backgroundNav,
+        borderRadius: 20,
+        padding: 5,
+        shadowColor: theme.colors.dark,
+        shadowOffset: {width: 0, height: 3},
+        shadowOpacity: 0.1,
+        shadowRadius: 5,
+        elevation: 6,
+        zIndex: 10,
+    },
 
 
 });
+export default BuildingDetailsPanel;

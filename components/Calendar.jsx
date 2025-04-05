@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { Calendar as RNCalendar } from 'react-native-calendars';
-import { theme } from '@/constants/theme';
-import { hp } from '@/helpers/common';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React, {useCallback, useEffect, useState} from 'react';
+import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Calendar as RNCalendar} from 'react-native-calendars';
+import {theme} from '@/constants/theme';
+import {hp} from '@/helpers/common';
+import {Ionicons} from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchBuildingCoordinates } from "@/services/buildingService";
-import { calendarService } from '@/services/calendarService';
+import {fetchBuildingCoordinates} from "@/services/buildingService";
+import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
 
 
-const Calendar = ({ events: propEvents }) => {
+const Calendar = ({events: propEvents}) => {
     const router = useRouter();
     const [events, setEvents] = useState([]);
     const [tasks, setTasks] = useState([]);
     const [selectedDate, setSelectedDate] = useState(getLocalDate());
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [eventCoordinates, setEventCoordinates] = useState({});
 
     const updateEvents = useCallback((newEvents) => {
         setEvents(newEvents);
@@ -85,7 +86,7 @@ const Calendar = ({ events: propEvents }) => {
 
     // Combine events and tasks for marking dates
     const markedDates = [...events, ...tasks.map(task => ({
-        start: { dateTime: task.date },
+        start: {dateTime: task.date},
         type: 'task'
     }))].reduce((acc, item) => {
         const eventDate = item.start?.dateTime
@@ -128,17 +129,17 @@ const Calendar = ({ events: propEvents }) => {
 
     // Combine and sort all items for the selected date
     const allItems = [
-        ...selectedDateEvents.map(event => ({ ...event, itemType: 'event' })),
+        ...selectedDateEvents.map(event => ({...event, itemType: 'event'})),
         ...selectedDateTasks.map(task => ({
             itemType: 'task',
             summary: task.taskName,
             location: task.address,
             description: task.notes,
-            start: { 
-                dateTime: task.allDayEvent ? null : task.startTime 
+            start: {
+                dateTime: task.allDayEvent ? null : task.startTime
             },
-            end: { 
-                dateTime: task.allDayEvent ? null : task.endTime 
+            end: {
+                dateTime: task.allDayEvent ? null : task.endTime
             },
             allDayEvent: task.allDayEvent,
             id: task.id
@@ -159,38 +160,63 @@ const Calendar = ({ events: propEvents }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date(selectedDate + 'T00:00:00'));
 
-    const handleGetDirections = async (event) => {
-        if (!event.location) {
-            console.warn("No location available for this event.");
+    const handleGetDirections = (event) => {
+        const coordinates = eventCoordinates[event.id];
+        if (!coordinates) {
+            console.warn("No coordinates available.");
             return;
         }
 
-        try {
-            const coordinates = await fetchBuildingCoordinates(event.location);
-            const roomNumber = event.location.split('Rm')[1]?.trim();
+        const roomNumber = event.location.split('Rm')[1]?.trim();
+        const encodedAddress = encodeURIComponent(event.location);
 
-            if (coordinates) {
-                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
-            } else {
-                console.error("Failed to fetch building coordinates.");
+        router.push({
+            pathname: "/homemap",
+            params: {
+                lat: coordinates.latitude.toString(),
+                lng: coordinates.longitude.toString(),
+                room: roomNumber,
+                address: encodedAddress,
+                directionsTriggered: 'true',
+                fromCalendar: 'true',
+
             }
-        } catch (error) {
-            console.error('Error fetching building coordinates:', error);
+        });
+    };
+
+    function isValidLocation(location) {
+        return typeof location === 'string' && /Rm\s?\w+/.test(location);
+    }
+
+    const handleEventPress = async (event) => {
+        const isSameEvent = activeEvent?.id === event.id;
+        setActiveEvent(isSameEvent ? null : event);
+
+        if (!isSameEvent && event.location && eventCoordinates[event.id] === undefined) {
+            if (!isValidLocation(event.location)) {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+                return;
+            }
+
+            try {
+                const coords = await fetchBuildingCoordinates(event.location);
+                setEventCoordinates(prev => ({ ...prev, [event.id]: coords || null }));
+            } catch {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+            }
         }
     };
 
-    const handleEventPress = (event) => {
-        setActiveEvent(activeEvent?.id === event.id ? null : event);
-    };
+
 
     return (
         <View style={styles.container} testID={'calendar'}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
+                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Calendar</Text>
-                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing}>
+                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing} testID={'refresh-button'}>
                     <Ionicons
                         name={isRefreshing ? "sync" : "refresh"}
                         size={24}
@@ -218,18 +244,21 @@ const Calendar = ({ events: propEvents }) => {
                             key={item.id || index}
                             style={[
                                 styles.eventCard,
-                                { borderLeftWidth: 4, borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary }
+                                {
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary
+                                }
                             ]}
                             onPress={() => handleEventPress(item)}
                         >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
-                                    {item.allDayEvent ? 'All day' : 
-                                     item.start?.dateTime ? 
-                                        new Date(item.start.dateTime).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        }) : 'All day'}
+                                    {item.allDayEvent ? 'All day' :
+                                        item.start?.dateTime ?
+                                            new Date(item.start.dateTime).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            }) : 'All day'}
                                 </Text>
                             </View>
                             <View style={styles.eventDetails}>
@@ -243,14 +272,21 @@ const Calendar = ({ events: propEvents }) => {
                                     <Text style={styles.eventDescription}>{item.description}</Text>
                                 )}
                             </View>
-                            {activeEvent?.id === item.id && item.location && (
-                                <TouchableOpacity
-                                    style={styles.directionButton}
-                                    onPress={() => handleGetDirections(item)}
-                                >
-                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
-                                    <Text style={styles.directionButtonText}>Get Directions</Text>
-                                </TouchableOpacity>
+                            {activeEvent?.id === item.id && (
+                                eventCoordinates[item.id] ? (
+                                    <TouchableOpacity
+                                        style={styles.directionButton}
+                                        onPress={() => handleGetDirections(item)}
+                                        testID={'get-directions-button'}
+                                    >
+                                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                        <Text style={styles.directionButtonText}>Get Directions</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Text style={styles.noLocationText}>
+                                        No location
+                                    </Text>
+                                )
                             )}
                         </TouchableOpacity>
                     ))
@@ -263,7 +299,7 @@ const Calendar = ({ events: propEvents }) => {
         </View>
     );
 };
-Calendar.propTypes={
+Calendar.propTypes = {
     events: PropTypes.any
 }
 const styles = StyleSheet.create({
@@ -311,7 +347,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: hp(1.5),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
@@ -369,6 +405,14 @@ const styles = StyleSheet.create({
         opacity: 0.6,
         marginTop: hp(0.5),
     },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: 'gray',
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2),
+    },
+
 });
 
 export default Calendar;

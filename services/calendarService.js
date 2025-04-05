@@ -33,7 +33,7 @@ class CalendarService {
             const timeMax = new Date();
             timeMax.setDate(timeMax.getDate() + 30); // Get events for next 30 days
 
-            console.log('Fetching calendar list...');
+            console.warn('Fetching calendar list...');
             // First, get list of all calendars
             const calendarListResponse = await fetch(
                 'https://www.googleapis.com/calendar/v3/users/me/calendarList',
@@ -42,11 +42,11 @@ class CalendarService {
                 }
             );
             const calendarList = await calendarListResponse.json();
-            console.log('Found calendars:', calendarList.items.map(cal => cal.summary));
+            console.warn('Found calendars:', calendarList.items.map(cal => cal.summary));
             
             // Fetch events from each calendar
             const allEventsPromises = calendarList.items.map(async (calendar) => {
-                console.log(`Fetching events from calendar: ${calendar.summary}`);
+                console.warn(`Fetching events from calendar: ${calendar.summary}`);
                 const response = await fetch(
                     `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?timeMin=${timeMin}&timeMax=${timeMax.toISOString()}&orderBy=startTime&singleEvents=true`,
                     {
@@ -54,7 +54,7 @@ class CalendarService {
                     }
                 );
                 const data = await response.json();
-                console.log(`Found ${data.items?.length || 0} events in calendar: ${calendar.summary}`);
+                console.warn(`Found ${data.items?.length || 0} events in calendar: ${calendar.summary}`);
                 // Add calendar source information to each event
                 return (data.items || []).map(event => ({
                     ...event,
