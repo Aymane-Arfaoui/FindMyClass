@@ -217,7 +217,7 @@ const createStyles = (theme) =>
     StyleSheet.create({
         container: {
             paddingHorizontal: 20,
-            paddingBottom: 120, // space for bottom nav
+            paddingBottom: 120,
         },
 
         backgroundImage: {
@@ -287,7 +287,6 @@ const createStyles = (theme) =>
             width: hp(5),
             height: hp(5),
             borderRadius: hp(2.5),
-            // backgroundColor: theme.colors.primaryLight,
             justifyContent: 'center',
             alignItems: 'center',
             marginBottom: hp(1),
@@ -342,7 +341,6 @@ const createStyles = (theme) =>
             fontSize: 16,
             fontWeight: 'bold',
             color: theme.colors.dark,
-            // textDecorationLine: 'underline',
             width: '65%',
             flexWrap: 'wrap',
         },
