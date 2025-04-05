@@ -86,9 +86,10 @@ const SmartPlanner = () => {
                 const parsedTasks = JSON.parse(storedTasks);
                 console.log(`Loaded ${parsedTasks.length} tasks from AsyncStorage:`, parsedTasks);
                 const selectedDateFormatted = formatDateToLocalDate(selectedDate);
+                // Only include tasks that were not added from route planning
                 const filteredTasks = parsedTasks.filter(task => {
                     const taskDate = formatDateToLocalDate(task.date);
-                    return taskDate === selectedDateFormatted;
+                    return taskDate === selectedDateFormatted && task.notes !== "Added from route planning";
                 }).map(task => ({
                     itemType: 'task',
                     summary: task.taskName,
@@ -200,34 +201,13 @@ const SmartPlanner = () => {
                 notes: "Added from route planning"
             }));
 
-            // Load existing tasks and append the new ones
+            // Load existing tasks and append the new ones to AsyncStorage, but don't update the UI state
             const existingTasks = await AsyncStorage.getItem("tasks");
             const tasks = existingTasks ? JSON.parse(existingTasks) : [];
             const updatedTasks = [...tasks, ...newTasks];
             await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
             console.log(`Saved ${newTasks.length} selected events as tasks to AsyncStorage:`, newTasks);
             console.log(`Total tasks in AsyncStorage: ${updatedTasks.length}`);
-
-            // Update local tasks state
-            const selectedDateFormatted = formatDateToLocalDate(selectedDate);
-            const filteredTasks = updatedTasks.filter(task => {
-                const taskDate = formatDateToLocalDate(task.date);
-                return taskDate === selectedDateFormatted;
-            }).map(task => ({
-                itemType: 'task',
-                summary: task.taskName,
-                description: task.notes,
-                location: task.address,
-                start: task.allDayEvent
-                    ? { date: formatDateToLocalDate(task.date) }
-                    : { dateTime: task.startTime },
-                end: task.allDayEvent
-                    ? { date: formatDateToLocalDate(task.date) }
-                    : { dateTime: task.endTime },
-                allDayEvent: task.allDayEvent,
-                id: task.id
-            }));
-            setTasks(filteredTasks);
 
             // Send the route planning request to the backend
             const routeTasks = Object.values(selectedRouteEvents).map(([summary, location, date, time]) => ({
@@ -239,9 +219,10 @@ const SmartPlanner = () => {
 
             await chatService.processRoutePlanning(routeTasks);
 
-            // Navigate to ChatScreen
+            // Navigate to ChatScreen with displayed tasks
             router.push({
-                pathname: '/chat'
+                pathname: '/chat',
+                params: { displayedTasks: JSON.stringify(tasks) } // Pass only the tasks currently displayed
             });
 
             setIsPlanRouteMode(false);
