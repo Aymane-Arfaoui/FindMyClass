@@ -70,7 +70,7 @@ const Settings = () => {
 
             {/* Header */}
             <View style={[styles.header, {borderBottomColor: theme.colors.cardBorder}]}>
-                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                <TouchableOpacity  testID={'back-button'} onPress={() => router.back()} style={styles.backButton}>
                     <Ionicons name="chevron-back" size={28} color={theme.colors.primary}/>
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, {color: theme.colors.text}]}>Settings</Text>

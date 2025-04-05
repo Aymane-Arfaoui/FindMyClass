@@ -1,6 +1,10 @@
 import BottomPanel from '../BottomPanel.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
+import {isShuttleRunningNow} from "@/services/shuttleService";
+jest.mock('@/services/shuttleService', () => ({
+    isShuttleRunningNow: jest.fn(),
+}));
 
 describe('BottomPanel Component', () => {
     const travelTimes={
@@ -9,6 +13,16 @@ describe('BottomPanel Component', () => {
         WALK: "5 min",
         BICYCLE: "5 min",
     }
+    const SGW = {
+        lat: 45.495,
+        lng: -73.570
+    };
+
+    const LOYOLA = {
+        lat: 45.450,
+        lng: -73.640,
+    };
+
 
     it('should render the bottom panel correctly',  async () => {
         render(<BottomPanel transportMode={'test'} travelTimes={travelTimes}/>);
@@ -54,8 +68,9 @@ describe('BottomPanel Component', () => {
         const pushMock=jest.fn();
         useRouter.mockReturnValue({push: pushMock});
         jest.useFakeTimers();
-        const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
-        render(<BottomPanel transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
+        isShuttleRunningNow.mockReturnValue(true)
+        const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"test",duration:'test',distance:'test'}]
+        render(<BottomPanel transportMode={'shuttle'} routes={routes} travelTimes={travelTimes} startLocation={SGW} endLocation={LOYOLA}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -65,7 +80,7 @@ describe('BottomPanel Component', () => {
 
         await user.press(await screen.findByTestId('shuttle-route-button'));
 
-
+        expect(isShuttleRunningNow).toBeCalled();
         expect(pushMock).toBeCalled();
 
     });

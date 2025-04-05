@@ -3,6 +3,7 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import {Stack,useRouter, useSegments} from 'expo-router';
 
 import { getUserInfo } from '../../services/userService';
+import {Alert} from "react-native";
 jest.useFakeTimers()
 let mockFun=jest.fn();
 jest.mock('expo-auth-session/providers/google', ()=> (
@@ -13,7 +14,7 @@ jest.mock('expo-auth-session/providers/google', ()=> (
 
 jest.mock('../../services/userService', ()=> ({getUserInfo: jest.fn()}));
 jest.mock('../../services/calendarService', ()=> ({calendarService:{fetchAndUpdateEvents: jest.fn(),}}));
-
+jest.spyOn(console, 'error').mockImplementation(() => {});
 describe('Welcome Component', () => {
     beforeEach(jest.clearAllMocks)
     it('should render',   () => {

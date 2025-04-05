@@ -135,6 +135,7 @@ function BuildingDetailsPanel({
                     )}
 
                     <Modal
+                        testID={'modal'}
                         animationType="fade"
                         transparent={true}
                         visible={modalVisible}
