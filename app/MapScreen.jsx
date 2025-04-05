@@ -232,7 +232,7 @@ const styles = StyleSheet.create({
         paddingVertical: 8,
         paddingHorizontal: 15,
         borderRadius: theme.radius.lg,
-        elevation: 5,
+        // elevation: 5,
         zIndex: 10,
         shadowColor: theme.colors.text,
         shadowOffset: {width: 0, height: 2},

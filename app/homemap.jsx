@@ -631,6 +631,7 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
+        backgroundColor:"pink",
         bottom: 830,
         left: 0,
         right: 0,
@@ -647,7 +648,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderRadius: 30,
         paddingHorizontal: 10,
-        elevation: 5,
+        // elevation: 5,
         shadowOpacity: 0.2,
         shadowRadius: 4,
     },
