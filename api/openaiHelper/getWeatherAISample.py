@@ -1,8 +1,15 @@
 from openai import OpenAI
 from getWeather import get_weather
 import json
+from dotenv import load_dotenv
+import os
 
-client = OpenAI()
+load_dotenv("./.env.local")
+api_key = os.getenv("OPENAI_API_KEY")
+if api_key is None:
+    raise ValueError("API key not found. Please set the OPENAI_API_KEY environment variable.")
+
+client = OpenAI(api_key=api_key)
 
 tools = [{
     "type": "function",
@@ -23,7 +30,7 @@ tools = [{
 }]
 
 # this is the sample hardcoded prompt.
-messages = [{"role": "user", "content": "What's the weather like in Paris today?"}]
+messages = [{"role": "user", "content": "What's the weather like in Montreal today?"}]
 
 completion = client.chat.completions.create(
     model="gpt-4o",
