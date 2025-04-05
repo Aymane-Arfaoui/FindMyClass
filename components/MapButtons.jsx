@@ -1,5 +1,5 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from "prop-types";
 import {ThemeContext} from '@/context/ThemeProvider';
 
@@ -26,16 +26,6 @@ const MapButtons = ({onPress}) => {
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
                 <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text style={[
-                        styles.label,
-                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
-                    ]}>SGW</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
                     style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
                     onPress={() => handlePress('Loyola')}
                     testID={'loyola-button'}
@@ -51,14 +41,26 @@ const MapButtons = ({onPress}) => {
                     </Text>
 
                 </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text style={[
+                        styles.label,
+                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
+                    ]}>SGW</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
 };
 
+
 MapButtons.propTypes = {
     onPress: PropTypes.func.isRequired,
 };
+
 
 const createStyles = (theme) =>
     StyleSheet.create({
@@ -79,11 +81,21 @@ const createStyles = (theme) =>
             backgroundColor: theme.colors.backgroundNav,
             borderRadius: 20,
             padding: 2,
-            elevation: 5,
+            ...Platform.select({
+                ios: {
+                    shadowColor: '#000',
+                    shadowOffset: {width: 0, height: 2},
+                    shadowOpacity: 0.2,
+                    shadowRadius: 4,
+                },
+                android: {
+                    elevation: 5,
+                }
+            })
         },
         toggleButton: {
             flex: 1,
-            paddingVertical: 10,
+            paddingVertical: Platform.OS === 'ios' ? 12 : 10,
             paddingHorizontal: 20,
             justifyContent: 'center',
             alignItems: 'center',
