@@ -8,21 +8,21 @@
             "poi_type": "stairs"
         },
         {
-            "id": "ve_entrance",
+            "id": "ve_entry",
             "x": 736.38,
             "y": 933.53,
             "floor_number": "VE2",
-            "poi_type": "entrance"
+            "poi_type": "hallway"
         },
         {
-            "id": "ve_men_bathroom",
+            "id": "ve_women_bathroom",
             "x": 632.82,
             "y": 916.77,
             "floor_number": "VE2",
             "poi_type": "bathroom"
         },
         {
-            "id": "ve_women_bathroom",
+            "id": "ve_men_bathroom",
             "x": 605.4,
             "y": 916.77,
             "floor_number": "VE2",
@@ -318,7 +318,7 @@
     ],
     "edges": [
         [
-            "ve_entrance",
+            "ve_entry",
             "ve_hw1"
         ],
         [
@@ -499,7 +499,7 @@
         ],
         [
             "ve_hw1",
-            "ve_entrance"
+            "ve_entry"
         ],
         [
             "ve_women_bathroom",
@@ -676,6 +676,11 @@
         [
             "ve_229_4",
             "ve_229"
+        ],
+        [
+            "ve_entry",
+            "vl2_ve2_hw_entry"
         ]
-    ]
+    ],
+    "scale_factor": 0.05
 }

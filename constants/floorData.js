@@ -476,6 +476,7 @@ export const floorsData = {
    VL:{
        1:{
            sections : [
+               {ref_ID: "vl1_entrance", floor_number:"1", id: "Vanier Library Entrance", d: "" },
                {ref_ID: "", floor_number:"1", id: "background", d: "M-1 1136V-1H1028V1136H0Z" },
                {ref_ID: "", floor_number:"1", id: "floor", d: "M17.8882 902.485H119.714V924.063H171.142V905.112H332.572V925.643H381.142V911.43L456.857 911.43V961.966H512.572V1018.82H568.285V1072.51H629.714V1097.78L856.857 1097.78V1066.2H924V1099.36H965.427V739.292H924H856.857L805.806 739.292L805.806 698.131H826.009V214.602V190.902H566.142V98.1202V84.3018V53.9014H525.427V84.3018H350.785V98.1202H345.427L345.427 177.872L91.8569 177.872V196.034H122.572V214.602H17.8882L17.8882 739.292L17.8882 902.485Z" },
                {ref_ID: "vl1_stairs_3", floor_number:"1", id: "Stairs", d: "M924 1023.56V1099.36H965.427V1023.56H924Z" },
@@ -671,6 +672,7 @@ export const floorsData = {
                {ref_ID: "vl2_297", floor_number:"2", id: "VL-297", d: "M725.869 243.219V276.553H753.648V243.219H725.869Z" },
                {ref_ID: "", floor_number:"2", id: "floor", d: "M355.396 361.912V294.232H381.406" },
                {ref_ID: "vl2_205", floor_number:"2", id: "VL-205", d: "M185.438 307.364L355.396 307.364V241.703H334.939V216.955L203.621 216.955V241.703H185.438L185.438 307.364Z" },
+               {ref_ID: "vl2_ve2_hw_entry", floor_number:"2", id: "VE-Entry From VL2", d: "" },
            ],
            poiImage: require('../assets/floorPlans/POIs_VL2.png'),
            viewBox: "0 0 1024 1132",
@@ -680,6 +682,7 @@ export const floorsData = {
 
        VE2:{
            sections : [
+               {ref_ID: "ve_entry", floor_number:"VE2", id: "Vanier Library Extension Entrance", d: "" },
                {ref_ID: "", floor_number:"VE2", id: "background", d: "M1 -50L-50 1133L1025 1133V0-50L-50 1Z" },
                {ref_ID: "", floor_number:"VE2", id: "floor", d: "M268 1022.05H427.454V1079H500.348V1022.05H740.669V540.447L465.206 540.447L465.206 382.596H473.864V305.28H516.549V278.705L740.844 278.705V191.725L516.549 191.725H469.837V140.5V87.0269H402.399V83H285.085V140.5H268L268 1022.05Z" },
                {ref_ID: "ve_230", floor_number:"VE2", id: "VE-230", d: "M465.206 941.52V1022.05H559.233V941.52H465.206Z" },

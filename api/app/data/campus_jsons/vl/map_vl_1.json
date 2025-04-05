@@ -1251,6 +1251,27 @@
         [
             "vl1_102_2",
             "vl1_102_inside"
+        ],
+        [
+            "vl1_elevator",
+            "vl2_elevator"
+        ],
+        [
+            "vl1_stairs_1",
+            "vl2_stairs_1"
+        ],
+        [
+            "vl1_stairs_4",
+            "vl2_stairs_3"
+        ],
+        [
+            "vl1_stairs_5",
+            "vl2_stairs_4"
+        ],
+        [
+            "vl1_stairs_3",
+            "vl2_stairs_2"
         ]
-    ]
+    ],
+    "scale_factor": 0.05
 }
