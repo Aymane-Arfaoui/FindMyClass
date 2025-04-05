@@ -7,7 +7,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 export default function ChatScreen() {
     const { isDark } = useContext(ThemeContext);
     const router = useRouter();
-    const { initialMessage } = useLocalSearchParams();
+    const { initialMessage, selectedTasks } = useLocalSearchParams();
 
     const [initialMessages, setInitialMessages] = useState([]);
 
@@ -35,6 +35,7 @@ export default function ChatScreen() {
             <ChatInterface
                 navigation={{ goBack: () => router.back() }}
                 initialMessages={initialMessages}
+                selectedTasks={selectedTasks ? JSON.parse(selectedTasks) : []}
             />
         </>
     );

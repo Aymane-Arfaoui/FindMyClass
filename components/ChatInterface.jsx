@@ -9,54 +9,126 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
-  SafeAreaView
+  SafeAreaView,
+  Modal,
+  ScrollView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { chatService } from '../services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
+import { formatDateToLocalDate } from '@/helpers/utils';
 
-const ChatInterface = ({ navigation, initialMessages = [] }) => {
-  const [messages, setMessages] = useState(initialMessages.length > 0 ? initialMessages : [
-    { id: '1', text: 'Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?', isUser: false }
-  ]);
+const ChatInterface = ({ navigation, initialMessage }) => {
+  const [messages, setMessages] = useState([]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isRouteModalVisible, setIsRouteModalVisible] = useState(false);
+  const [recentRoutePlan, setRecentRoutePlan] = useState(null);
   const flatListRef = useRef(null);
   const { isDark, theme } = useContext(ThemeContext);
   const styles = createStyles(theme);
+  const currentDate = formatDateToLocalDate(new Date());
+
+  // Load chat history on mount
+  useEffect(() => {
+    const fetchChatHistory = async () => {
+      try {
+        const response = await fetch('http://127.0.0.1:5001/chat/history', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+        const data = await response.json();
+        if (data.messages) {
+          setMessages(data.messages);
+          const routePlan = data.messages
+              .filter(msg => msg.type === "route_plan")
+              .slice(-1)[0];
+          setRecentRoutePlan(routePlan ? routePlan.text : null);
+        }
+      } catch (error) {
+        console.error('Error loading chat history:', error);
+        setMessages([
+          {
+            id: '1',
+            text: 'Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?',
+            isUser: false,
+            timestamp: new Date().toISOString()
+          }
+        ]);
+      }
+    };
+
+    fetchChatHistory();
+
+    if (initialMessage) {
+      try {
+        const parsedMessage = typeof initialMessage === 'string' ? JSON.parse(initialMessage) : initialMessage;
+        setMessages(prev => [...prev, parsedMessage]);
+        if (parsedMessage.type === "route_plan") {
+          setRecentRoutePlan(parsedMessage.text);
+        }
+      } catch (error) {
+        console.error('Error parsing initial message:', error);
+      }
+    }
+  }, [initialMessage]);
+
+  useEffect(() => {
+    if (flatListRef.current && messages.length > 0) {
+      flatListRef.current.scrollToEnd({ animated: true });
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
-    
+
     const userMessage = {
-      id: Date.now().toString(),
+      id: `user-${Date.now()}`,
       text: inputText.trim(),
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date().toISOString()
     };
-    
+
+    // Send user message to backend
+    try {
+      await fetch('http://127.0.0.1:5001/chat/add_message', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: userMessage })
+      });
+    } catch (error) {
+      console.error('Error saving user message to backend:', error);
+    }
+
     setMessages(prev => [...prev, userMessage]);
     setInputText('');
     setIsLoading(true);
-    
+
     try {
-      const response = await chatService.processMessage(userMessage.text);
-      
+      const response = await chatService.processMessage(userMessage.text, currentDate);
+
       const botMessage = {
-        id: (Date.now() + 1).toString(),
+        id: `bot-${Date.now()}`,
         text: response.content || response.response || response,
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
-      
+
       setMessages(prev => [...prev, botMessage]);
+      if (botMessage.text.includes("Here’s your optimized route plan")) {
+        setRecentRoutePlan(botMessage.text);
+      }
     } catch (error) {
       console.error('Error processing message:', error);
       const errorMessage = {
-        id: (Date.now() + 1).toString(),
+        id: `error-${Date.now()}`,
         text: "Sorry, I encountered an error. Please try again.",
         isUser: false,
-        timestamp: new Date()
+        timestamp: new Date().toISOString()
       };
       setMessages(prev => [...prev, errorMessage]);
     } finally {
@@ -64,90 +136,118 @@ const ChatInterface = ({ navigation, initialMessages = [] }) => {
     }
   };
 
-  useEffect(() => {
-    setMessages(initialMessages.length > 0 ? initialMessages : [
-      { id: '1', text: 'Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?', isUser: false }
-    ]);
-    if (flatListRef.current && messages.length > 0) {
-      flatListRef.current.scrollToEnd({ animated: true });
-    }
-  }, [initialMessages]);
-
   const renderMessage = ({ item }) => {
     const isUser = item.isUser;
-    
-    // Convert line breaks to properly render in text
+
     const formattedText = item.text.split('\n').map((line, index) => (
-      <Text key={index} style={[
-        styles.messageText,
-        isUser ? styles.userText : styles.botText
-      ]}>
-        {line}
-      </Text>
+        <Text key={index} style={[
+          styles.messageText,
+          isUser ? styles.userText : styles.botText
+        ]}>
+          {line}
+        </Text>
     ));
-    
+
     return (
-      <View style={[
-        styles.messageBubble,
-        isUser ? styles.userBubble : styles.botBubble
-      ]}>
-        {formattedText}
-      </View>
+        <View style={[
+          styles.messageBubble,
+          isUser ? styles.userBubble : styles.botBubble
+        ]}>
+          {formattedText}
+        </View>
     );
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack ? navigation.goBack() : navigation.navigate('/')}
-        >
-          <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Assistant</Text>
-      </View>
-      
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messageList}
-        showsVerticalScrollIndicator={false}
-      />
-      
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={theme.colors.primary} />
+      <SafeAreaView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack ? navigation.goBack() : navigation.navigate('/')}
+          >
+            <Ionicons name="arrow-back" size={24} color={theme.colors.text} />
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>Assistant</Text>
+          {recentRoutePlan && (
+              <TouchableOpacity
+                  style={styles.routeButton}
+                  onPress={() => setIsRouteModalVisible(true)}
+              >
+                <Ionicons name="map" size={24} color={theme.colors.primary} />
+                <Text style={styles.routeButtonText}>View Route Plan</Text>
+              </TouchableOpacity>
+          )}
         </View>
-      )}
-      
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={100}
-        style={styles.inputContainer}
-      >
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Ask about your tasks or directions..."
-          placeholderTextColor={theme.colors.grayDark}
-          multiline
-          onSubmitEditing={handleSend}
-          returnKeyType="send"
-          blurOnSubmit={Platform.OS === 'ios'}
+
+        <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderMessage}
+            keyExtractor={(item) => item.id.toString()}
+            contentContainerStyle={styles.messageList}
+            showsVerticalScrollIndicator={false}
         />
-        <TouchableOpacity
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-          onPress={handleSend}
-          disabled={!inputText.trim()}
+
+        {isLoading && (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color={theme.colors.primary} />
+            </View>
+        )}
+
+        <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={100}
+            style={styles.inputContainer}
         >
-          <Ionicons name="send" size={24} color={inputText.trim() ? theme.colors.white : theme.colors.gray} />
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+          <TextInput
+              style={styles.input}
+              value={inputText}
+              onChangeText={setInputText}
+              placeholder="Ask about your tasks or directions..."
+              placeholderTextColor={theme.colors.grayDark}
+              multiline
+              onSubmitEditing={handleSend}
+              returnKeyType="send"
+              blurOnSubmit={Platform.OS === 'ios'}
+          />
+          <TouchableOpacity
+              style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+              onPress={handleSend}
+              disabled={!inputText.trim()}
+          >
+            <Ionicons name="send" size={24} color={inputText.trim() ? theme.colors.white : theme.colors.gray} />
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+
+        <Modal
+            visible={isRouteModalVisible}
+            transparent={true}
+            animationType="slide"
+            onRequestClose={() => setIsRouteModalVisible(false)}
+        >
+          <View style={styles.modalOverlay}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Route Plan</Text>
+                <TouchableOpacity onPress={() => setIsRouteModalVisible(false)}>
+                  <Ionicons name="close" size={24} color={theme.colors.text} />
+                </TouchableOpacity>
+              </View>
+              <ScrollView style={styles.modalContent}>
+                {recentRoutePlan ? (
+                    recentRoutePlan.split('\n').map((line, index) => (
+                        <Text key={index} style={styles.modalText}>
+                          {line}
+                        </Text>
+                    ))
+                ) : (
+                    <Text style={styles.modalText}>No route plan available.</Text>
+                )}
+              </ScrollView>
+            </View>
+          </View>
+        </Modal>
+      </SafeAreaView>
   );
 };
 
@@ -173,9 +273,23 @@ const createStyles = (theme) => StyleSheet.create({
     marginRight: 16,
   },
   headerTitle: {
+    flex: 1,
     fontSize: 18,
     fontWeight: 'bold',
     color: theme.colors.text,
+  },
+  routeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 8,
+    backgroundColor: theme.colors.grayLight,
+    borderRadius: 8,
+  },
+  routeButtonText: {
+    marginLeft: 8,
+    fontSize: 16,
+    color: theme.colors.primary,
+    fontWeight: '600',
   },
   messageList: {
     paddingHorizontal: 16,
@@ -251,6 +365,38 @@ const createStyles = (theme) => StyleSheet.create({
   sendButtonDisabled: {
     backgroundColor: theme.colors.grayLight,
   },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '90%',
+    maxHeight: '80%',
+    backgroundColor: theme.colors.cardBackground,
+    borderRadius: 12,
+    padding: 16,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text,
+  },
+  modalContent: {
+    flex: 1,
+  },
+  modalText: {
+    fontSize: 16,
+    color: theme.colors.text,
+    marginBottom: 8,
+  },
 });
 
-export default ChatInterface; 
+export default ChatInterface;

@@ -1,16 +1,17 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
-import {useRouter} from 'expo-router';
+import React, { useState, useEffect, useContext, useMemo } from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {Ionicons} from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import AppNavigationPanel from '@/components/AppNavigationPannel';
 import WeekNavigation from '@/components/WeekNavigation';
-import EventList, {getLocalDateString} from '@/components/EventList';
+import EventList, { getLocalDateString } from '@/components/EventList';
 import CreateTask from '@/components/CreateTask';
 import SmartPlannerHeader from "@/components/SmartPlannerHeader";
-import {ThemeContext} from '@/context/ThemeProvider'
-import {StatusBar} from "expo-status-bar";
-import { chatService } from '@/services/chatService';
+import { ThemeContext } from '@/context/ThemeProvider';
+import { StatusBar } from "expo-status-bar";
+import { chatService } from '../services/chatService';
+import { formatDateToLocalDate } from '@/helpers/utils';
 
 const SmartPlanner = () => {
     const router = useRouter();
@@ -26,9 +27,9 @@ const SmartPlanner = () => {
     const [selectedRouteEvents, setSelectedRouteEvents] = useState({});
     const [resetSelectionFlag, setResetSelectionFlag] = useState(false);
     const day = currentDate.getDate();
-    const weekday = currentDate.toLocaleDateString('en-US', {weekday: 'short'});
-    const monthYear = currentDate.toLocaleDateString('en-US', {month: 'short', year: 'numeric'});
-    const {isDark, theme} = useContext(ThemeContext);
+    const weekday = currentDate.toLocaleDateString('en-US', { weekday: 'short' });
+    const monthYear = currentDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    const { isDark, theme } = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
     useEffect(() => {
@@ -37,22 +38,24 @@ const SmartPlanner = () => {
 
     const loadEventsAndTasks = async () => {
         try {
-        const storedUser = await AsyncStorage.getItem("@user");
-        if (!storedUser) {
-            setEvents([]);
-            setTasks([]);
-            return;
-        }
-        const storedEvents = await AsyncStorage.getItem("@calendar");
-        const storedTasks = await AsyncStorage.getItem("tasks");
+            const storedUser = await AsyncStorage.getItem("@user");
+            if (!storedUser) {
+                console.log('No user found in AsyncStorage');
+                setEvents([]);
+                setTasks([]);
+                return;
+            }
+            const storedEvents = await AsyncStorage.getItem("@calendar");
+            let storedTasks = await AsyncStorage.getItem("tasks");
 
             if (storedEvents) {
                 const parsedEvents = JSON.parse(storedEvents);
+                console.log(`Loaded ${parsedEvents.length} events from AsyncStorage:`, parsedEvents);
                 const calendars = [...new Set(parsedEvents.map(event => event.calendarName || 'Main'))];
                 setAvailableCalendars(calendars);
 
                 if (Object.keys(selectedCalendars).length === 0) {
-                    const initialCalendars = calendars.reduce((acc, cal) => ({...acc, [cal]: true}), {});
+                    const initialCalendars = calendars.reduce((acc, cal) => ({ ...acc, [cal]: true }), {});
                     setSelectedCalendars(initialCalendars);
                     return;
                 }
@@ -73,34 +76,42 @@ const SmartPlanner = () => {
                     calendarColor: event.calendarColor || theme.colors.blueDark
                 }));
 
+                console.log(`Filtered ${filteredEvents.length} events for date ${selectedDate}`);
                 setEvents(filteredEvents);
+            } else {
+                console.log('No events found in AsyncStorage');
             }
 
             if (storedTasks) {
                 const parsedTasks = JSON.parse(storedTasks);
+                console.log(`Loaded ${parsedTasks.length} tasks from AsyncStorage:`, parsedTasks);
+                const selectedDateFormatted = formatDateToLocalDate(selectedDate);
                 const filteredTasks = parsedTasks.filter(task => {
-                    const taskDate = getLocalDateString(task.date);
-                    return taskDate === selectedDate;
+                    const taskDate = formatDateToLocalDate(task.date);
+                    return taskDate === selectedDateFormatted;
                 }).map(task => ({
                     itemType: 'task',
                     summary: task.taskName,
                     description: task.notes,
                     location: task.address,
                     start: task.allDayEvent
-                        ? {date: getLocalDateString(task.date)}
-                        : {dateTime: task.startTime},
+                        ? { date: formatDateToLocalDate(task.date) }
+                        : { dateTime: task.startTime },
                     end: task.allDayEvent
-                        ? {date: getLocalDateString(task.date)}
-                        : {dateTime: task.endTime},
+                        ? { date: formatDateToLocalDate(task.date) }
+                        : { dateTime: task.endTime },
                     allDayEvent: task.allDayEvent,
                     id: task.id
                 }));
 
+                console.log(`Filtered ${filteredTasks.length} tasks for date ${selectedDateFormatted}`);
                 setTasks(filteredTasks);
+            } else {
+                console.log('No tasks found in AsyncStorage');
+                setTasks([]);
             }
         } catch (error) {
             console.error('Error loading events and tasks:', error);
-            // Set empty in case of errors
             setEvents([]);
             setTasks([]);
             setAvailableCalendars([]);
@@ -116,7 +127,7 @@ const SmartPlanner = () => {
     });
 
     const handleCalendarToggle = (calendar, value) => {
-        setSelectedCalendars(prev => ({...prev, [calendar]: value}));
+        setSelectedCalendars(prev => ({ ...prev, [calendar]: value }));
     };
 
     const renderCalendarFilter = () => (
@@ -125,13 +136,13 @@ const SmartPlanner = () => {
                 <Text style={styles.calendarFilterTitle}>Calendars</Text>
                 <View style={styles.calendarFilterActions}>
                     <TouchableOpacity onPress={() => setSelectedCalendars(
-                        availableCalendars.reduce((acc, cal) => ({...acc, [cal]: true}), {})
+                        availableCalendars.reduce((acc, cal) => ({ ...acc, [cal]: true }), {})
                     )}><Text style={styles.calendarFilterActionText}>All</Text></TouchableOpacity>
                     <TouchableOpacity onPress={() => setSelectedCalendars(
-                        availableCalendars.reduce((acc, cal) => ({...acc, [cal]: false}), {})
+                        availableCalendars.reduce((acc, cal) => ({ ...acc, [cal]: false }), {})
                     )}><Text style={styles.calendarFilterActionText}>None</Text></TouchableOpacity>
                     <TouchableOpacity onPress={() => setIsCalendarFilterVisible(false)}>
-                        <Ionicons name="close" size={24} color={theme.colors.dark}/>
+                        <Ionicons name="close" size={24} color={theme.colors.dark} />
                     </TouchableOpacity>
                 </View>
             </View>
@@ -169,24 +180,68 @@ const SmartPlanner = () => {
         console.warn("Submitting route:", selectedRouteEvents);
 
         try {
-            const tasks = Object.values(selectedRouteEvents).map(([summary, location, date, time]) => ({
+            // Clear chat history before planning a new route
+            await fetch('http://127.0.0.1:5001/chat/history/clear', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            // Convert selected events to tasks and save them in AsyncStorage
+            const newTasks = Object.values(selectedRouteEvents).map(([summary, location, date, time]) => ({
+                id: `task-${Date.now()}-${summary}`,
+                taskName: summary,
+                date: formatDateToLocalDate(date),
+                startTime: time === "All day" ? null : time,
+                endTime: time === "All day" ? null : time,
+                allDayEvent: time === "All day",
+                address: location,
+                notes: "Added from route planning"
+            }));
+
+            // Load existing tasks and append the new ones
+            const existingTasks = await AsyncStorage.getItem("tasks");
+            const tasks = existingTasks ? JSON.parse(existingTasks) : [];
+            const updatedTasks = [...tasks, ...newTasks];
+            await AsyncStorage.setItem("tasks", JSON.stringify(updatedTasks));
+            console.log(`Saved ${newTasks.length} selected events as tasks to AsyncStorage:`, newTasks);
+            console.log(`Total tasks in AsyncStorage: ${updatedTasks.length}`);
+
+            // Update local tasks state
+            const selectedDateFormatted = formatDateToLocalDate(selectedDate);
+            const filteredTasks = updatedTasks.filter(task => {
+                const taskDate = formatDateToLocalDate(task.date);
+                return taskDate === selectedDateFormatted;
+            }).map(task => ({
+                itemType: 'task',
+                summary: task.taskName,
+                description: task.notes,
+                location: task.address,
+                start: task.allDayEvent
+                    ? { date: formatDateToLocalDate(task.date) }
+                    : { dateTime: task.startTime },
+                end: task.allDayEvent
+                    ? { date: formatDateToLocalDate(task.date) }
+                    : { dateTime: task.endTime },
+                allDayEvent: task.allDayEvent,
+                id: task.id
+            }));
+            setTasks(filteredTasks);
+
+            // Send the route planning request to the backend
+            const routeTasks = Object.values(selectedRouteEvents).map(([summary, location, date, time]) => ({
                 taskName: summary,
                 address: location,
                 startTime: time === "All day" ? null : `${date}T${time}:00`,
                 notes: "Selected for route planning"
             }));
 
-            const response = await chatService.processRoutePlanning(tasks);
+            await chatService.processRoutePlanning(routeTasks);
 
-            // Navigate to ChatScreen with the initial message
+            // Navigate to ChatScreen
             router.push({
-                pathname: '/chat',
-                params: {
-                    initialMessage: JSON.stringify({
-                        text: response.content || response.response || response,
-                        isUser: false
-                    })
-                }
+                pathname: '/chat'
             });
 
             setIsPlanRouteMode(false);
@@ -198,8 +253,8 @@ const SmartPlanner = () => {
     };
 
     return (
-        <SafeAreaView style={{flex: 1, backgroundColor: theme.colors.smartPlannerHeader}}>
-            <StatusBar style={isDark ? 'light' : 'dark'}/>
+        <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.smartPlannerHeader }}>
+            <StatusBar style={isDark ? 'light' : 'dark'} />
             <SmartPlannerHeader
                 router={router}
                 isPlanRouteMode={isPlanRouteMode}
@@ -213,9 +268,9 @@ const SmartPlanner = () => {
                 onPlanRoute={() => setIsPlanRouteMode(true)}
             />
 
-            <WeekNavigation selectedDate={selectedDate} onSelectDate={setSelectedDate}/>
+            <WeekNavigation selectedDate={selectedDate} onSelectDate={setSelectedDate} />
 
-            <View style={{flex: 1, backgroundColor: theme.colors.background}}>
+            <View style={{ flex: 1, backgroundColor: theme.colors.background }}>
                 <View style={styles.eventTopRow}>
                     <Text style={styles.eventHeaderText}>
                         {isPlanRouteMode ? "Select" : "Time"}
@@ -223,12 +278,12 @@ const SmartPlanner = () => {
                     <Text style={styles.eventHeaderText}>Course</Text>
                     <TouchableOpacity style={styles.filterButton}
                                       onPress={() => setIsCalendarFilterVisible(!isCalendarFilterVisible)}>
-                        <Ionicons name="filter" size={22} color={theme.colors.grayDark}/>
+                        <Ionicons name="filter" size={22} color={theme.colors.grayDark} />
                     </TouchableOpacity>
                 </View>
 
                 {isCalendarFilterVisible &&
-                    <View style={{position: 'absolute', top: 190, left: 16, right: 16}}>{renderCalendarFilter()}</View>}
+                    <View style={{ position: 'absolute', top: 190, left: 16, right: 16 }}>{renderCalendarFilter()}</View>}
 
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <EventList
@@ -251,7 +306,7 @@ const SmartPlanner = () => {
                 </View>
             )}
 
-            {!isPlanRouteMode && <AppNavigationPanel/>}
+            {!isPlanRouteMode && <AppNavigationPanel />}
 
             <CreateTask
                 isVisible={isAddModalVisible}
@@ -291,7 +346,7 @@ const createStyles = (theme) => StyleSheet.create({
         padding: 16,
         borderRadius: 12,
         shadowColor: "#000",
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
@@ -341,7 +396,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 16,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
@@ -354,7 +409,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 16,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
+        shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
         shadowRadius: 4,
         elevation: 2,
@@ -364,7 +419,6 @@ const createStyles = (theme) => StyleSheet.create({
         fontWeight: '600',
         fontSize: 16,
     },
-
     submitRouteButtonText: {
         color: '#fff',
         fontWeight: '700',
