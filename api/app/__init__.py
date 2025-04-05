@@ -7,16 +7,19 @@ from flask_cors import CORS
 
 
 def create_app():
-    load_dotenv('./.env.local')
+    load_dotenv()
     app = Flask(__name__)
     CORS(app)
-
-    from .test import test_routes
+    
+    # Configure Flask-Session
+    app.config['SESSION_TYPE'] = 'filesystem'
+    Session(app)
+    
+    # Register blueprints
     from .navigation import navigation_routes
-
-
-    # Register blueprints for routes and authentication
-    app.register_blueprint(test_routes)
+    from .routes import api
+    
     app.register_blueprint(navigation_routes)
-
+    app.register_blueprint(api)
+    
     return app

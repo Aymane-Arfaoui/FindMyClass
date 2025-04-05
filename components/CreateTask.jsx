@@ -1,14 +1,13 @@
-import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View} from "react-native";
-import {Ionicons} from "@expo/vector-icons";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from "prop-types";
-import {ThemeContext} from "@/context/ThemeProvider";
+import { ThemeContext } from "@/context/ThemeProvider";
+import { taskService } from '@/services/taskService';
 
-
-const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
+const CreateTask = ({ isVisible, onClose, onTaskCreated }) => {
     const { theme } = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
     const now = new Date();
@@ -40,28 +39,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
         }
     }, [isVisible]);
 
-    const formatTime = (time) => time.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-
-    const saveTaskToStorage = async (newTask) => {
-        try {
-
-            const existingTasksJson = await AsyncStorage.getItem('tasks');
-            const existingTasks = existingTasksJson ? JSON.parse(existingTasksJson) : [];
-            const taskWithId = {
-                ...newTask,
-                id: Date.now().toString(),
-                createdAt: new Date().toISOString()
-            };
-
-            const updatedTasks = [...existingTasks, taskWithId];
-            await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-
-            return taskWithId;
-        } catch (error) {
-            console.error('Error saving task:', error);
-            throw error;
-        }
-    };
+    const formatTime = (time) => time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
     const handleSaveEvent = async () => {
         if (!taskName.trim()) {
@@ -80,8 +58,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                 allDayEvent
             };
 
-            const savedTask = await saveTaskToStorage(newTask);
-
+            const savedTask = await taskService.addTask(newTask);
 
             resetForm();
             onClose();
@@ -102,7 +79,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
             <View style={styles.createTaskModalContainer}>
                 <View style={styles.createTaskBottomSheet}>
                     <TouchableOpacity testID={'close-button'} onPress={onClose} style={styles.createTaskCloseButton}>
-                        <Ionicons name="close-circle" size={32} color={theme.colors.text}/>
+                        <Ionicons name="close-circle" size={32} color={theme.colors.text} />
                     </TouchableOpacity>
                     <Text style={styles.createTaskHeaderText}>Create New Task</Text>
                     <View>
@@ -113,7 +90,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                             onChangeText={setTaskName}
                             placeholder="Task Name"
                         />
-                        <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
+                        <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress} />
 
                         <Text style={styles.createTaskLabel}>Date</Text>
                         <TouchableOpacity testID={'date-picker-toggle'} onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
@@ -135,8 +112,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         />
 
                         <View style={styles.createTaskAllDayContainer}>
-                            <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)}
-                                              style={styles.createTaskAllDayToggle}>
+                            <TouchableOpacity onPress={() => setAllDayEvent(!allDayEvent)} style={styles.createTaskAllDayToggle}>
                                 <Text style={styles.createTaskLabel}>All Day Event</Text>
                                 <Switch
                                     testID={'all-day-switch'}
@@ -151,10 +127,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                             setEndTime(new Date(now.getTime() + 60 * 60 * 1000));
                                         }
                                     }}
-                                    trackColor={{
-                                        false: '#fff',
-                                        true: theme.colors.primary
-                                    }}
+                                    trackColor={{ false: '#fff', true: theme.colors.primary }}
                                     thumbColor={allDayEvent ? '#fff' : theme.colors.darkgray}
                                 />
                             </TouchableOpacity>
@@ -163,8 +136,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                         {!allDayEvent && (
                             <>
                                 <Text style={styles.createTaskLabel}>Start Time</Text>
-                                <TouchableOpacity  testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)}
-                                                  style={styles.createTaskInputButton}>
+                                <TouchableOpacity testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)} style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(startTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
@@ -182,8 +154,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                                 />
 
                                 <Text style={styles.createTaskLabel}>End Time</Text>
-                                <TouchableOpacity  testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)}
-                                                  style={styles.createTaskInputButton}>
+                                <TouchableOpacity testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)} style={styles.createTaskInputButton}>
                                     <Text style={styles.createTaskInputText}>{formatTime(endTime)}</Text>
                                 </TouchableOpacity>
                                 <DatePicker
@@ -219,17 +190,16 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                 </View>
             </View>
         </Modal>
-
     );
 };
 
-
-CreateTask.propTypes={
-    isVisible:PropTypes.bool, onClose:PropTypes.func, onTaskCreated:PropTypes.func
-}
+CreateTask.propTypes = {
+    isVisible: PropTypes.bool,
+    onClose: PropTypes.func,
+    onTaskCreated: PropTypes.func
+};
 
 const createStyles = (theme) => StyleSheet.create({
-
     createTaskModalContainer: {
         flex: 1,
         justifyContent: "flex-end",
@@ -318,7 +288,5 @@ const createStyles = (theme) => StyleSheet.create({
         marginBottom: 10,
     },
 });
-
-
 
 export default CreateTask;

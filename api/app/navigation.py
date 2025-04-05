@@ -1,77 +1,56 @@
-import os
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
 from flask_cors import cross_origin
-from .graph.Graph2 import Graph
-from pathlib import Path
+from app.aiapi import AINavigationAPI
+from chat import interpret_path
 
-# import app.graph.Graph as Graph
-# from collections import defaultdict
+# Initialize Blueprint
+navigation_routes = Blueprint('navigation_routes', __name__)
 
-navigation_routes = Blueprint('indoorNavigation', __name__)
+# Initialize navigation API
+nav_api = AINavigationAPI()
 
-g = {}
-accessibility_graph = {}
-
-
-@navigation_routes.route('/indoorNavigation', methods=['GET'])
+@navigation_routes.route('/navigation/shortestpath', methods=['POST'])
 @cross_origin()
-def indoor_navigation():
-    start_id = request.args.get('startId')
-    end_id = request.args.get('endId')
-    destinations = request.args.getlist('destinations[]')
-    campus = request.args.get('campus')
-    accessibility = request.args.get('accessibility')
-    current_directory = Path(os.getcwd())
+def find_shortest_path():
+    try:
+        data = request.get_json()
+        print('NAVIGATION: Received request data:', data)
 
-    #    If we're not in the 'api' directory, prepend it to the path
-    if 'api' not in current_directory.parts:
-        current_directory = current_directory / 'api'
+        start_room = data.get('start_room')
+        end_room = data.get('end_room')
+        accessibility = data.get('accessibility', False)
 
-    file_path = current_directory / f'app/data/campus_jsons/{campus}'
+        if not start_room or not end_room:
+            return jsonify({"error": "Start and end rooms are required"}), 400
 
-    if os.path.exists(file_path) is False:
-        return jsonify({"error": "Campus not found"}), 400
+        path_info = nav_api.find_shortest_path(start_room, end_room, accessibility)
+        print('NAVIGATION: Generated path:', path_info)
 
-    if not start_id:
-        return jsonify({"error": "Missing required parameter 'startId'"}), 400
+        return jsonify(path_info)
 
-    if not end_id and not destinations:
-        return jsonify({"error": "Must provide either 'endId' or 'destinations[]'"}), 400
+    except Exception as e:
+        print(f"NAVIGATION: Error in find_shortest_path: {str(e)}")
+        return jsonify({"error": "Failed to find shortest path"}), 500
 
-    if campus not in g:
-        g[campus] = Graph()
-        g[campus].load_from_json_folder(file_path)
+@navigation_routes.route('/navigation/multipledestinations', methods=['POST'])
+@cross_origin()
+def find_multiple_destinations():
+    try:
+        data = request.get_json()
+        print('MULTI_DEST: Received request data:', data)
 
-    if accessibility and accessibility.lower() == 'true':
-        if campus not in accessibility_graph:
-            accessibility_graph[campus] = Graph()
-            accessibility_graph[campus].graph = get_sub_graph(g[campus])
-        graph_to_use = accessibility_graph[campus]
+        start_room = data.get('start_room')
+        destinations = data.get('destinations', [])
+        accessibility = data.get('accessibility', False)
 
-    else:
-        graph_to_use = g[campus]
+        if not start_room or not destinations:
+            return jsonify({"error": "Start room and at least one destination are required"}), 400
 
-    if end_id:
-        path = graph_to_use.find_shortest_path(start_id, end_id)
-        if not path:
-            return jsonify({"error": "Destination inaccessible from Start location"}), 404
-        return jsonify({"path": path}), 200
+        path_info = nav_api.find_multiple_destinations(start_room, destinations, accessibility)
+        print('MULTI_DEST: Generated path:', path_info)
 
-    result = graph_to_use.find_paths_to_multiple_destinations(start_id, destinations)
-    if not result["paths"]:
-        return jsonify({"error": "No valid paths found"}), 404
+        return jsonify(path_info)
 
-    return jsonify(result), 200
-
-
-def get_sub_graph(g):
-    nx_graph = g.graph
-    allowed_edges = set(nx_graph.edges())
-
-    # Remove escalator and stairs edges
-    for edge in nx_graph.edges():
-        if "escalator" in edge[0] or "stairs" in edge[0] or "escalator" in edge[1] or "stairs" in edge[1]:
-            allowed_edges.remove(edge)
-
-    # Create a subgraph with allowed edges only
-    return nx_graph.edge_subgraph(allowed_edges).copy()
+    except Exception as e:
+        print(f"MULTI_DEST: Error in find_multiple_destinations: {str(e)}")
+        return jsonify({"error": "Failed to find path for multiple destinations"}), 500
