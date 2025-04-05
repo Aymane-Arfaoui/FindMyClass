@@ -1,25 +1,15 @@
-import React, { useContext, useEffect, useState, useMemo } from "react";
-import {
-    Alert,
-    Modal,
-    StyleSheet,
-    Switch,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from "react-native";
+import React, { useContext, useEffect, useMemo, useState } from "react";
+import { Alert, Modal, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import DatePicker from "react-native-date-picker";
 import GooglePlacesAutocomplete from "@/components/GooglePlacesAutocomplete";
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import PropTypes from "prop-types";
 import { ThemeContext } from "@/context/ThemeProvider";
+import { taskService } from '@/services/taskService';
 
 const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
     const { theme } = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
-
 
     const [taskName, setTaskName] = useState("");
     const [notes, setNotes] = useState("");
@@ -61,26 +51,19 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
         }
 
         try {
-            const tasksJson = await AsyncStorage.getItem('tasks');
-            let tasks = tasksJson ? JSON.parse(tasksJson) : [];
+            const updatedTask = {
+                id: taskData.id,
+                taskName,
+                notes,
+                address,
+                date: date.toISOString(),
+                startTime: allDayEvent ? null : startTime.toISOString(),
+                endTime: allDayEvent ? null : endTime.toISOString(),
+                allDayEvent,
+                updatedAt: new Date().toISOString()
+            };
 
-            const updatedTasks = tasks.map(task =>
-                task.id === taskData.id
-                    ? {
-                        ...task,
-                        taskName,
-                        notes,
-                        address,
-                        date: date.toISOString(),
-                        startTime: allDayEvent ? null : startTime.toISOString(),
-                        endTime: allDayEvent ? null : endTime.toISOString(),
-                        allDayEvent,
-                        updatedAt: new Date().toISOString()
-                    }
-                    : task
-            );
-
-            await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+            await taskService.updateTask(updatedTask);
 
             onClose();
             onUpdate?.();
@@ -99,11 +82,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                 style: 'destructive',
                 onPress: async () => {
                     try {
-                        const tasksJson = await AsyncStorage.getItem('tasks');
-                        const tasks = tasksJson ? JSON.parse(tasksJson) : [];
-                        const updatedTasks = tasks.filter(task => task.id !== taskData.id);
-
-                        await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+                        await taskService.deleteTask(taskData.id);
                         onClose();
                         onUpdate?.();
                         Alert.alert('Success', 'Task deleted successfully!');
@@ -121,7 +100,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
             <View style={styles.editTaskModalContainer}>
                 <View style={styles.editTaskBottomSheet}>
                     <TouchableOpacity testID={'close-button'} onPress={onClose} style={styles.editTaskCloseButton}>
-                        <Ionicons name="close-circle" size={32} color={theme.colors.text}/>
+                        <Ionicons name="close-circle" size={32} color={theme.colors.text} />
                     </TouchableOpacity>
                     <Text style={styles.editTaskHeaderText}>Edit Task</Text>
 
@@ -183,10 +162,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                                         setEndTime(new Date(new Date().getTime() + 60 * 60 * 1000));
                                     }
                                 }}
-                                trackColor={{
-                                    false: '#fff',
-                                    true: theme.colors.primary
-                                }}
+                                trackColor={{ false: '#fff', true: theme.colors.primary }}
                                 thumbColor={allDayEvent ? '#fff' : theme.colors.darkgray}
                             />
                         </TouchableOpacity>
@@ -195,8 +171,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                     {!allDayEvent && (
                         <>
                             <Text style={styles.editTaskLabel}>Start Time</Text>
-                            <TouchableOpacity testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)}
-                                              style={styles.editTaskInputButton}>
+                            <TouchableOpacity testID={'start-time-picker-toggle'} onPress={() => setOpenStartTimePicker(true)} style={styles.editTaskInputButton}>
                                 <Text style={styles.editTaskInputText}>{formatTime(startTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
@@ -213,8 +188,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                             />
 
                             <Text style={styles.editTaskLabel}>End Time</Text>
-                            <TouchableOpacity  testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)}
-                                              style={styles.editTaskInputButton}>
+                            <TouchableOpacity testID={'end-time-picker-toggle'} onPress={() => setOpenEndTimePicker(true)} style={styles.editTaskInputButton}>
                                 <Text style={styles.editTaskInputText}>{formatTime(endTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
@@ -259,10 +233,12 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
     );
 };
 
-
-EditTasks.propTypes={
-    isVisible:PropTypes.bool, onClose:PropTypes.func,taskData:PropTypes.any, onUpdate:PropTypes.func
-}
+EditTasks.propTypes = {
+    isVisible: PropTypes.bool,
+    onClose: PropTypes.func,
+    taskData: PropTypes.any,
+    onUpdate: PropTypes.func
+};
 
 const createStyles = (theme) => StyleSheet.create({
     editTaskModalContainer: {

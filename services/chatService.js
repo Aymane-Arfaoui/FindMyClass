@@ -3,8 +3,15 @@ import { taskService } from './taskService';
 
 class ChatService {
     getBaseUrl() {
-        // Use localhost for iOS simulator and 10.0.2.2 for Android emulator
-        const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+        let host;
+        if (Platform.OS === 'ios') {
+            host = 'localhost';
+        } else if (Platform.OS === 'android') {
+            host = '10.0.2.2';
+        } else {
+            // Explicitly use 127.0.0.1 for web to avoid localhost resolution issues
+            host = '127.0.0.1';
+        }
         const url = `http://${host}:5001`;
         console.log(`Using base URL: ${url}`);
         return url;
@@ -152,6 +159,43 @@ class ChatService {
         console.log(`Final navigation query decision: ${result}`);
         
         return result;
+    }
+    async processRoutePlanning(tasks) {
+        try {
+            const url = `${this.getBaseUrl()}/chat/plan_route`;
+            console.log(`Sending route planning request to: ${url}`);
+
+            const requestBody = {
+                tasks: tasks
+            };
+
+            console.log(`Route planning request body: ${JSON.stringify(requestBody, null, 2)}`);
+
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+
+            if (!response.ok) {
+                console.error(`Route planning response not ok: ${response.status} ${response.statusText}`);
+                const text = await response.text();
+                console.error(`Response text: ${text}`);
+                throw new Error(`Server error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log(`Route planning response: ${JSON.stringify(data, null, 2)}`);
+
+            return data.response ? data : { content: "I need more information to plan your route." };
+        } catch (error) {
+            console.error(`Error in processRoutePlanning: ${error.message}`, error);
+            return {
+                content: "Sorry, I encountered an error while planning your route. Please try again."
+            };
+        }
     }
 }
 

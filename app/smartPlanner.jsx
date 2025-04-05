@@ -10,7 +10,7 @@ import CreateTask from '@/components/CreateTask';
 import SmartPlannerHeader from "@/components/SmartPlannerHeader";
 import {ThemeContext} from '@/context/ThemeProvider'
 import {StatusBar} from "expo-status-bar";
-
+import { chatService } from '@/services/chatService';
 
 const SmartPlanner = () => {
     const router = useRouter();
@@ -160,7 +160,7 @@ const SmartPlanner = () => {
         setResetSelectionFlag(prev => !prev);
     };
 
-    const handleSubmitRoute = () => {
+    const handleSubmitRoute = async () => {
         if (Object.keys(selectedRouteEvents).length === 0) {
             alert("Please select at least one event with an address.");
             return;
@@ -168,8 +168,33 @@ const SmartPlanner = () => {
 
         console.warn("Submitting route:", selectedRouteEvents);
 
-        setIsPlanRouteMode(false);
-        setResetSelectionFlag(prev => !prev);
+        try {
+            const tasks = Object.values(selectedRouteEvents).map(([summary, location, date, time]) => ({
+                taskName: summary,
+                address: location,
+                startTime: time === "All day" ? null : `${date}T${time}:00`,
+                notes: "Selected for route planning"
+            }));
+
+            const response = await chatService.processRoutePlanning(tasks);
+
+            // Navigate to ChatScreen with the initial message
+            router.push({
+                pathname: '/chat',
+                params: {
+                    initialMessage: JSON.stringify({
+                        text: response.content || response.response || response,
+                        isUser: false
+                    })
+                }
+            });
+
+            setIsPlanRouteMode(false);
+            setResetSelectionFlag(prev => !prev);
+        } catch (error) {
+            console.error("Error submitting route:", error);
+            alert("Failed to submit route for planning. Please try again.");
+        }
     };
 
     return (

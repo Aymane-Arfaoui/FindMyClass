@@ -191,3 +191,26 @@ def process_navigation_chat():
 @cross_origin()
 def health_check():
     return jsonify({"status": "healthy", "service": "navigation"})
+
+@navigation_routes.route('/chat/plan_route', methods=['POST'])
+@cross_origin()
+def process_plan_route():
+    try:
+        data = request.get_json()
+        print('PLAN_ROUTE: Received request data:', data)
+
+        if not data or 'tasks' not in data:
+            return jsonify({"error": "No tasks provided"}), 400
+
+        tasks = data.get('tasks', [])
+        print('PLAN_ROUTE: Processing tasks:', tasks)
+
+        # Placeholder response for now
+        response = "Working on your route plan..."
+        print('PLAN_ROUTE: Generated response:', response)
+
+        return jsonify({"response": response})
+
+    except Exception as e:
+        print(f"PLAN_ROUTE: Error in process_plan_route: {str(e)}")
+        return jsonify({"error": "Failed to process route planning request"}), 500

@@ -12,11 +12,11 @@ import {
   SafeAreaView
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { chatService } from '../app/services/chatService';
+import { chatService } from '../services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
 
-const ChatInterface = ({ navigation }) => {
-  const [messages, setMessages] = useState([
+const ChatInterface = ({ navigation, initialMessages = [] }) => {
+  const [messages, setMessages] = useState(initialMessages.length > 0 ? initialMessages : [
     { id: '1', text: 'Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?', isUser: false }
   ]);
   const [inputText, setInputText] = useState('');
@@ -65,11 +65,13 @@ const ChatInterface = ({ navigation }) => {
   };
 
   useEffect(() => {
-    // Scroll to bottom when messages change
+    setMessages(initialMessages.length > 0 ? initialMessages : [
+      { id: '1', text: 'Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?', isUser: false }
+    ]);
     if (flatListRef.current && messages.length > 0) {
       flatListRef.current.scrollToEnd({ animated: true });
     }
-  }, [messages]);
+  }, [initialMessages]);
 
   const renderMessage = ({ item }) => {
     const isUser = item.isUser;
