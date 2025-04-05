@@ -11,14 +11,14 @@ import {Ionicons} from "@expo/vector-icons";
 import AppNavigationPanel from "@/components/AppNavigationPannel";
 import BackgroundImg from '../assets/images/background-generic-1.png';
 import UserProfileIcon from '../assets/images/profile_icon.png';
-// import SettingsCog from '../assets/images/settings_cog.png';
+import SettingsCog from '../assets/images/settings_cog.png';
 
 const User = () => {
   const router = useRouter();
 
   return (
       <ScreenWrapper>
-
+        
         <View>
           <ImageBackground testID={'welcome-background-image'} source={BackgroundImg} style={styles.backgroundImage}/>
           {/* <Text>PLESD WOKR</Text> */}
@@ -31,7 +31,7 @@ const User = () => {
                       <Text style={styles.userName}>John Doe</Text>
             </View>
             <TouchableOpacity onPress={() => router.push('/settings')}>
-              {/*<Image source={SettingsCog} style={styles.settingsIcon} />*/}
+              <Image source={SettingsCog} style={styles.settingsIcon} />
             </TouchableOpacity>
           </View>
           {/* Today's Schedule Block */}
