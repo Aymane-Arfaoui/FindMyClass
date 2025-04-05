@@ -1,5 +1,3 @@
-import {theme} from "@/constants/theme";
-
 export const concordiaBuildingsGeoJSON = {
     type: "FeatureCollection",
     features: [
@@ -19,7 +17,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "H - Henry F. Hall Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5788, 45.4973]
             }
         },
@@ -66,7 +64,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Webster Library, Concordia University",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5778, 45.4970]
             }
         },
@@ -97,7 +95,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia University ER Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5799, 45.4965]
             }
         },
@@ -117,7 +115,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "CL Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5790, 45.4942]
             }
         },
@@ -139,7 +137,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia University Learning Square (LS)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5794, 45.4964]
             }
         },
@@ -164,7 +162,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "John Molson International Committee",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5789, 45.4953]
             }
         },
@@ -189,7 +187,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "EV - Engineering & Visual Arts",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5783, 45.4956]
             }
         },
@@ -219,7 +217,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Faubourg Tower",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.5776, 45.4948]
             }
         },
@@ -260,7 +258,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Physical Services Building (PS)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6397, 45.4598]
             }
         },
@@ -284,7 +282,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Hingston Hall A (HA)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6411, 45.4595]
             }
         },
@@ -308,7 +306,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Hingston Hall C (HC)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6419, 45.4598]
             }
         },
@@ -343,7 +341,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             "properties": {
                 name: "Hingston Hall B (HB)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6419, 45.4595]
             }
         },
@@ -407,7 +405,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Vanier Library",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6385, 45.4592]
             }
         },
@@ -428,7 +426,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia University - HU Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6417, 45.4585]
             }
         },
@@ -487,7 +485,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "St Ignatius Church (SI)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6424, 45.4579]
             }
         },
@@ -513,7 +511,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Centre for Structural and Functional Genomics (GE)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6405, 45.4571]
             }
         },
@@ -559,7 +557,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "SP Building, Loyola Campus, Concordia University",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6415, 45.4579]
             }
         },
@@ -607,7 +605,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Communications & Journalism Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6403, 45.4575]
             }
         },
@@ -690,7 +688,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Loyola Jesuit Hall and Conference Centre (RF), Central Building (CC), Administration Building (AD)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6398, 45.4582]
             }
         },
@@ -768,7 +766,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "F. C. Smith Building",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6396, 45.45861]
             }
         },
@@ -792,7 +790,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia Athletics Sports Camps (RA)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6379, 45.4569]
             }
         }, {
@@ -811,7 +809,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia University School of Health (PC)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6377, 45.4571]
             }
         },
@@ -846,7 +844,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Concordia Applied Psychology Centre (PY)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.64058, 45.45915]
             }
         },
@@ -882,7 +880,7 @@ export const concordiaBuildingsGeoJSON = {
             },
             properties: {
                 name: "Jesuit Residence (JR)",
-                color: theme.colors.primary,
+                color: null,
                 textPosition: [-73.6432, 45.4586]
             }
         },

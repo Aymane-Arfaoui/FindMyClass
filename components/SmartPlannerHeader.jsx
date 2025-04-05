@@ -1,13 +1,17 @@
-import React from "react";
+import React, {useContext, useMemo} from "react";
 import {StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
-import {theme} from "@/constants/theme";
+import PropTypes from "prop-types";
+import { ThemeContext } from '@/context/ThemeProvider'
+
 
 const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, day, weekday, monthYear}) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     return (
         <View style={styles.headerContainer}>
             <TouchableOpacity style={styles.backButton} onPress={onBack}>
-                <Ionicons name="chevron-back" size={28} color="black"/>
+                <Ionicons name="chevron-back" size={28} color={theme.colors.dark} />
             </TouchableOpacity>
 
             <View style={styles.dateSection}>
@@ -34,14 +38,20 @@ const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, da
     );
 };
 
-const styles = StyleSheet.create({
+SmartPlannerHeader.propTypes={
+    onBack: PropTypes.func, onAddTask: PropTypes.func, onPlanRoute: PropTypes.func, isPlanRouteMode: PropTypes.bool, day: PropTypes.any, weekday: PropTypes.any, monthYear: PropTypes.any
+
+}
+
+
+const createStyles = (theme) => StyleSheet.create({
     headerContainer: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
         paddingHorizontal: 20,
         paddingTop: 50,
-        backgroundColor: "#FAF8F5",
+        backgroundColor: theme.colors.smartPlannerHeader,
         paddingBottom: 20,
     },
     backButton: {
@@ -83,7 +93,7 @@ const styles = StyleSheet.create({
         marginRight: 20,
     },
     todayText: {
-        color: theme.colors.white,
+        color: '#fff',
         fontWeight: "bold",
     },
     addButton: {

@@ -13,7 +13,6 @@ jest.mock('react-native-config', () => ({
 describe('SearchBars', () => {
     const mockOnBackPress = jest.fn();
     const mockSetModeSelected = jest.fn();
-    const mockSetTravelTimes = jest.fn();
     const defaultProps = {
         currentLocation: {
             geometry: { coordinates: [-73.5789, 45.4960] }
@@ -27,8 +26,7 @@ describe('SearchBars', () => {
             transit: 'N/A',
             walking: 'N/A',
             bicycling: 'N/A'
-        },
-        setTravelTimes: mockSetTravelTimes
+        }
     };
 
     beforeEach(() => {
@@ -70,26 +68,12 @@ describe('SearchBars', () => {
         );
 
     });
-
-    it('handles fetchRoutesData successfully', async () => {
-
-        render(<SearchBars {...defaultProps} />);
-
-        await waitFor(() => {
-            expect(mockSetTravelTimes).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    walking: '15 min'
-                })
-            );
-        });
-    });
-
     it('handles address change and shows suggestions', async () => {
 
         render(<SearchBars {...defaultProps} />);
         const user=userEvent.setup()
+        await user.clear(screen.getByPlaceholderText('Starting Point'));
         await user.type(screen.getByPlaceholderText('Starting Point'), 'test');
-
 
         expect(global.fetch).toHaveBeenCalledWith(
             expect.stringContaining('https://maps.googleapis.com/maps/api/place/autocomplete/json')
@@ -121,29 +105,19 @@ describe('SearchBars', () => {
         consoleErrorSpy.mockRestore();
     });
 
-    it('updates travel times when locations change', async () => {
 
+
+    it('handles empty suggestions when input is too short', async () => {
 
         render(<SearchBars {...defaultProps} />);
 
-        await waitFor(() => {
-            expect(mockSetTravelTimes).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    walking: '15 min'
-                })
-            );
-        });
-    });
 
-    // it('handles empty suggestions when input is too short', async () => {
-    //    render(<SearchBars {...defaultProps} />);
-    //
-    //
-    //     const user=userEvent.setup()
-    //     await user.type(screen.getByPlaceholderText('Starting Point'), 'te'); // Less than 3 characters
-    //
-    //     expect(global.fetch).not.toHaveBeenCalledWith(
-    //         expect.stringContaining('https://maps.googleapis.com/maps/api/place/autocomplete/json')
-    //     );
-    // });
+        const user=userEvent.setup()
+        await user.clear(screen.getByPlaceholderText('Destination'));
+        await user.type(screen.getByPlaceholderText('Destination'), 'te');
+        expect(global.fetch).not.toHaveBeenCalledWith(
+            expect.stringContaining('https://maps.googleapis.com/maps/api/place/autocomplete/json')
+        );
+
+    });
 });

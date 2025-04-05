@@ -66,15 +66,15 @@ describe('Home Component', () => {
 
 
     });
-    it('should reroute to "/calendar" if calendar button is pressed',  async () => {
+    it('should reroute to "/smartPlanner" if smart-planner button is pressed',  async () => {
         const mock={push:jest.fn()};
         useRouter.mockReturnValue(mock);
         await AsyncStorage.setItem('@user', userMock);
         await AsyncStorage.setItem('@calendar', event);
         const { unmount } =render(<Home/>);
         const user = userEvent.setup();
-        await user.press(await screen.findByTestId('calendar-button'));
-        expect(mock.push).toHaveBeenCalledWith('/calendar');
+        await user.press(await screen.findByTestId('smart-planner-button'));
+        expect(mock.push).toHaveBeenCalledWith('/smartPlanner');
         unmount();
 
 

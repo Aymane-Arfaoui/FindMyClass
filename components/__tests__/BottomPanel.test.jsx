@@ -3,21 +3,27 @@ import {render, screen, waitFor, userEvent, act} from '@testing-library/react-na
 import { useRouter } from 'expo-router';
 
 describe('BottomPanel Component', () => {
+    const travelTimes={
+       DRIVE:"5 min",
+        TRANSIT: "5 min",
+        WALK: "5 min",
+        BICYCLE: "5 min",
+    }
 
     it('should render the bottom panel correctly',  async () => {
-        render(<BottomPanel/>);
+        render(<BottomPanel transportMode={'test'} travelTimes={travelTimes}/>);
         expect(await screen.findByTestId("bottom-panel")).toBeOnTheScreen();
 
     });
     it('should show No route available if the route is not provided',  async () => {
-        render(<BottomPanel/>);
+        render(<BottomPanel transportMode={'test'} travelTimes={travelTimes}/>);
         expect(await screen.findByText("No route available")).toBeOnTheScreen();
 
     });
 
     it('should display the route details if provided',  async () => {
         const route = {mode:'test',duration: 'test', distance: 'test'}
-        render(<BottomPanel routeDetails={route}/>);
+        render(<BottomPanel transportMode={'test'} routeDetails={route} travelTimes={travelTimes}/>);
         expect(await screen.findByTestId('route-details')).toBeOnTheScreen();
 
 
@@ -26,7 +32,7 @@ describe('BottomPanel Component', () => {
     it('should a scroll view when toggle button is pressed ',  async () => {
         jest.useFakeTimers();
         const route={mode:'test',duration:'test',distance:'test'}
-        render(<BottomPanel routeDetails={route}/>);
+        render(<BottomPanel transportMode={'test'} routeDetails={route} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -39,7 +45,7 @@ describe('BottomPanel Component', () => {
     it('should display the toggle button',  async () => {
 
         const route = {mode:'test',duration: 'test', distance: 'test'}
-        render(<BottomPanel routeDetails={route}/>);
+        render(<BottomPanel transportMode={'test'} routeDetails={route} travelTimes={travelTimes}/>);
         expect(await screen.findByTestId('toggle-button')).toBeOnTheScreen();
 
     });
@@ -49,7 +55,7 @@ describe('BottomPanel Component', () => {
         useRouter.mockReturnValue({push: pushMock});
         jest.useFakeTimers();
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
-        render(<BottomPanel routes={routes}/>);
+        render(<BottomPanel transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -69,7 +75,7 @@ describe('BottomPanel Component', () => {
 
         jest.useFakeTimers();
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
-        render(<BottomPanel  routes={routes}/>);
+        render(<BottomPanel  transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -89,7 +95,7 @@ describe('BottomPanel Component', () => {
 
         jest.useFakeTimers();
         const routes=[{mode:"transit",steps:[{instruction:'test',vehicle:'a',departure_time:"1",arrival_time:'1'}],duration:'test',distance:'test'}]
-        render(<BottomPanel routes={routes}/>);
+        render(<BottomPanel transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -107,7 +113,7 @@ describe('BottomPanel Component', () => {
 
         jest.useFakeTimers();
         const routes=[{mode:"other",steps:[{instruction:'test',maneuver:'a'}],duration:'test',distance:'test'}]
-        render(<BottomPanel routes={routes}/>);
+        render(<BottomPanel transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
@@ -126,7 +132,7 @@ describe('BottomPanel Component', () => {
 
         jest.useFakeTimers();
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
-        render(<BottomPanel routes={routes}/>);
+        render(<BottomPanel routes={routes} travelTimes={travelTimes}/>);
 
         const user = userEvent.setup();
         await user.press(screen.getByTestId('toggle-button'));
