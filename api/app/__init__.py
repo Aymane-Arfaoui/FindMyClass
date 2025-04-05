@@ -13,10 +13,12 @@ def create_app():
 
     from .test import test_routes
     from .navigation import navigation_routes
+    from .integrated_routes import integrated_routes
 
 
     # Register blueprints for routes and authentication
     app.register_blueprint(test_routes)
     app.register_blueprint(navigation_routes)
+    app.register_blueprint(integrated_routes)
 
     return app

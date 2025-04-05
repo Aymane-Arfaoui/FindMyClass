@@ -13,3 +13,4 @@ pytest
 opencv-python
 networkx
 openai
+polyline

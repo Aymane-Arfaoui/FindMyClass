@@ -2,6 +2,7 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from app.aiapi import AINavigationAPI
+from app.integrated_routing import IntegratedRoutingService
 import re
 
 class NavigationContext:
@@ -9,9 +10,11 @@ class NavigationContext:
         self.last_navigation = None
         self.last_start_room = None
         self.last_end_room = None
+        self.last_weather_data = None
 
 # Initialize global context
 nav_context = NavigationContext()
+routing_service = IntegratedRoutingService()
 
 def is_navigation_query(query: str) -> bool:
     """Check if the query is asking for directions"""
@@ -128,12 +131,92 @@ def handle_follow_up(query: str, context: NavigationContext) -> str:
     query_lower = query.lower()
     
     if any(word in query_lower for word in ["how long", "time", "distance"]):
-        distance = context.last_navigation.get("distance", 0)
+        if context.last_navigation.get("type") == "integrated":
+            total_distance = context.last_navigation.get("total_distance", 0)
+        else:
+            total_distance = context.last_navigation.get("distance", 0)
+        
         # Assuming average walking speed of 1.4 m/s
-        time_minutes = (distance / 1.4) / 60
-        return f"The distance is {distance:.1f} meters, which should take about {time_minutes:.1f} minutes to walk."
+        time_minutes = (total_distance / 1.4) / 60
+        return f"The distance is {total_distance:.1f} meters, which should take about {time_minutes:.1f} minutes to walk."
+    
+    if "weather" in query_lower and context.last_weather_data:
+        if context.last_weather_data["success"]:
+            temp = context.last_weather_data["temperature"]
+            return f"The current temperature is {temp}°C. This may affect your route if you need to go outside."
+        else:
+            return "I couldn't retrieve the weather data for your route."
     
     return "I'm not sure what you're asking about. Could you please rephrase your question?"
+
+def extract_locations(query: str) -> tuple:
+    """Extract indoor and outdoor locations from the query"""
+    # Look for indoor locations (room numbers)
+    indoor_pattern = r'[h][-_ ]?(\d{3})'
+    rooms = re.findall(indoor_pattern, query.lower())
+    
+    # Look for outdoor locations (coordinates or place names)
+    # This is a simplified pattern and would need to be enhanced for real-world use
+    outdoor_pattern = r'at\s+([\d\.-]+),\s*([\d\.-]+)'
+    outdoor_matches = re.findall(outdoor_pattern, query)
+    
+    start_location = None
+    end_location = None
+    
+    # Process indoor locations
+    if len(rooms) >= 2:
+        start_floor = rooms[0][0]
+        end_floor = rooms[1][0]
+        start_room = f"h{start_floor}_{rooms[0]}"
+        end_room = f"h{end_floor}_{rooms[1]}"
+        
+        start_location = {
+            "type": "indoor",
+            "id": start_room,
+            "campus": "hall"
+        }
+        
+        end_location = {
+            "type": "indoor",
+            "id": end_room,
+            "campus": "hall"
+        }
+    
+    # Process outdoor locations
+    if outdoor_matches:
+        if len(outdoor_matches) >= 2:
+            start_lat, start_lng = outdoor_matches[0]
+            end_lat, end_lng = outdoor_matches[1]
+            
+            start_location = {
+                "type": "outdoor",
+                "lat": float(start_lat),
+                "lng": float(start_lng)
+            }
+            
+            end_location = {
+                "type": "outdoor",
+                "lat": float(end_lat),
+                "lng": float(end_lng)
+            }
+        elif len(outdoor_matches) == 1 and start_location:
+            # One outdoor location and one indoor location
+            lat, lng = outdoor_matches[0]
+            
+            if start_location["type"] == "indoor":
+                end_location = {
+                    "type": "outdoor",
+                    "lat": float(lat),
+                    "lng": float(lng)
+                }
+            else:
+                start_location = {
+                    "type": "outdoor",
+                    "lat": float(lat),
+                    "lng": float(lng)
+                }
+    
+    return start_location, end_location
 
 def main():
     # Load environment variables
@@ -165,6 +248,7 @@ def main():
                 print("- exit: Exit the program")
                 print("- You can ask me about:")
                 print("  * Finding specific rooms (e.g., 'How do I get from H-109 to H-110?' or simply 'H109 to H110')")
+                print("  * Finding routes between indoor and outdoor locations (e.g., 'How do I get from H-109 to 45.4972,-73.5790?')")
                 print("  * Building layouts (e.g., 'What's on the 9th floor of EV?')")
                 print("  * Navigation tips (e.g., 'How do I get from EV to H building?')")
                 print("  * Accessibility information (e.g., 'Are there elevators in the MB building?')")
@@ -178,6 +262,33 @@ def main():
                     print("\nConcordia Assistant:", response_text)
                     continue
                 
+                # Try to extract indoor and outdoor locations
+                start_location, end_location = extract_locations(user_input)
+                
+                if start_location and end_location:
+                    # Use integrated routing service
+                    result = routing_service.generate_route_with_weather(start_location, end_location)
+                    
+                    if result["success"]:
+                        nav_context.last_navigation = result["path"]
+                        nav_context.last_weather_data = result.get("weather_data")
+                        
+                        # If we have instructions from ChatGPT, use them
+                        if "instructions" in result:
+                            response_text = result["instructions"]
+                        else:
+                            # Fall back to basic interpretation
+                            if result["path"]["type"] == "indoor":
+                                response_text = interpret_path(result["path"])
+                            else:
+                                response_text = "I found a route for you, but couldn't generate detailed instructions."
+                    else:
+                        response_text = result.get("error", "Could not find a route between these locations.")
+                    
+                    print("\nConcordia Assistant:", response_text)
+                    continue
+                
+                # Fall back to basic indoor navigation
                 start_room, end_room = extract_rooms(user_input)
                 if start_room and end_room:
                     # Use navigation API to find path
@@ -190,7 +301,7 @@ def main():
                     print("\nConcordia Assistant:", response_text)
                     continue
             
-            # Use OpenAI for general queries or if room extraction failed
+            # Use OpenAI for general queries or if location extraction failed
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
@@ -198,7 +309,8 @@ def main():
                     You have knowledge about Concordia's buildings, especially the EV, H, and MB buildings.
                     You can help students find their way around campus, locate specific rooms, and provide navigation tips.
                     Be friendly and specific in your responses, and mention relevant building codes and room numbers when applicable.
-                    For specific room-to-room navigation, suggest using the format 'H109 to H110' or 'How do I get from H-109 to H-110?'"""},
+                    For specific room-to-room navigation, suggest using the format 'H109 to H110' or 'How do I get from H-109 to H-110?'
+                    You can also help with routes that include both indoor and outdoor segments, considering weather conditions."""},
                     {"role": "user", "content": user_input}
                 ]
             )
