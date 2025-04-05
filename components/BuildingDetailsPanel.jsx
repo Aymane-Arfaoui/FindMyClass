@@ -112,14 +112,6 @@ function BuildingDetailsPanel({
 
 
                     {!buildingKey && (
-
-                        // <TouchableOpacity style={styles.directionButton}
-                        //                   testID={'direction-button'}
-                        //                   onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
-                        //     <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                        //     <Text style={styles.directionButtonText}>Get Directions</Text>
-                        // </TouchableOpacity>
-
                         <TouchableOpacity
                             style={styles.directionButton}
                             testID={'direction-button'}
@@ -132,12 +124,6 @@ function BuildingDetailsPanel({
                     )}
 
                     {buildingKey && (
-                        // <TouchableOpacity style={styles.directionButton}
-                        //                   testID={'direction-button'}
-                        //                   onPress={(_event) => onDirectionPress(currentLocation, selectedBuilding, mode)}>
-                        //     <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
-                        //     <Text style={styles.directionButtonText}>Get Directions</Text>
-                        // </TouchableOpacity>
                         <TouchableOpacity
                             style={styles.directionButton}
                             testID={'direction-button'}
@@ -161,13 +147,14 @@ function BuildingDetailsPanel({
                                     style={styles.modalCloseButton}
                                     onPress={() => setModalVisible(false)}
                                 >
-                                    <Ionicons name="close-circle" size={28} color={theme.colors.white} />
+                                    <Ionicons name="close-circle" size={28} color={theme.colors.white}/>
                                 </TouchableOpacity>
                                 <Text style={styles.modalText}>
                                     Where would you like to go in the {buildingKey} building?
                                 </Text>
                                 <Text style={styles.modalSubText}>
-                                    Choose indoor directions (to a classroom) or outdoor directions to the building entrance.
+                                    Choose indoor directions (to a classroom) or outdoor directions to the building
+                                    entrance.
                                 </Text>
                                 <View style={styles.modalButtonContainer}>
                                     <View style={styles.directionOptions}>
@@ -175,7 +162,7 @@ function BuildingDetailsPanel({
                                             style={[styles.modalButton, styles.yesButton]}
                                             onPress={() => handleModalResponse(true)}
                                         >
-                                            <Ionicons name="layers" size={18} color={theme.colors.white} />
+                                            <Ionicons name="layers" size={18} color={theme.colors.white}/>
                                             <Text style={styles.modalButtonText}> Indoor</Text>
                                         </TouchableOpacity>
 
@@ -183,7 +170,7 @@ function BuildingDetailsPanel({
                                             style={[styles.modalButton, styles.noButton]}
                                             onPress={() => handleModalResponse(false)}
                                         >
-                                            <Ionicons name="navigate" size={18} color={theme.colors.white} />
+                                            <Ionicons name="navigate" size={18} color={theme.colors.white}/>
                                             <Text style={styles.modalButtonText}> Outdoor</Text>
                                         </TouchableOpacity>
                                     </View>
@@ -192,7 +179,7 @@ function BuildingDetailsPanel({
                                         style={[styles.modalButton, styles.cancelButton]}
                                         onPress={() => handleModalResponse(null)}
                                     >
-                                        <Ionicons name="arrow-undo" size={18} color={theme.colors.white} />
+                                        <Ionicons name="arrow-undo" size={18} color={theme.colors.white}/>
                                         <Text style={styles.modalButtonText}> Cancel</Text>
                                     </TouchableOpacity>
                                 </View>
@@ -417,7 +404,6 @@ const createStyles = (theme) => StyleSheet.create({
         elevation: 6,
         zIndex: 10,
     },
-
 
 
 });
