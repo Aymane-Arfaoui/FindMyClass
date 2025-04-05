@@ -88,7 +88,7 @@ const Settings = () => {
                         value={isDark}
                         onValueChange={toggleTheme}
                         trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
-                        thumbColor={isDark ? '#fff' : '#f4f3f4'}
+                        thumbColor={isDark ? theme.colors.white : '#f4f3f4'}
                     />
                 </View>
 
@@ -102,7 +102,7 @@ const Settings = () => {
                         value={colorBlindMode}
                         onValueChange={toggleColorBlindMode}
                         trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
-                        thumbColor={colorBlindMode ? '#fff' : '#f4f3f4'}
+                        thumbColor={colorBlindMode ? theme.colors.white : '#f4f3f4'}
                     />
                 </View>
             </View>
@@ -126,11 +126,11 @@ const Settings = () => {
                     <Ionicons
                         name={userInfo ? "log-out-outline" : "log-in-outline"}
                         size={22}
-                        color={userInfo ? "#fff" : "#fff"}
+                        color= {theme.colors.white}
                     />
                     <Text style={[
                         styles.authButtonText,
-                        userInfo && {color: "#fff"}
+                        userInfo && {color: theme.colors.white}
                     ]}>
                         {isLoading ? "Processing..." : userInfo ? "Sign Out" : "Sign In with Google"}
                     </Text>
@@ -205,7 +205,7 @@ const createStyles = (theme) => StyleSheet.create({
         fontWeight: '600',
         marginLeft: 8,
         letterSpacing: 0.4,
-        color: '#fff',
+        color: theme.colors.white,
     }
 
 });
