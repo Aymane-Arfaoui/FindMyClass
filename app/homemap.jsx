@@ -49,7 +49,9 @@ export default function Homemap() {
         room = null,
         address = null,
         directionsTriggered = null,
+        fromCalendar = null,
     } = useLocalSearchParams();
+
 
     const [destinationAddress, setDestinationAddress] = useState(null);
     const [hasTriggeredDirections, setHasTriggeredDirections] = useState(false);
@@ -92,7 +94,7 @@ export default function Homemap() {
             currentDestination?.geometry?.coordinates
         ) {
             setHasTriggeredDirections(true);
-            handleDirectionPress(currentLocation, currentDestination, modeSelected);
+            handleDirectionPress(currentLocation, currentDestination, modeSelected, fromCalendar === 'true');
         }
     }, [directionsTriggered, currentLocation, currentDestination, modeSelected, hasTriggeredDirections]);
 
@@ -660,6 +662,7 @@ export default function Homemap() {
                         travelTimes={travelTimes}
                     />
 
+
                     <BottomPanel
                         transportMode={modeSelected}
                         routeDetails={fastestRoute}
@@ -667,6 +670,14 @@ export default function Homemap() {
                         wantsClassroom={wantsClassroom}
                         selectedBuilding={selectedLocation}
                         travelTimes={travelTimes}
+                        startLocation={currentOrigin && currentOrigin.geometry?.coordinates ? {
+                            lat: currentOrigin.geometry.coordinates[1],
+                            lng: currentOrigin.geometry.coordinates[0],
+                        } : undefined}
+                        endLocation={currentDestination && currentDestination.geometry?.coordinates ? {
+                            lat: currentDestination.geometry.coordinates[1],
+                            lng: currentDestination.geometry.coordinates[0],
+                        } : undefined}
                     />
                 </>
             )}
