@@ -547,10 +547,6 @@
     [
       "mb_s2_stairs_2",
       "mb_1_stairs"
-    ],
-    [
-      "mb_s2_metro",
-      "h1_escalator_to_tunnel"
     ]
   ],
   "scale_factor": 0.05
