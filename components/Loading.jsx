@@ -3,11 +3,12 @@ import React, {useContext} from 'react'
 import PropTypes from "prop-types";
 import {ThemeContext} from "@/context/ThemeProvider";
 
-const {theme} = useContext(ThemeContext);
-const Loading = ({size = 'large', color = theme.colors.loading}) => {
+
+const Loading = ({size = 'large'}) => {
+    const {theme} = useContext(ThemeContext);
     return (
         <View testID={'loading'} style={{justifyContent: 'center', alignItems: 'center'}}>
-            <ActivityIndicator size={size} color={color}/>
+            <ActivityIndicator size={size} color={theme.colors.loading}/>
         </View>
     )
 }
