@@ -7,16 +7,32 @@ class TaskService {
             if (!tasksJson) return [];
             
             const tasks = JSON.parse(tasksJson);
-            return tasks.map(task => ({
-                id: task.id,
-                taskName: task.summary || task.taskName,
-                notes: task.description || task.notes || 'No additional details',
-                date: task.date || (task.start?.date || task.start?.dateTime),
-                address: task.location || task.address || 'No location available',
-                startTime: task.startTime || task.start?.dateTime,
-                endTime: task.endTime || task.end?.dateTime,
-                allDayEvent: task.allDayEvent || (task.start?.date && task.end?.date)
-            }));
+            return tasks
+                .filter(task => {
+                    // Check for empty or invalid task name
+                    const taskName = (task.summary || task.taskName)?.trim();
+                    if (!taskName || taskName === '') {
+                        return false;
+                    }
+
+                    // Check for empty or invalid date
+                    const taskDate = task.date || task.start?.date || task.start?.dateTime;
+                    if (!taskDate || taskDate === '') {
+                        return false;
+                    }
+
+                    return true;
+                })
+                .map(task => ({
+                    id: task.id,
+                    taskName: (task.summary || task.taskName)?.trim(),
+                    notes: task.description || task.notes || 'No additional details',
+                    date: task.date || (task.start?.date || task.start?.dateTime),
+                    address: task.location || task.address || 'No location available',
+                    startTime: task.startTime || task.start?.dateTime,
+                    endTime: task.endTime || task.end?.dateTime,
+                    allDayEvent: task.allDayEvent || (task.start?.date && task.end?.date)
+                }));
         } catch (error) {
             console.error('Error fetching tasks:', error);
             return [];
@@ -40,23 +56,37 @@ class TaskService {
 
     async addTask(task) {
         try {
+            if (!task) {
+                throw new Error('Task data is required');
+            }
+
+            // Validate required fields
+            if (!task.name || task.name.trim() === '') {
+                throw new Error('Task name is required');
+            }
+
+            if (!task.dueDate) {
+                throw new Error('Due date is required');
+            }
+
             const tasks = await this.getAllTasks();
             const newTask = {
                 id: task.id || Date.now().toString(),
-                taskName: task.name,
-                notes: task.description || 'No additional details',
+                taskName: task.name.trim(),
+                notes: task.description?.trim() || 'No additional details',
                 date: task.dueDate,
-                address: task.location || 'No location available',
-                startTime: task.startTime,
-                endTime: task.endTime,
+                address: task.location?.trim() || 'No location available',
+                startTime: task.startTime || null,
+                endTime: task.endTime || null,
                 allDayEvent: task.isAllDay || false
             };
+            
             tasks.push(newTask);
             await AsyncStorage.setItem('tasks', JSON.stringify(tasks));
             return newTask;
         } catch (error) {
             console.error('Error adding task:', error);
-            throw error;
+            throw new Error(`Failed to add task: ${error.message}`);
         }
     }
 
