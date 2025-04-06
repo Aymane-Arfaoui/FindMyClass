@@ -1,8 +1,8 @@
+jest.useFakeTimers()
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react-native';
-import SmartPlannerHeader from '@/components/SmartPlannerHeader'; // Update with the correct import path
+import { render, userEvent, screen } from '@testing-library/react-native';
+import SmartPlannerHeader from '@/components/SmartPlannerHeader';
 import { ThemeContext } from '@/context/ThemeProvider';
-import { Ionicons } from '@expo/vector-icons';
 
 
 describe('SmartPlannerHeader', () => {
@@ -40,49 +40,45 @@ describe('SmartPlannerHeader', () => {
     it('should render the SmartPlannerHeader correctly', () => {
         renderWithTheme();
 
-        // Check if the day, weekday, and monthYear are rendered
-        expect(screen.getByText('5')).toBeTruthy(); // Day should be displayed
-        expect(screen.getByText('Mon')).toBeTruthy(); // Weekday should be displayed
-        expect(screen.getByText('Apr 2025')).toBeTruthy(); // Month and Year should be displayed
+        expect(screen.getByText('5')).toBeTruthy();
+        expect(screen.getByText('Mon')).toBeTruthy();
+        expect(screen.getByText('Apr 2025')).toBeTruthy();
     });
 
-    it('should call onBack when the back button is pressed', () => {
+    it('should call onBack when the back button is pressed', async () => {
+        const user=userEvent.setup()
         renderWithTheme();
 
-        // Find the back button and simulate the press
-        const backButton = screen.getByTestId('back-button');
-        fireEvent.press(backButton);
 
-        // Assert that onBack was called
+        const backButton = screen.getByTestId('back-button');
+        await user.press(backButton);
+
         expect(mockOnBack).toHaveBeenCalledTimes(1);
     });
 
-    it('should call onPlanRoute when the "Plan Route" button is pressed', () => {
+    it('should call onPlanRoute when the "Plan Route" button is pressed', async () => {
+        const user=userEvent.setup()
         renderWithTheme();
 
-        // Find the "Plan Route" button and simulate the press
         const planRouteButton = screen.getByTestId('plan-route-button');
-        fireEvent.press(planRouteButton);
+        await user.press(planRouteButton);
 
-        // Assert that onPlanRoute was called
         expect(mockOnPlanRoute).toHaveBeenCalledTimes(1);
     });
 
-    it('should call onAddTask when the "Add Task" button is pressed', () => {
+    it('should call onAddTask when the "Add Task" button is pressed', async () => {
+        const user=userEvent.setup()
         renderWithTheme();
 
-        // Find the "Add Task" button and simulate the press
         const addTaskButton = screen.getByTestId('add-task-button');
-        fireEvent.press(addTaskButton);
+        await user.press(addTaskButton);
 
-        // Assert that onAddTask was called
         expect(mockOnAddTask).toHaveBeenCalledTimes(1);
     });
 
     it('should not render "Plan Route" and "Add Task" buttons when isPlanRouteMode is true', () => {
         renderWithTheme({ isPlanRouteMode: true });
 
-        // Check that the "Plan Route" and "Add Task" buttons are not rendered
         const planRouteButton = screen.queryByTestId('plan-route-button');
         const addTaskButton = screen.queryByTestId('add-task-button');
 
@@ -93,7 +89,6 @@ describe('SmartPlannerHeader', () => {
     it('should render "Plan Route" and "Add Task" buttons when isPlanRouteMode is false', () => {
         renderWithTheme({ isPlanRouteMode: false });
 
-        // Check that the "Plan Route" and "Add Task" buttons are rendered
         const planRouteButton = screen.getByTestId('plan-route-button');
         const addTaskButton = screen.getByTestId('add-task-button');
 

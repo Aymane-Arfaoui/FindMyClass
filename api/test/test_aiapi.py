@@ -51,7 +51,7 @@ class TestAINavigationAPI:
         mock_graph = MagicMock()
         mock_graph.find_shortest_path.return_value = {
             "path": ["a", "b", "c"],
-            "distance": 99.9
+            "distance": 99
         }
         mock_graph_class.return_value = mock_graph
 
@@ -60,7 +60,7 @@ class TestAINavigationAPI:
 
         result = api.find_shortest_path("a", "c", "hall")
         assert result["path"] == ["a", "b", "c"]
-        assert result["distance"] == 99.9
+        assert result["distance"] == 99
         assert api.has_active_navigation()
 
     def test_find_shortest_path_no_graph(self, mock_graph_class):

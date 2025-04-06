@@ -50,7 +50,7 @@ const MapScreen = () => {
             </View>
         );
     }
-    return (<InnerMapScreen buildingKey={buildingKey,styles, theme}/>);
+    return (<InnerMapScreen buildingKey={buildingKey} styles={styles} theme={theme}/>);
 };
 const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating react hooks conditionally
     const navigation = useNavigation();
@@ -450,7 +450,7 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
 };
 
 InnerMapScreen.propTypes = {
-    buildingKey: PropTypes.any
+    buildingKey: PropTypes.any, styles:PropTypes.any, theme:PropTypes.any
 }
 export default MapScreen;
 
