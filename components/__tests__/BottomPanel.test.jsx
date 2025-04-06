@@ -1,11 +1,16 @@
 import BottomPanel from '../BottomPanel.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
-import {isShuttleRunningNow} from "@/services/shuttleService";
+import {getShuttleTravelTime, isShuttleRunningNow} from "@/services/shuttleService";
+import {fetchGoogleRoutes} from "@/services/routeService";
 jest.mock('@/services/shuttleService', () => ({
     isShuttleRunningNow: jest.fn(),
+    getShuttleTravelTime: jest.fn(),
 }));
 
+jest.mock('@/services/routeService', () => ({
+    fetchGoogleRoutes:jest.fn() ,
+}));
 describe('BottomPanel Component', () => {
     const travelTimes={
        DRIVE:"5 min",
@@ -65,8 +70,6 @@ describe('BottomPanel Component', () => {
     });
 
     it('should switch to shuttle route when switch to shuttle route button is pressed ',  async () => {
-        const pushMock=jest.fn();
-        useRouter.mockReturnValue({push: pushMock});
         jest.useFakeTimers();
         isShuttleRunningNow.mockReturnValue(true)
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"test",duration:'test',distance:'test'}]
@@ -81,7 +84,7 @@ describe('BottomPanel Component', () => {
         await user.press(await screen.findByTestId('shuttle-route-button'));
 
         expect(isShuttleRunningNow).toBeCalled();
-        expect(pushMock).toBeCalled();
+        expect(fetchGoogleRoutes).toBeCalled();
 
     });
 
