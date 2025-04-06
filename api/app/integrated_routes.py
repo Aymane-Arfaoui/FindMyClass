@@ -1,6 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_cors import cross_origin
 from .integrated_routing import IntegratedRoutingService
+from typing import Dict, Any
 
 integrated_routes = Blueprint('integratedNavigation', __name__)
 routing_service = IntegratedRoutingService()
@@ -98,4 +99,17 @@ def get_weather():
         return jsonify(weather_data), 200
     
     except Exception as e:
-        return jsonify({"error": str(e)}), 500 
+        return jsonify({"error": str(e)}), 500
+
+def _calculate_weight(self, node1: Dict[str, Any], node2: Dict[str, Any]) -> float:
+    if(node1["poi_type"] == "elevator" and node2["poi_type"] == "elevator"):
+        return 10  # Optimized weight for elevator transitions
+    elif(node1["poi_type"] == "escalator" and node2["poi_type"] == "escalator"):
+        return 15  # Optimized weight for escalator transitions
+    elif(node1["poi_type"] == "stairs" and node2["poi_type"] == "stairs"):
+        return 20  # Optimized weight for stair transitions
+    else:
+        # Euclidean distance with scale factor for regular paths
+        dx = (node1["x"] - node2["x"]) * self.scale_factor
+        dy = (node1["y"] - node2["y"]) * self.scale_factor
+        return (dx**2 + dy**2)**0.5 
