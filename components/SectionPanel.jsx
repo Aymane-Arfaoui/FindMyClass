@@ -4,8 +4,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { theme } from '@/constants/theme';
 
 import PropTypes from 'prop-types';
+import * as navigation from "expo-router/build/global-state/routing";
+import {useNavigation} from "@react-navigation/native";
 
-const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDirections, onShowDirectionsTemp, showButtonDirections, multiFloorText }) => {
+const SectionPanel = ({ selectedSection, onClose,
+                          panHandlers, panelY,
+                          onShowDirections, onShowDirectionsTemp,
+                          showButtonDirections, multiFloorText,
+                          boolSwitchToOutdoor, switchStartBuilding,
+                          switchEndBuilding, switchEndClassroom }) => {
 
     let showText = false;
 
@@ -13,7 +20,19 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
 
     showText = multiFloorText !== "";
 
+    const navigation = useNavigation();
 
+    const onGoOutsidePressed = () => {
+        console.log("onGoOutsidePressed homemaphomemaphomemaphomemaphomemaphomemaphomemaphomemaphomemap");
+        navigation.navigate('homemap', {
+            startBuilding: switchStartBuilding,
+            endBuilding: switchEndBuilding,
+            triggerRoute: true,
+            destinationClassroom: switchEndClassroom,
+            wantsClassroom: true,
+        });
+
+    }
 
 
     return (
@@ -26,6 +45,21 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
 
             <View style={styles.panelContent}>
                 <Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>
+                { boolSwitchToOutdoor && (
+                    <TouchableOpacity
+                        style={styles.goOutsideButton}
+                        // onPress={onShowDirections}
+                        onPress={() => {
+                            onGoOutsidePressed();
+                            // onShowDirectionsTemp();
+
+                        }}
+                    >
+                        {/*<Ionicons name="navigate" size={24} color={theme.colors.white} />*/}
+                        <Text style={styles.directionsButtonText}>Go outside</Text>
+                    </TouchableOpacity>
+                )}
+
                 {/*<Text style={styles.sectionTitle}>{selectedSection?.id || 'N/A'}</Text>*/}
 
                 <TouchableOpacity onPress={onClose} style={styles.closeButtonSP_in} testID={'close-section-button'}>
@@ -35,7 +69,10 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
                 {showText && (
 
                     <Text style={styles.multiFloorText}>
-                        <Ionicons name="warning" size={16} color={theme.colors.dark} />
+                        {multiFloorText && (
+
+                            <Ionicons name="warning" size={16} color={theme.colors.dark} />
+                        )}
                         {" "}
                         {multiFloorText}
                     </Text>
@@ -163,6 +200,27 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: theme.colors.dark,
         marginTop: 10,
-    }
+    },
+    goOutsideButton: {
+        position: 'absolute',
+        right: 0,
+        top: -25,
+        bottom: 15,
+        width: 100,
+        height: 40,
+        borderRadius: 18,
+        backgroundColor: theme.colors.blueDark,
+        justifyContent: 'center',
+        alignItems: 'center',
+        shadowColor: theme.colors.dark,
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.3,
+        shadowRadius: 4,
+        elevation: 4,
+
+        marginRight: 30,
+        marginTop: 15,
+    },
+
 
 });

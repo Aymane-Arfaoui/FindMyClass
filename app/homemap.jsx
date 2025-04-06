@@ -45,9 +45,9 @@ export default function Homemap() {
     const hasTriggeredRoute = useRef(false);
 
     const BUILDING_COORDINATES = {
-        'Hall': [-73.5789, 45.4960], // [lng, lat]
+        'Hall': [-73.5789, 45.4960],
         'MB': [-73.5790, 45.4950],
-        'CC': [-73.5770, 45.4970],
+        'CC': [-73.6396, 45.45861],
     };
 
     useEffect(() => {
@@ -83,7 +83,7 @@ export default function Homemap() {
                 setWantsClassroom(true);
                 // SetClassroomNumber(destinationClassroom);
                 handleDirectionPress(origin, destination, "walking", true, destinationClassroom);
-                hasTriggeredRoute.current = true; // Mark as triggered
+                hasTriggeredRoute.current = true;
                 // const handleDirectionPress = async (origin, dest, mode, wantsClassroom, classroom) => {
                 // onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
 
@@ -147,7 +147,6 @@ export default function Homemap() {
 
         const API_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
-        // Convert string coordinates to numbers
         const [originLat, originLng] = originStr.split(",").map(Number);
         const [destinationLat, destinationLng] = destinationStr.split(",").map(Number);
 
@@ -199,7 +198,6 @@ export default function Homemap() {
                         return;
                     }
 
-                    // Find the shortest route based on duration
                     const bestRoute = data.routes.reduce((shortest, cur) => {
                         const shortestDuration = parseInt(shortest.legs[0].duration.replace("s", ""), 10);
                         const currentDuration = parseInt(cur.legs[0].duration.replace("s", ""), 10);
@@ -211,7 +209,6 @@ export default function Homemap() {
                         return;
                     }
 
-                    // Extract numeric duration value
                     const durSec = parseInt(bestRoute.legs[0].duration.replace("s", ""), 10);
 
                     const hours = Math.floor(durSec / 3600);
@@ -453,7 +450,7 @@ export default function Homemap() {
         })
     ).current;
 
-    let isFetchingPlaces = false; // Prevent multiple requests
+    let isFetchingPlaces = false;
 
     const fetchPlacesOfInterest = async (category) => {
         if (!currentLocation || isFetchingPlaces) {

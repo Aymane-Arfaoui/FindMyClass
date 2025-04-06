@@ -42,6 +42,11 @@ const MapScreen = () => {
     // const {buildingKey, classroomNum} = route.params || {};
     let {buildingKey} = route.params || {};
     const [classroomNum, setClassroomNum] = useState(route.params?.classroomNum || '');
+
+    const [selectedSection, setSelectedSection] = useState(null);
+    const [destinationIndoor, setDestinationIndoor] = useState(
+        (classroomNum && classroomNum !== "") ? classroomNum : selectedSection?.id || ""
+    );
     // const [showSearchBar, setShowSearchBar] = useState(false);
 
     const [showSearchBar, setShowSearchBar] = useState(!!classroomNum);
@@ -72,8 +77,8 @@ const MapScreen = () => {
 
             // if (getNodeDataFullNode(classroomNum)) {
             if (initialSection) {
-                // setSelectedSection(initialSection); // Set the destination section
-                handleShowDirectionsSection(initialSection, "start"); // Trigger path calculation
+                // setSelectedSection(initialSection);
+                handleShowDirectionsSection(initialSection, "start");
 
             } else {
                 console.warn(`No section found for classroomNum: ${classroomNum}`);
@@ -85,13 +90,21 @@ const MapScreen = () => {
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
     const [selectedFloorKey, setSelectedFloorKey] = useState(floorKeys[0]);
-    const [selectedSection, setSelectedSection] = useState(null);
     const selectedFloorData = buildingFloors[selectedFloorKey];
     const {viewBox, sections = [], poiImage, width, height} = selectedFloorData;
     const aspectRatio = width / height;
     const panelY = useRef(new Animated.Value(0)).current;
 
     const [multiFloorMessage, setMultiFloorMessage] = useState(null);
+
+    const [switchedBuilding, setSwitchedBuilding] = useState(false);
+
+
+    const [isSwitchToOutdoor, setIsSwitchToOutdoor] = useState(false);
+    const [switchStartBuilding, setSwitchStartBuilding] = useState(null);
+    const [switchEndBuilding, setSwitchEndBuilding] = useState(null);
+    const [switchEndClassroom, setSwitchEndClassroom] = useState(null);
+
 
     const panResponder = useRef(
         PanResponder.create({
@@ -157,26 +170,26 @@ const MapScreen = () => {
             let node = null;
             let yDif = 0;
             if (buildingKey == 'Hall'){
-                if (selectedFloorKey == 1) {
+                if (selectedFloorKey == "1") {
                     node = mapHall1.nodes.find(n => n.id === nodeId);
                 }
-                else if (selectedFloorKey == 2){
+                else if (selectedFloorKey == "2"){
                     node = mapHall2.nodes.find(n => n.id === nodeId);
                 }
-                else if (selectedFloorKey == 8){
+                else if (selectedFloorKey == "8"){
                     node = mapHall8.nodes.find(n => n.id === nodeId);
                 }
-                else if (selectedFloorKey == 9){
+                else if (selectedFloorKey == "9"){
                     node = mapHall9.nodes.find(n => n.id === nodeId);
                 }
                 yDif = 1132;
             }
 
             else if (buildingKey == "MB"){
-                if (selectedFloorKey == "S2") {
+                if (selectedFloorKey == 1) {
                     node = mapMB1.nodes.find(n => n.id === nodeId);
                 }
-                else if (selectedFloorKey == "S1"){
+                else if (selectedFloorKey == 0){
                     node = mapMBS2.nodes.find(n => n.id === nodeId);
                 }
                 yDif = 1132;
@@ -313,7 +326,7 @@ const MapScreen = () => {
 
         if (foundSection) {
             if(foundSection !== ""){
-                    return foundSection;
+                return foundSection;
             }
         }
         return null;
@@ -422,9 +435,9 @@ const MapScreen = () => {
 
         if (endBuilding1 === 'Hall') {
             startLocationId = "Hall Building Entrance";
-        } else if (buildingKey === "MB") {
+        } else if (endBuilding1 === "MB") {
             startLocationId = "Escalator to S2";
-        } else if (buildingKey === "CC") {
+        } else if (endBuilding1 === "CC") {
             startLocationId = "Stairs and Entrance";
         }
 
@@ -450,10 +463,10 @@ const MapScreen = () => {
                 if(endBuilding1 === 'Hall'){
                     effectiveStartLocation = "Hall Building Entrance";
                     setStartLocationIndoorTemp("Hall Building Entrance");
-                } else if (buildingKey === "MB") {
+                } else if (endBuilding1 === "MB") {
                     effectiveStartLocation = "Escalator to S2";
                     setStartLocationIndoorTemp("Escalator to S2");
-                } else if (buildingKey === "CC") {
+                } else if (endBuilding1 === "CC") {
                     effectiveStartLocation = "Stairs and Entrance";
                     setStartLocationIndoorTemp("Stairs and Entrance");
                 }
@@ -512,12 +525,59 @@ const MapScreen = () => {
 
                 console.log("+++++++++++++++++++++++++++++++++++++++++++++++++++++++")
 
-                navigation.navigate('homemap', {
-                    startBuilding: startBuilding,
-                    endBuilding: endBuilding,
-                    triggerRoute: true,
-                    destinationClassroom: endId.id,
+
+                console.log("REMOVE BEFOREEEEEEEEE: buildingKey: " + buildingKey)
+                // buildingKey = "MB"
+
+
+                const buildingKey222 = "MB";
+
+                console.log("REMOVE NOWWWWWWWWWWWWW: buildingKey: " + buildingKey222)
+                console.log("REMOVE NOWWWWWWWWWWWWW: floorKey: " + selectedFloorData.floorKey)
+                console.log("REMOVE NOWWWWWWWWWWWWW: floorKey 2 : " + selectedFloorKey)
+                console.log("REMOVE NOWWWWWWWWWWWWW: startBuilding : " + startBuilding)
+                console.log("REMOVE NOWWWWWWWWWWWWW: endBuilding : " + endBuilding)
+                console.log("REMOVE NOWWWWWWWWWWWWW: endId.id : " + endId.id)
+
+
+                setSwitchStartBuilding(startBuilding);
+                setSwitchEndBuilding(endBuilding);
+                setSwitchEndClassroom(endId.id);
+
+                setSwitchedBuilding(true);
+                setIsSwitchToOutdoor(true);
+
+                // navigation.navigate("MapScreen", { buildingKey });
+
+                navigation.navigate("MapScreen", {
+                    buildingKey: startBuilding,
+                    // floorKey: "1",
                 });
+                console.log("REMOVE NOWWWWWWWWWWWWW: switchedBuilding : " + switchedBuilding)
+
+                // navigation.navigate("MapScreen", {
+                //     buildingKey: startBuilding,
+                //     floorKey: "1",
+                //     startClassroom: effectiveStartLocation,
+                //     destinationClassroom: "H-260",
+                //     classroomNum: classroomNum
+                // });
+
+
+                // navigation.navigate("MapScreen", {
+                //     buildingKey: result.buildingKey,
+                //     floorKey: result.floorKey,
+                //     section: result.section
+                // });
+
+
+                //Switch to outdoor section
+                // navigation.navigate('homemap', {
+                //     startBuilding: startBuilding,
+                //     endBuilding: endBuilding,
+                //     triggerRoute: true,
+                //     destinationClassroom: endId.id,
+                // });
 
                 console.log("=====================================================")
 
@@ -548,13 +608,13 @@ const MapScreen = () => {
                         `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
                     );http://127.0.0.1:5000/indoorNavigation?startId=h2_209&endId=h2_260&campus=hall
 
-                    if (response.ok) {
-                        const data = await response.json();
-                        setPath(data.path.path);
+                        if (response.ok) {
+                            const data = await response.json();
+                            setPath(data.path.path);
 
-                    } else {
-                        console.error("Error fetching data");
-                    }
+                        } else {
+                            console.error("Error fetching data");
+                        }
                 } catch (error) {
                     console.error("Request failed", error);
                 }
@@ -607,12 +667,65 @@ const MapScreen = () => {
         }
     }, [startLocationIndoor, selectedSection?.id, selectedSection]);
 
+    useEffect(() => {
+        console.log("!!!!!!!!!!!!!!!!!! BUILDING KEY HAS CHANGED HERE !!!!!!!!!!!!!!!!!!!!!")
+    }, [buildingKey]);
+
+    useEffect(() => {
+        if (switchedBuilding === true){
+            console.log("@@@@@@@@@@@@@@@@@@@@@@ switchedBuilding HAS CHANGED HERE @@@@@@@@@@@@@@@@@@@@@@ it is now: " + switchedBuilding);
+            console.log("@@destinationIndoor@@@@" + destinationIndoor);
+
+            let tempDestinationRoom;
+
+            if(buildingKey === 'Hall'){
+                tempDestinationRoom = "Hall Building Exit";
+            } else if (buildingKey === "MB") {
+                tempDestinationRoom = "MB Building Exit";
+            } else if (buildingKey === "CC") {
+                tempDestinationRoom = "CC Building Exit";
+            }
+
+            const tempSectionNewBuilding = getNodeDataFullNode(tempDestinationRoom);
+
+            setShowSearchBar(true);
+            setMultiFloorMessage("");
+            setSelectedPath(null);
+            setPath(null);;
+            setClassroomNum(tempDestinationRoom);
+            setSelectedSection(tempSectionNewBuilding);
+            setDestinationIndoor(tempDestinationRoom);
+            setIsSwitchToOutdoor(true);
+
+            setShowSearchBar(true);
+
+            handleShowDirectionsSection(tempSectionNewBuilding);
+
+            // setSwitchedBuilding(false);
+
+            console.log("@@destinationIndoor@@@@" + destinationIndoor);
+            console.log("@@tempSectionNewBuilding@@@@" + tempSectionNewBuilding.id);
+
+            console.log("@@@@@@@@@@ switchedBuilding HAS CHANGED BACK @@@@@@@@@@ it is now: " + switchedBuilding);
+        }
+        // else if(switchedBuilding === false){
+        //     setIsSwitchToOutdoor(false);
+        // }
+
+    }, [switchedBuilding]);
+
+    useEffect(() => {
+        setDestinationIndoor(
+            (classroomNum && classroomNum !== "") ? classroomNum : selectedSection?.id || ""
+        );
+    }, [classroomNum, selectedSection]);
+
 
     const closeIndoorSearchBars = (bool) => {
         setShowSearchBar(false);
-        setMultiFloorMessage("")
-        setSelectedPath(null)
-        setStartLocationIndoor("")
+        setMultiFloorMessage("");
+        setSelectedPath(null);
+        setStartLocationIndoor("");
         setPath(null);
     };
 
@@ -638,7 +751,8 @@ const MapScreen = () => {
                             onShowDirectionsUpdate={() => handleShowDirectionsSection(selectedSection)}
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
-                            destination={(classroomNum && classroomNum !=="") ?  classroomNum : selectedSection?.id}
+                            // destination={(classroomNum && classroomNum !=="") ?  classroomNum : selectedSection?.id}
+                            destination={destinationIndoor}
                             onBackPress={() => closeIndoorSearchBars(false)}
 
                             navigation={navigation}
@@ -756,6 +870,11 @@ const MapScreen = () => {
                         onShowDirectionsTemp={handleShowDirectionsTemp}
                         showButtonDirections={!showSearchBar}
                         multiFloorText={multiFloorMessage}
+                        boolSwitchToOutdoor={isSwitchToOutdoor}
+                        switchStartBuilding={switchStartBuilding}
+                        switchEndBuilding={switchEndBuilding}
+                        switchEndClassroom={switchEndClassroom}
+
                     />
                 </View>
             </TouchableWithoutFeedback>
