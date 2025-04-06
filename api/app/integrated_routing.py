@@ -91,7 +91,7 @@ class IntegratedRoutingService:
             
             # Adjust mode based on weather conditions
             if weather_data and weather_data.get("success"):
-                if weather_data.get("precipitation", 0) > 0 or weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]:
+                if weather_data.get("precipitation", 0) > 0 or weather_data.get("weather_code", 0) in [56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 80, 81, 82, 85, 86, 95, 96, 99]:
                     # If it's raining, prefer transit over walking
                     if mode == "walking":
                         mode = "transit"
