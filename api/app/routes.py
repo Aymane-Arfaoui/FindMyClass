@@ -18,7 +18,10 @@ def process_task_chat():
         if not request.is_json:
             return jsonify({'error': 'Request must be JSON'}), 400
             
-        data = request.json
+        data = request.get_json()
+        if data is None:
+            return jsonify({'error': 'Invalid JSON data'}), 400
+            
         query = data.get('query')
         tasks = data.get('tasks', [])
         
@@ -67,13 +70,11 @@ def process_task_chat():
         # Process as a task query
         print("API ROUTE: Processing as task query")
         response = handle_task_query(query, tasks)
-        print(f"API ROUTE: Generated response: {response}")  # Debug print
         
         return jsonify({
             'response': response
         })
     except Exception as e:
-        print(f"API ROUTE: Error processing chat: {str(e)}")  # Debug print
         return jsonify({
             'response': "I encountered an error while processing your request. Please try again."
         })

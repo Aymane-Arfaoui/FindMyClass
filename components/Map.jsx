@@ -57,9 +57,16 @@ const Map = ({
     }, [safeCoordinates, selectedCampus]);
 
     const mapStyleURL = useMemo(() => {
-        // Using streets style for traffic data
-        return 'mapbox://styles/mapbox/streets-v12';
-    }, []);
+        if (colorBlindMode) {
+            return isDark 
+                ? 'mapbox://styles/mapbox/light-v11'  // Light theme for better contrast in dark mode
+                : 'mapbox://styles/mapbox/streets-v12'; // Regular streets for normal mode
+        }
+        
+        return isDark
+            ? 'mapbox://styles/mapbox/dark-v11'  // Dark theme
+            : 'mapbox://styles/mapbox/streets-v12';  // Regular Light theme
+    }, [isDark, colorBlindMode]);
 
     useEffect(() => {
         setStyleLoaded(false);
