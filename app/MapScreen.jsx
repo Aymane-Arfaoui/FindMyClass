@@ -39,7 +39,8 @@ import {ThemeContext} from "@/context/ThemeProvider";
 
 const MapScreen = () => {
     const route = useRoute();
-
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const {buildingKey} = route.params || {};
 
     if (!buildingKey || !floorsData[buildingKey]) {
@@ -49,12 +50,11 @@ const MapScreen = () => {
             </View>
         );
     }
-    return (<InnerMapScreen buildingKey={buildingKey}/>);
+    return (<InnerMapScreen buildingKey={buildingKey,styles, theme}/>);
 };
-const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating react hooks conditionally
     const navigation = useNavigation();
-    const {theme} = useContext(ThemeContext);
-    const styles = useMemo(() => createStyles(theme), [theme]);
+
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
     const [selectedFloorKey, setSelectedFloorKey] = useState(floorKeys[0]);
