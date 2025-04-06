@@ -92,49 +92,6 @@ const AppNavigationPanel = () => {
                 {pathname === "/homemap" && <View style={styles.dotIndicator}/>}
             </TouchableOpacity>
 
-            {/* <TouchableOpacity
-                style={styles.tabItem}
-                onPress={() => router.push("/smartPlanner")}
-                testID={'button-navigate-to-planner'}
-                activeOpacity={0.7}
-            >
-                <Animated.View style={{transform: [{scale: plannerScale}]}}>
-                    <Ionicons
-                        name={pathname === "/smartPlanner" ? "book" : "book-outline"}
-                        size={26}
-                        color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
-                    />
-                </Animated.View>
-                <Text style={[
-                    styles.tabText,
-                    pathname === "/smartPlanner" && styles.activeTabText
-                ]}>Planner</Text>
-                {pathname === "/smartPlanner" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity> */}
-
-            {/* <TouchableOpacity
-                style={styles.tabItem}
-                onPress={() => {
-                    console.log('Navigating to chat screen');
-                    router.push('/chat');
-                }}
-                testID={'button-navigate-to-chat'}
-                activeOpacity={0.7}
-            >
-                <Animated.View style={{transform: [{scale: chatScale}]}}>
-                    <Ionicons
-                        name={pathname === "/chat" ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
-                        size={26}
-                        color={pathname === "/chat" ? theme.colors.primary : theme.colors.grayDark}
-                    />
-                </Animated.View>
-                <Text style={[
-                    styles.tabText,
-                    pathname === "/chat" && styles.activeTabText
-                ]}>Assistant</Text>
-                {pathname === "/chat" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity> */}
-
             <TouchableOpacity
                 style={styles.tabItem}
                 onPress={() => router.push("/user")}

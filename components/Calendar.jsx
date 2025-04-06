@@ -1,15 +1,27 @@
-import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    Alert,
+    Image,
+    ActivityIndicator,
+    SafeAreaView,
+} from 'react-native';
 import {Calendar as RNCalendar} from 'react-native-calendars';
-import {hp} from '@/helpers/common';
+import {theme} from '@/constants/theme';
+import {hp, wp} from '@/helpers/common';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchBuildingCoordinates} from "@/services/buildingService";
 import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
-import {ThemeContext} from "@/context/ThemeProvider";
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
 
 const Calendar = ({events: propEvents}) => {
     const router = useRouter();
@@ -19,14 +31,59 @@ const Calendar = ({events: propEvents}) => {
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [eventCoordinates, setEventCoordinates] = useState({});
-    const {theme} = useContext(ThemeContext);
-    const styles = useMemo(() => createStyles(theme), [theme]);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
 
+    const [, response, promptAsync] = Google.useAuthRequest({
+        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
+        scopes: [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly',
+            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+        ],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+    });
 
     const updateEvents = useCallback((newEvents) => {
         setEvents(newEvents);
         setIsRefreshing(false);
     }, []);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const token = await AsyncStorage.getItem("@accessToken");
+            setIsAuthenticated(!!token);
+            setLoading(false);
+        };
+        checkAuth();
+    }, []);
+
+    useEffect(() => {
+        if (response?.type === "success") {
+            handleGoogleSignIn(response.authentication.accessToken);
+        }
+    }, [response]);
+
+    const handleGoogleSignIn = async (accessToken) => {
+        try {
+            setLoading(true);
+            await AsyncStorage.setItem("@accessToken", accessToken);
+            setIsAuthenticated(true);
+            await loadEvents();
+            await loadTasks();
+        } catch (error) {
+            console.error('Sign in error:', error);
+            Alert.alert("Login Failed", "Could not complete the sign in process.");
+        } finally {
+            setLoading(false);
+        }
+    };
 
     useEffect(() => {
         calendarService?.addListener(updateEvents);
@@ -210,6 +267,41 @@ const Calendar = ({events: propEvents}) => {
         }
     };
 
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.fullScreenContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+            </SafeAreaView>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <SafeAreaView style={styles.fullScreenContainer}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Calendar</Text>
+                    <View style={{width: 24}} />
+                </View>
+                <View style={styles.centerContainer}>
+                    <Ionicons name="calendar" size={80} color={theme.colors.primary} style={styles.calendarIcon} />
+                    <Text style={styles.signInTitle}>Calendar Access Required</Text>
+                    <Text style={styles.signInText}>
+                        Please sign in with your Google account to view and manage your calendar events.
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.signInButton}
+                        onPress={() => promptAsync()}
+                    >
+                        <Ionicons name="logo-google" size={24} color="white" style={styles.buttonIcon} />
+                        <Text style={styles.signInButtonText}>Sign in with Google</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <View style={styles.container} testID={'calendar'}>
@@ -342,6 +434,9 @@ const createStyles = (theme) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: hp(2),
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.gray,
     },
     headerTitle: {
         fontSize: hp(2.2),
@@ -428,6 +523,70 @@ const createStyles = (theme) => StyleSheet.create({
     noEventsText: {
         fontSize: hp(1.6),
         color: theme.colors.grayDark,
+    },
+    eventDescription: {
+        fontSize: hp(1.4),
+        color: theme.colors.dark,
+        opacity: 0.6,
+        marginTop: hp(0.5),
+    },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: 'gray',
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2),
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    calendarIcon: {
+        marginBottom: 20,
+    },
+    signInTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: theme.colors.text,
+        textAlign: 'center',
+    },
+    signInText: {
+        fontSize: 16,
+        color: theme.colors.grayDark,
+        textAlign: 'center',
+        marginBottom: 30,
+        lineHeight: 22,
+        paddingHorizontal: 20,
+    },
+    signInButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 25,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    signInButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+        marginLeft: 10,
+    },
+    buttonIcon: {
+        marginRight: 8,
+    },
+    fullScreenContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
     },
 });
 

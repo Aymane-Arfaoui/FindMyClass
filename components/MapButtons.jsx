@@ -3,13 +3,13 @@ import {Platform, StyleSheet, Text, TouchableOpacity, View, Animated} from 'reac
 import PropTypes from "prop-types";
 import {ThemeContext} from '@/context/ThemeProvider';
 
-const MapButtons = ({onPress}) => {
+const MapButtons = ({onPress, onCampusChange}) => {
     const [selectedLocation, setSelectedLocation] = useState('SGW');
     const {theme, isDark} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
     const locations = {
-        SGW: [-73.5787, 45.4963],     // SGW Coordinates
-        Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
+        SGW: [-73.5789, 45.4973],     // SGW Coordinates
+        LOYOLA: [-73.6409, 45.4582]    // Loyola Coordinates
     };
 
     const slideAnim = useRef(new Animated.Value(0)).current;
@@ -21,10 +21,13 @@ const MapButtons = ({onPress}) => {
             useNativeDriver: false
         }).start();
         onPress(locations[selectedLocation]);
+        onCampusChange && onCampusChange(selectedLocation);
     }, [selectedLocation]);
 
     const handlePress = (location) => {
         setSelectedLocation(location);
+        onPress(locations[location]);
+        onCampusChange && onCampusChange(location);
     };
 
     const translateX = slideAnim.interpolate({
@@ -42,35 +45,32 @@ const MapButtons = ({onPress}) => {
                         { transform: [{ translateX }] }
                     ]}
                 />
+
                 <TouchableOpacity
-                    style={styles.toggleButton}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text
-                        style={[
-                            styles.label,
-                            selectedLocation === 'SGW' &&
-                            (isDark ? styles.activeLabelDark : styles.activeLabel)
-                        ]}
-                    >
-                        SGW
-                    </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.toggleButton}
-                    onPress={() => handlePress('Loyola')}
+                    style={[styles.toggleButton, selectedLocation === 'LOYOLA' && styles.activeButton]}
+                    onPress={() => handlePress('LOYOLA')}
                     testID={'loyola-button'}
                 >
                     <Text
                         style={[
                             styles.label,
-                            selectedLocation === 'Loyola' &&
+                            selectedLocation === 'LOYOLA' &&
                             (isDark ? styles.activeLabelDark : styles.activeLabel)
                         ]}
                     >
                         Loyola
                     </Text>
+
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text style={[
+                        styles.label,
+                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
+                    ]}>SGW</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -79,7 +79,9 @@ const MapButtons = ({onPress}) => {
 
 MapButtons.propTypes = {
     onPress: PropTypes.func.isRequired,
+    onCampusChange: PropTypes.func
 };
+
 
 const createStyles = (theme) =>
     StyleSheet.create({
@@ -121,15 +123,7 @@ const createStyles = (theme) =>
             borderRadius: 20,
         },
         activeButton: {
-            position: 'absolute',
-            width: 86,
-            height: '100%',
             backgroundColor: theme.colors.blueDark,
-            borderRadius: 19,
-            zIndex: -1,
-            top: 2,
-            marginLeft: 2,
-            bottom: 2,
         },
         label: {
             fontSize: 15,

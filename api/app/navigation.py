@@ -18,6 +18,26 @@ ai_nav = AINavigationAPI()
 g = {}
 accessibility_graph = {}
 
+def validate_query(data):
+    """
+    Helper function to validate query data from requests.
+    
+    Args:
+        data (dict): The request data containing the query
+        
+    Returns:
+        tuple: (query, error_response)
+            - query: The validated query string if valid, None otherwise
+            - error_response: JSON response with error if invalid, None if valid
+    """
+    if not data:
+        return None, (jsonify({"error": "No data provided"}), 400)
+        
+    query = data.get('query')
+    if not query:
+        return None, (jsonify({"error": "No query provided"}), 400)
+        
+    return query, None
 
 @navigation_routes.route('/indoorNavigation', methods=['GET'])
 @cross_origin()
@@ -89,18 +109,15 @@ def process_task_chat():
         data = request.get_json()
         print('Received request data:', data)  # Debug log
         
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
+        query, error_response = validate_query(data)
+        if error_response:
+            return error_response
             
-        query = data.get('query')
         tasks = data.get('tasks', [])
         
         print('Processing query:', query)  # Debug log
         print('With tasks:', tasks)  # Debug log
         
-        if not query:
-            return jsonify({"error": "No query provided"}), 400
-            
         if not is_task_query(query):
             return jsonify({
                 "response": "I can help you with your tasks! Try asking about deadlines, priorities, or specific tasks."
@@ -122,13 +139,9 @@ def process_navigation_chat():
         data = request.get_json()
         print('NAVIGATION ROUTE: Received request data:', data)
         
-        if not data:
-            return jsonify({"error": "No data provided"}), 400
-            
-        query = data.get('query')
-        
-        if not query:
-            return jsonify({"error": "No query provided"}), 400
+        query, error_response = validate_query(data)
+        if error_response:
+            return error_response
             
         print('NAVIGATION ROUTE: Processing navigation query:', query)
         

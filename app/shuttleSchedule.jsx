@@ -77,6 +77,16 @@ const ShuttleSchedule = () => {
         router.back();
     };
 
+    const formatTimeDisplay = (minutes) => {
+        if (minutes < 60) return `${minutes} min`;
+
+        const h = Math.floor(minutes / 60);
+        const m = minutes % 60;
+
+        return `${h}h ${m > 0 ? `${m}m` : ""}`;
+    };
+
+
     return (
         <View style={styles.container}>
             <StatusBar style="light"/>
@@ -108,9 +118,10 @@ const ShuttleSchedule = () => {
                                     {item.status === 'Departed' ? `Departed at ${item.time}` : `Departing at ${item.time}`}
                                 </Text>
                             </View>
-                            <Text
-                                style={[styles.minutesText, item.status === 'Departed' && styles.previousShuttleText]}>
-                                {item.status === 'Departed' ? `${Math.abs(item.minutes)} min ago` : `${item.minutes} min`}
+                            <Text style={[styles.minutesText, item.status === 'Departed' && styles.previousShuttleText]}>
+                                {item.status === 'Departed'
+                                    ? `${formatTimeDisplay(Math.abs(item.minutes))} ago`
+                                    : formatTimeDisplay(item.minutes)}
                             </Text>
                         </View>
                     )}

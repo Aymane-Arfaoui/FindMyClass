@@ -1,158 +1,138 @@
-// import { Platform } from 'react-native';
-// import { taskService } from './taskService';
-//
-// class ChatService {
-//     getBaseUrl() {
-//         // Use localhost for iOS simulator and 10.0.2.2 for Android emulator
-//         const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-//         const url = `http://${host}:5001`;
-//         console.log(`Using base URL: ${url}`);
-//         return url;
-//     }
-//
-//     async processMessage(message) {
-//         try {
-//             console.log(`Processing message: "${message}"`);
-//
-//             // Determine which endpoint to use
-//             const isNavigationQuery = this.checkIfNavigationQuery(message);
-//             console.log(`Is navigation query: ${isNavigationQuery}`);
-//
-//             if (isNavigationQuery) {
-//                 return await this.processNavigationQuery(message);
-//             } else {
-//                 return await this.processTaskQuery(message);
-//             }
-//         } catch (error) {
-//             console.error(`Error in processMessage: ${error.message}`, error);
-//             return {
-//                 content: "Sorry, I encountered an error while processing your message. Please try again."
-//             };
-//         }
-//     }
-//
-//     async processNavigationQuery(message) {
-//         try {
-//             // Use the navigation-specific endpoint
-//             const url = `${this.getBaseUrl()}/chat/navigation`;
-//             console.log(`Sending navigation request to: ${url}`);
-//
-//             const requestBody = {
-//                 query: message
-//             };
-//
-//             console.log(`Navigation request body: ${JSON.stringify(requestBody, null, 2)}`);
-//
-//             const response = await fetch(url, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify(requestBody)
-//             });
-//
-//             if (!response.ok) {
-//                 console.error(`Navigation response not ok: ${response.status} ${response.statusText}`);
-//                 const text = await response.text();
-//                 console.error(`Response text: ${text}`);
-//                 throw new Error(`Server error: ${response.status}`);
-//             }
-//
-//             const data = await response.json();
-//             console.log(`Navigation response: ${JSON.stringify(data, null, 2)}`);
-//
-//             return data.response ? data : { content: "I need more information to provide directions." };
-//         } catch (error) {
-//             console.error(`Error in processNavigationQuery: ${error.message}`, error);
-//             return {
-//                 content: "Sorry, I encountered an error while processing your navigation request. Please try again."
-//             };
-//         }
-//     }
-//
-//     async processTaskQuery(message) {
-//         try {
-//             // Always include tasks for task queries
-//             const tasks = await taskService.getAllTasks();
-//             console.log(`Retrieved ${tasks.length} tasks`);
-//
-//             // Use the tasks endpoint
-//             const url = `${this.getBaseUrl()}/chat/tasks`;
-//             console.log(`Sending task request to: ${url}`);
-//
-//             const requestBody = {
-//                 query: message,
-//                 tasks: tasks
-//             };
-//
-//             console.log(`Task request body: ${JSON.stringify(requestBody, null, 2)}`);
-//
-//             const response = await fetch(url, {
-//                 method: 'POST',
-//                 headers: {
-//                     'Content-Type': 'application/json',
-//                 },
-//                 body: JSON.stringify(requestBody)
-//             });
-//
-//             if (!response.ok) {
-//                 console.error(`Task response not ok: ${response.status} ${response.statusText}`);
-//                 const text = await response.text();
-//                 console.error(`Response text: ${text}`);
-//                 throw new Error(`Server error: ${response.status}`);
-//             }
-//
-//             const data = await response.json();
-//             console.log(`Task response: ${JSON.stringify(data, null, 2)}`);
-//
-//             return data.response ? data : { content: "I need more information to help with that." };
-//         } catch (error) {
-//             console.error(`Error in processTaskQuery: ${error.message}`, error);
-//             return {
-//                 content: "Sorry, I encountered an error while processing your message. Please try again."
-//             };
-//         }
-//     }
-//
-//     // Simple client-side check for navigation queries
-//     checkIfNavigationQuery(message) {
-//         const navigationKeywords = [
-//             "how do i get", "how to get", "where is", "directions to",
-//             "path to", "route to", "way to", "navigate to", "go from",
-//             "to", "from", "how long", "time", "distance"
-//         ];
-//
-//         const messageLower = message.toLowerCase();
-//
-//         // Debug
-//         console.log(`Checking if navigation query: "${messageLower}"`);
-//
-//         // Check for room numbers (e.g., H-109, H109, etc.)
-//         const roomPattern = /h\s*[-]?\s*\d{3}/i;
-//         const hasRoomNumbers = roomPattern.test(messageLower);
-//         console.log(`Has room numbers: ${hasRoomNumbers}`);
-//
-//         // Check for room numbers mentioned twice (likely a from/to query)
-//         const multipleRoomsMentioned = (messageLower.match(/h\s*[-]?\s*\d{3}/gi) || []).length >= 2;
-//         console.log(`Multiple rooms mentioned: ${multipleRoomsMentioned}`);
-//
-//         // Check for navigation keywords
-//         const hasNavigationKeywords = navigationKeywords.some(keyword =>
-//             messageLower.includes(keyword)
-//         );
-//         console.log(`Has navigation keywords: ${hasNavigationKeywords}`);
-//
-//         // Direct test for "How to go from H x to H y" pattern
-//         const directPattern = /how to go from h\s*\d{3} to h\s*\d{3}/i;
-//         const isDirectMatch = directPattern.test(messageLower);
-//         console.log(`Is direct match: ${isDirectMatch}`);
-//
-//         // If a query directly matches our pattern OR has multiple rooms with navigation keywords
-//         const result = isDirectMatch || multipleRoomsMentioned || (hasRoomNumbers && hasNavigationKeywords);
-//         console.log(`Final navigation query decision: ${result}`);
-//
-//         return result;
-//     }
-// }
-//
-// export const chatService = new ChatService();
+import { Platform } from 'react-native';
+import { taskService } from './taskService';
+
+class ChatService {
+    getBaseUrl() {
+        // Use localhost for iOS simulator and 10.0.2.2 for Android emulator
+        const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
+        const url = `http://${host}:5001`;
+        return url;
+    }
+
+    async processMessage(message) {
+        try {
+            // Determine which endpoint to use
+            const isNavigationQuery = this.checkIfNavigationQuery(message);
+            return isNavigationQuery ? 
+                await this.processNavigationQuery(message) : 
+                await this.processTaskQuery(message);
+        } catch (error) {
+            console.error('Error in processMessage:', error);
+            return {
+                content: "Sorry, I encountered an error while processing your message. Please try again."
+            };
+        }
+    }
+    
+    async processNavigationQuery(message) {
+        try {
+            const url = `${this.getBaseUrl()}/chat/navigation`;
+            
+            const requestBody = {
+                query: message
+            };
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                console.error(`Navigation request failed: ${response.status}`);
+                throw new Error(`Server error: ${response.status}`);
+            }
+            
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                console.error('Failed to parse navigation response:', parseError);
+                throw new Error('Invalid response format from server');
+            }
+            
+            return data.response ? data : { content: "I need more information to provide directions." };
+        } catch (error) {
+            console.error('Error in processNavigationQuery:', error);
+            return {
+                content: "Sorry, I encountered an error while processing your navigation request. Please try again."
+            };
+        }
+    }
+    
+    async processTaskQuery(message) {
+        try {
+            const tasks = await taskService.getAllTasks();
+            const url = `${this.getBaseUrl()}/chat/tasks`;
+            
+            const requestBody = {
+                query: message,
+                tasks: tasks
+            };
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                console.error(`Task request failed: ${response.status}`);
+                throw new Error(`Server error: ${response.status}`);
+            }
+            
+            let data;
+            try {
+                data = await response.json();
+            } catch (parseError) {
+                console.error('Failed to parse task response:', parseError);
+                throw new Error('Invalid response format from server');
+            }
+            
+            return data.response ? data : { content: "I need more information to help with that." };
+        } catch (error) {
+            console.error('Error in processTaskQuery:', error);
+            return {
+                content: "Sorry, I encountered an error while processing your message. Please try again."
+            };
+        }
+    }
+    
+    // Simple client-side check for navigation queries
+    checkIfNavigationQuery(message) {
+        const navigationKeywords = [
+            "how do i get", "how to get", "where is", "directions to",
+            "path to", "route to", "way to", "navigate to", "go from",
+            "to", "from", "how long", "time", "distance"
+        ];
+        
+        const messageLower = message.toLowerCase();
+        
+        // Check for room numbers (e.g., H-109, H109, etc.)
+        const roomPattern = /h\s*[-]?\s*\d{3}/i;
+        const hasRoomNumbers = roomPattern.test(messageLower);
+        
+        // Check for room numbers mentioned twice (likely a from/to query)
+        const multipleRoomsMentioned = (messageLower.match(/h\s*[-]?\s*\d{3}/gi) || []).length >= 2;
+        
+        // Check for navigation keywords
+        const hasNavigationKeywords = navigationKeywords.some(keyword => 
+            messageLower.includes(keyword)
+        );
+        
+        // Direct test for "How to go from H x to H y" pattern
+        const directPattern = /how to go from h\s*\d{3} to h\s*\d{3}/i;
+        const isDirectMatch = directPattern.test(messageLower);
+        
+        // If a query directly matches our pattern OR has multiple rooms with navigation keywords
+        const result = isDirectMatch || multipleRoomsMentioned || (hasRoomNumbers && hasNavigationKeywords);
+        
+        return result;
+    }
+}
+
+export const chatService = new ChatService(); 
