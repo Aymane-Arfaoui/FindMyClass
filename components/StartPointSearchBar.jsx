@@ -85,11 +85,11 @@ const StartPointSearchBar = ({ navigation,
 
         resetTransform();
 
-        navigation.navigate("MapScreen", {
-            buildingKey: result.buildingKey,
-            floorKey: result.floorKey,
-            section: result.section
-        });
+        // navigation.navigate("MapScreen", {
+        //     buildingKey: result.buildingKey,
+        //     floorKey: result.floorKey,
+        //     section: result.section
+        // });
     };
 
 

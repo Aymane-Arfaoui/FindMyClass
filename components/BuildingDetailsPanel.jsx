@@ -1,5 +1,15 @@
 import React, {useState} from "react";
-import {ActivityIndicator, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {
+    ActivityIndicator,
+    Animated,
+    Image,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import { useNavigation } from "@react-navigation/native";
@@ -42,6 +52,8 @@ function BuildingDetailsPanel({
 
     const [modalVisible, setModalVisible] = useState(false);
 
+    const [classroomModalVisible, setClassroomModalVisible] = useState(false);
+    const [classroomNumber, setClassroomNumber] = useState("");
     const handleDirectionPress = () => {
         if (buildingKey) {
             setModalVisible(true);
@@ -52,8 +64,24 @@ function BuildingDetailsPanel({
 
     const handleModalResponse = (wantsClassroom) => {
         setModalVisible(false);
-        if (wantsClassroom !== null) {
-            onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        // if (wantsClassroom !== null) {
+        //     onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        // }
+
+        if (wantsClassroom === true) {
+            setClassroomModalVisible(true);
+        } else if (wantsClassroom === false) {
+            onDirectionPress(currentLocation, selectedBuilding, mode, false);
+        }
+
+    };
+
+
+    const handleClassroomSelection = () => {
+        setClassroomModalVisible(false);
+        if (classroomNumber && classroomNumber.length > 4) {
+            const CLASSROOM_CONSTANT = classroomNumber;
+            onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
         }
     };
 
@@ -185,6 +213,48 @@ function BuildingDetailsPanel({
                             </View>
                         </View>
                     </Modal>
+
+
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={classroomModalVisible}
+                        onRequestClose={() => setClassroomModalVisible(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalText}>
+                                    Enter the classroom number in {buildingKey}:
+                                </Text>
+                                <TextInput
+                                    style={styles.textInputGoInside}
+                                    placeholder="e.g., H-920"
+                                    value={classroomNumber}
+                                    onChangeText={setClassroomNumber}
+                                />
+                                <View style={styles.modalButtonContainerTxtBox}>
+                                    <View style={styles.yesNoButtons}>
+                                        <TouchableOpacity
+                                                style={[styles.modalButton, styles.yesButton]}
+                                                onPress={handleClassroomSelection}
+                                            >
+                                            <Ionicons name="map" size={18} color={theme.colors.white} />
+                                            <Text style={styles.modalButtonText}> Go</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                style={[styles.modalButton, styles.cancelButton]}
+                                                onPress={() => setClassroomModalVisible(false)}
+                                            >
+                                                <Ionicons name="arrow-undo" size={18} color={theme.colors.white} />
+                                                <Text style={styles.modalButtonText}> Cancel</Text>
+                                            </TouchableOpacity>
+                                    </View>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+
+
                     {buildingKey && (
                         <TouchableOpacity
                             testID={'indoor-map-button'}
@@ -372,10 +442,27 @@ const styles = StyleSheet.create({
     modalButtonContainer: {
         width: "100%",
         height: 100,
+        // height: "auto",
+    },
+    modalButtonContainerTxtBox: {
+        width: "100%",
+        // height: 50,
+        height: "auto",
     },
     yesNoButtons: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10,
+    },
+    textInputGoInside: {
+        width: "100%",
+        padding: 12,
+        borderWidth: 1,
+        borderColor: theme.colors.dark,
+        borderRadius: 8,
+        marginBottom: 25,
+        fontSize: 16,
+        backgroundColor: "#f9f9f9",
+        color: theme.colors.dark,
     },
 });

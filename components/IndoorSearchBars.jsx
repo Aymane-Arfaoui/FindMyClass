@@ -28,8 +28,10 @@ const IndoorSearchBars = ({startLocation,
     useEffect(() => {
 
         setStartLocation(localStart)
-        onShowDirectionsUpdate();
-        onShowDirectionsUpdateTemp();
+        if(localStart){
+            onShowDirectionsUpdate();
+            onShowDirectionsUpdateTemp();
+        }
     }, [localStart, setLocalStart]);
 
 
@@ -81,6 +83,7 @@ IndoorSearchBars.propTypes = {
     onBackPress: PropTypes.func,
     navigation: PropTypes.object,
     resetTransform: PropTypes.func,
+
 };
 export default IndoorSearchBars;
 

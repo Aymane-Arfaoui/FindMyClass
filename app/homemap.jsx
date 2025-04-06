@@ -11,7 +11,7 @@ import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
-import {useRouter} from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
@@ -21,6 +21,9 @@ const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
     const router = useRouter();
+
+    const params = useLocalSearchParams();
+
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
@@ -37,6 +40,59 @@ export default function Homemap() {
     const [places, setPlaces] = useState([]);
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
+    const [classroomNumber, SetClassroomNumber] = useState(false);
+
+    const hasTriggeredRoute = useRef(false);
+
+    const BUILDING_COORDINATES = {
+        'Hall': [-73.5789, 45.4960],
+        'MB': [-73.5790, 45.4950],
+        'CC': [-73.6396, 45.45861],
+    };
+
+    useEffect(() => {
+        const { startBuilding,
+            endBuilding,
+            triggerRoute,
+            destinationClassroom } = params;
+
+        if (triggerRoute === 'true' && startBuilding && endBuilding && !hasTriggeredRoute.current) {
+            const startCoords = BUILDING_COORDINATES[startBuilding];
+            const endCoords = BUILDING_COORDINATES[endBuilding];
+
+            if (startCoords && endCoords) {
+                const origin = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: startCoords,
+                    },
+                    name: startBuilding,
+                };
+                const destination = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: endCoords,
+                    },
+                    name: endBuilding,
+                };
+                // const [wantsClassroom, setWantsClassroom] = useState(false);
+                // const [classroomNumber, SetClassroomNumber] = useState(false);
+
+                setWantsClassroom(true);
+                // SetClassroomNumber(destinationClassroom);
+                handleDirectionPress(origin, destination, "walking", true, destinationClassroom);
+                hasTriggeredRoute.current = true;
+                // const handleDirectionPress = async (origin, dest, mode, wantsClassroom, classroom) => {
+                // onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
+
+
+            }
+        }
+    }, [params.startBuilding, params.endBuilding, params.triggerRoute, modeSelected]);
+
+
 
     useEffect(() => {
         let isMounted = true;
@@ -91,7 +147,6 @@ export default function Homemap() {
 
         const API_URL = "https://routes.googleapis.com/directions/v2:computeRoutes";
 
-        // Convert string coordinates to numbers
         const [originLat, originLng] = originStr.split(",").map(Number);
         const [destinationLat, destinationLng] = destinationStr.split(",").map(Number);
 
@@ -143,7 +198,6 @@ export default function Homemap() {
                         return;
                     }
 
-                    // Find the shortest route based on duration
                     const bestRoute = data.routes.reduce((shortest, cur) => {
                         const shortestDuration = parseInt(shortest.legs[0].duration.replace("s", ""), 10);
                         const currentDuration = parseInt(cur.legs[0].duration.replace("s", ""), 10);
@@ -155,7 +209,6 @@ export default function Homemap() {
                         return;
                     }
 
-                    // Extract numeric duration value
                     const durSec = parseInt(bestRoute.legs[0].duration.replace("s", ""), 10);
 
                     const hours = Math.floor(durSec / 3600);
@@ -201,11 +254,12 @@ export default function Homemap() {
             setLoading(false);
         }
     };
-    const handleDirectionPress = async (origin, dest, mode, wantsClassroom) => {
+    const handleDirectionPress = async (origin, dest, mode, wantsClassroom, classroom) => {
         setLoading(true);
         setCurrentOrigin(origin);
         setCurrentDestination(dest);
         setWantsClassroom(wantsClassroom);
+        SetClassroomNumber(classroom);
 
         try {
             const originCoords = origin.geometry?.coordinates;
@@ -396,7 +450,7 @@ export default function Homemap() {
         })
     ).current;
 
-    let isFetchingPlaces = false; // Prevent multiple requests
+    let isFetchingPlaces = false;
 
     const fetchPlacesOfInterest = async (category) => {
         if (!currentLocation || isFetchingPlaces) {
@@ -602,6 +656,7 @@ export default function Homemap() {
                         wantsClassroom={wantsClassroom}
                         selectedBuilding={selectedLocation}
                         travelTimes={travelTimes}
+                        classroomNum={classroomNumber}
                     />
                 </>
             )}
