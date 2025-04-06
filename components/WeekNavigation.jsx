@@ -1,9 +1,17 @@
-import React, {useState} from 'react';
+import React, {useMemo, useState} from 'react';
 import {ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {theme} from '@/constants/theme';
+import { useContext } from 'react';
+import { ThemeContext } from '@/context/ThemeProvider';
+
+import {getLocalDateString} from './EventList'
+import PropTypes from "prop-types";
+
 
 const WeekNavigation = ({onSelectDate}) => {
-    const [selectedDay, setSelectedDay] = useState(new Date().toISOString().split('T')[0]);
+    const [selectedDay, setSelectedDay] = useState(getLocalDateString(new Date()));
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     const generateWeekDays = () => {
         const today = new Date();
@@ -11,13 +19,12 @@ const WeekNavigation = ({onSelectDate}) => {
             const day = new Date();
             day.setDate(today.getDate() + i);
             return {
-                date: day.toISOString().split('T')[0],
+                date: getLocalDateString(day),
                 label: day.toLocaleDateString('en-US', {weekday: 'short'}),
                 number: day.getDate()
             };
         });
     };
-
 
     const weekDays = generateWeekDays();
 
@@ -50,13 +57,17 @@ const WeekNavigation = ({onSelectDate}) => {
     );
 };
 
+WeekNavigation.propTypes={
+    onSelectDate: PropTypes.func
+}
 export default WeekNavigation;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     wrapper: {
         marginTop: -10,
         paddingBottom: 5,
-        backgroundColor: '#FAF8F5'
+        backgroundColor: theme.colors.smartPlannerHeader
     },
     container: {
         flexDirection: 'row',

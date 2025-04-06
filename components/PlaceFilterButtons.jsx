@@ -1,8 +1,8 @@
-import React, {useState} from "react";
+import React, {useContext, useMemo, useState} from "react";
 import {Animated, StyleSheet, Text, TouchableOpacity, View} from "react-native";
-import {theme} from "@/constants/theme";
 import {Ionicons} from "@expo/vector-icons";
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const categories = [
     {name: "Restaurants", type: "restaurant", icon: "fast-food-outline", mapIcon: "fast-food", color: "gray"},
@@ -14,6 +14,8 @@ export default function PlaceFilterButtons({onSelectCategory}) {
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [expanded, setExpanded] = useState(false);
     const animation = useState(new Animated.Value(0))[0];
+    const { theme } = useContext(ThemeContext); // 👈 grab theme
+    const styles = useMemo(() => createStyles(theme), [theme]); //
 
     const handlePress = (category) => {
         const newCategory = selectedCategory === category ? null : category;
@@ -66,7 +68,7 @@ export default function PlaceFilterButtons({onSelectCategory}) {
                             <Ionicons
                                 name={category.icon}
                                 size={20}
-                                color={selectedCategory === category.type ? theme.colors.white : theme.colors.dark}
+                                color={selectedCategory === category.type ? '#FFF' : theme.colors.dark}
                             />
                             <Text style={[styles.text, selectedCategory === category.type && styles.selectedText]}>
                                 {category.name}
@@ -81,7 +83,8 @@ export default function PlaceFilterButtons({onSelectCategory}) {
 PlaceFilterButtons.propTypes={
     onSelectCategory:PropTypes.func
 }
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     container: {
         alignItems: "center",
     },
@@ -123,6 +126,6 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     selectedText: {
-        color: theme.colors.white,
+        color: '#fff',
     },
 });

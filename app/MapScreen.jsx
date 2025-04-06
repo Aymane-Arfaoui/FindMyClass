@@ -34,6 +34,7 @@ import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
 import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
 import {useRouter} from "expo-router";
+import PropTypes from "prop-types";
 
 
 const MapScreen = () => {
@@ -894,7 +895,9 @@ const MapScreen = () => {
         </GestureHandlerRootView>
     );
 };
-
+MapScreen.propTypes={
+    buildingKey:PropTypes.any
+}
 export default MapScreen;
 
 const styles = StyleSheet.create({

@@ -1,3 +1,4 @@
+jest.useFakeTimers()
 import React from 'react';
 import {render, screen, userEvent, waitFor} from '@testing-library/react-native';
 import MapScreen from '../MapScreen'; // Path to your MapScreen component
@@ -32,8 +33,9 @@ describe('MapScreen', () => {
     });
     it('should display a section panel when a section is pressed', async () => {
         useRoute.mockReturnValue({ params: { buildingKey: 'Hall' } });
-        render(<MapScreen />);
         const user=userEvent.setup()
+        render(<MapScreen />);
+
         await user.press(screen.getByTestId('section-5'));
         await waitFor(() => {
             expect(screen.getByTestId('section-panel')).toBeOnTheScreen();
@@ -42,8 +44,9 @@ describe('MapScreen', () => {
 
     it('should show a different number of sections for each floor', async () => {
         useRoute.mockReturnValue({ params: { buildingKey: 'Hall' } });
-        render(<MapScreen />);
         const user=userEvent.setup()
+        render(<MapScreen />);
+
 
         await waitFor(async () => {
             expect(screen.getByTestId('section-45')).toBeOnTheScreen();//
