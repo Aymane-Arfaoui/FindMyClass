@@ -9,47 +9,73 @@ import {ThemeContext} from '@/context/ThemeProvider';
 
 const MAPBOX_ACCESS_TOKEN = Config.MAPBOX_ACCESS_TOKEN;
 
+// Campus coordinates
+const CAMPUS_COORDINATES = {
+    SGW: [-73.5789, 45.4973], // Sir George Williams
+    LOYOLA: [-73.6409, 45.4582] // Loyola
+};
+
 MapboxGL.setAccessToken(MAPBOX_ACCESS_TOKEN);
 
-
 const Map = ({
-                 onBuildingPress,
-                 selectedLocation,
-                 userLocation,
-                 centerCoordinate,
-                 routes,
-                 selectedRoute,
-                 onMapPress,
-                 cameraRef,
-                 onRoutePress,
-                 places,
-                 onSelectedPOI
-             }) => {
-
+    onBuildingPress,
+    selectedLocation,
+    userLocation,
+    centerCoordinate,
+    routes,
+    selectedRoute,
+    onMapPress,
+    cameraRef,
+    onRoutePress,
+    places = [],
+    onSelectedPOI,
+    selectedCampus = 'SGW'
+}) => {
     const { theme, isDark, colorBlindMode } = useContext(ThemeContext);
     const [styleLoaded, setStyleLoaded] = useState(false);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
-    useEffect(() => {
+    // Get coordinates based on selected campus
+    const safeCoordinates = useMemo(() => {
+        if (Array.isArray(selectedLocation)) {
+            return selectedLocation;
+        }
+        return CAMPUS_COORDINATES[selectedCampus] || CAMPUS_COORDINATES.SGW;
+    }, [selectedLocation, selectedCampus]);
 
-        if (selectedLocation && cameraRef.current) {
-            cameraRef.current.flyTo(selectedLocation, 800);
+    // Initial camera position with 3D view
+    useEffect(() => {
+        if (cameraRef.current) {
+            cameraRef.current.setCamera({
+                centerCoordinate: safeCoordinates,
+                zoomLevel: selectedCampus === 'SGW' ? 16 : 15.5,
+                pitch: 35,
+                heading: 0,
+                animationDuration: 1000,
+            });
         }
-    }, []);
+    }, [safeCoordinates, selectedCampus]);
+
     const mapStyleURL = useMemo(() => {
-        if (colorBlindMode && isDark) {
-            return 'mapbox://styles/rwz/cm8nzp5wf005l01sddncm7d4m'; // Color Blind + Dark
-        } else if (colorBlindMode && !isDark) {
-            return 'mapbox://styles/rwz/cm8nzeycl005c01qr2k6rds82'; // Color Blind + Light
-        } else if (isDark) {
-            return 'mapbox://styles/rwz/cm8awc1o4007i01qrekqq35gd'; // Regular Dark
-        } else {
-            return 'mapbox://styles/rwz/cm6odl6aq01bn01qm3tc9eqif'; // Regular Light
-        }
-    }, [isDark, colorBlindMode]);
+        // Using streets style for traffic data
+        return 'mapbox://styles/mapbox/streets-v12';
+    }, []);
+
     useEffect(() => {
         setStyleLoaded(false);
     }, [mapStyleURL]);
+
+    // Format user location for MapboxGL
+    const formattedUserLocation = useMemo(() => {
+        if (!userLocation) return null;
+        return {
+            type: 'Feature',
+            geometry: {
+                type: 'Point',
+                coordinates: Array.isArray(userLocation) ? userLocation : CAMPUS_COORDINATES.SGW
+            }
+        };
+    }, [userLocation]);
 
     return (
         <View style={styles.container}>
@@ -57,26 +83,54 @@ const Map = ({
                 key={mapStyleURL}
                 style={styles.map}
                 styleURL={mapStyleURL}
-                rotateEnabled={false}
+                rotateEnabled={true}
                 attributionEnabled={false}
                 logoEnabled={false}
                 zoomEnabled={true}
                 scrollEnabled={true}
-                compassEnabled={false}
-                onPress={() => onMapPress()}
+                compassEnabled={true}
+                pitchEnabled={true}
+                onPress={onMapPress}
                 onDidFinishLoadingStyle={() => setStyleLoaded(true)}
             >
-
                 <MapboxGL.Camera
                     ref={cameraRef}
-                    zoomLevel={16}
-                    centerCoordinate={centerCoordinate || selectedLocation}
-                    animationMode="flyTo"
-                    animationDuration={500}
+                    defaultSettings={{
+                        centerCoordinate: safeCoordinates,
+                        zoomLevel: selectedCampus === 'SGW' ? 16 : 15.5,
+                        pitch: 35,
+                        heading: 0
+                    }}
+                    animationDuration={1000}
                 />
 
+                {/* Traffic Layer */}
                 {styleLoaded && (
                     <>
+                        <MapboxGL.ShapeSource
+                            id="traffic"
+                            isClustered={false}
+                            url="mapbox://mapbox.mapbox-traffic-v1"
+                        >
+                            <MapboxGL.LineLayer
+                                id="traffic-layer"
+                                sourceLayerId="traffic"
+                                style={{
+                                    lineColor: [
+                                        'match',
+                                        ['get', 'congestion'],
+                                        'low', '#4CAF50',
+                                        'moderate', '#FFA000',
+                                        'heavy', '#FF5252',
+                                        'severe', '#D32F2F',
+                                        '#4CAF50'
+                                    ],
+                                    lineWidth: 3,
+                                    lineOpacity: 0.8
+                                }}
+                            />
+                        </MapboxGL.ShapeSource>
+
                         <MapboxGL.ShapeSource
                             id="concordia-buildings"
                             shape={concordiaBuildingsGeoJSON}
@@ -87,22 +141,92 @@ const Map = ({
                                 }
                             }}
                         >
-                            <MapboxGL.FillLayer id="building-fill" style={styles.buildingFill}/>
-                            <MapboxGL.SymbolLayer id="building-labels" style={styles.buildingLabel}/>
+                            {/* Professional 3D building layer */}
+                            <MapboxGL.FillExtrusionLayer
+                                id="building-extrusion"
+                                style={{
+                                    fillExtrusionColor: [
+                                        'case',
+                                        ['boolean', ['feature-state', 'hover'], false],
+                                        '#ff1a1a',
+                                        '#e60000'
+                                    ],
+                                    fillExtrusionOpacity: 0.9,
+                                    fillExtrusionHeight: [
+                                        'case',
+                                        ['has', 'height'],
+                                        ['*', ['to-number', ['get', 'height'], 15], 0.6],
+                                        15
+                                    ],
+                                    fillExtrusionBase: 0,
+                                    fillExtrusionVerticalGradient: true
+                                }}
+                            />
+
+                            {/* Building Labels */}
+                            <MapboxGL.SymbolLayer
+                                id="building-labels"
+                                style={{
+                                    textField: ['get', 'name'],
+                                    textSize: 13,
+                                    textColor: '#1a1a1a',
+                                    textHaloColor: '#ffffff',
+                                    textHaloWidth: 2,
+                                    textHaloBlur: 1,
+                                    textAnchor: 'center',
+                                    textJustify: 'center',
+                                    textAllowOverlap: false,
+                                    symbolPlacement: 'point',
+                                    textOffset: [0, 0],
+                                    textTranslate: [0, -5],
+                                    textRotationAlignment: 'viewport',
+                                    textMaxWidth: 12
+                                }}
+                            />
                         </MapboxGL.ShapeSource>
 
-                        {styleLoaded && userLocation && (
-                            <MapboxGL.ShapeSource id="user-location-source" shape={userLocation}>
-                                <MapboxGL.CircleLayer id="user-location-layer" style={styles.userMarkerStyle} />
+                        {/* Enhanced light source */}
+                        <MapboxGL.Light
+                            style={{
+                                position: [1.5, 90, 30],
+                                color: '#ffffff',
+                                intensity: 0.7
+                            }}
+                        />
+
+                        {/* User Location with improved styling */}
+                        {formattedUserLocation && (
+                            <MapboxGL.ShapeSource id="user-location-source" shape={formattedUserLocation}>
+                                <MapboxGL.CircleLayer
+                                    id="user-location-layer"
+                                    style={{
+                                        circleRadius: 6,
+                                        circleColor: '#e60000',
+                                        circleStrokeWidth: 2,
+                                        circleStrokeColor: '#ffffff',
+                                        circlePitchAlignment: 'map'
+                                    }}
+                                />
+                                <MapboxGL.CircleLayer
+                                    id="user-location-halo"
+                                    style={{
+                                        circleRadius: 15,
+                                        circleColor: '#e60000',
+                                        circleOpacity: 0.2,
+                                        circlePitchAlignment: 'map'
+                                    }}
+                                />
                             </MapboxGL.ShapeSource>
                         )}
-
-                        {/* You can include routes, POIs, endpoint, etc. here too */}
                     </>
                 )}
 
                 {/* Places of Interest */}
                 {places.map((place, index) => {
+                    if (!place?.geometry?.coordinates || !Array.isArray(place.geometry.coordinates)) {
+                        return null;
+                    }
+
                     let iconName;
                     let iconColor;
 
@@ -113,7 +237,7 @@ const Map = ({
                         iconName = "cafe-outline";
                         iconColor = theme.colors.marker.cafe;
                     } else if (place.category === "atm") {
-                        iconName = "card-outline"; // Better representation of ATM
+                        iconName = "card-outline";
                         iconColor = theme.colors.marker.atm;
                     } else {
                         iconName = "location";
@@ -121,9 +245,12 @@ const Map = ({
                     }
 
                     return (
-                        <MapboxGL.PointAnnotation key={`place-${index}`} id={`place-${index}`}
-                                                  coordinate={place.geometry.coordinates}
-                                                  onSelected={() => onSelectedPOI(place)}>
+                        <MapboxGL.PointAnnotation
+                            key={`place-${index}`}
+                            id={`place-${index}`}
+                            coordinate={place.geometry.coordinates}
+                            onSelected={() => onSelectedPOI(place)}
+                        >
                             <View style={{ zIndex: 1000 }}>
                                 <Ionicons name={iconName} size={24} color={iconColor} />
                             </View>
@@ -131,47 +258,48 @@ const Map = ({
                     );
                 })}
 
-                {/* Render the routes if available */}
-
+                {/* Routes with enhanced styling */}
                 {routes && routes.length > 0 && routes.map((route, index) => {
-
+                    if (!route?.routeGeoJSON?.geometry?.coordinates) return null;
                     const isSelected = selectedRoute && selectedRoute === route;
-                    if (!(route.routeGeoJSON)) return null;
+                    
                     return (
-                        <MapboxGL.ShapeSource key={`route-${index}`} id={`route-${index}`} shape={route.routeGeoJSON}
-                                              onPress={() => onRoutePress(route)} // onPress to update selected route
+                        <MapboxGL.ShapeSource
+                            key={`route-${index}`}
+                            id={`route-${index}`}
+                            shape={route.routeGeoJSON}
+                            onPress={() => onRoutePress(route)}
                         >
                             <MapboxGL.LineLayer
                                 id={`route-line-${index}`}
-                                style={isSelected ? styles.selectedRoute : styles.route}
+                                style={{
+                                    lineColor: isSelected ? '#e60000' : '#ff4d4d',
+                                    lineWidth: isSelected ? 4 : 3,
+                                    lineOpacity: isSelected ? 1 : 0.8,
+                                    lineCap: 'round',
+                                    lineJoin: 'round'
+                                }}
                             />
                         </MapboxGL.ShapeSource>
                     );
                 })}
 
-                {/* Render a marker at the endpoint of the selected route */}
-                {selectedRoute &&
-                    selectedRoute.routeGeoJSON &&
-                    selectedRoute.routeGeoJSON.geometry &&
-                    selectedRoute.routeGeoJSON.geometry.coordinates &&
-                    selectedRoute.routeGeoJSON.geometry.coordinates.length > 0 && (
-                        <MapboxGL.PointAnnotation
-                            id="selectedRouteEndpoint"
-                            coordinate={
-                                selectedRoute.routeGeoJSON.geometry.coordinates[
-                                selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
-                                    ]
-                            }
-                        >
-                            <View style={styles.endpointMarker}/>
-
-                        </MapboxGL.PointAnnotation>
-                    )}
-
+                {/* Route Endpoint Marker */}
+                {selectedRoute?.routeGeoJSON?.geometry?.coordinates?.length > 0 && (
+                    <MapboxGL.PointAnnotation
+                        id="selectedRouteEndpoint"
+                        coordinate={selectedRoute.routeGeoJSON.geometry.coordinates[
+                            selectedRoute.routeGeoJSON.geometry.coordinates.length - 1
+                        ]}
+                    >
+                        <View style={styles.endpointMarker}/>
+                    </MapboxGL.PointAnnotation>
+                )}
             </MapboxGL.MapView>
         </View>
     );
 };
+
 Map.propTypes = {
     onBuildingPress: PropTypes.func,
     selectedLocation: PropTypes.any,
@@ -183,74 +311,41 @@ Map.propTypes = {
     cameraRef: PropTypes.object,
     onRoutePress: PropTypes.func,
     places: PropTypes.array,
-    onSelectedPOI: PropTypes.func
-}
+    onSelectedPOI: PropTypes.func,
+    selectedCampus: PropTypes.oneOf(['SGW', 'LOYOLA'])
+};
+
 const createStyles = (theme) => StyleSheet.create({
-    container: {flex: 1},
-    map: {flex: 1},
-
-    buildingFill: {
-        fillColor: theme.colors.primary,
-        fillOpacity: 0.8,
+    container: {
+        flex: 1
     },
-    buildingLabel: {
-        textField: ["get", "name"],
-        textSize: 14,
-        textColor: theme.colors.dark,
-        textHaloColor: theme.colors.secondary,
-        textHaloWidth: 1,
-        textFont: ["Open Sans Bold"],
-        textJustify: "center",
-        textAnchor: "top",
-        textOffset: [0, 1],
+    map: {
+        flex: 1
     },
-
     userMarkerStyle: {
         circleRadius: 8,
-        circleColor: theme.colors.blueDark,
+        circleColor: theme.colors.userLocation,
         circleStrokeWidth: 2,
-        circleStrokeColor: 'white',
-        circleOpacity: 1,
+        circleStrokeColor: '#fff',
     },
     route: {
-        lineColor: 'gray',
-        lineWidth: 2,
-        lineOpacity: 0.6,
-    },
-
-    selectedRoute: {
-        lineColor: 'blue',
-        lineWidth: 4,
+        lineColor: theme.colors.route,
+        lineWidth: 3,
         lineOpacity: 0.8,
     },
-
+    selectedRoute: {
+        lineColor: theme.colors.selectedRoute,
+        lineWidth: 4,
+        lineOpacity: 1,
+    },
     endpointMarker: {
-        width: 24,
-        height: 24,
-        borderRadius: 12,
-        backgroundColor: 'red',
-        justifyContent: 'center',
-        alignItems: 'center',
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: theme.colors.endpoint,
         borderWidth: 2,
-        borderColor: 'white',
+        borderColor: '#fff',
     },
-
-    // Inner marker (smaller circle inside for a layered effect)
-    innerMarker: {
-        width: 12,
-        height: 12,
-        borderRadius: 6,
-        backgroundColor: 'white',
-    },
-
-    poiMarker: {
-        width: 15,
-        height: 15,
-        backgroundColor: "purple",
-        borderRadius: 7.5,
-    },
-
-
 });
 
 export default Map;
