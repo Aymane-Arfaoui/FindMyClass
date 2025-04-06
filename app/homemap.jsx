@@ -56,6 +56,14 @@ export default function Homemap() {
     const [destinationAddress, setDestinationAddress] = useState(null);
     const [hasTriggeredDirections, setHasTriggeredDirections] = useState(false);
 
+    const [selectedCampus, setSelectedCampus] = useState('SGW');
+
+    useEffect(() => {
+        if (selectedCampus) {
+            handleClosePanel();
+            setBuildingDetails(null);
+        }
+    }, [selectedCampus]);
 
     useEffect(() => {
         if (lat && lng) {
@@ -572,6 +580,7 @@ export default function Homemap() {
                 onRoutePress={handleRoutePress}
                 places={places}
                 onSelectedPOI={handlePOIPress}
+                selectedCampus={selectedCampus}
             />
 
             {!isDirectionsView && (
@@ -615,6 +624,7 @@ export default function Homemap() {
                             });
                             handleClosePanel();
                         }}
+                        onCampusChange={setSelectedCampus}
                     />
                 </View>
             )}
@@ -698,7 +708,7 @@ const createStyles = (theme) => StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 830,
+        top: 80,
         left: 0,
         right: 0,
         zIndex: 10,
