@@ -1,3 +1,5 @@
+
+jest.useFakeTimers();
 import BottomPanel from '../BottomPanel.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
@@ -49,7 +51,6 @@ describe('BottomPanel Component', () => {
     });
 
     it('should a scroll view when toggle button is pressed ',  async () => {
-        jest.useFakeTimers();
         const route={mode:'test',duration:'test',distance:'test'}
         render(<BottomPanel transportMode={'test'} routeDetails={route} travelTimes={travelTimes}/>);
 
@@ -70,7 +71,6 @@ describe('BottomPanel Component', () => {
     });
 
     it('should switch to shuttle route when switch to shuttle route button is pressed ',  async () => {
-        jest.useFakeTimers();
         isShuttleRunningNow.mockReturnValue(true)
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"test",duration:'test',distance:'test'}]
         render(<BottomPanel transportMode={'shuttle'} routes={routes} travelTimes={travelTimes} startLocation={SGW} endLocation={LOYOLA}/>);
@@ -90,8 +90,6 @@ describe('BottomPanel Component', () => {
 
 
     it('should switch to another route when switch route button is pressed ',  async () => {
-
-        jest.useFakeTimers();
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
         render(<BottomPanel  transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
@@ -128,8 +126,6 @@ describe('BottomPanel Component', () => {
 
     });
     it('should display steps if there are steps but not transit mode ',  async () => {
-
-        jest.useFakeTimers();
         const routes=[{mode:"other",steps:[{instruction:'test',maneuver:'a'}],duration:'test',distance:'test'}]
         render(<BottomPanel transportMode={'test'} routes={routes} travelTimes={travelTimes}/>);
 
@@ -148,7 +144,6 @@ describe('BottomPanel Component', () => {
 
     it('should show no steps if no steps are provided ',  async () => {
 
-        jest.useFakeTimers();
         const routes=[{mode:"shuttle",duration:'test',distance:'test'},{mode:"other",duration:'test',distance:'test'}]
         render(<BottomPanel routes={routes} travelTimes={travelTimes}/>);
 
