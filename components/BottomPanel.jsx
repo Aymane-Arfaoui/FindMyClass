@@ -1,10 +1,14 @@
 import React, {useContext, useEffect, useMemo, useState} from "react";
-import {Animated, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Animated, Image, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import {FontAwesome} from "@expo/vector-icons";
 import {useRouter} from "expo-router";
 import PropTypes from "prop-types";
-import {isShuttleRunningNow} from "@/services/shuttleService";
+import {isShuttleRunningNow } from "@/services/shuttleService";
 import {ThemeContext} from "@/context/ThemeProvider";
+import { fetchGoogleRoutes } from "@/services/routeService";
+import { getShuttleTravelTime } from "@/services/shuttleService";
+import ShuttleSchedule from "@/app/shuttleSchedule";
+
 
 
 const SGW_COORDS = {
@@ -63,7 +67,6 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
 
     const isInterCampusTrip = (startInSGW && endInLoyola) || (startInLoyola && endInSGW);
 
-
     useEffect(() => {
         setSelectedRoute(routeDetails);
     }, [routeDetails]);
@@ -78,10 +81,99 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
         setExpanded(!expanded);
     };
 
-    const handleRouteSelection = (route) => {
-        setSelectedRoute(route);
-        setModalVisible(true);
 
+    const parseMinutes = (durationStr) => {
+        const match = durationStr?.match(/(\d+)\s*min/);
+        return match ? parseInt(match[1], 10) : 0;
+    };
+
+    const parseMeters = (distanceStr) => {
+        if (!distanceStr) return 0;
+        if (distanceStr.includes("km")) {
+            const match = distanceStr.match(/([\d.]+)\s*km/);
+            return match ? parseFloat(match[1]) * 1000 : 0;
+        } else {
+            const match = distanceStr.match(/(\d+)\s*m/);
+            return match ? parseInt(match[1], 10) : 0;
+        }
+    };
+
+    const formatDistance = (meters) => {
+        return meters >= 1000
+            ? `${(meters / 1000).toFixed(1)} km`
+            : `${meters} m`;
+    };
+
+    const formatDuration = (minutes) => `${minutes} min`;
+
+
+    const handleRouteSelection = async (route) => {
+        if (route.mode === 'shuttle') {
+            try {
+                const SGW_STOP = { lat: 45.497222635211905, lng: -73.578487816744 };
+                const LOYOLA_STOP = { lat: 45.457573940756085, lng: -73.63905110366196 };
+
+                const fromSGW = isInSGW(startLocation.lat, startLocation.lng);
+                const originStop = fromSGW ? SGW_STOP : LOYOLA_STOP;
+                const destinationStop = fromSGW ? LOYOLA_STOP : SGW_STOP;
+
+                const walkToStop = await fetchGoogleRoutes(
+                    `${startLocation.lat},${startLocation.lng}`,
+                    `${originStop.lat},${originStop.lng}`,
+                    'walking'
+                );
+
+                const walkFromStop = await fetchGoogleRoutes(
+                    `${destinationStop.lat},${destinationStop.lng}`,
+                    `${endLocation.lat},${endLocation.lng}`,
+                    'walking'
+                );
+
+                const shuttleDetails = getShuttleTravelTime();
+
+                const walkTo = walkToStop[0] || {};
+                const walkFrom = walkFromStop[0] || {};
+
+                const walkToDuration = parseMinutes(walkTo.duration);
+                const walkFromDuration = parseMinutes(walkFrom.duration);
+                const walkToDistance = parseMeters(walkTo.distance);
+                const walkFromDistance = parseMeters(walkFrom.distance);
+
+                const shuttleDuration = parseMinutes(shuttleDetails.duration);
+                const shuttleDistance = parseMeters(shuttleDetails.distance);
+
+                const totalDuration = walkToDuration + shuttleDuration + walkFromDuration;
+                const totalDistance = walkToDistance + shuttleDistance + walkFromDistance;
+
+                const shuttleStep = {
+                    instruction: `Ride the Concordia shuttle from ${fromSGW ? "SGW" : "Loyola"} to ${fromSGW ? "Loyola" : "SGW"}`,
+                    vehicle: "Shuttle Bus",
+                    departure_time: route.departure || "N/A",
+                    arrival_time: "Approx. " + shuttleDetails.duration,
+                    distance: shuttleDetails.distance,
+                    num_stops: 0
+                };
+
+                const shuttleRoute = {
+                    ...route,
+                    duration: formatDuration(totalDuration),
+                    distance: formatDistance(totalDistance),
+                    steps: [
+                        ...(walkToStop[0]?.steps || []),
+                        shuttleStep,
+                        ...(walkFromStop[0]?.steps || [])
+                    ]
+                };
+
+                setSelectedRoute(shuttleRoute);
+                setModalVisible(true);
+            } catch (err) {
+                console.error("Failed to build shuttle directions:", err);
+            }
+        } else {
+            setSelectedRoute(route);
+            setModalVisible(true);
+        }
     };
 
     const shuttleRoutes = routes?.filter((r) => r.mode === "shuttle" && isInterCampusTrip);
@@ -155,7 +247,24 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                         <View style={styles.content}>
                             {selectedRoute ? (
                                 <View testID={'selected-route-details'}>
-                                    <Text style={styles.textHeader}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>
+                                    <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                                        <Text style={styles.textHeader}>{`Mode: ${selectedRoute.mode.toUpperCase()}`}</Text>
+
+                                        {selectedRoute.mode === "shuttle" && (
+                                            <TouchableOpacity
+                                                style={styles.shuttleSchedButton}
+                                                onPress={() => {
+                                                    setModalVisible(false);
+                                                    setTimeout(() => router.push('/shuttleSchedule'), 100);
+                                                }}
+                                            >
+                                                <Text style={styles.shuttleSchedButtonText}>Schedule</Text>
+                                            </TouchableOpacity>
+
+
+                                        )}
+                                    </View>
+
                                     <Text style={styles.subTextHeader}>{`Duration: ${selectedRoute.duration}`}</Text>
                                     <Text style={styles.subTextHeader}>{`Distance: ${selectedRoute.distance}`}</Text>
 
@@ -168,24 +277,46 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                                                 <View key={index} style={styles.stepContainer} testID={'transit-steps'}>
                                                     <Text
                                                         style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                                    <Text
-                                                        style={styles.stepSubText}>{`Vehicle: ${step.vehicle || "N/A"}`}</Text>
-                                                    <Text
-                                                        style={styles.stepSubText}>{`From: ${step.departure_time || "N/A"} to ${step.arrival_time || "N/A"}`}</Text>
-                                                    <Text
-                                                        style={styles.stepSubText}>{`Stops: ${step.num_stops || 0}`}</Text>
+
+                                                    {step.vehicle === "Shuttle Bus" ? (
+                                                        <>
+                                                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                                                                <Text style={[styles.stepText, { flex: 1 }]}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                                                            </View>
+
+                                                            <Text
+                                                                style={styles.stepSubText}>{`Departs: ${step.departure_time || "N/A"}`}
+                                                            </Text>
+                                                            <Text
+                                                                style={styles.stepSubText}>{`Arrives: ${step.arrival_time || "N/A"}`}
+                                                            </Text>
+
+                                                            <ShuttleSchedule />
+                                                        </>
+                                                    ) : (
+
+                                                        <>
+                                                            <Text style={styles.stepSubText}>
+                                                                {`Distance: ${step.distance}`}
+                                                            </Text>
+                                                            <Text style={styles.stepSubText}>
+                                                                {`Maneuver: ${step.maneuver || "Continue"}`}
+                                                            </Text>
+                                                        </>
+                                                    )}
                                                 </View>
                                             ))
                                         ) : (
                                             selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer}
-                                                      testID={'other-mode-steps'}>
-                                                    <Text
-                                                        style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                                    <Text
-                                                        style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
-                                                    <Text
-                                                        style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
+                                                <View key={index} style={styles.stepContainer} testID={'other-mode-steps'}>
+                                                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                                                        <Text
+                                                            style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}
+                                                        </Text>
+
+                                                    </View>
+                                                    <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
+                                                    <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
                                                 </View>
                                             ))
                                         )
@@ -222,15 +353,18 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                 <ScrollView style={{marginTop: 10}} testID={'expanded'}>
                     {isShuttleActive && shuttleRoutes?.map((route, index) => (
                         <View key={index} style={styles.shuttleStepsContainer}>
+                            <Image source={require('@/assets/images/ConcordiaLogo.png')} style={styles.logoImage} />
                             <Text style={styles.shuttleStepText}>
-                                {route.mode.toUpperCase()} – {route.duration} – {route.distance}
+                                {route.mode.toUpperCase()}
                             </Text>
 
                             <TouchableOpacity
                                 testID={'shuttle-route-button'}
                                 style={styles.shuttleSwitchRouteButton}
-                                onPress={() => router.push('/shuttleSchedule')}
-                            >
+                                // onPress={() => router.push('/shuttleSchedule')}
+                                onPress={() => handleRouteSelection(route)}>
+
+
                                 <View style={styles.switchRouteContent}>
                                     <Text style={styles.shuttleSwitchRouteText}>Go</Text>
                                     <FontAwesome testID={'chevron'} name={"chevron-right"} size={20} color="white"/>
@@ -423,6 +557,7 @@ const createStyles = (theme) => StyleSheet.create({
     shuttleStepText: {
         fontSize: 16,
         color: theme.colors.text,
+        fontWeight: "semibold"
     },
     shuttleSwitchRouteButton: {
         backgroundColor: theme.colors.primary,
@@ -450,6 +585,42 @@ const createStyles = (theme) => StyleSheet.create({
         fontWeight: "bold",
         fontSize: 16,
     },
+    shuttleSchedButton: {
+        backgroundColor: theme.colors.primary,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 12,
+        marginLeft: 10,
+    },
+
+    shuttleSchedButtonText: {
+        color: theme.colors.white,
+        fontSize: 14,
+        fontWeight: "bold",
+    },
+
+    scheduleModalBackdrop: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundColor: "rgba(0,0,0,0.5)",
+    },
+
+    scheduleModalContent: {
+        width: "80%",
+        backgroundColor: theme.colors.cardBackground,
+        padding: 20,
+        borderRadius: 16,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    logoImage: {
+        width: 25,
+        height: 25,
+        marginRight: 10,
+    },
+
+
 });
 
 

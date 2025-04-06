@@ -115,6 +115,7 @@ const AppNavigationPanel = () => {
             <TouchableOpacity
                 style={styles.tabItem}
                 onPress={() => {
+                    console.warn('Navigating to chat screen');
                     router.push('/chat');
                 }}
                 testID={'button-navigate-to-chat'}
