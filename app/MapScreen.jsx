@@ -33,9 +33,13 @@ import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
 
 import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
+import {useRouter} from "expo-router";
 
 
 const MapScreen = () => {
+
+    const router = useRouter();
+
     const route = useRoute();
     const navigation = useNavigation();
 
@@ -646,7 +650,7 @@ const MapScreen = () => {
         console.log("selectedSection 1 " + selectedSection?.id)
 
         // classroomNum = "";
-        setClassroomNum("")
+        // setClassroomNum("")
         console.log("USE EFFECT 2 OPENED NOW")
         console.log("classroomNum 2 " + classroomNum)
         console.log("startLocationIndoor 2 " + startLocationIndoor)
@@ -657,6 +661,10 @@ const MapScreen = () => {
         console.log(startLocationIndoor)
         console.log(showSearchBar)
 
+        setDestinationIndoor(
+            (classroomNum && classroomNum !== "") ? classroomNum : selectedSection?.id || ""
+        );
+
         if (startLocationIndoor && selectedSection?.id && startLocationIndoor !== "" && showSearchBar) {
             console.log("USE EFFECT 2 WORKING NOW //////////////////////////////////////////////////")
 
@@ -665,7 +673,7 @@ const MapScreen = () => {
             handleShowDirectionsSection(selectedSection);
             handleShowDirectionsTemp();
         }
-    }, [startLocationIndoor, selectedSection?.id, selectedSection]);
+    }, [startLocationIndoor, selectedSection?.id, selectedSection]); // consider adding buildingKey as a dependency? Look into it later.
 
     useEffect(() => {
         console.log("!!!!!!!!!!!!!!!!!! BUILDING KEY HAS CHANGED HERE !!!!!!!!!!!!!!!!!!!!!")
@@ -699,7 +707,7 @@ const MapScreen = () => {
 
             setShowSearchBar(true);
 
-            handleShowDirectionsSection(tempSectionNewBuilding);
+            // handleShowDirectionsSection(tempSectionNewBuilding);
 
             // setSwitchedBuilding(false);
 
@@ -714,11 +722,11 @@ const MapScreen = () => {
 
     }, [switchedBuilding]);
 
-    useEffect(() => {
-        setDestinationIndoor(
-            (classroomNum && classroomNum !== "") ? classroomNum : selectedSection?.id || ""
-        );
-    }, [classroomNum, selectedSection]);
+    // useEffect(() => {
+    //     setDestinationIndoor(
+    //         (classroomNum && classroomNum !== "") ? classroomNum : selectedSection?.id || ""
+    //     );
+    // }, [classroomNum, selectedSection]);
 
 
     const closeIndoorSearchBars = (bool) => {
@@ -738,6 +746,11 @@ const MapScreen = () => {
             <TouchableWithoutFeedback>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+                    {/*<TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('homemap')}>*/}
+                    {/*<TouchableOpacity style={styles.backButton} onPress={() => navigation.reset({*/}
+                    {/*    index: 0,*/}
+                    {/*    routes: [{ name: 'homemap' }],*/}
+                    {/*})}>*/}
                         <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
                     </TouchableOpacity>
 

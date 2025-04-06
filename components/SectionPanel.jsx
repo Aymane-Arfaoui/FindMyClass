@@ -24,6 +24,7 @@ const SectionPanel = ({ selectedSection, onClose,
 
     const onGoOutsidePressed = () => {
         console.log("onGoOutsidePressed homemaphomemaphomemaphomemaphomemaphomemaphomemaphomemaphomemap");
+        boolSwitchToOutdoor = false;
         navigation.navigate('homemap', {
             startBuilding: switchStartBuilding,
             endBuilding: switchEndBuilding,

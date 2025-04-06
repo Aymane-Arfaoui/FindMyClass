@@ -69,7 +69,7 @@ function BuildingDetailsPanel({
         // }
 
         if (wantsClassroom === true) {
-            setClassroomModalVisible(true); // Show classroom selection modal
+            setClassroomModalVisible(true);
         } else if (wantsClassroom === false) {
             onDirectionPress(currentLocation, selectedBuilding, mode, false);
         }
@@ -79,8 +79,8 @@ function BuildingDetailsPanel({
 
     const handleClassroomSelection = () => {
         setClassroomModalVisible(false);
-        if (classroomNumber) {
-            const CLASSROOM_CONSTANT = classroomNumber; // Save to a constant (or pass it directly)
+        if (classroomNumber && classroomNumber.length > 4) {
+            const CLASSROOM_CONSTANT = classroomNumber;
             onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
         }
     };
@@ -227,24 +227,28 @@ function BuildingDetailsPanel({
                                     Enter the classroom number in {buildingKey}:
                                 </Text>
                                 <TextInput
-                                    style={styles.textInput}
+                                    style={styles.textInputGoInside}
                                     placeholder="e.g., H-920"
                                     value={classroomNumber}
                                     onChangeText={setClassroomNumber}
                                 />
-                                <View style={styles.modalButtonContainer}>
-                                    <TouchableOpacity
-                                        style={[styles.modalButton, styles.yesButton]}
-                                        onPress={handleClassroomSelection}
-                                    >
-                                        <Text style={styles.modalButtonText}>Confirm</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={[styles.modalButton, styles.cancelButton]}
-                                        onPress={() => setClassroomModalVisible(false)}
-                                    >
-                                        <Text style={styles.modalButtonText}>Cancel</Text>
-                                    </TouchableOpacity>
+                                <View style={styles.modalButtonContainerTxtBox}>
+                                    <View style={styles.yesNoButtons}>
+                                        <TouchableOpacity
+                                                style={[styles.modalButton, styles.yesButton]}
+                                                onPress={handleClassroomSelection}
+                                            >
+                                            <Ionicons name="map" size={18} color={theme.colors.white} />
+                                            <Text style={styles.modalButtonText}> Go</Text>
+                                            </TouchableOpacity>
+                                            <TouchableOpacity
+                                                style={[styles.modalButton, styles.cancelButton]}
+                                                onPress={() => setClassroomModalVisible(false)}
+                                            >
+                                                <Ionicons name="arrow-undo" size={18} color={theme.colors.white} />
+                                                <Text style={styles.modalButtonText}> Cancel</Text>
+                                            </TouchableOpacity>
+                                    </View>
                                 </View>
                             </View>
                         </View>
@@ -438,19 +442,27 @@ const styles = StyleSheet.create({
     modalButtonContainer: {
         width: "100%",
         height: 100,
+        // height: "auto",
+    },
+    modalButtonContainerTxtBox: {
+        width: "100%",
+        // height: 50,
+        height: "auto",
     },
     yesNoButtons: {
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10,
     },
-    textInput: {
+    textInputGoInside: {
         width: "100%",
-        padding: 10,
+        padding: 12,
         borderWidth: 1,
-        borderColor: theme.colors.textLight,
-        borderRadius: 5,
-        marginBottom: 20,
+        borderColor: theme.colors.dark,
+        borderRadius: 8,
+        marginBottom: 25,
         fontSize: 16,
+        backgroundColor: "#f9f9f9",
+        color: theme.colors.dark,
     },
 });
