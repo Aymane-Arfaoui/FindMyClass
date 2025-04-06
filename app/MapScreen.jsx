@@ -7,7 +7,8 @@ import {
     Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View
+    View,
+    Platform
 } from 'react-native';
 import Svg, {Image as SvgImage, Path, Rect} from 'react-native-svg';
 import {GestureHandlerRootView, PinchGestureHandler} from 'react-native-gesture-handler';
@@ -33,6 +34,7 @@ import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
 import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
 import PropTypes from "prop-types";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
 const MapScreen = () => {
@@ -58,6 +60,7 @@ const MapScreen = () => {
     const aspectRatio = width / height;
     const panelY = useRef(new Animated.Value(0)).current;
 
+    const [accessibilityOption, setAccessibilityOption] = useState(false);
     const [multiFloorMessage, setMultiFloorMessage] = useState(null);
 
     const panResponder = useRef(
@@ -194,6 +197,14 @@ const MapScreen = () => {
 
     }, [path, selectedFloorKey]);
 
+    useEffect(() => {
+        const loadAccessibilityOption = async () => {
+            const accessibility = await AsyncStorage.getItem("@accessibility");
+            if (accessibility) setAccessibilityOption(JSON.parse(accessibility));
+        };
+        loadAccessibilityOption();
+    }, []);
+
 
     const getNodeData = (nodeId) => {
         let node = null;
@@ -253,8 +264,9 @@ const MapScreen = () => {
 
             if (transformedStartLocationIndoor && transformedEndId) {
                 try {
+                    const host=Platform.OS ==="android"? "10.0.2.2":"127.0.0.1";
                     const response = await fetch(
-                        `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
+                        `http://${host}:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}&accessibility=${accessibilityOption}`
                     );
 
                     if (response.ok) {

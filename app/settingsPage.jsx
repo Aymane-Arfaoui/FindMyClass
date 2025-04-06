@@ -17,6 +17,7 @@ const Settings = () => {
     const router = useRouter();
     const [userInfo, setUserInfo] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
+    const [accessibilityOption, setAccessibilityOption] = useState(false);
     const {isDark, toggleTheme, colorBlindMode, toggleColorBlindMode, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
@@ -33,6 +34,14 @@ const Settings = () => {
             processLogin(response.authentication.accessToken);
         }
     }, [response]);
+
+    useEffect(() => {
+        const loadAccessibilityOption = async () => {
+            const accessibility = await AsyncStorage.getItem("@accessibility");
+            if (accessibility) setAccessibilityOption(JSON.parse(accessibility));
+        };
+        loadAccessibilityOption();
+    }, []);
 
     useEffect(() => {
         const loadUser = async () => {
@@ -57,7 +66,10 @@ const Settings = () => {
             setIsLoading(false);
         }
     };
-
+    const toggleAccessibilityOption = async () => {
+        await AsyncStorage.setItem("@accessibility",JSON.stringify(!accessibilityOption));
+        setAccessibilityOption(!accessibilityOption);
+    };
     const handleSignOut = async () => {
         await AsyncStorage.multiRemove(["@user", "@calendar"]);
         setUserInfo(null);
@@ -103,6 +115,19 @@ const Settings = () => {
                         onValueChange={toggleColorBlindMode}
                         trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
                         thumbColor={colorBlindMode ? theme.colors.white : '#f4f3f4'}
+                    />
+                </View>
+                <View style={[styles.settingCard, {
+                    backgroundColor: theme.colors.settingsCardBackground,
+                    borderColor: theme.colors.cardBorder
+                }]}>
+                    <Text style={[styles.settingTitle, {color: theme.colors.text}]}>Accessibility Routing</Text>
+                    <Switch
+                        testID={'accessibility-routing-switch'}
+                        value={accessibilityOption}
+                        onValueChange={toggleAccessibilityOption}
+                        trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
+                        thumbColor={accessibilityOption ? theme.colors.white : '#f4f3f4'}
                     />
                 </View>
             </View>
