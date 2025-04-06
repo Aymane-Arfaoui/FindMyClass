@@ -1,20 +1,19 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {
     Animated,
     PanResponder,
+    Platform,
     ScrollView,
     StyleSheet,
     Text,
     TouchableOpacity,
     TouchableWithoutFeedback,
-    View,
-    Platform
+    View
 } from 'react-native';
 import Svg, {Image as SvgImage, Path, Rect} from 'react-native-svg';
 import {GestureHandlerRootView, PinchGestureHandler} from 'react-native-gesture-handler';
 import {floorsData} from '@/constants/floorData';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
@@ -35,6 +34,7 @@ import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
 import PropTypes from "prop-types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 
 const MapScreen = () => {
@@ -53,7 +53,8 @@ const MapScreen = () => {
 };
 const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
     const navigation = useNavigation();
-
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
     const [selectedFloorKey, setSelectedFloorKey] = useState(floorKeys[0]);
@@ -267,7 +268,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
 
             if (transformedStartLocationIndoor && transformedEndId) {
                 try {
-                    const host=Platform.OS ==="android"? "10.0.2.2":"127.0.0.1";
+                    const host = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
                     const response = await fetch(
                         `http://${host}:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}&accessibility=${accessibilityOption}`
                     );
@@ -307,7 +308,6 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
 
     return (
         <GestureHandlerRootView style={styles.container}>
-            {/*<TouchableWithoutFeedback onPress={() => setSelectedSection(null)}>*/}
             <TouchableWithoutFeedback>
                 <View style={styles.container}>
                     <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
@@ -348,7 +348,7 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                     }}
                                 >
                                     <Svg width="100%" height="100%" viewBox={viewBox}>
-                                        <Rect width="100%" height="100%" fill={theme.colors.grayDark}/>
+                                        <Rect width="100%" height="100%" fill={theme.colors.floorFill}/>
 
                                         {sections.map((section, index) => (
                                             <Path
@@ -359,12 +359,13 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
                                                     selectedSection?.id === section.id
                                                         ? theme.colors.primaryLight
                                                         : section.id === "floor"
-                                                            ? theme.colors.gray
+                                                            ? theme.colors.roomFill
                                                             : section.id === "background"
-                                                                ? theme.colors.grayDark
-                                                                : "white"
+                                                                ? theme.colors.floorFill
+                                                                : theme.colors.floorFill
+
                                                 }
-                                                stroke={theme.colors.dark}
+                                                stroke={theme.colors.line}
                                                 strokeWidth="2"
                                                 onPress={
                                                     section.id === "floor" ||
@@ -448,38 +449,39 @@ const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks condit
     );
 };
 
-InnerMapScreen.propTypes={
-    buildingKey:PropTypes.any
+InnerMapScreen.propTypes = {
+    buildingKey: PropTypes.any
 }
 export default MapScreen;
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.grayDark,
-    },
-    noDataText: {
-        fontSize: 18,
-        textAlign: 'center',
-        marginTop: 50,
-        color: theme.colors.textLight,
-    },
-    mapContainer: {
-        height: '100%',
-        position: 'relative',
-    },
-    backButton: {
-        position: 'absolute',
-        top: 57,
-        left: 0,
-        paddingVertical: 8,
-        paddingHorizontal: 15,
-        borderRadius: theme.radius.lg,
-        elevation: 5,
-        zIndex: 10,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.2,
-        shadowRadius: 3,
-    },
-});
+const createStyles = (theme) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.cardBackground,
+        },
+        noDataText: {
+            fontSize: 18,
+            textAlign: 'center',
+            marginTop: 50,
+            color: theme.colors.text,
+        },
+        mapContainer: {
+            height: '100%',
+            position: 'relative',
+        },
+        backButton: {
+            position: 'absolute',
+            top: 57,
+            left: 0,
+            paddingVertical: 8,
+            paddingHorizontal: 15,
+            borderRadius: theme.radius.lg,
+            elevation: 5,
+            zIndex: 10,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.2,
+            shadowRadius: 3,
+        },
+    });
