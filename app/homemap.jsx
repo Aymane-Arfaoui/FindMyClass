@@ -698,11 +698,11 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 10,
         shadowOpacity: 0.3,
         shadowRadius: 5,
-        elevation: 5
+        // elevation: 5
     },
     mapButtonsContainer: {
         position: 'absolute',
-        backgroundColor:"pink",
+        backgroundColor: theme.colors.main,
         bottom: 830,
         left: 0,
         right: 0,
@@ -723,7 +723,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        // elevation: 6,
     },
     backButton: {
         marginTop: 1,
