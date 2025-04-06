@@ -48,6 +48,8 @@ export const floorsData = {
                 { ref_ID: "h1_139", floor_number:"1", id: "H-139", d: "M906.962 265.783H844.893V126.737H971.906V173.085H906.962V265.783Z" },
                 { ref_ID: "h1_118", floor_number:"1", id: "H-118", d: "M769.658 780.777H636.594V715.685L899.5 715.972V803.522L864.968 803.235V780.992H794.061V774.367H769.658V780.777Z" },
                 { ref_ID: "h1_water", floor_number:"1", id: "Water Fountain", d: "M553 756H580V769V783.5H553V756Z" },
+                { ref_ID: "h1_entrance", floor_number:"1", id: "Hall Building Entrance", d: "" },
+                { ref_ID: "h1_entrance", floor_number:"1", id: "Hall Building Exit", d: "" },
             ],
             poiImage: require('../assets/floorPlans/POIs_H1.png'),
             viewBox: "0 0 1024 1132",
@@ -429,6 +431,9 @@ export const floorsData = {
                { ref_ID: "mb_1_escalator_to_mb_s2", floor_number:"1", id: "Escalator to S2", d: "M770 487V334.167V312H725V487H770Z" },
                { ref_ID: "mb_1_stairs_to_mb_s2", floor_number:"1", id: "Stairs to S2", d: "M903 953.386L856.312 964L832.32 818.755H839.453L820 709.262V702H862.148L903 953.386Z" },
                { ref_ID: "mb_1_water", floor_number:"1", id: "Water Fountain", d: "M396 282V260H423V282H396Z" },
+               { ref_ID: "mb_1_entrance_1", floor_number:"1", id: "MB Building Entrance", d: "" },
+               { ref_ID: "mb_1_entrance_1", floor_number:"1", id: "MB Building Exit", d: "" },
+
            ],
 
            poiImage: require('../assets/floorPlans/POIs_MB-1.png'),
@@ -462,8 +467,11 @@ export const floorsData = {
                { ref_ID: "cc_122", floor_number:"1", id: "CC-122", d: "M216 323H347V176H216V323Z" },
                { ref_ID: "cc_men_bathroom", floor_number:"1", id: "Men's Bathroom", d: "M216 323H106V176H216V323Z" },
                { ref_ID: "cc_stairs_5", floor_number:"1", id: "Stairs", d: "M125.5 323H30.5V431H125.5V323Z" },
-               { ref_ID: "cc_stairs_1", floor_number:"1", id: "Stairs", d: "M1790 323H1709V431H1790V323Z" },
+               { ref_ID: "cc_stairs_1", floor_number:"1", id: "Stairs and Entrance", d: "M1790 323H1709V431H1790V323Z" },
                { ref_ID: "", floor_number:"1", id: "floor", d: "M125.5 431V323.5L1125.5 323V315H1166V323H1709V431H125.5Z" },
+               { ref_ID: "cc_stairs_1", floor_number:"1", id: "MB Building Entrance", d: "" },
+               { ref_ID: "cc_stairs_1", floor_number:"1", id: "CC Building Exit", d: "" },
+
            ],
            poiImage: require('../assets/floorPlans/POIs_CC1.png'),
            viewBox: "0 0 1816 746",
