@@ -134,7 +134,7 @@ const User = () => {
                                 <Image source={UserProfileIcon} style={styles.profileIcon}/>
                             )}
                             <View style={styles.textContainer}>
-                                <Text style={styles.welcomeText}>Welcome back</Text>
+                                <Text style={styles.welcomeText}>Welcome</Text>
                                 <Text style={styles.userName}>{userInfo?.given_name || 'Guest'}</Text>
                             </View>
                         </View>
