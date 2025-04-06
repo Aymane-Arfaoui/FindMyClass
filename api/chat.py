@@ -294,7 +294,6 @@ def get_tasks_from_storage():
         print(f"Error reading tasks from storage: {e}")
         return []
 
-# Sample tasks to use when none are found
 SAMPLE_TASKS = [
     {
         "id": "task1",
