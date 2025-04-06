@@ -88,7 +88,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 20,
     },
     activeButton: {
-        backgroundColor: theme.colors.primary,
+        backgroundColor: theme.colors.blueDark,
     },
     label: {
         color: theme.colors.text,

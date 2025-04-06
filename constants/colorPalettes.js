@@ -43,7 +43,27 @@ export const lightColors = {
     cardSecondary: '#F5F5F5',
     cardDisabled: '#DADADA',
     calendarbackground: '#FAFAFA',
-
+    traffic: {
+        low: '#4CAF50',
+        moderate: '#FFC107',
+        heavy: '#FF7043',
+        severe: '#D32F2F',
+        default: '#9E9E9E'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#C62828',
+            base: '#C62828',
+        },
+        buildingLabel: {
+            text: '#1A1A1A',
+            halo: '#FFFFFF'
+        },
+        userLocation: '#C62828',
+        endpoint: '#C62828',
+        selectedRoute: '#B71C1C',
+        route: '#EF5350'
+    }
 }
 export const darkColors = {
     primary: '#912238',
@@ -91,7 +111,27 @@ export const darkColors = {
     cardSecondary: '#2F2F2F',
     cardDisabled: '#3C3C3C',
     calendarbackground: '#757575',
-
+    traffic: {
+        low: '#81C784',
+        moderate: '#FFD54F',
+        heavy: '#FF8A65',
+        severe: '#EF5350',
+        default: '#B0BEC5'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#C62828',
+            base: '#C62828',
+        },
+        buildingLabel: {
+            text: '#ECEFF1',
+            halo: '#263238'
+        },
+        userLocation: '#FF6F61',
+        endpoint: '#FF6F61',
+        selectedRoute: '#FF6F61',
+        route: '#FF8A80'
+    }
 };
 export const colorBlindLightColors = {
     primary: '#0072B2',
@@ -138,7 +178,27 @@ export const colorBlindLightColors = {
     cardSecondary: '#F5F5F5',
     cardDisabled: '#DADADA',
     calendarbackground: '#FAFAFA',
-
+    traffic: {
+        low: '#009E73',
+        moderate: '#E69F00',
+        heavy: '#56B4E9',
+        severe: '#D55E00',
+        default: '#999999'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#56B4E9',
+            base: '#56B4E9',
+        },
+        buildingLabel: {
+            text: '#000000',
+            textLight: '#E69F00',
+        },
+        userLocation: '#D55E00',
+        endpoint: '#D55E00',
+        selectedRoute: '#0072B2',
+        route: '#56B4E9'
+    }
 };
 export const colorBlindDarkColors = {
     primary: '#56B4E9',
@@ -185,5 +245,26 @@ export const colorBlindDarkColors = {
     cardSecondary: '#2F2F2F',
     cardDisabled: '#3C3C3C',
     calendarbackground: '#757575',
+    traffic: {
+        low: '#66C2A5',
+        moderate: '#FC8D62',
+        heavy: '#8DA0CB',
+        severe: '#E78AC3',
+        default: '#CCCCCC'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#E78AC3',
+            base: '#E78AC3',
+        },
+        buildingLabel: {
+            text: '#000000',
+            textLight: '#8F8F8F'
+        },
+        userLocation: '#E78AC3',
+        endpoint: '#E78AC3',
+        selectedRoute: '#8DA0CB',
+        route: '#66C2A5'
+    }
 };
 
