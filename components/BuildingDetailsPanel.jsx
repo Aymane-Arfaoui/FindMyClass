@@ -1,5 +1,15 @@
 import React, {useState} from "react";
-import {ActivityIndicator, Animated, Image, Modal, StyleSheet, Text, TouchableOpacity, View,} from "react-native";
+import {
+    ActivityIndicator,
+    Animated,
+    Image,
+    Modal,
+    StyleSheet,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
+} from "react-native";
 import {Ionicons} from "@expo/vector-icons";
 import {theme} from "@/constants/theme";
 import { useNavigation } from "@react-navigation/native";
@@ -42,6 +52,8 @@ function BuildingDetailsPanel({
 
     const [modalVisible, setModalVisible] = useState(false);
 
+    const [classroomModalVisible, setClassroomModalVisible] = useState(false);
+    const [classroomNumber, setClassroomNumber] = useState("");
     const handleDirectionPress = () => {
         if (buildingKey) {
             setModalVisible(true);
@@ -52,8 +64,24 @@ function BuildingDetailsPanel({
 
     const handleModalResponse = (wantsClassroom) => {
         setModalVisible(false);
-        if (wantsClassroom !== null) {
-            onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        // if (wantsClassroom !== null) {
+        //     onDirectionPress(currentLocation, selectedBuilding, mode, wantsClassroom);
+        // }
+
+        if (wantsClassroom === true) {
+            setClassroomModalVisible(true); // Show classroom selection modal
+        } else if (wantsClassroom === false) {
+            onDirectionPress(currentLocation, selectedBuilding, mode, false);
+        }
+
+    };
+
+
+    const handleClassroomSelection = () => {
+        setClassroomModalVisible(false);
+        if (classroomNumber) {
+            const CLASSROOM_CONSTANT = classroomNumber; // Save to a constant (or pass it directly)
+            onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
         }
     };
 
@@ -185,6 +213,44 @@ function BuildingDetailsPanel({
                             </View>
                         </View>
                     </Modal>
+
+
+                    <Modal
+                        animationType="fade"
+                        transparent={true}
+                        visible={classroomModalVisible}
+                        onRequestClose={() => setClassroomModalVisible(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <Text style={styles.modalText}>
+                                    Enter the classroom number in {buildingKey}:
+                                </Text>
+                                <TextInput
+                                    style={styles.textInput}
+                                    placeholder="e.g., H-920"
+                                    value={classroomNumber}
+                                    onChangeText={setClassroomNumber}
+                                />
+                                <View style={styles.modalButtonContainer}>
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.yesButton]}
+                                        onPress={handleClassroomSelection}
+                                    >
+                                        <Text style={styles.modalButtonText}>Confirm</Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={[styles.modalButton, styles.cancelButton]}
+                                        onPress={() => setClassroomModalVisible(false)}
+                                    >
+                                        <Text style={styles.modalButtonText}>Cancel</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+
+
                     {buildingKey && (
                         <TouchableOpacity
                             testID={'indoor-map-button'}
@@ -377,5 +443,14 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         marginBottom: 10,
+    },
+    textInput: {
+        width: "100%",
+        padding: 10,
+        borderWidth: 1,
+        borderColor: theme.colors.textLight,
+        borderRadius: 5,
+        marginBottom: 20,
+        fontSize: 16,
     },
 });

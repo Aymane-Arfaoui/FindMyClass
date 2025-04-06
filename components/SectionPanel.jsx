@@ -62,7 +62,7 @@ const SectionPanel = ({ selectedSection, onClose, panHandlers, panelY, onShowDir
 };
 
 SectionPanel.propTypes={
-    selectedSection: PropTypes.object,
+    // selectedSection: PropTypes.object,
     onClose: PropTypes.func,
     panHandlers: PropTypes.object,
     panelY: PropTypes.object,

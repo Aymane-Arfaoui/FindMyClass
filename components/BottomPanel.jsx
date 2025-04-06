@@ -22,7 +22,7 @@ function hasIndoorMapBottomPanel(buildingName = "") {
 }
 
 
-const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes }) => {
+const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes, classroomNum }) => {
     const [expanded, setExpanded] = useState(false);
     const animatedHeight = useState(new Animated.Value(100))[0];
     const [selectedRoute, setSelectedRoute] = useState(null);
@@ -68,7 +68,13 @@ const BottomPanel = ({ transportMode, routeDetails, routes, wantsClassroom, sele
     const handleGoInside = () => {
         if (buildingKey) {
             setModalVisible(false)
-            router.push({ pathname: "MapScreen", params: { buildingKey } });
+            router.push({
+                pathname: "MapScreen",
+                params: {
+                    buildingKey,
+                    classroomNum
+                }
+            });
         } else {
             console.warn("No indoor map available for this building");
         }

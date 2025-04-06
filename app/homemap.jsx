@@ -11,7 +11,7 @@ import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
-import {useRouter} from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
@@ -21,6 +21,9 @@ const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
 export default function Homemap() {
     const router = useRouter();
+
+    const params = useLocalSearchParams();
+
     const [buildingDetails, setBuildingDetails] = useState(null);
     const [selectedLocation, setSelectedLocation] = useState(null);
     const [routes, setRoutes] = useState([]);
@@ -37,6 +40,59 @@ export default function Homemap() {
     const [places, setPlaces] = useState([]);
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
+    const [classroomNumber, SetClassroomNumber] = useState(false);
+
+    const hasTriggeredRoute = useRef(false);
+
+    const BUILDING_COORDINATES = {
+        'Hall': [-73.5789, 45.4960], // [lng, lat]
+        'MB': [-73.5790, 45.4950],
+        'CC': [-73.5770, 45.4970],
+    };
+
+    useEffect(() => {
+        const { startBuilding,
+            endBuilding,
+            triggerRoute,
+            destinationClassroom } = params;
+
+        if (triggerRoute === 'true' && startBuilding && endBuilding && !hasTriggeredRoute.current) {
+            const startCoords = BUILDING_COORDINATES[startBuilding];
+            const endCoords = BUILDING_COORDINATES[endBuilding];
+
+            if (startCoords && endCoords) {
+                const origin = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: startCoords,
+                    },
+                    name: startBuilding,
+                };
+                const destination = {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: endCoords,
+                    },
+                    name: endBuilding,
+                };
+                // const [wantsClassroom, setWantsClassroom] = useState(false);
+                // const [classroomNumber, SetClassroomNumber] = useState(false);
+
+                setWantsClassroom(true);
+                // SetClassroomNumber(destinationClassroom);
+                handleDirectionPress(origin, destination, "walking", true, destinationClassroom);
+                hasTriggeredRoute.current = true; // Mark as triggered
+                // const handleDirectionPress = async (origin, dest, mode, wantsClassroom, classroom) => {
+                // onDirectionPress(currentLocation, selectedBuilding, mode, true, CLASSROOM_CONSTANT);
+
+
+            }
+        }
+    }, [params.startBuilding, params.endBuilding, params.triggerRoute, modeSelected]);
+
+
 
     useEffect(() => {
         let isMounted = true;
@@ -201,11 +257,12 @@ export default function Homemap() {
             setLoading(false);
         }
     };
-    const handleDirectionPress = async (origin, dest, mode, wantsClassroom) => {
+    const handleDirectionPress = async (origin, dest, mode, wantsClassroom, classroom) => {
         setLoading(true);
         setCurrentOrigin(origin);
         setCurrentDestination(dest);
         setWantsClassroom(wantsClassroom);
+        SetClassroomNumber(classroom);
 
         try {
             const originCoords = origin.geometry?.coordinates;
@@ -602,6 +659,7 @@ export default function Homemap() {
                         wantsClassroom={wantsClassroom}
                         selectedBuilding={selectedLocation}
                         travelTimes={travelTimes}
+                        classroomNum={classroomNumber}
                     />
                 </>
             )}
