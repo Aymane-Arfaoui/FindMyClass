@@ -39,7 +39,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MapScreen = () => {
     const route = useRoute();
-    const navigation = useNavigation();
 
     const {buildingKey} = route.params || {};
 
@@ -50,6 +49,10 @@ const MapScreen = () => {
             </View>
         );
     }
+    return (<InnerMapScreen buildingKey={buildingKey}/>);
+};
+const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+    const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -322,7 +325,7 @@ const MapScreen = () => {
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
                             destination={selectedSection?.id}
-                            onBackPress={() => closeIndoorSearchBars(false)}
+                            onBackPress={() => closeIndoorSearchBars()}
 
                             navigation={navigation}
                             resetTransform={resetTransform}
@@ -445,7 +448,7 @@ const MapScreen = () => {
     );
 };
 
-MapScreen.propTypes={
+InnerMapScreen.propTypes={
     buildingKey:PropTypes.any
 }
 export default MapScreen;
