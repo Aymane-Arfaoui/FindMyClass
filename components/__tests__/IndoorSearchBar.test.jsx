@@ -121,14 +121,19 @@ describe('IndoorSearchBar', () => {
             expect(setSelectedSectionMock).toHaveBeenCalledWith(
                 {
                     d: "M637.223 265.783H602.641V160.83H705.849V126.737H844.893V210.509H748.852V198.132H703.159V229.159H678.973V240.859H637.223V265.783Z",
-                    id: "H-133"});
+                    floor_number:"1",
+                    id: "H-133",
+                    ref_ID: "h1_133"
+                });
 
             expect(navigationMock.navigate).toHaveBeenCalledWith('MapScreen', {
                     buildingKey: "Hall",
                 floorKey: "1",
                 section:{
                     d: "M637.223 265.783H602.641V160.83H705.849V126.737H844.893V210.509H748.852V198.132H703.159V229.159H678.973V240.859H637.223V265.783Z",
+                    floor_number:"1",
                     id: "H-133",
+                    ref_ID: "h1_133"
                     },
             });
         });

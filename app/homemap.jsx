@@ -578,7 +578,7 @@ export default function Homemap() {
             {!isDirectionsView && (
                 <View style={styles.searchContainer}>
                     {/* Back Button */}
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
+                    <TouchableOpacity testID={'back-button'} style={styles.backButton} onPress={() => router.push('/Welcome')}>
                         <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
                     </TouchableOpacity>
 

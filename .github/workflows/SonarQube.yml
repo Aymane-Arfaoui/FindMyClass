@@ -63,6 +63,7 @@ jobs:
             pip install dotenv
             pip install flask_cors
             pip install coverage
+            pip install openai          
             coverage run -m pytest
             coverage xml
       - name: 🔍 Run SonarCloud Scan

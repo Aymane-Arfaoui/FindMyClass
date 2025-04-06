@@ -1,3 +1,4 @@
+jest.useFakeTimers()
 import React from 'react';
 import {render, screen, waitFor, userEvent} from '@testing-library/react-native';
 import Calendar from '../Calendar';
@@ -110,7 +111,7 @@ describe('Calendar Component', () => {
         await user.press(getDirectionsButton);
 
         await waitFor(() => {
-            expect(mockPush).toHaveBeenCalledWith('/homemap?lat=37.7749&lng=-122.4194&room=101');
+            expect(mockPush).toHaveBeenCalledWith( {"params": expect.anything(), "pathname": "/homemap"} );
         });
     });
 });

@@ -200,6 +200,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                                 <Text style={styles.editTaskInputText}>{formatTime(startTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
+                                testID={'start-time-picker'}
                                 modal
                                 open={openStartTimePicker}
                                 date={startTime || new Date()}
@@ -218,6 +219,7 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                                 <Text style={styles.editTaskInputText}>{formatTime(endTime)}</Text>
                             </TouchableOpacity>
                             <DatePicker
+                                testID={'end-time-picker'}
                                 modal
                                 open={openEndTimePicker}
                                 date={endTime || new Date()}

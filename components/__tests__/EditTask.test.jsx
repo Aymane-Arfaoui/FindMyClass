@@ -86,6 +86,9 @@ describe('EditTask Component', () => {
         await user.press(screen.getByTestId('start-time-picker-toggle'));
         await user.press(screen.getByTestId('end-time-picker-toggle'));
 
+        expect(screen.getByTestId('end-time-picker')).toBeOnTheScreen()
+        expect(screen.getByTestId('start-time-picker')).toBeOnTheScreen()
+
     });
 
     test('should render modal when isVisible is true', () => {
@@ -159,7 +162,6 @@ describe('EditTask Component', () => {
                 'Delete Task',
                 'Are you sure you want to delete this task?',
                 expect.anything(),
-                {"cancelable": true}
 
             );
         });

@@ -12,7 +12,7 @@ describe('MapButtons Component', () => {
     });
     it('should render the text correctly',  () => {
         render(<MapButtons onPress={jest.fn()}/>);
-        expect(screen.getByTestId('map-toggle-button')).toHaveTextContent('SGWLoyola');//concatenation of the locations
+        expect(screen.getByTestId('map-toggle-button')).toHaveTextContent('LoyolaSGW');//concatenation of the locations
 
 
 
