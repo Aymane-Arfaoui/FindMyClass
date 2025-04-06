@@ -360,9 +360,7 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
                                                         ? theme.colors.primaryLight
                                                         : section.id === "floor"
                                                             ? theme.colors.roomFill
-                                                            : section.id === "background"
-                                                                ? theme.colors.floorFill
-                                                                : theme.colors.floorFill
+                                                            : theme.colors.floorFill
 
                                                 }
                                                 stroke={theme.colors.line}
