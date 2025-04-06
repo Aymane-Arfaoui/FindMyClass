@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useContext, useMemo, useState} from 'react';
 import {
     ScrollView,
     StyleSheet,
@@ -9,15 +9,16 @@ import {
 } from 'react-native';
 import { floorsData } from "@/constants/floorData";
 import { Ionicons } from "@expo/vector-icons";
-import { theme } from "@/constants/theme";
-import { parse, getBounds } from 'svg-path-bounds';
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 
 const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, resetTransform }) => {
     const [searchQuery, setSearchQuery] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [searchActive, setSearchActive] = useState(false);
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     const handleSearch = (query) => {
         setSearchQuery(query);
@@ -148,7 +149,7 @@ IndoorSearchBar.propTypes={
 }
 export default IndoorSearchBar;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     searchBarWrapper: {
         position: "absolute",
         top: 60,
@@ -156,7 +157,7 @@ const styles = StyleSheet.create({
         right: 16,
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderRadius: theme.radius.xl,
         paddingHorizontal: 12,
         height: 44,
@@ -173,7 +174,7 @@ const styles = StyleSheet.create({
     searchInput: {
         flex: 1,
         fontSize: 16,
-        color: theme.colors.dark,
+        color: theme.colors.text,
     },
     clearButton: {
         padding: 5,
@@ -184,7 +185,7 @@ const styles = StyleSheet.create({
         top: 55,
         left: 0,
         right: 0,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderRadius: theme.radius.lg,
         paddingVertical: 8,
         shadowColor: theme.colors.text,
@@ -201,13 +202,13 @@ const styles = StyleSheet.create({
     searchResultItem: {
         paddingVertical: 12,
         paddingHorizontal: 15,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
+        borderBottomColor: theme.colors.line,
     },
     searchResultText: {
         fontSize: 16,
-        color: theme.colors.dark,
+        color: theme.colors.text,
         fontWeight: theme.fonts.medium,
     },
     searchResultItemTouchable: {
