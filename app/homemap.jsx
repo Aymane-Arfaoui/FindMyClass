@@ -9,6 +9,7 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
+import ChatBotButton from '@/components/ChatBotButton';
 import Config from 'react-native-config';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
@@ -624,6 +625,9 @@ export default function Homemap() {
             {!isDirectionsView && (
                 <AppNavigationPannel/>
             )}
+            {!isDirectionsView && (
+                <ChatBotButton/>
+            )}
 
             {selectedLocation && !isDirectionsView && (
                 <BuildingDetailsPanel
@@ -719,7 +723,7 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 6,
+        // elevation: 6,
     },
     backButton: {
         marginTop: 1,

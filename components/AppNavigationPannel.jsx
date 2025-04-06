@@ -164,7 +164,7 @@ const createStyles = (theme) => StyleSheet.create({
         bottom: 0,
         left: 0,
         width: width,
-        height: 75,
+        height: 87,
         backgroundColor: theme.colors.backgroundNav,
         flexDirection: "row",
         justifyContent: "space-around",

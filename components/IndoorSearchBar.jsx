@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { theme } from "@/constants/theme";
 import { parse, getBounds } from 'svg-path-bounds';
 import PropTypes from "prop-types";
+import {hp, wp} from '@/helpers/common';
 
 
 const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, resetTransform }) => {
@@ -151,7 +152,7 @@ export default IndoorSearchBar;
 const styles = StyleSheet.create({
     searchBarWrapper: {
         position: "absolute",
-        top: 60,
+        top: 50,
         left: 50,
         right: 16,
         flexDirection: "row",
@@ -160,11 +161,12 @@ const styles = StyleSheet.create({
         borderRadius: theme.radius.xl,
         paddingHorizontal: 12,
         height: 44,
+        borderWidth: wp(0.5),
+        borderColor: "#CCCCCC",
         shadowColor: theme.colors.text,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: theme.radius.sm,
-        elevation: 5,
         width: 330,
     },
     searchIcon: {

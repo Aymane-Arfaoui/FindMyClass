@@ -1,8 +1,7 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
-import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
+import {Platform, StyleSheet, Text, TouchableOpacity, View, Animated} from 'react-native';
 import PropTypes from "prop-types";
 import {ThemeContext} from '@/context/ThemeProvider';
-
 
 const MapButtons = ({onPress}) => {
     const [selectedLocation, setSelectedLocation] = useState('SGW');
@@ -13,20 +12,53 @@ const MapButtons = ({onPress}) => {
         Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
     };
 
+    const slideAnim = useRef(new Animated.Value(0)).current;
+
     useEffect(() => {
+        Animated.timing(slideAnim, {
+            toValue: selectedLocation === 'SGW' ? 0 : 1,
+            duration: 600,
+            useNativeDriver: false
+        }).start();
         onPress(locations[selectedLocation]);
     }, [selectedLocation]);
 
     const handlePress = (location) => {
         setSelectedLocation(location);
-        onPress(locations[location]);
     };
+
+    const translateX = slideAnim.interpolate({
+        inputRange: [0, 1],
+        outputRange: [0, 90]
+    });
 
     return (
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
+
+                <Animated.View
+                    style={[
+                        styles.activeButton,
+                        { transform: [{ translateX }] }
+                    ]}
+                />
                 <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
+                    style={styles.toggleButton}
+                    onPress={() => handlePress('SGW')}
+                    testID={'sgw-button'}
+                >
+                    <Text
+                        style={[
+                            styles.label,
+                            selectedLocation === 'SGW' &&
+                            (isDark ? styles.activeLabelDark : styles.activeLabel)
+                        ]}
+                    >
+                        SGW
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                    style={styles.toggleButton}
                     onPress={() => handlePress('Loyola')}
                     testID={'loyola-button'}
                 >
@@ -39,28 +71,15 @@ const MapButtons = ({onPress}) => {
                     >
                         Loyola
                     </Text>
-
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
-                    onPress={() => handlePress('SGW')}
-                    testID={'sgw-button'}
-                >
-                    <Text style={[
-                        styles.label,
-                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
-                    ]}>SGW</Text>
                 </TouchableOpacity>
             </View>
         </View>
     );
 };
 
-
 MapButtons.propTypes = {
     onPress: PropTypes.func.isRequired,
 };
-
 
 const createStyles = (theme) =>
     StyleSheet.create({
@@ -102,7 +121,15 @@ const createStyles = (theme) =>
             borderRadius: 20,
         },
         activeButton: {
+            position: 'absolute',
+            width: 86,
+            height: '100%',
             backgroundColor: theme.colors.blueDark,
+            borderRadius: 19,
+            zIndex: -1,
+            top: 2,
+            marginLeft: 2,
+            bottom: 2,
         },
         label: {
             fontSize: 15,
