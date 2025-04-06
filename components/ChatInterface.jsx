@@ -4,16 +4,19 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  FlatList,
+  ScrollView,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
-  SafeAreaView
+  SafeAreaView,
+  Animated,
+  Dimensions
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { chatService } from '../app/services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
+
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
 const ChatInterface = ({ navigation }) => {
   const [messages, setMessages] = useState([
@@ -21,9 +24,31 @@ const ChatInterface = ({ navigation }) => {
   ]);
   const [inputText, setInputText] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const flatListRef = useRef(null);
+  const scrollViewRef = useRef(null);
   const { isDark, theme } = useContext(ThemeContext);
   const styles = createStyles(theme);
+  const dotAnimation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (isLoading) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(dotAnimation, {
+            toValue: 1,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+          Animated.timing(dotAnimation, {
+            toValue: 0,
+            duration: 600,
+            useNativeDriver: true,
+          }),
+        ])
+      ).start();
+    } else {
+      dotAnimation.setValue(0);
+    }
+  }, [isLoading]);
 
   const handleSend = async () => {
     if (!inputText.trim()) return;
@@ -41,6 +66,9 @@ const ChatInterface = ({ navigation }) => {
     
     try {
       const response = await chatService.processMessage(userMessage.text);
+      
+      // Ensure loading shows for at least 1 second
+      await new Promise(resolve => setTimeout(resolve, 1000));
       
       const botMessage = {
         id: (Date.now() + 1).toString(),
@@ -65,17 +93,19 @@ const ChatInterface = ({ navigation }) => {
   };
 
   useEffect(() => {
-    // Scroll to bottom when messages change
-    if (flatListRef.current && messages.length > 0) {
-      flatListRef.current.scrollToEnd({ animated: true });
+    // Scroll to bottom when messages change or loading state changes
+    if (scrollViewRef.current) {
+      setTimeout(() => {
+        scrollViewRef.current.scrollToEnd({ animated: true });
+      }, 100);
     }
-  }, [messages]);
+  }, [messages, isLoading]);
 
-  const renderMessage = ({ item }) => {
-    const isUser = item.isUser;
+  const renderMessage = (message) => {
+    const isUser = message.isUser;
     
     // Convert line breaks to properly render in text
-    const formattedText = item.text.split('\n').map((line, index) => (
+    const formattedText = message.text.split('\n').map((line, index) => (
       <Text key={index} style={[
         styles.messageText,
         isUser ? styles.userText : styles.botText
@@ -85,11 +115,34 @@ const ChatInterface = ({ navigation }) => {
     ));
     
     return (
-      <View style={[
+      <View key={message.id} style={[
         styles.messageBubble,
         isUser ? styles.userBubble : styles.botBubble
       ]}>
         {formattedText}
+      </View>
+    );
+  };
+
+  const renderLoadingDots = () => {
+    const dot1Opacity = dotAnimation.interpolate({
+      inputRange: [0, 0.3, 0.6, 1],
+      outputRange: [0.3, 1, 0.3, 0.3]
+    });
+    const dot2Opacity = dotAnimation.interpolate({
+      inputRange: [0, 0.3, 0.6, 1],
+      outputRange: [0.3, 0.3, 1, 0.3]
+    });
+    const dot3Opacity = dotAnimation.interpolate({
+      inputRange: [0, 0.3, 0.6, 1],
+      outputRange: [0.3, 0.3, 0.3, 1]
+    });
+
+    return (
+      <View style={styles.loadingDotsContainer}>
+        <Animated.View style={[styles.dot, { opacity: dot1Opacity }]} />
+        <Animated.View style={[styles.dot, { opacity: dot2Opacity }]} />
+        <Animated.View style={[styles.dot, { opacity: dot3Opacity }]} />
       </View>
     );
   };
@@ -106,44 +159,50 @@ const ChatInterface = ({ navigation }) => {
         <Text style={styles.headerTitle}>Assistant</Text>
       </View>
       
-      <FlatList
-        ref={flatListRef}
-        data={messages}
-        renderItem={renderMessage}
-        keyExtractor={(item) => item.id}
-        contentContainerStyle={styles.messageList}
-        showsVerticalScrollIndicator={false}
-      />
-      
-      {isLoading && (
-        <View style={styles.loadingContainer}>
-          <ActivityIndicator size="small" color={theme.colors.primary} />
-        </View>
-      )}
+      <View style={styles.contentContainer}>
+        <ScrollView
+          ref={scrollViewRef}
+          style={styles.scrollView}
+          contentContainerStyle={styles.messageList}
+          showsVerticalScrollIndicator={false}
+          onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
+        >
+          {messages.map(message => renderMessage(message))}
+        </ScrollView>
+        
+        {isLoading && (
+          <View style={styles.loadingContainer}>
+            {renderLoadingDots()}
+          </View>
+        )}
+      </View>
       
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={100}
-        style={styles.inputContainer}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        style={styles.inputWrapper}
       >
-        <TextInput
-          style={styles.input}
-          value={inputText}
-          onChangeText={setInputText}
-          placeholder="Ask about your tasks or directions..."
-          placeholderTextColor={theme.colors.grayDark}
-          multiline
-          onSubmitEditing={handleSend}
-          returnKeyType="send"
-          blurOnSubmit={Platform.OS === 'ios'}
-        />
-        <TouchableOpacity
-          style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
-          onPress={handleSend}
-          disabled={!inputText.trim()}
-        >
-          <Ionicons name="send" size={24} color={inputText.trim() ? theme.colors.white : theme.colors.gray} />
-        </TouchableOpacity>
+        <View style={styles.inputContainer}>
+          <TextInput
+            style={styles.input}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Ask about your tasks or directions..."
+            placeholderTextColor={theme.colors.grayDark}
+            multiline
+            maxLength={1000}
+            onSubmitEditing={handleSend}
+            returnKeyType="send"
+            blurOnSubmit={Platform.OS === 'ios'}
+          />
+          <TouchableOpacity
+            style={[styles.sendButton, !inputText.trim() && styles.sendButtonDisabled]}
+            onPress={handleSend}
+            disabled={!inputText.trim()}
+          >
+            <Ionicons name="send" size={24} color={inputText.trim() ? theme.colors.white : theme.colors.gray} />
+          </TouchableOpacity>
+        </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -153,6 +212,13 @@ const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: theme.colors.background,
+  },
+  contentContainer: {
+    flex: 1,
+    position: 'relative',
+  },
+  scrollView: {
+    flex: 1,
   },
   header: {
     flexDirection: 'row',
@@ -178,7 +244,7 @@ const createStyles = (theme) => StyleSheet.create({
   messageList: {
     paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 20,
+    paddingBottom: 80,
   },
   messageBubble: {
     padding: 12,
@@ -215,17 +281,44 @@ const createStyles = (theme) => StyleSheet.create({
   },
   loadingContainer: {
     position: 'absolute',
+    left: 16,
+    bottom: 90,
+    zIndex: 1,
+  },
+  loadingDotsContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 12,
+    backgroundColor: theme.colors.cardBackground,
+    borderRadius: 20,
+    shadowColor: theme.colors.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  dot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: theme.colors.primary,
+    marginHorizontal: 4,
+  },
+  inputWrapper: {
+    position: 'absolute',
+    bottom: 0,
     left: 0,
     right: 0,
-    bottom: 80,
-    alignItems: 'center',
+    top: SCREEN_HEIGHT - 100,
+    backgroundColor: theme.colors.cardBackground,
+    borderTopWidth: 1,
+    borderTopColor: theme.colors.border,
   },
   inputContainer: {
     flexDirection: 'row',
     padding: 12,
-    backgroundColor: theme.colors.cardBackground,
-    borderTopWidth: 1,
-    borderTopColor: theme.colors.border,
+    alignItems: 'center',
   },
   input: {
     flex: 1,
