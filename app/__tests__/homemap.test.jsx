@@ -93,19 +93,6 @@ jest.mock('@/services/routeService', () => ({
         });
 
 
-
-
-        it('direction-button', async () => {
-
-            const mockLocation = { coords: { latitude:  45.4973, longitude: -73.5788  } };
-            getUserLocation.mockResolvedValue(mockLocation);
-            render(<Homemap/>);
-            const user = userEvent.setup();
-            await user.press(screen.getByTestId('direction-button'));
-        });
-
-
-
         test('switches to directions view on direction button press', async () => {
             const mockLocation = { coords: { latitude: 45.4973, longitude: -73.5788 } };
             getUserLocation.mockResolvedValue(mockLocation);
@@ -144,6 +131,7 @@ jest.mock('@/services/routeService', () => ({
                 expect(screen.getByTestId('building-details-panel')).toBeTruthy();
             });
         });
+
 
 
     });
