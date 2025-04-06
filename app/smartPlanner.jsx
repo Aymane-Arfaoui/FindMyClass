@@ -196,7 +196,7 @@ const SmartPlanner = () => {
                         {isPlanRouteMode ? "Select" : "Time"}
                     </Text>
                     <Text style={styles.eventHeaderText}>Course</Text>
-                    <TouchableOpacity style={styles.filterButton}
+                    <TouchableOpacity testID={'filter-button'} style={styles.filterButton}
                                       onPress={() => setIsCalendarFilterVisible(!isCalendarFilterVisible)}>
                         <Ionicons name="filter" size={22} color={theme.colors.grayDark}/>
                     </TouchableOpacity>
@@ -217,10 +217,10 @@ const SmartPlanner = () => {
             </View>
             {isPlanRouteMode && allItems.length > 0 && (
                 <View style={styles.stickyRouteActions}>
-                    <TouchableOpacity style={styles.cancelRouteButton} onPress={handleCancelRoute}>
+                    <TouchableOpacity testID={'cancel-route-button'} style={styles.cancelRouteButton} onPress={handleCancelRoute}>
                         <Text style={styles.cancelRouteButtonText}>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.submitRouteButton} onPress={handleSubmitRoute}>
+                    <TouchableOpacity testID={'submit-route-button'} style={styles.submitRouteButton} onPress={handleSubmitRoute}>
                         <Text style={styles.submitRouteButtonText}>Plan Route</Text>
                     </TouchableOpacity>
                 </View>

@@ -37,12 +37,7 @@ export const theme = {
     },
   };
 
-import {
-  lightColors,
-  darkColors,
-  colorBlindLightColors,
-  colorBlindDarkColors,
-} from "@/constants/colorPalettes";
+import { getThemeStrategy } from './themeSelector';
 
 const fonts = {
   medium: '500',
@@ -61,15 +56,8 @@ const radius = {
 };
 
 export function getTheme(isDark = false, colorBlindMode = false) {
-  let colors;
-
-  if (colorBlindMode && isDark) {
-    colors = colorBlindDarkColors;
-  } else if (colorBlindMode && !isDark) {
-    colors = colorBlindLightColors;
-  } else {
-    colors = isDark ? darkColors : lightColors;
-  }
+  const strategy = getThemeStrategy(isDark, colorBlindMode);
+  const colors = strategy.getColors();
 
   return {
     colors,

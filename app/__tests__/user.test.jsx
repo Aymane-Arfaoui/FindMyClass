@@ -5,10 +5,19 @@ import React from 'react';
 import {render, screen, userEvent,waitFor} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
 import User from '../user.jsx';
+import {Alert} from "react-native";
+jest.mock('expo-auth-session/providers/google', ()=> (
+    {useAuthRequest: jest.fn(()=>{
+            return[{type:'success'},{type:'success',authentication:{accessToken:''}},jest.fn()];
+        })}));
 
-describe('User Component', () => {
+jest.mock('../../services/userService', ()=> ({getUserInfo: jest.fn(()=>({name:'asd'}))}));
+jest.spyOn(Alert, 'alert').mockImplementation(() => {});
+jest.spyOn(console, 'warn').mockImplementation(() => {});
+describe('User', () => {
     const mockPush = jest.fn();
     const mockRouterBack = jest.fn();
+    const mockEvents = [{ id: 1, location: 'Hall Building Rm 101', start: { dateTime: new Date() }, summary: 'Test Event' }];
 
     beforeEach(() => {
         jest.clearAllMocks()
@@ -33,14 +42,16 @@ describe('User Component', () => {
 
     it('navigates to calendar on calendar button press', async () => {
         const user = userEvent.setup();
-        AsyncStorage.setItem('@user',JSON.stringify({name:"asd"}))
+        await AsyncStorage.setItem('@user',JSON.stringify({name:"asd"}))
+        await AsyncStorage.setItem('@calendar',JSON.stringify(mockEvents))
         render(<User/>);
 
         const calendarButton = screen.getByTestId('calendar-button');
         await user.press(calendarButton);
         expect(mockPush).toHaveBeenCalled()
-       // expect(mockPush).toHaveBeenCalledWith('/calendar');
+        await AsyncStorage.clear()
     });
+
 
     it('navigates to settings page on settings icon press', async () => {
         const user = userEvent.setup();

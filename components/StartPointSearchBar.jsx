@@ -1,23 +1,14 @@
-import React, { useState } from 'react';
-import {
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View
-} from 'react-native';
-import { floorsData } from "@/constants/floorData";
-import { Ionicons } from "@expo/vector-icons";
-import { theme } from "@/constants/theme";
-import { parse, getBounds } from 'svg-path-bounds';
-import {hp} from "@/helpers/common";
+import React, {useContext, useMemo, useState} from 'react';
+import {ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native';
+import {floorsData} from "@/constants/floorData";
+import {Ionicons} from "@expo/vector-icons";
+import {hp, wp} from "@/helpers/common";
 
 import PropTypes from 'prop-types';
+import {ThemeContext} from "@/context/ThemeProvider";
 
-const StartPointSearchBar = ({ navigation,
-                                 // setSelectedFloorKey,
-                                 // setSelectedSection,
+const StartPointSearchBar = ({
+                                 navigation,
                                  resetTransform,
                                  searchQuery,
                                  setSearchQuery,
@@ -49,7 +40,7 @@ const StartPointSearchBar = ({ navigation,
             const buildingFloorsSP = floorsData[buildingKey];
 
             Object.keys(buildingFloorsSP).forEach((floorKey) => {
-                const { sections } = buildingFloorsSP[floorKey];
+                const {sections} = buildingFloorsSP[floorKey];
 
                 sections.forEach((section) => {
                     if (section.id.toLowerCase().includes(query.toLowerCase())) {
@@ -69,7 +60,8 @@ const StartPointSearchBar = ({ navigation,
     };
 
 
-
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const handleSelectSearchResultStartLocation = (result) => {
         // setSelectedFloorKey(result.floorKey);
         // setSelectedSection(result.section);
@@ -95,8 +87,7 @@ const StartPointSearchBar = ({ navigation,
 
     return (
         <View style={styles.sPSearchBarWrapper}>
-            <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.sPSearchIcon} />
-            {/*    <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.iconIM}/>*/}
+            <Ionicons name="radio-button-on" size={16} color={theme.colors.primary} style={styles.sPSearchIcon}/>
 
             <TextInput
                 style={styles.sPSearchInput}
@@ -108,7 +99,7 @@ const StartPointSearchBar = ({ navigation,
             />
             {searchQuery.length > 0 && (
                 <TouchableOpacity onPress={handleClearSearchStartLocation} style={styles.sPClearButton}>
-                    <Ionicons name="close-circle" size={20} color={theme.colors.grayDark} />
+                    <Ionicons name="close-circle" size={20} color={theme.colors.grayDark}/>
                 </TouchableOpacity>
             )}
             {searchActive && searchResults.length > 0 && (
@@ -139,75 +130,66 @@ StartPointSearchBar.propTypes = {
 
 export default StartPointSearchBar;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     sPSearchBarWrapper: {
-        // position: "absolute",
-        // top: 60,
-        // left: 50,
-        // right: 16,
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
         backgroundColor: theme.colors.white,
-        borderRadius: theme.radius.xl,
-        paddingHorizontal: 12,
-        height: 35,
-        // shadowColor: theme.colors.text,
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.2,
-        // shadowRadius: theme.radius.sm,
-        // elevation: 5,
-        // width: 330,
+        borderRadius: wp(4),
+        paddingHorizontal: wp(3),
+        paddingVertical: hp(1),
+        elevation: 2,
+        shadowColor: theme.colors.shadow || '#000',
+        shadowOffset: {width: 0, height: hp(0.3)},
+        shadowOpacity: 0.1,
+        shadowRadius: wp(2),
         zIndex: 10,
+    },
 
-    },
-    sPSearchIcon: {
-        marginRight: 8,
-    },
     sPSearchInput: {
         flex: 1,
-        // fontSize: 16,
-        color: theme.colors.dark,
         fontSize: hp(1.8),
-
+        color: theme.colors.gray,
     },
+
+    sPSearchIcon: {
+        marginRight: wp(2),
+    },
+
     sPClearButton: {
-        padding: 5,
-        marginLeft: 5,
+        padding: wp(1),
+        marginLeft: wp(1),
     },
     sPSearchResultsContainer: {
         position: "absolute",
-        top: 55,
+        top: hp(5.5),
         left: 0,
         right: 0,
         backgroundColor: theme.colors.white,
-        borderRadius: theme.radius.lg,
-        paddingVertical: 8,
-        shadowColor: theme.colors.text,
-        shadowOffset: { width: 0, height: 2 },
+        borderRadius: wp(3),
+        paddingVertical: hp(1),
+        shadowColor: theme.colors.shadow || '#000',
+        shadowOffset: {width: 0, height: hp(0.3)},
         shadowOpacity: 0.15,
-        shadowRadius: theme.radius.sm,
+        shadowRadius: wp(2),
         elevation: 5,
-        maxHeight: 250,
+        maxHeight: hp(30),
         zIndex: 20,
-        overflow: "hidden",
-        borderWidth: 2,
+        borderWidth: 1,
         borderColor: theme.colors.gray,
     },
     sPSearchResultItem: {
-        paddingVertical: 12,
-        paddingHorizontal: 15,
+        paddingVertical: hp(1.2),
+        paddingHorizontal: wp(4),
         backgroundColor: theme.colors.white,
         borderBottomWidth: 1,
         borderBottomColor: theme.colors.gray,
     },
     sPSearchResultText: {
-        fontSize: 16,
-        color: theme.colors.dark,
-        fontWeight: theme.fonts.medium,
-    },
-    searchResultItemTouchable: {
-        borderRadius: theme.radius.md,
-        overflow: "hidden",
+        fontSize: hp(1.7),
+        color: theme.colors.gray,
+        fontWeight: '500',
     },
 });
+

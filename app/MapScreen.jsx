@@ -18,6 +18,8 @@ import {theme} from '@/constants/theme';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
+import AppNavigationPanel from '@/components/AppNavigationPannel';
+import {hp, wp} from '@/helpers/common';
 
 
 import mapHall1 from '../api/app/data/campus_jsons/hall/map_hall_1.json';
@@ -39,7 +41,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const MapScreen = () => {
     const route = useRoute();
-    const navigation = useNavigation();
 
     const {buildingKey} = route.params || {};
 
@@ -50,6 +51,10 @@ const MapScreen = () => {
             </View>
         );
     }
+    return (<InnerMapScreen buildingKey={buildingKey}/>);
+};
+const InnerMapScreen = ({buildingKey}) => { //avoids creating react hooks conditionally
+    const navigation = useNavigation();
 
     const buildingFloors = floorsData[buildingKey];
     const floorKeys = Object.keys(buildingFloors);
@@ -322,7 +327,7 @@ const MapScreen = () => {
                             onShowDirectionsUpdateTemp={handleShowDirectionsTemp}
 
                             destination={selectedSection?.id}
-                            onBackPress={() => closeIndoorSearchBars(false)}
+                            onBackPress={() => closeIndoorSearchBars()}
 
                             navigation={navigation}
                             resetTransform={resetTransform}
@@ -445,7 +450,7 @@ const MapScreen = () => {
     );
 };
 
-MapScreen.propTypes={
+InnerMapScreen.propTypes={
     buildingKey:PropTypes.any
 }
 export default MapScreen;
@@ -467,7 +472,7 @@ const styles = StyleSheet.create({
     },
     backButton: {
         position: 'absolute',
-        top: 50,
+        top: hp(5.5),
         left: 0,
         paddingVertical: 8,
         paddingHorizontal: 15,

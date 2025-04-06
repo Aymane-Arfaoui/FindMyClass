@@ -14,10 +14,10 @@ const AppNavigationPanel = () => {
     const styles = useMemo(() => createStyles(theme), [theme]);
     
     // Animation values for each tab
-    const calendarScale = useRef(new Animated.Value(pathname === "/home" ? 1.1 : 1)).current;
+    const calendarScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
     const mapScale = useRef(new Animated.Value(pathname === "/homemap" ? 1.1 : 1)).current;
-    const plannerScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
-    const chatScale = useRef(new Animated.Value(pathname === "/chat" ? 1.1 : 1)).current;
+    // const plannerScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
+    // const chatScale = useRef(new Animated.Value(pathname === "/chat" ? 1.1 : 1)).current;
     const profileScale = useRef(new Animated.Value(pathname === "/user" ? 1.1 : 1)).current;
     
     // Animate active tab when pathname changes
@@ -26,18 +26,18 @@ const AppNavigationPanel = () => {
         Animated.parallel([
             Animated.spring(calendarScale, {toValue: 1, friction: 5, useNativeDriver: true}),
             Animated.spring(mapScale, {toValue: 1, friction: 5, useNativeDriver: true}),
-            Animated.spring(plannerScale, {toValue: 1, friction: 5, useNativeDriver: true}),
-            Animated.spring(chatScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            // Animated.spring(plannerScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            // Animated.spring(chatScale, {toValue: 1, friction: 5, useNativeDriver: true}),
             Animated.spring(profileScale, {toValue: 1, friction: 5, useNativeDriver: true}),
         ]).start();
         
         // Animate active tab
         let activeScale;
         switch (pathname) {
-            case "/home": activeScale = calendarScale; break;
+            case "/smartPlanner": activeScale = calendarScale; break;
             case "/homemap": activeScale = mapScale; break;
-            case "/smartPlanner": activeScale = plannerScale; break;
-            case "/chat": activeScale = chatScale; break;
+            // case "/smartPlanner": activeScale = plannerScale; break;
+            // case "/chat": activeScale = chatScale; break;
             case "/user": activeScale = profileScale; break;
         }
         
@@ -54,15 +54,15 @@ const AppNavigationPanel = () => {
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
             <TouchableOpacity
                 style={styles.tabItem}
-                onPress={() => router.push("/home")}
+                onPress={() => router.push("/smartPlanner")}
                 testID={'button-navigate-to-home'}
                 activeOpacity={0.7}
             >
                 <Animated.View style={{transform: [{scale: calendarScale}]}}>
                     <Ionicons
-                        name={pathname === "/home" ? "calendar" : "calendar-outline"}
+                        name={pathname === "/smartPlanner" ? "calendar" : "calendar-outline"}
                         size={26}
-                        color={pathname === "/home" ? theme.colors.primary : theme.colors.grayDark}
+                        color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
                     />
                 </Animated.View>
                 <Text style={[
@@ -92,7 +92,7 @@ const AppNavigationPanel = () => {
                 {pathname === "/homemap" && <View style={styles.dotIndicator}/>}
             </TouchableOpacity>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 style={styles.tabItem}
                 onPress={() => router.push("/smartPlanner")}
                 testID={'button-navigate-to-planner'}
@@ -110,9 +110,9 @@ const AppNavigationPanel = () => {
                     pathname === "/smartPlanner" && styles.activeTabText
                 ]}>Planner</Text>
                 {pathname === "/smartPlanner" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
                 style={styles.tabItem}
                 onPress={() => {
                     console.log('Navigating to chat screen');
@@ -133,7 +133,7 @@ const AppNavigationPanel = () => {
                     pathname === "/chat" && styles.activeTabText
                 ]}>Assistant</Text>
                 {pathname === "/chat" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity>
+            </TouchableOpacity> */}
 
             <TouchableOpacity
                 style={styles.tabItem}

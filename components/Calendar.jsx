@@ -1,7 +1,6 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {Calendar as RNCalendar} from 'react-native-calendars';
-import {theme} from '@/constants/theme';
 import {hp} from '@/helpers/common';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
@@ -9,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchBuildingCoordinates} from "@/services/buildingService";
 import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 
 const Calendar = ({events: propEvents}) => {
@@ -19,6 +19,9 @@ const Calendar = ({events: propEvents}) => {
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [eventCoordinates, setEventCoordinates] = useState({});
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     const updateEvents = useCallback((newEvents) => {
         setEvents(newEvents);
@@ -194,19 +197,18 @@ const Calendar = ({events: propEvents}) => {
 
         if (!isSameEvent && event.location && eventCoordinates[event.id] === undefined) {
             if (!isValidLocation(event.location)) {
-                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+                setEventCoordinates(prev => ({...prev, [event.id]: null}));
                 return;
             }
 
             try {
                 const coords = await fetchBuildingCoordinates(event.location);
-                setEventCoordinates(prev => ({ ...prev, [event.id]: coords || null }));
+                setEventCoordinates(prev => ({...prev, [event.id]: coords || null}));
             } catch {
-                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+                setEventCoordinates(prev => ({...prev, [event.id]: null}));
             }
         }
     };
-
 
 
     return (
@@ -228,12 +230,32 @@ const Calendar = ({events: propEvents}) => {
                 current={getLocalDate()}
                 markedDates={markedDates}
                 onDayPress={(day) => setSelectedDate(day.dateString)}
+                style={{
+                    backgroundColor: theme.colors.cardBackground,
+                    borderRadius: 10,
+                    padding: 5,
+                    marginBottom: hp(2),
+                }}
                 theme={{
+                    calendarBackground: theme.colors.cardBackground,
+                    dayTextColor: theme.colors.text,
+                    textDisabledColor: theme.colors.grayDark,
                     selectedDayBackgroundColor: theme.colors.primary,
+                    selectedDayTextColor: theme.colors.white,
                     todayTextColor: theme.colors.primary,
                     arrowColor: theme.colors.primary,
+                    monthTextColor: theme.colors.text,
+                    textSectionTitleColor: theme.colors.text,
+
+                    'stylesheet.calendar.main': {
+                        container: {
+                            backgroundColor: theme.colors.cardBackground,
+                        },
+                    },
                 }}
             />
+
+
             <View style={styles.eventsContainer}>
                 <Text style={styles.dateHeader}>
                     {formattedSelectedDate}
@@ -246,7 +268,7 @@ const Calendar = ({events: propEvents}) => {
                                 styles.eventCard,
                                 {
                                     borderLeftWidth: 4,
-                                    borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary
+                                    borderLeftColor: item.itemType === 'task' ? theme.colors.secondaryDark : theme.colors.primary
                                 }
                             ]}
                             onPress={() => handleEventPress(item)}
@@ -302,21 +324,18 @@ const Calendar = ({events: propEvents}) => {
 Calendar.propTypes = {
     events: PropTypes.any
 }
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.cardBackground,
         borderRadius: 10,
-        overflow: 'hidden',
-        marginHorizontal: hp(2),
-        marginBottom: hp(2),
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
+        shadowColor: theme.colors.shadow || '#000',
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+        marginHorizontal: hp(2),
+        marginBottom: hp(4),
+        paddingBottom: hp(3),
     },
     header: {
         flexDirection: 'row',
@@ -327,26 +346,24 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: hp(2.2),
         fontWeight: 'bold',
-        color: theme.colors.dark,
+        color: theme.colors.text,
     },
     eventsContainer: {
         padding: hp(2),
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
     },
     dateHeader: {
         fontSize: hp(2),
         fontWeight: 'bold',
-        color: theme.colors.dark,
+        color: theme.colors.text,
         marginBottom: hp(2),
     },
     eventCard: {
         flexDirection: 'row',
-        backgroundColor: '#fff',
+        backgroundColor: theme.colors.cardSecondary,
         padding: hp(2),
         borderRadius: 10,
         marginBottom: hp(1.5),
-        shadowColor: '#000',
+        shadowColor: theme.colors.shadow || '#000',
         shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
@@ -360,7 +377,7 @@ const styles = StyleSheet.create({
     },
     eventTime: {
         fontSize: hp(1.6),
-        color: theme.colors.dark,
+        color: theme.colors.text,
         opacity: 0.8,
     },
     eventDetails: {
@@ -369,13 +386,19 @@ const styles = StyleSheet.create({
     eventTitle: {
         fontSize: hp(1.8),
         fontWeight: '500',
-        color: theme.colors.dark,
+        color: theme.colors.text,
         marginBottom: hp(0.5),
     },
     eventLocation: {
         fontSize: hp(1.6),
-        color: theme.colors.dark,
+        color: theme.colors.textLight,
         opacity: 0.7,
+    },
+    eventDescription: {
+        fontSize: hp(1.4),
+        color: theme.colors.textLight,
+        opacity: 0.6,
+        marginTop: hp(0.5),
     },
     directionButton: {
         backgroundColor: theme.colors.primary,
@@ -391,6 +414,13 @@ const styles = StyleSheet.create({
         marginLeft: hp(1),
         fontSize: hp(1.6),
     },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: theme.colors.textLight,
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2),
+    },
     noEventsContainer: {
         alignItems: 'center',
         paddingVertical: hp(2),
@@ -399,20 +429,7 @@ const styles = StyleSheet.create({
         fontSize: hp(1.6),
         color: theme.colors.grayDark,
     },
-    eventDescription: {
-        fontSize: hp(1.4),
-        color: theme.colors.dark,
-        opacity: 0.6,
-        marginTop: hp(0.5),
-    },
-    noLocationText: {
-        fontSize: hp(1.6),
-        color: 'gray',
-        alignSelf: 'flex-start',
-        marginTop: hp(1),
-        marginLeft: hp(2),
-    },
-
 });
+
 
 export default Calendar;

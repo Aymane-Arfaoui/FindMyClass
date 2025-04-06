@@ -10,7 +10,7 @@ const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, da
     const styles = useMemo(() => createStyles(theme), [theme]);
     return (
         <View style={styles.headerContainer}>
-            <TouchableOpacity style={styles.backButton} onPress={onBack}>
+            <TouchableOpacity testID={'back-button'} style={styles.backButton} onPress={onBack}>
                 <Ionicons name="chevron-back" size={28} color={theme.colors.dark} />
             </TouchableOpacity>
 
@@ -24,12 +24,12 @@ const SmartPlannerHeader = ({onBack, onAddTask, onPlanRoute, isPlanRouteMode, da
 
             <View style={styles.rightActions}>
                 {!isPlanRouteMode && (
-                    <TouchableOpacity style={styles.todayButton} onPress={onPlanRoute}>
+                    <TouchableOpacity testID={'plan-route-button'} style={styles.todayButton} onPress={onPlanRoute}>
                         <Text style={styles.todayText}>Plan Route</Text>
                     </TouchableOpacity>
                 )}
                 {!isPlanRouteMode && (
-                    <TouchableOpacity style={styles.addButton} onPress={onAddTask}>
+                    <TouchableOpacity testID={'add-task-button'} style={styles.addButton} onPress={onAddTask}>
                         <Ionicons name="add" size={28} color="white"/>
                     </TouchableOpacity>
                 )}

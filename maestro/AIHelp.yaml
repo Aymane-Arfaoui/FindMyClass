@@ -1,0 +1,11 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- tapOn: "GET STARTED"
+- tapOn:  Assistant
+- tapOn: Ask about your tasks or directions...
+- inputText:
+    "If I have 2 classes in Hall building on thursday, one at 1pm and one
+    at 10am and I have soccer training in loyola, what would be the best way to
+    get my tasks completed as easily and swiftly as possible?"
+- tapOn:
+    id: Send

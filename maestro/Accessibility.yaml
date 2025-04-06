@@ -1,0 +1,12 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- tapOn: GET STARTED
+- tapOn:
+    id: mic-button
+- tapOn:  Profile
+- tapOn: 
+- tapOn:
+    point: 90%,30%
+- tapOn:
+    point: 3%,11%
+- tapOn:  Map
