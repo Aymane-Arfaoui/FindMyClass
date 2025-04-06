@@ -32,9 +32,12 @@ class IntegratedRoutingService:
     def get_weather_for_location(self, latitude: float, longitude: float) -> Dict[str, Any]:
         """Get weather data for a location"""
         try:
-            temperature = get_weather(latitude, longitude)
+            weather_data = get_weather(latitude, longitude)
             return {
-                "temperature": temperature,
+                "temperature": weather_data['temperature'],
+                "precipitation": weather_data['precipitation'],
+                "weather_code": weather_data['weather_code'],
+                "wind_speed": weather_data['wind_speed'],
                 "success": True
             }
         except Exception as e:
@@ -79,12 +82,19 @@ class IntegratedRoutingService:
         # Create a subgraph with allowed edges only
         return nx_graph.edge_subgraph(allowed_edges).copy()
     
-    def find_outdoor_path(self, origin: str, destination: str, mode: str = "walking") -> Dict[str, Any]:
+    def find_outdoor_path(self, origin: str, destination: str, mode: str = "walking", weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Find the shortest path between two outdoor locations using Google Maps API"""
         try:
             import requests
             import polyline
             from config import GOOGLE_MAPS_API_KEY
+            
+            # Adjust mode based on weather conditions
+            if weather_data and weather_data.get("success"):
+                if weather_data.get("precipitation", 0) > 0 or weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82]:
+                    # If it's raining, prefer transit over walking
+                    if mode == "walking":
+                        mode = "transit"
             
             response = requests.get(
                 "https://maps.googleapis.com/maps/api/directions/json",
@@ -157,7 +167,8 @@ class IntegratedRoutingService:
         elif start_location["type"] == "outdoor" and end_location["type"] == "outdoor":
             return self.find_outdoor_path(
                 f"{start_location['lat']},{start_location['lng']}", 
-                f"{end_location['lat']},{end_location['lng']}"
+                f"{end_location['lat']},{end_location['lng']}",
+                weather_data=weather_data
             )
         
         # Mixed indoor/outdoor routing
@@ -175,6 +186,16 @@ class IntegratedRoutingService:
         best_path = None
         best_total_distance = float('inf')
         
+        # Check if weather conditions suggest prioritizing indoor routes
+        is_bad_weather = False
+        if weather_data and weather_data.get("success"):
+            is_bad_weather = (
+                weather_data.get("precipitation", 0) > 0 or 
+                weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
+                weather_data.get("temperature", 20) < 10 or
+                weather_data.get("wind_speed", 0) > 20
+            )
+        
         for start_exit in start_exits:
             for end_exit in end_exits:
                 # Indoor path from start to exit
@@ -190,7 +211,8 @@ class IntegratedRoutingService:
                 # Outdoor path between exits
                 outdoor_path = self.find_outdoor_path(
                     f"{start_exit['lat']},{start_exit['lng']}", 
-                    f"{end_exit['lat']},{end_exit['lng']}"
+                    f"{end_exit['lat']},{end_exit['lng']}",
+                    weather_data=weather_data
                 )
                 if not outdoor_path["success"]:
                     continue
@@ -203,10 +225,10 @@ class IntegratedRoutingService:
                 )
                 
                 # Adjust for weather if available
-                if weather_data and weather_data["success"]:
-                    # If it's raining, add a penalty to outdoor segments
-                    if weather_data["temperature"] < 10:  # Cold weather
-                        total_distance *= 1.2  # 20% penalty for cold weather
+                if is_bad_weather:
+                    # Add penalties for outdoor segments in bad weather
+                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
                 
                 if total_distance < best_total_distance:
                     best_total_distance = total_distance
@@ -251,6 +273,16 @@ class IntegratedRoutingService:
             best_path = None
             best_total_distance = float('inf')
             
+            # Check if weather conditions suggest prioritizing indoor routes
+            is_bad_weather = False
+            if weather_data and weather_data.get("success"):
+                is_bad_weather = (
+                    weather_data.get("precipitation", 0) > 0 or 
+                    weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
+                    weather_data.get("temperature", 20) < 10 or
+                    weather_data.get("wind_speed", 0) > 20
+                )
+            
             for exit_point in exits:
                 # Indoor path from start to exit
                 indoor_path = self.find_indoor_path(start_location["id"], exit_point["id"], start_location["campus"])
@@ -260,7 +292,8 @@ class IntegratedRoutingService:
                 # Outdoor path from exit to end
                 outdoor_path = self.find_outdoor_path(
                     f"{exit_point['lat']},{exit_point['lng']}", 
-                    f"{end_location['lat']},{end_location['lng']}"
+                    f"{end_location['lat']},{end_location['lng']}",
+                    weather_data=weather_data
                 )
                 if not outdoor_path["success"]:
                     continue
@@ -272,10 +305,10 @@ class IntegratedRoutingService:
                 )
                 
                 # Adjust for weather if available
-                if weather_data and weather_data["success"]:
-                    # If it's cold, add a penalty to outdoor segments
-                    if weather_data["temperature"] < 10:
-                        total_distance *= 1.2  # 20% penalty for cold weather
+                if is_bad_weather:
+                    # Add penalties for outdoor segments in bad weather
+                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
                 
                 if total_distance < best_total_distance:
                     best_total_distance = total_distance
@@ -305,11 +338,22 @@ class IntegratedRoutingService:
             best_path = None
             best_total_distance = float('inf')
             
+            # Check if weather conditions suggest prioritizing indoor routes
+            is_bad_weather = False
+            if weather_data and weather_data.get("success"):
+                is_bad_weather = (
+                    weather_data.get("precipitation", 0) > 0 or 
+                    weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
+                    weather_data.get("temperature", 20) < 10 or
+                    weather_data.get("wind_speed", 0) > 20
+                )
+            
             for entrance in entrances:
                 # Outdoor path from start to entrance
                 outdoor_path = self.find_outdoor_path(
                     f"{start_location['lat']},{start_location['lng']}", 
-                    f"{entrance['lat']},{entrance['lng']}"
+                    f"{entrance['lat']},{entrance['lng']}",
+                    weather_data=weather_data
                 )
                 if not outdoor_path["success"]:
                     continue
@@ -326,10 +370,10 @@ class IntegratedRoutingService:
                 )
                 
                 # Adjust for weather if available
-                if weather_data and weather_data["success"]:
-                    # If it's cold, add a penalty to outdoor segments
-                    if weather_data["temperature"] < 10:
-                        total_distance *= 1.2  # 20% penalty for cold weather
+                if is_bad_weather:
+                    # Add penalties for outdoor segments in bad weather
+                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
                 
                 if total_distance < best_total_distance:
                     best_total_distance = total_distance
@@ -461,7 +505,10 @@ class IntegratedRoutingService:
         
         if weather_data and weather_data["success"]:
             prompt += f"Weather conditions:\n"
-            prompt += f"- Temperature: {weather_data['temperature']}°C\n\n"
+            prompt += f"- Temperature: {weather_data['temperature']}°C\n"
+            prompt += f"- Precipitation: {weather_data['precipitation']}\n"
+            prompt += f"- Weather Code: {weather_data['weather_code']}\n"
+            prompt += f"- Wind Speed: {weather_data['wind_speed']} m/s\n\n"
         
         prompt += "Please provide clear, step-by-step instructions for navigating this route, including any weather considerations."
         
