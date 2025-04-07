@@ -1,11 +1,13 @@
-import React from 'react';
+import React, {useContext, useMemo} from 'react';
 import {StyleSheet, TouchableOpacity} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {getUserLocation} from '@/services/userService';
-import {theme} from "@/constants/theme";
 import PropTypes from 'prop-types';
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const LiveLocationButton = ({onPress}) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const handleLiveLocationPress = async () => {
         const location = await getUserLocation();
         onPress([location.lng, location.lat]);
@@ -17,12 +19,13 @@ const LiveLocationButton = ({onPress}) => {
             style={styles.liveLocationButton}
             onPress={handleLiveLocationPress}
         >
-            <Ionicons name="locate" size={28} color={theme.colors.white}/>
+            <Ionicons name="locate" size={28} color="#fff" />
         </TouchableOpacity>
     );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     liveLocationButton: {
         position: 'absolute',
         bottom: 100,

@@ -1,171 +1,205 @@
 import * as React from "react";
-import { Dimensions, StyleSheet, TouchableOpacity, View, Alert, ActivityIndicator } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { theme } from "@/constants/theme";
-import { usePathname, useRouter } from "expo-router";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import { getUserInfo } from "@/services/userService";
-import { getCalendarEvents } from "@/services/calendarService";
+import {Dimensions, StyleSheet, TouchableOpacity, View, Text, Animated} from "react-native";
+import {Ionicons} from "@expo/vector-icons";
+import {usePathname, useRouter} from "expo-router";
+import {ThemeContext} from '@/context/ThemeProvider';
+import {useMemo, useRef, useEffect} from "react";
 
-
-const { width } = Dimensions.get("window");
-
-WebBrowser.maybeCompleteAuthSession();
+const {width} = Dimensions.get("window");
 
 const AppNavigationPanel = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const [user, setUser] = React.useState(null);
-    const [isLoading, setLoading] = React.useState(false);
-
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
-        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-        androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
-        scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar.readonly'],
-        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect',
-    });
-
-    React.useEffect(() => {
-        checkUserSession();
-    }, []);
-
-    React.useEffect(() => {
-        if (response?.type === "success") {
-            handleGoogleSignIn(response.authentication.accessToken);
+    const {theme} = React.useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+    
+    // Animation values for each tab
+    const calendarScale = useRef(new Animated.Value(pathname === "/home" ? 1.1 : 1)).current;
+    const mapScale = useRef(new Animated.Value(pathname === "/homemap" ? 1.1 : 1)).current;
+    const plannerScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
+    const chatScale = useRef(new Animated.Value(pathname === "/chat" ? 1.1 : 1)).current;
+    const profileScale = useRef(new Animated.Value(pathname === "/user" ? 1.1 : 1)).current;
+    
+    // Animate active tab when pathname changes
+    useEffect(() => {
+        // Reset all animations
+        Animated.parallel([
+            Animated.spring(calendarScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            Animated.spring(mapScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            Animated.spring(plannerScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            Animated.spring(chatScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            Animated.spring(profileScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+        ]).start();
+        
+        // Animate active tab
+        let activeScale;
+        switch (pathname) {
+            case "/home": activeScale = calendarScale; break;
+            case "/homemap": activeScale = mapScale; break;
+            case "/smartPlanner": activeScale = plannerScale; break;
+            case "/chat": activeScale = chatScale; break;
+            case "/user": activeScale = profileScale; break;
         }
-    }, [response]);
-
-    const checkUserSession = async () => {
-        const storedUser = await AsyncStorage.getItem("@user");
-        if (storedUser) {
-            setUser(JSON.parse(storedUser));
+        
+        if (activeScale) {
+            Animated.spring(activeScale, {
+                toValue: 1.1,
+                friction: 5,
+                useNativeDriver: true
+            }).start();
         }
-    };
-
-    const handleGoogleSignIn = async (accessToken) => {
-        try {
-            setLoading(true);
-            const userData = await getUserInfo(accessToken);
-            if (userData) {
-                await AsyncStorage.setItem("@user", JSON.stringify(userData));
-                setUser(userData);
-
-                const events = await getCalendarEvents(accessToken);
-                await AsyncStorage.setItem("@calendar", JSON.stringify(events));
-
-                router.replace("/home");
-            }
-        } catch (error) {
-            Alert.alert("Login Failed", "Could not retrieve user information.");
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleNavigation = async (route) => {
-        const storedUser = await AsyncStorage.getItem("@user");
-        if (storedUser) {
-            router.push(route);
-        } else {
-            Alert.alert(
-                "Sign In Required",
-                "You need to sign in with Google to access this feature.",
-                [
-                    { text: "Cancel", style: "cancel" },
-                    { text: "Sign In", onPress: () => promptAsync() }
-                ]
-            );
-        }
-    };
+    }, [pathname]);
 
     return (
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/home")} testID={'button-navigate-to-home'}>
-                <Ionicons
-                    name="calendar-outline"
-                    size={26}
-                    color={pathname === "/home" ? theme.colors.primary : theme.colors.grayDark}
-                />
-                <View style={pathname === "/home" ? styles.dotIndicator : null} />
+            <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => router.push("/home")}
+                testID={'button-navigate-to-calendar'}
+                activeOpacity={0.7}
+            >
+                <Animated.View style={{transform: [{scale: calendarScale}]}}>
+                    <Ionicons
+                        name={pathname === "/home" ? "calendar" : "calendar-outline"}
+                        size={26}
+                        color={pathname === "/home" ? theme.colors.primary : theme.colors.grayDark}
+                    />
+                </Animated.View>
+                <Text style={[
+                    styles.tabText,
+                    pathname === "/home" && styles.activeTabText
+                ]}>Calendar</Text>
+                {pathname === "/home" && <View style={styles.dotIndicator}/>}
             </TouchableOpacity>
 
-            <TouchableOpacity style={[styles.navButton, styles.centerButton]} onPress={() => router.push("/homemap")} testID={'button-navigate-to-homemap'}>
-                <Ionicons
-                    name="home-outline"
-                    size={26}
-                    color={pathname === "/homemap" ? theme.colors.primary : theme.colors.grayDark}
-                />
-                <View style={pathname === "/homemap" ? styles.dotIndicator : null} />
+            <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => router.push("/homemap")}
+                testID={'button-navigate-to-map'}
+                activeOpacity={0.7}
+            >
+                <Animated.View style={{transform: [{scale: mapScale}]}}>
+                    <Ionicons
+                        name={pathname === "/homemap" ? "map" : "map-outline"}
+                        size={26}
+                        color={pathname === "/homemap" ? theme.colors.primary : theme.colors.grayDark}
+                    />
+                </Animated.View>
+                <Text style={[
+                    styles.tabText,
+                    pathname === "/homemap" && styles.activeTabText
+                ]}>Map</Text>
+                {pathname === "/homemap" && <View style={styles.dotIndicator}/>}
             </TouchableOpacity>
 
-
-            <TouchableOpacity style={styles.navButton} onPress={() => router.push("/user")} testID={'button-navigate-to-user'}>
-
-                <Ionicons
-                    name="person-outline"
-                    size={26}
-                    color={pathname === "/user" ? theme.colors.primary : theme.colors.grayDark}
-                />
-                <View style={pathname === "/user" ? styles.dotIndicator : null} />
+            <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => router.push("/smartPlanner")}
+                testID={'button-navigate-to-planner'}
+                activeOpacity={0.7}
+            >
+                <Animated.View style={{transform: [{scale: plannerScale}]}}>
+                    <Ionicons
+                        name={pathname === "/smartPlanner" ? "book" : "book-outline"}
+                        size={26}
+                        color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
+                    />
+                </Animated.View>
+                <Text style={[
+                    styles.tabText,
+                    pathname === "/smartPlanner" && styles.activeTabText
+                ]}>Planner</Text>
+                {pathname === "/smartPlanner" && <View style={styles.dotIndicator}/>}
             </TouchableOpacity>
 
-            {isLoading && (
-                <View style={styles.loadingOverlay}>
-                    <ActivityIndicator size="large" color={theme.colors.primary} />
-                </View>
-            )}
+            <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => {
+                    console.warn('Navigating to chat screen');
+                    router.push('/chat');
+                }}
+                testID={'button-navigate-to-chat'}
+                activeOpacity={0.7}
+            >
+                <Animated.View style={{transform: [{scale: chatScale}]}}>
+                    <Ionicons
+                        name={pathname === "/chat" ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
+                        size={26}
+                        color={pathname === "/chat" ? theme.colors.primary : theme.colors.grayDark}
+                    />
+                </Animated.View>
+                <Text style={[
+                    styles.tabText,
+                    pathname === "/chat" && styles.activeTabText
+                ]}>Assistant</Text>
+                {pathname === "/chat" && <View style={styles.dotIndicator}/>}
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.tabItem}
+                onPress={() => router.push("/user")}
+                testID={'button-navigate-to-user'}
+                activeOpacity={0.7}
+            >
+                <Animated.View style={{transform: [{scale: profileScale}]}}>
+                    <Ionicons
+                        name={pathname === "/user" ? "person" : "person-outline"}
+                        size={26}
+                        color={pathname === "/user" ? theme.colors.primary : theme.colors.grayDark}
+                    />
+                </Animated.View>
+                <Text style={[
+                    styles.tabText,
+                    pathname === "/user" && styles.activeTabText
+                ]}>Profile</Text>
+                {pathname === "/user" && <View style={styles.dotIndicator}/>}
+            </TouchableOpacity>
         </View>
     );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     appNavigationPanel: {
         position: "absolute",
         bottom: 0,
         left: 0,
         width: width,
-        height: 90,
-        backgroundColor: theme.colors.background,
+        height: 75,
+        backgroundColor: theme.colors.backgroundNav,
         flexDirection: "row",
         justifyContent: "space-around",
         alignItems: "center",
-        borderTopLeftRadius: theme.radius.lg,
-        borderTopRightRadius: theme.radius.lg,
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: -2 },
+        shadowOffset: {width: 0, height: -2},
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 5,
-        paddingBottom: 20,
+        shadowRadius: 6,
+        elevation: 8,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        paddingBottom: 5,
     },
-    navButton: {
+    tabItem: {
         alignItems: "center",
-        flex: 1,
-    },
-    centerButton: {
         justifyContent: "center",
-        alignItems: "center",
+        flex: 1,
+        paddingVertical: 8,
+    },
+    tabText: {
+        fontSize: 12,
+        color: theme.colors.grayDark,
+        marginTop: 4,
+        fontWeight: '500',
+    },
+    activeTabText: {
+        color: theme.colors.primary,
+        fontWeight: 'bold',
     },
     dotIndicator: {
         width: 6,
         height: 6,
         borderRadius: 3,
         backgroundColor: theme.colors.primary,
-        marginTop: 2,
-    },
-    loadingOverlay: {
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 1000,
+        marginTop: 3,
     },
 });
 

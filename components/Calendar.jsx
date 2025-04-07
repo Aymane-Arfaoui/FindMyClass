@@ -1,22 +1,54 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
-import { Calendar as RNCalendar } from 'react-native-calendars';
-import { theme } from '@/constants/theme';
-import { hp } from '@/helpers/common';
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React, {useCallback, useEffect, useState} from 'react';
+import {
+    StyleSheet,
+    Text,
+    TouchableOpacity,
+    View,
+    Alert,
+    Image,
+    ActivityIndicator,
+    SafeAreaView,
+} from 'react-native';
+import {Calendar as RNCalendar} from 'react-native-calendars';
+import {theme} from '@/constants/theme';
+import {hp, wp} from '@/helpers/common';
+import {Ionicons} from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchBuildingCoordinates } from "@/services/buildingService";
-import { calendarService } from '@/services/calendarService';
+import {fetchBuildingCoordinates} from "@/services/buildingService";
+import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
+import * as Google from 'expo-auth-session/providers/google';
+import * as WebBrowser from 'expo-web-browser';
 
+WebBrowser.maybeCompleteAuthSession();
 
-const Calendar = ({ events: propEvents }) => {
+const Calendar = ({events: propEvents}) => {
     const router = useRouter();
     const [events, setEvents] = useState([]);
+    const [tasks, setTasks] = useState([]);
     const [selectedDate, setSelectedDate] = useState(getLocalDate());
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
+    const [eventCoordinates, setEventCoordinates] = useState({});
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [loading, setLoading] = useState(true);
+
+    const [, response, promptAsync] = Google.useAuthRequest({
+        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
+        scopes: [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly',
+            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+        ],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+    });
 
     const updateEvents = useCallback((newEvents) => {
         setEvents(newEvents);
@@ -24,7 +56,39 @@ const Calendar = ({ events: propEvents }) => {
     }, []);
 
     useEffect(() => {
+        const checkAuth = async () => {
+            const token = await AsyncStorage.getItem("@accessToken");
+            setIsAuthenticated(!!token);
+            setLoading(false);
+        };
+        checkAuth();
+    }, []);
+
+    useEffect(() => {
+        if (response?.type === "success") {
+            handleGoogleSignIn(response.authentication.accessToken);
+        }
+    }, [response]);
+
+    const handleGoogleSignIn = async (accessToken) => {
+        try {
+            setLoading(true);
+            await AsyncStorage.setItem("@accessToken", accessToken);
+            setIsAuthenticated(true);
+            await loadEvents();
+            await loadTasks();
+        } catch (error) {
+            console.error('Sign in error:', error);
+            Alert.alert("Login Failed", "Could not complete the sign in process.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    useEffect(() => {
         calendarService?.addListener(updateEvents);
+        loadEvents();
+        loadTasks();
 
         const fetchEventsOnMount = async () => {
             const storedEvents = await AsyncStorage.getItem("@calendar");
@@ -41,11 +105,33 @@ const Calendar = ({ events: propEvents }) => {
         return () => {
             calendarService?.removeListener(updateEvents);
         };
-    }, [updateEvents]);
+    }, [updateEvents, propEvents]);
 
     function getLocalDate() {
         return new Date().toLocaleDateString('en-CA');
     }
+
+    function formatDateToLocalDate(dateString) {
+        return new Date(dateString).toLocaleDateString('en-CA');
+    }
+
+    const loadTasks = async () => {
+        try {
+            const tasksJson = await AsyncStorage.getItem('tasks');
+            if (tasksJson) {
+                const loadedTasks = JSON.parse(tasksJson);
+                setTasks(loadedTasks);
+            }
+        } catch (error) {
+            console.error('Error loading tasks:', error);
+        }
+    };
+
+    const loadEvents = async () => {
+        if (propEvents && propEvents.length > 0) {
+            setEvents(propEvents);
+        }
+    };
 
     const handleRefresh = async () => {
         setIsRefreshing(true);
@@ -58,14 +144,18 @@ const Calendar = ({ events: propEvents }) => {
         }
     };
 
-    const markedDates = events.reduce((acc, event) => {
-        const eventDate = event.start?.dateTime
-            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
-            : event.start?.date;
+    // Combine events and tasks for marking dates
+    const markedDates = [...events, ...tasks.map(task => ({
+        start: {dateTime: task.date},
+        type: 'task'
+    }))].reduce((acc, item) => {
+        const eventDate = item.start?.dateTime
+            ? formatDateToLocalDate(item.start.dateTime)
+            : item.start?.date;
         if (eventDate) {
             acc[eventDate] = {
                 marked: true,
-                dotColor: theme.colors.primary,
+                dotColor: item.type === 'task' ? theme.colors.secondary : theme.colors.primary,
             };
         }
         return acc;
@@ -79,12 +169,47 @@ const Calendar = ({ events: propEvents }) => {
         };
     }
 
+    // Get both events and tasks for selected date
     const selectedDateEvents = events.filter(event => {
         const eventDate = event.start?.dateTime
-            ? new Date(event.start.dateTime).toLocaleDateString('en-CA')
+            ? formatDateToLocalDate(event.start.dateTime)
             : event.start?.date;
-
         return eventDate === selectedDate;
+    });
+
+    const selectedDateTasks = tasks.filter(task => {
+        try {
+            const taskDate = formatDateToLocalDate(task.date);
+            return taskDate === selectedDate;
+        } catch (error) {
+            console.error('Error processing task date:', error, 'Task:', task);
+            return false;
+        }
+    });
+
+    // Combine and sort all items for the selected date
+    const allItems = [
+        ...selectedDateEvents.map(event => ({...event, itemType: 'event'})),
+        ...selectedDateTasks.map(task => ({
+            itemType: 'task',
+            summary: task.taskName,
+            location: task.address,
+            description: task.notes,
+            start: {
+                dateTime: task.allDayEvent ? null : task.startTime
+            },
+            end: {
+                dateTime: task.allDayEvent ? null : task.endTime
+            },
+            allDayEvent: task.allDayEvent,
+            id: task.id
+        }))
+    ].sort((a, b) => {
+        if (a.allDayEvent) return -1;
+        if (b.allDayEvent) return 1;
+        const aTime = a.start?.dateTime ? new Date(a.start.dateTime) : new Date(0);
+        const bTime = b.start?.dateTime ? new Date(b.start.dateTime) : new Date(0);
+        return aTime - bTime;
     });
 
     const formattedSelectedDate = new Intl.DateTimeFormat(undefined, {
@@ -95,38 +220,97 @@ const Calendar = ({ events: propEvents }) => {
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     }).format(new Date(selectedDate + 'T00:00:00'));
 
-    const handleGetDirections = async (event) => {
-        if (!event.location) {
-            console.warn("No location available for this event.");
+    const handleGetDirections = (event) => {
+        const coordinates = eventCoordinates[event.id];
+        if (!coordinates) {
+            console.warn("No coordinates available.");
             return;
         }
 
-        try {
-            const coordinates = await fetchBuildingCoordinates(event.location);
-            const roomNumber = event.location.split('Rm')[1]?.trim();
+        const roomNumber = event.location.split('Rm')[1]?.trim();
+        const encodedAddress = encodeURIComponent(event.location);
 
-            if (coordinates) {
-                router.push(`/homemap?lat=${coordinates.latitude}&lng=${coordinates.longitude}&room=${roomNumber}`);
-            } else {
-                console.error("Failed to fetch building coordinates.");
+        router.push({
+            pathname: "/homemap",
+            params: {
+                lat: coordinates.latitude.toString(),
+                lng: coordinates.longitude.toString(),
+                room: roomNumber,
+                address: encodedAddress,
+                directionsTriggered: 'true',
+                fromCalendar: 'true',
+
             }
-        } catch (error) {
-            console.error('Error fetching building coordinates:', error);
+        });
+    };
+
+    function isValidLocation(location) {
+        return typeof location === 'string' && /Rm\s?\w+/.test(location);
+    }
+
+    const handleEventPress = async (event) => {
+        const isSameEvent = activeEvent?.id === event.id;
+        setActiveEvent(isSameEvent ? null : event);
+
+        if (!isSameEvent && event.location && eventCoordinates[event.id] === undefined) {
+            if (!isValidLocation(event.location)) {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+                return;
+            }
+
+            try {
+                const coords = await fetchBuildingCoordinates(event.location);
+                setEventCoordinates(prev => ({ ...prev, [event.id]: coords || null }));
+            } catch {
+                setEventCoordinates(prev => ({ ...prev, [event.id]: null }));
+            }
         }
     };
 
-    const handleEventPress = (event) => {
-        setActiveEvent(activeEvent === event ? null : event);
-    };
+    if (loading) {
+        return (
+            <SafeAreaView style={styles.fullScreenContainer}>
+                <ActivityIndicator size="large" color={theme.colors.primary} />
+            </SafeAreaView>
+        );
+    }
+
+    if (!isAuthenticated) {
+        return (
+            <SafeAreaView style={styles.fullScreenContainer}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={() => router.back()}>
+                        <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
+                    </TouchableOpacity>
+                    <Text style={styles.headerTitle}>Calendar</Text>
+                    <View style={{width: 24}} />
+                </View>
+                <View style={styles.centerContainer}>
+                    <Ionicons name="calendar" size={80} color={theme.colors.primary} style={styles.calendarIcon} />
+                    <Text style={styles.signInTitle}>Calendar Access Required</Text>
+                    <Text style={styles.signInText}>
+                        Please sign in with your Google account to view and manage your calendar events.
+                    </Text>
+                    <TouchableOpacity
+                        style={styles.signInButton}
+                        onPress={() => promptAsync()}
+                    >
+                        <Ionicons name="logo-google" size={24} color="white" style={styles.buttonIcon} />
+                        <Text style={styles.signInButtonText}>Sign in with Google</Text>
+                    </TouchableOpacity>
+                </View>
+            </SafeAreaView>
+        );
+    }
 
     return (
         <View style={styles.container} testID={'calendar'}>
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()}>
-                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark} />
+                    <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
                 </TouchableOpacity>
                 <Text style={styles.headerTitle}>Calendar</Text>
-                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing}>
+                <TouchableOpacity onPress={handleRefresh} disabled={isRefreshing} testID={'refresh-button'}>
                     <Ionicons
                         name={isRefreshing ? "sync" : "refresh"}
                         size={24}
@@ -148,50 +332,68 @@ const Calendar = ({ events: propEvents }) => {
                 <Text style={styles.dateHeader}>
                     {formattedSelectedDate}
                 </Text>
-                {selectedDateEvents.length > 0 ? (
-                    selectedDateEvents.map((event, index) => (
+                {allItems.length > 0 ? (
+                    allItems.map((item, index) => (
                         <TouchableOpacity
-                            key={index}
-                            style={styles.eventCard}
-                            onPress={() => handleEventPress(event)}
+                            key={item.id || index}
+                            style={[
+                                styles.eventCard,
+                                {
+                                    borderLeftWidth: 4,
+                                    borderLeftColor: item.itemType === 'task' ? theme.colors.secondary : theme.colors.primary
+                                }
+                            ]}
+                            onPress={() => handleEventPress(item)}
                         >
                             <View style={styles.eventTimeContainer}>
                                 <Text style={styles.eventTime}>
-                                    {event.start?.dateTime
-                                        ? new Date(event.start.dateTime).toLocaleTimeString([], {
-                                            hour: '2-digit',
-                                            minute: '2-digit',
-                                        })
-                                        : 'All day'}
+                                    {item.allDayEvent ? 'All day' :
+                                        item.start?.dateTime ?
+                                            new Date(item.start.dateTime).toLocaleTimeString([], {
+                                                hour: '2-digit',
+                                                minute: '2-digit',
+                                            }) : 'All day'}
                                 </Text>
                             </View>
                             <View style={styles.eventDetails}>
-                                <Text style={styles.eventTitle}>{event.summary}</Text>
-                                {event.location && (
-                                    <Text style={styles.eventLocation}>{event.location}</Text>
+                                <Text style={styles.eventTitle}>
+                                    {item.itemType === 'task' ? '📝 ' : '📅 '}{item.summary}
+                                </Text>
+                                {item.location && (
+                                    <Text style={styles.eventLocation}>{item.location}</Text>
+                                )}
+                                {item.description && (
+                                    <Text style={styles.eventDescription}>{item.description}</Text>
                                 )}
                             </View>
-                            {activeEvent === event && (
-                                <TouchableOpacity
-                                    style={styles.directionButton}
-                                    onPress={() => handleGetDirections(event)}
-                                >
-                                    <Ionicons name="navigate-circle" size={22} color={theme.colors.white} />
-                                    <Text style={styles.directionButtonText}>Get Directions</Text>
-                                </TouchableOpacity>
+                            {activeEvent?.id === item.id && (
+                                eventCoordinates[item.id] ? (
+                                    <TouchableOpacity
+                                        style={styles.directionButton}
+                                        onPress={() => handleGetDirections(item)}
+                                        testID={'get-directions-button'}
+                                    >
+                                        <Ionicons name="navigate-circle" size={22} color={theme.colors.white}/>
+                                        <Text style={styles.directionButtonText}>Get Directions</Text>
+                                    </TouchableOpacity>
+                                ) : (
+                                    <Text style={styles.noLocationText}>
+                                        No location
+                                    </Text>
+                                )
                             )}
                         </TouchableOpacity>
                     ))
                 ) : (
                     <View style={styles.noEventsContainer}>
-                        <Text style={styles.noEventsText}>No events scheduled for this day</Text>
+                        <Text style={styles.noEventsText}>No events or tasks scheduled for this day</Text>
                     </View>
                 )}
             </View>
         </View>
     );
 };
-Calendar.propTypes={
+Calendar.propTypes = {
     events: PropTypes.any
 }
 const styles = StyleSheet.create({
@@ -215,6 +417,9 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: hp(2),
+        backgroundColor: '#fff',
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.gray,
     },
     headerTitle: {
         fontSize: hp(2.2),
@@ -239,7 +444,7 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         marginBottom: hp(1.5),
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 1 },
+        shadowOffset: {width: 0, height: 1},
         shadowOpacity: 0.1,
         shadowRadius: 2,
         elevation: 2,
@@ -280,17 +485,80 @@ const styles = StyleSheet.create({
     },
     directionButtonText: {
         color: theme.colors.white,
-        fontSize: hp(1.7),
         marginLeft: hp(1),
+        fontSize: hp(1.6),
     },
     noEventsContainer: {
-        padding: hp(3),
         alignItems: 'center',
+        paddingVertical: hp(2),
     },
     noEventsText: {
-        fontSize: hp(1.8),
+        fontSize: hp(1.6),
+        color: theme.colors.grayDark,
+    },
+    eventDescription: {
+        fontSize: hp(1.4),
         color: theme.colors.dark,
-        opacity: 0.7,
+        opacity: 0.6,
+        marginTop: hp(0.5),
+    },
+    noLocationText: {
+        fontSize: hp(1.6),
+        color: 'gray',
+        alignSelf: 'flex-start',
+        marginTop: hp(1),
+        marginLeft: hp(2),
+    },
+    centerContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+        backgroundColor: '#fff',
+    },
+    calendarIcon: {
+        marginBottom: 20,
+    },
+    signInTitle: {
+        fontSize: 24,
+        fontWeight: 'bold',
+        marginBottom: 10,
+        color: theme.colors.text,
+        textAlign: 'center',
+    },
+    signInText: {
+        fontSize: 16,
+        color: theme.colors.grayDark,
+        textAlign: 'center',
+        marginBottom: 30,
+        lineHeight: 22,
+        paddingHorizontal: 20,
+    },
+    signInButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.primary,
+        paddingVertical: 12,
+        paddingHorizontal: 24,
+        borderRadius: 25,
+        elevation: 3,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    signInButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+        marginLeft: 10,
+    },
+    buttonIcon: {
+        marginRight: 8,
+    },
+    fullScreenContainer: {
+        flex: 1,
+        backgroundColor: '#fff',
     },
 });
 

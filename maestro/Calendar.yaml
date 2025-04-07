@@ -2,4 +2,4 @@ appId: com.aymanearfaoui.FindMyClass
 ---
 - tapOn: "GET STARTED"
 - tapOn:
-  point: "17%,94%"
+    point: "17%,94%"

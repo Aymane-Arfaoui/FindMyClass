@@ -12,3 +12,5 @@ Flask-Cors
 pytest
 opencv-python
 networkx
+openai
+coverage

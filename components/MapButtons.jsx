@@ -1,41 +1,55 @@
-import React, {useEffect, useState} from 'react';
-import {StyleSheet, Text, TouchableOpacity, View} from 'react-native';
-import {theme} from "@/constants/theme";
+import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {Platform, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import PropTypes from "prop-types";
+import {ThemeContext} from '@/context/ThemeProvider';
 
-
-const MapButtons = ({onPress}) => {
-const [selectedLocation, setSelectedLocation] = useState('SGW');
-const locations = {
-        SGW: [-73.5787, 45.4963],     // SGW Coordinates
-        Loyola: [-73.6405, 45.4582]    // Loyola Coordinates
+const MapButtons = ({onPress, onCampusChange}) => {
+    const [selectedLocation, setSelectedLocation] = useState('SGW');
+    const {theme, isDark} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+    const locations = {
+        SGW: [-73.5789, 45.4973],     // SGW Coordinates
+        LOYOLA: [-73.6409, 45.4582]    // Loyola Coordinates
     };
 
     useEffect(() => {
         onPress(locations[selectedLocation]);
+        onCampusChange && onCampusChange(selectedLocation);
     }, [selectedLocation]);
 
     const handlePress = (location) => {
         setSelectedLocation(location);
         onPress(locations[location]);
+        onCampusChange && onCampusChange(location);
     };
 
     return (
         <View style={styles.buttonContainer} testID={'map-toggle-button'}>
             <View style={styles.toggleWrapper}>
                 <TouchableOpacity
+                    style={[styles.toggleButton, selectedLocation === 'LOYOLA' && styles.activeButton]}
+                    onPress={() => handlePress('LOYOLA')}
+                    testID={'loyola-button'}
+                >
+                    <Text
+                        style={[
+                            styles.label,
+                            selectedLocation === 'LOYOLA' &&
+                            (isDark ? styles.activeLabelDark : styles.activeLabel)
+                        ]}
+                    >
+                        Loyola
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
                     style={[styles.toggleButton, selectedLocation === 'SGW' && styles.activeButton]}
                     onPress={() => handlePress('SGW')}
                     testID={'sgw-button'}
                 >
-                    <Text style={[styles.label, selectedLocation === 'SGW' && styles.activeLabel]}>SGW</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={[styles.toggleButton, selectedLocation === 'Loyola' && styles.activeButton]}
-                    onPress={() => handlePress('Loyola')}
-                    testID={'loyola-button'}
-                >
-                    <Text style={[styles.label, selectedLocation === 'Loyola' && styles.activeLabel]}>Loyola</Text>
+                    <Text style={[
+                        styles.label,
+                        selectedLocation === 'SGW' && (isDark ? styles.activeLabelDark : styles.activeLabel)
+                    ]}>SGW</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -44,47 +58,49 @@ const locations = {
 
 MapButtons.propTypes = {
     onPress: PropTypes.func.isRequired,
+    onCampusChange: PropTypes.func
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     buttonContainer: {
         position: 'absolute',
-        top: 95,
-        left: 110,
-        right: 0,
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        zIndex: 10,
-        width: 180,
-        height: 45,
+        top: Platform.OS === 'ios' ? 60 : 40,
+        alignSelf: 'center',
+        backgroundColor: theme.colors.cardBackground,
+        borderRadius: 25,
+        padding: 5,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 5,
+        zIndex: 1
     },
     toggleWrapper: {
         flexDirection: 'row',
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.cardBackground,
         borderRadius: 20,
         padding: 2,
-        elevation: 5,
     },
     toggleButton: {
-        flex: 1,
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 20,
-        justifyContent: 'center',
-        alignItems: 'center',
         borderRadius: 20,
     },
     activeButton: {
-        backgroundColor: theme.colors.blueDark,
+        backgroundColor: theme.colors.primary,
     },
     label: {
-        fontSize: 15,
-        fontWeight: 'bold',
         color: theme.colors.text,
+        fontSize: 14,
+        fontWeight: '500',
     },
     activeLabel: {
-        color: theme.colors.white,
-    }
+        color: '#ffffff',
+    },
+    activeLabelDark: {
+        color: '#ffffff',
+    },
 });
 
 export default MapButtons;

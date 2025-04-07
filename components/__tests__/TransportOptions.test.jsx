@@ -1,14 +1,16 @@
+jest.useFakeTimers()
 import React, { useState } from 'react';
 import {render, screen, userEvent} from '@testing-library/react-native';
 import TransportOptions from '../TransportOptions';
+
 describe('TransportOptions', () => {
     let setModeSelected = jest.fn();
     let selectedStyle={ color: 'white' };
     let  travelTimes = {
-        driving: '10 min',
-        transit: '15 min',
-        walking: '30 min',
-        bicycling: '20 min',
+        DRIVE: '10 min',
+        TRANSIT: '15 min',
+        WALK: '30 min',
+        BICYCLE: '20 min',
     };
 
     it('renders', () => {

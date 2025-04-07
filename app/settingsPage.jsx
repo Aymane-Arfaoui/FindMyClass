@@ -1,90 +1,213 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, Switch, TouchableOpacity, SafeAreaView } from 'react-native';
-import { theme } from '../constants/theme';  // Assuming you have a theme object
-import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {Alert, SafeAreaView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
+import {Ionicons} from '@expo/vector-icons';
+import {StatusBar} from 'expo-status-bar';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import {useRouter} from 'expo-router';
+
+import {ThemeContext} from '@/context/ThemeProvider';
+import {getUserInfo} from '@/services/userService';
+import {getCalendarEvents} from '@/services/calendarService';
+
+WebBrowser.maybeCompleteAuthSession();
 
 const Settings = () => {
     const router = useRouter();
+    const [userInfo, setUserInfo] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const {isDark, toggleTheme, colorBlindMode, toggleColorBlindMode, theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
-    // Functionality of the buttons
-    const [darkMode, setDarkMode] = useState(false); // State for Dark Mode
-    const [colorBlindMode, setColorBlindMode] = useState(false); // State for Color Blind Mode
+    const [, response, promptAsync] = Google.useAuthRequest({
+        webClientId: '794159243993-1d44c4nsmehq6hrlg46qc3vrjaq0ohuu.apps.googleusercontent.com',
+        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        androidClientId: '382767299119-lsn33ef80aa3s68iktbr29kpdousi4l4.apps.googleusercontent.com',
+        scopes: ['profile', 'email', 'https://www.googleapis.com/auth/calendar'],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect',
+    });
 
-    const toggleDarkMode = () => setDarkMode(previousState => !previousState);
-    const toggleColorBlindMode = () => setColorBlindMode(previousState => !previousState);
+    useEffect(() => {
+        if (response?.type === 'success') {
+            processLogin(response.authentication.accessToken);
+        }
+    }, [response]);
 
-  return (
-    <SafeAreaView style={styles.container}>
-      {/* Header Section */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <Ionicons name="arrow-back" size={24} color={theme.colors.primary} />
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>Settings</Text>
-      </View>
+    useEffect(() => {
+        const loadUser = async () => {
+            const storedUser = await AsyncStorage.getItem("@user");
+            if (storedUser) setUserInfo(JSON.parse(storedUser));
+        };
+        loadUser();
+    }, []);
 
-      {/* Dark Mode Setting */}
-      <View style={styles.settingContainer}>
-        <Text style={styles.settingTitle}>Dark Mode</Text>
-        <Switch
-          value={darkMode}
-          onValueChange={toggleDarkMode}
-          trackColor={{ false: '#767577', true: theme.colors.primary }}
-          thumbColor={darkMode ? theme.colors.white : '#f4f3f4'}
-          ios_backgroundColor="#3e3e3e"
-        />
-      </View>
+    const processLogin = async (accessToken) => {
+        try {
+            setIsLoading(true);
+            const userData = await getUserInfo(accessToken);
+            const events = await getCalendarEvents(accessToken);
+            await AsyncStorage.setItem("@user", JSON.stringify(userData));
+            await AsyncStorage.setItem("@calendar", JSON.stringify(events));
+            setUserInfo(userData);
+            router.replace("/user");
+        } catch (error) {
+            Alert.alert("Login Failed", "Could not retrieve user information.");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-      {/* Color Blind Mode Setting */}
-      <View style={styles.settingContainer}>
-        <Text style={styles.settingTitle}>Color Blind Mode</Text>
-        <Switch
-          value={colorBlindMode}
-          onValueChange={toggleColorBlindMode}
-          trackColor={{ false: '#767577', true: theme.colors.primary }}
-          thumbColor={colorBlindMode ? theme.colors.white : '#f4f3f4'}
-          ios_backgroundColor="#3e3e3e"
-        />
-      </View>
-    </SafeAreaView>
-  );
+    const handleSignOut = async () => {
+        await AsyncStorage.multiRemove(["@user", "@calendar"]);
+        setUserInfo(null);
+        router.replace("/Welcome");
+    };
+
+    return (
+        <SafeAreaView style={[styles.container, {backgroundColor: theme.colors.background}]}>
+            <StatusBar style={isDark ? 'light' : 'dark'}/>
+
+            {/* Header */}
+            <View style={[styles.header, {borderBottomColor: theme.colors.cardBorder}]}>
+                <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
+                    <Ionicons name="chevron-back" size={28} color={theme.colors.primary}/>
+                </TouchableOpacity>
+                <Text style={[styles.headerTitle, {color: theme.colors.text}]}>Settings</Text>
+            </View>
+
+            {/* Settings List */}
+            <View style={styles.settingsList}>
+                <View style={[styles.settingCard, {
+                    backgroundColor: theme.colors.settingsCardBackground,
+                    borderColor: theme.colors.cardBorder
+                }]}>
+                    <Text style={[styles.settingTitle, {color: theme.colors.text}]}>Dark Mode</Text>
+                    <Switch
+                        testID={'dark-mode-switch'}
+                        value={isDark}
+                        onValueChange={toggleTheme}
+                        trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
+                        thumbColor={isDark ? theme.colors.white : '#f4f3f4'}
+                    />
+                </View>
+
+                <View style={[styles.settingCard, {
+                    backgroundColor: theme.colors.settingsCardBackground,
+                    borderColor: theme.colors.cardBorder
+                }]}>
+                    <Text style={[styles.settingTitle, {color: theme.colors.text}]}>Color Blind Mode</Text>
+                    <Switch
+                        testID={'color-blind-mode-switch'}
+                        value={colorBlindMode}
+                        onValueChange={toggleColorBlindMode}
+                        trackColor={{false: theme.colors.gray, true: theme.colors.primary}}
+                        thumbColor={colorBlindMode ? theme.colors.white : '#f4f3f4'}
+                    />
+                </View>
+            </View>
+
+            {/* Sign In/Out Section */}
+            <View style={styles.authContainer}>
+                <Text style={styles.authStatus}>
+                    {userInfo
+                        ? `Signed in as ${userInfo.given_name || userInfo.email}`
+                        : 'You are not signed in'}
+                </Text>
+
+                <TouchableOpacity
+                    onPress={userInfo ? handleSignOut : () => promptAsync()}
+                    style={[
+                        styles.authButton,
+                        userInfo && {backgroundColor: theme.colors.primary, borderWidth: 0},
+                    ]}
+                    disabled={isLoading}
+                >
+                    <Ionicons
+                        name={userInfo ? "log-out-outline" : "log-in-outline"}
+                        size={22}
+                        color={theme.colors.white}
+                    />
+                    <Text style={[
+                        styles.authButtonText,
+                        userInfo && {color: theme.colors.white}
+                    ]}>
+                        {isLoading ? "Processing..." : userInfo ? "Sign Out" : "Sign In with Google"}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+        </SafeAreaView>
+    );
 };
 
-export default Settings;
+const createStyles = (theme) => StyleSheet.create({
+    container: {
+        flex: 1,
+        paddingHorizontal: 20,
+    },
+    header: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 20,
+        borderBottomWidth: 1,
+    },
+    backButton: {
+        marginRight: 20,
+    },
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+    },
+    settingsList: {
+        marginTop: 20,
+    },
+    settingCard: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        padding: 15,
+        borderRadius: 10,
+        marginBottom: 15,
+        borderWidth: 1,
+    },
+    settingTitle: {
+        fontSize: 18,
+    },
+    authContainer: {
+        marginTop: 'auto',
+        alignItems: 'center',
+        paddingVertical: 40,
+    },
+    authStatus: {
+        fontSize: 14,
+        color: theme.colors.grayDark,
+        marginBottom: 10,
+        textAlign: 'center',
+    },
+    authButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        width: '80%',
+        backgroundColor: theme.colors.primary,
+        borderWidth: 2,
+        borderColor: theme.colors.cardBorder,
+        shadowColor: '#000',
+        shadowOffset: {width: 0, height: 2},
+        shadowOpacity: 0.05,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+    authButtonText: {
+        fontSize: 16,
+        fontWeight: '600',
+        marginLeft: 8,
+        letterSpacing: 0.4,
+        color: theme.colors.white,
+    }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: theme.colors.background,  // Background color of the settings page
-    padding: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-    paddingVertical: 15,
-    borderBottomWidth: 1, 
-    borderBottomColor: '#d1d1d1',
-  },
-  backButton: {
-    marginRight: 20,
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: theme.colors.text, 
-  },
-  settingContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 15,
-    borderBottomWidth: 1,
-    borderBottomColor: theme.colors.border, 
-  },
-  settingTitle: {
-    fontSize: 18,
-    color: theme.colors.text,
-  },
 });
+
+export default Settings;
