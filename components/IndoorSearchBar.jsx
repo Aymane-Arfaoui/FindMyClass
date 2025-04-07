@@ -10,6 +10,7 @@ import {
 import { floorsData } from "@/constants/floorData";
 import { Ionicons } from "@expo/vector-icons";
 import PropTypes from "prop-types";
+import {hp, wp} from '@/helpers/common';
 import {ThemeContext} from "@/context/ThemeProvider";
 
 
@@ -29,30 +30,40 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
             return;
         }
 
-        let results = [];
-
-        Object.keys(floorsData).forEach((buildingKey) => {
-            const buildingFloors = floorsData[buildingKey];
-
-            Object.keys(buildingFloors).forEach((floorKey) => {
-                const { sections } = buildingFloors[floorKey];
-
-                sections.forEach((section) => {
-                    if (section.id.toLowerCase().includes(query.toLowerCase())) {
-                        results.push({
-                            id: section.id,
-                            buildingKey,
-                            floorKey,
-                            section,
-                        });
-                    }
-                });
-            });
-        });
-
+        const results = getMatchingSectionsFromFloors(query);
         setSearchResults(results);
         setSearchActive(true);
     };
+
+    const getMatchingSectionsFromFloors = (query) => {
+        const results = [];
+        const lowerQuery = query.toLowerCase();
+
+        for (const buildingKey of Object.keys(floorsData)) {
+            const buildingFloors = floorsData[buildingKey];
+
+            for (const floorKey of Object.keys(buildingFloors)) {
+                const { sections } = buildingFloors[floorKey];
+
+                const matches = findMatchingSections(sections, lowerQuery, buildingKey, floorKey);
+                results.push(...matches);
+            }
+        }
+
+        return results;
+    };
+
+    const findMatchingSections = (sections, lowerQuery, buildingKey, floorKey) => {
+        return sections
+            .filter(section => section.id.toLowerCase().includes(lowerQuery))
+            .map(section => ({
+                id: section.id,
+                buildingKey,
+                floorKey,
+                section,
+            }));
+    };
+
 
     const handleClearSearch = () => {
         setSearchQuery('');
@@ -63,7 +74,7 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
     };
 
     const getSectionCenter = (section) => {
-        if (!section || !section.d) return null;
+        if (!section?.d) return null;
 
         try {
             const numbers = section.d.match(/[-+]?\d*\.?\d+/g)?.map(Number) || [];
@@ -152,7 +163,7 @@ export default IndoorSearchBar;
 const createStyles = (theme) => StyleSheet.create({
     searchBarWrapper: {
         position: "absolute",
-        top: 60,
+        top: 50,
         left: 50,
         right: 16,
         flexDirection: "row",
@@ -161,11 +172,12 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: theme.radius.xl,
         paddingHorizontal: 12,
         height: 44,
+        borderWidth: wp(0.5),
+        borderColor: "#CCCCCC",
         shadowColor: theme.colors.text,
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.2,
         shadowRadius: theme.radius.sm,
-        elevation: 5,
         width: 330,
     },
     searchIcon: {

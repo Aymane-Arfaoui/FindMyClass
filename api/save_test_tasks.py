@@ -4,8 +4,10 @@ Utility script to save test tasks to disk for CLI testing
 """
 import json
 import os
-import sys
 from pathlib import Path
+
+TASKS_FILENAME = 'tasks.json'
+EXPO_DIRECTORY = '.expo'
 
 # Sample tasks matching what we see in the app
 BASE_TASKS = [
@@ -32,10 +34,10 @@ def get_app_tasks():
     
     # Possible locations for AsyncStorage tasks
     possible_paths = [
-        app_dir / 'AsyncStorage' / 'tasks.json',
-        app_dir / '.expo' / 'AsyncStorage' / 'tasks.json',
-        app_dir / '.expo' / 'async-storage' / 'tasks.json',
-        app_dir / 'local-storage' / 'tasks.json'
+        app_dir / 'AsyncStorage' / TASKS_FILENAME,
+        app_dir / EXPO_DIRECTORY / 'AsyncStorage' / TASKS_FILENAME,
+        app_dir / EXPO_DIRECTORY / 'async-storage' / TASKS_FILENAME,
+        app_dir / 'local-storage' / TASKS_FILENAME
     ]
     
     for path in possible_paths:
@@ -51,30 +53,56 @@ def get_app_tasks():
     
     return []
 
+def merge_tasks(base_tasks, app_tasks):
+    """Merge app and base tasks, avoiding duplicates"""
+    task_map = {task['id']: task for task in base_tasks}
+    for task in app_tasks:
+        task_id = task.get('id') or task.get('taskName')
+        if task_id:
+            task_map[task_id] = task
+    return list(task_map.values())
+
+def add_or_update_tasks(tasks, new_tasks):
+    """Add or update new tasks based on ID or taskName"""
+    for new_task in new_tasks:
+        task_id = new_task['id']
+        existing = False
+        for i, task in enumerate(tasks):
+            if task.get('id') == task_id or task.get('taskName') == new_task['taskName']:
+                tasks[i] = new_task
+                existing = True
+                break
+        if not existing:
+            tasks.append(new_task)
+    return tasks
+
+def save_to_paths(paths, filename, tasks):
+    """Try saving tasks to all provided paths"""
+    successes = 0
+    for base_path in paths:
+        try:
+            os.makedirs(base_path, exist_ok=True)
+            file_path = base_path / filename
+            with open(file_path, 'w') as f:
+                json.dump(tasks, f, indent=2)
+            print(f"Successfully saved tasks to: {file_path}")
+            successes += 1
+        except Exception as e:
+            print(f"Failed to save to {base_path}: {e}")
+    return successes
+
+
 def save_tasks():
     """Save test tasks to multiple locations where they might be found"""
-    # Try to read tasks from the app first
     app_tasks = get_app_tasks()
-    
-    # Merge with base tasks if we found any
+
     if app_tasks:
-        # Create a map of existing task IDs to avoid duplicates
-        task_map = {task['id']: task for task in BASE_TASKS}
-        
-        # Add app tasks, overwriting duplicates
-        for task in app_tasks:
-            task_id = task.get('id') or task.get('taskName')
-            if task_id:
-                task_map[task_id] = task
-        
-        # Convert back to list
-        tasks = list(task_map.values())
+        tasks = merge_tasks(BASE_TASKS, app_tasks)
         print(f"Combined {len(BASE_TASKS)} base tasks with {len(app_tasks)} app tasks, resulting in {len(tasks)} total tasks")
     else:
         tasks = BASE_TASKS
         print(f"Using {len(tasks)} base tasks")
-    
-    # Add the new tasks from the screenshot
+
     new_tasks = [
         {
             "id": "task3",
@@ -88,50 +116,24 @@ def save_tasks():
             "taskName": "Test 3",
             "startTime": "2025-04-04T18:06:00",
             "address": "Varennes Pizzeria, Route Marie-Victorin, Varennes, QC, Canada",
-            "notes": "No additional details"
+            "notes": "There are No additional details"
         }
     ]
-    
-    # Add or update new tasks
-    for new_task in new_tasks:
-        task_id = new_task['id']
-        existing = False
-        for i, task in enumerate(tasks):
-            if task.get('id') == task_id or task.get('taskName') == new_task['taskName']:
-                tasks[i] = new_task
-                existing = True
-                break
-        if not existing:
-            tasks.append(new_task)
-    
+
+    tasks = add_or_update_tasks(tasks, new_tasks)
     print(f"Added new tasks from screenshot, final count: {len(tasks)}")
-    
-    # Possible paths where tasks might be stored/read from
+
     paths = [
-        Path(os.getcwd()) / '.expo' / 'async-storage',
-        Path(os.getcwd()).parent / 'app' / '.expo' / 'async-storage',
-        Path(os.getcwd()).parent / '.expo' / 'async-storage',
-    ]
-    
-    # Try to save to each path
-    successes = 0
-    for base_path in paths:
-        try:
-            # Create directory if it doesn't exist
-            os.makedirs(base_path, exist_ok=True)
-            
-            # Save tasks file
-            file_path = base_path / 'tasks.json'
-            with open(file_path, 'w') as f:
-                json.dump(tasks, f, indent=2)
-            
-            print(f"Successfully saved tasks to: {file_path}")
-            successes += 1
-        except Exception as e:
-            print(f"Failed to save to {base_path}: {e}")
-    
+        Path(os.getcwd()) / EXPO_DIRECTORY / 'async-storage',
+        Path(os.getcwd()).parent / 'app' / EXPO_DIRECTORY / 'async-storage',
+        Path(os.getcwd()).parent / EXPO_DIRECTORY / 'async-storage',
+        ]
+
+    successes = save_to_paths(paths, TASKS_FILENAME, tasks)
     print(f"Saved tasks to {successes} locations")
+
     return successes > 0
+
 
 if __name__ == "__main__":
     save_tasks() 

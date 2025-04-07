@@ -12,13 +12,16 @@ const AppNavigationPanel = () => {
     const pathname = usePathname();
     const {theme} = React.useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
-    
+
+    const getScaleForPath = (currentPath, targetPath) => (
+        new Animated.Value(currentPath === targetPath ? 1.1 : 1)
+    );
+
     // Animation values for each tab
-    const calendarScale = useRef(new Animated.Value(pathname === "/home" ? 1.1 : 1)).current;
-    const mapScale = useRef(new Animated.Value(pathname === "/homemap" ? 1.1 : 1)).current;
-    const plannerScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
-    const chatScale = useRef(new Animated.Value(pathname === "/chat" ? 1.1 : 1)).current;
-    const profileScale = useRef(new Animated.Value(pathname === "/user" ? 1.1 : 1)).current;
+    const calendarScale = useRef(getScaleForPath(pathname, "/home")).current;
+    const mapScale = useRef(getScaleForPath(pathname, "/homemap")).current;
+    const profileScale = useRef(getScaleForPath(pathname, "/user")).current;
+
     
     // Animate active tab when pathname changes
     useEffect(() => {
@@ -26,18 +29,18 @@ const AppNavigationPanel = () => {
         Animated.parallel([
             Animated.spring(calendarScale, {toValue: 1, friction: 5, useNativeDriver: true}),
             Animated.spring(mapScale, {toValue: 1, friction: 5, useNativeDriver: true}),
-            Animated.spring(plannerScale, {toValue: 1, friction: 5, useNativeDriver: true}),
-            Animated.spring(chatScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            // Animated.spring(plannerScale, {toValue: 1, friction: 5, useNativeDriver: true}),
+            // Animated.spring(chatScale, {toValue: 1, friction: 5, useNativeDriver: true}),
             Animated.spring(profileScale, {toValue: 1, friction: 5, useNativeDriver: true}),
         ]).start();
         
         // Animate active tab
         let activeScale;
         switch (pathname) {
-            case "/home": activeScale = calendarScale; break;
+            case "/smartPlanner": activeScale = calendarScale; break;
             case "/homemap": activeScale = mapScale; break;
-            case "/smartPlanner": activeScale = plannerScale; break;
-            case "/chat": activeScale = chatScale; break;
+            // case "/smartPlanner": activeScale = plannerScale; break;
+            // case "/chat": activeScale = chatScale; break;
             case "/user": activeScale = profileScale; break;
         }
         
@@ -54,15 +57,15 @@ const AppNavigationPanel = () => {
         <View style={styles.appNavigationPanel} testID={'navigation-panel'}>
             <TouchableOpacity
                 style={styles.tabItem}
-                onPress={() => router.push("/home")}
+                onPress={() => router.push("/smartPlanner")}
                 testID={'button-navigate-to-home'}
                 activeOpacity={0.7}
             >
                 <Animated.View style={{transform: [{scale: calendarScale}]}}>
                     <Ionicons
-                        name={pathname === "/home" ? "calendar" : "calendar-outline"}
+                        name={pathname === "/smartPlanner" ? "calendar" : "calendar-outline"}
                         size={26}
-                        color={pathname === "/home" ? theme.colors.primary : theme.colors.grayDark}
+                        color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
                     />
                 </Animated.View>
                 <Text style={[
@@ -94,49 +97,6 @@ const AppNavigationPanel = () => {
 
             <TouchableOpacity
                 style={styles.tabItem}
-                onPress={() => router.push("/smartPlanner")}
-                testID={'button-navigate-to-planner'}
-                activeOpacity={0.7}
-            >
-                <Animated.View style={{transform: [{scale: plannerScale}]}}>
-                    <Ionicons
-                        name={pathname === "/smartPlanner" ? "book" : "book-outline"}
-                        size={26}
-                        color={pathname === "/smartPlanner" ? theme.colors.primary : theme.colors.grayDark}
-                    />
-                </Animated.View>
-                <Text style={[
-                    styles.tabText,
-                    pathname === "/smartPlanner" && styles.activeTabText
-                ]}>Planner</Text>
-                {pathname === "/smartPlanner" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.tabItem}
-                onPress={() => {
-                    console.warn('Navigating to chat screen');
-                    router.push('/chat');
-                }}
-                testID={'button-navigate-to-chat'}
-                activeOpacity={0.7}
-            >
-                <Animated.View style={{transform: [{scale: chatScale}]}}>
-                    <Ionicons
-                        name={pathname === "/chat" ? "chatbubble-ellipses" : "chatbubble-ellipses-outline"}
-                        size={26}
-                        color={pathname === "/chat" ? theme.colors.primary : theme.colors.grayDark}
-                    />
-                </Animated.View>
-                <Text style={[
-                    styles.tabText,
-                    pathname === "/chat" && styles.activeTabText
-                ]}>Assistant</Text>
-                {pathname === "/chat" && <View style={styles.dotIndicator}/>}
-            </TouchableOpacity>
-
-            <TouchableOpacity
-                style={styles.tabItem}
                 onPress={() => router.push("/user")}
                 testID={'button-navigate-to-user'}
                 activeOpacity={0.7}
@@ -164,7 +124,7 @@ const createStyles = (theme) => StyleSheet.create({
         bottom: 0,
         left: 0,
         width: width,
-        height: 75,
+        height: 87,
         backgroundColor: theme.colors.backgroundNav,
         flexDirection: "row",
         justifyContent: "space-around",

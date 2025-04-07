@@ -91,27 +91,28 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
         }
     };
 
-    const handleDeleteTask = async () => {
+    const handleDeleteTask = () => {
+        const deleteTask = async () => {
+            try {
+                const tasksJson = await AsyncStorage.getItem('tasks');
+                const tasks = tasksJson ? JSON.parse(tasksJson) : [];
+                const updatedTasks = tasks.filter(task => task.id !== taskData.id);
+                await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
+                onClose();
+                onUpdate?.();
+                Alert.alert('Success', 'Task deleted successfully!');
+            } catch (error) {
+                console.error('Error deleting task:', error);
+                Alert.alert('Error', 'Failed to delete task. Please try again.');
+            }
+        };
+
         Alert.alert('Delete Task', 'Are you sure you want to delete this task?', [
             { text: 'Cancel', style: 'cancel' },
             {
                 text: 'Delete',
                 style: 'destructive',
-                onPress: async () => {
-                    try {
-                        const tasksJson = await AsyncStorage.getItem('tasks');
-                        const tasks = tasksJson ? JSON.parse(tasksJson) : [];
-                        const updatedTasks = tasks.filter(task => task.id !== taskData.id);
-
-                        await AsyncStorage.setItem('tasks', JSON.stringify(updatedTasks));
-                        onClose();
-                        onUpdate?.();
-                        Alert.alert('Success', 'Task deleted successfully!');
-                    } catch (error) {
-                        console.error('Error deleting task:', error);
-                        Alert.alert('Error', 'Failed to delete task. Please try again.');
-                    }
-                }
+                onPress: () => { void deleteTask(); }
             }
         ]);
     };
