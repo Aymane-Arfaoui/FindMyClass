@@ -116,86 +116,111 @@ def extract_rooms(query: str) -> tuple:
     print("CHAT.PY: Could not extract rooms from query")
     return None, None
 
+
+def parse_node(node):
+    parts = node.split('_')
+    building = parts[0][0].upper()
+    floor = parts[0][1]
+    room_or_type = parts[-1]
+    return {
+        "building": building,
+        "floor": floor,
+        "room": room_or_type,
+        "is_hallway": len(parts) > 1 and parts[1].startswith('hw'),
+        "is_elevator": 'elevator' in node,
+        "is_stairs": 'stairs' in node,
+        "is_escalator": 'escalator' in node
+    }
+
+
+def is_same_connector_type(c, n, conn_type):
+    return c[f"is_{conn_type}"] and n[f"is_{conn_type}"]
+
+def is_single_connector(node, conn_type):
+    return node[f"is_{conn_type}"]
+
+def handle_same_connector(c, n):
+    for conn_type, label in [("elevator", "elevator"), ("stairs", "stairs"), ("escalator", "escalator")]:
+        if c[f"is_{conn_type}"] and n[f"is_{conn_type}"]:
+            return f"Take the {label} from floor {c['floor']} to floor {n['floor']}"
+    return None
+
+def handle_hallway_to_other(c, n):
+    if not c["is_hallway"]:
+        return None
+    if n["is_elevator"]:
+        return "Look for the elevator along the hallway"
+    if n["is_stairs"]:
+        return "Look for the stairs along the hallway"
+    if n["is_escalator"]:
+        return "Look for the escalator along the hallway"
+    return f"Look for room {n['building']}-{n['room']} along the hallway"
+
+def handle_other_to_hallway(c, n):
+    if not n["is_hallway"]:
+        return None
+    for conn_type, label in [("elevator", "elevator"), ("stairs", "stairs"), ("escalator", "escalator")]:
+        if c[f"is_{conn_type}"]:
+            return f"Exit the {label} and enter the hallway"
+    return f"Exit room {c['building']}-{c['room']} and enter the hallway"
+
+def handle_connector_to_room(c, n):
+    for conn_type, label in [("elevator", "elevator"), ("stairs", "stairs"), ("escalator", "escalator")]:
+        if c[f"is_{conn_type}"]:
+            return f"Exit the {label} and go to room {n['building']}-{n['room']}"
+    return None
+
+
+
+
+def describe_transition(c, n):
+    # Same connector (elevator → elevator, etc.)
+    same = handle_same_connector(c, n)
+    if same:
+        return same
+
+    # Hallway to hallway
+    if c["is_hallway"] and n["is_hallway"]:
+        return f"Continue through the hallway on floor {c['floor']}"
+
+    # Hallway → other
+    hallway_to = handle_hallway_to_other(c, n)
+    if hallway_to:
+        return hallway_to
+
+    # Other → hallway
+    other_to_hall = handle_other_to_hallway(c, n)
+    if other_to_hall:
+        return other_to_hall
+
+    # Connector → room
+    connector_to_room = handle_connector_to_room(c, n)
+    if connector_to_room:
+        return connector_to_room
+
+    # Default: room to room
+    return f"Go from room {c['building']}-{c['room']} to room {n['building']}-{n['room']}"
+
+
+
+
 def interpret_path(path_info: dict) -> str:
     """Convert path information into human-readable instructions"""
     if not path_info or "error" in path_info:
         return path_info.get("error", "Could not find a path between these rooms.")
-    
+
     path = path_info.get("path", [])
-    distance = path_info.get("distance", 0)
-    
     if not path:
         return "No path found between these rooms."
-    
+
     instructions = ["Here's how to get to your destination:"]
-    
     for i in range(len(path) - 1):
-        current = path[i]
-        next_node = path[i + 1]
-        
-        # Extract building, floor, and room/hallway info
-        current_parts = current.split('_')
-        next_parts = next_node.split('_')
-        
-        # Get building and floor info
-        current_building = current_parts[0][0].upper()  # 'h' from 'h1'
-        current_floor = current_parts[0][1]            # '1' from 'h1'
-        next_building = next_parts[0][0].upper()
-        next_floor = next_parts[0][1]
-        
-        # Check node types
-        current_is_hallway = len(current_parts) > 1 and current_parts[1].startswith('hw')
-        next_is_hallway = len(next_parts) > 1 and next_parts[1].startswith('hw')
-        current_is_elevator = 'elevator' in current
-        next_is_elevator = 'elevator' in next_node
-        current_is_stairs = 'stairs' in current
-        next_is_stairs = 'stairs' in next_node
-        current_is_escalator = 'escalator' in current
-        next_is_escalator = 'escalator' in next_node
-        
-        # Handle special nodes
-        if current_is_elevator and next_is_elevator:
-            instructions.append(f"Take the elevator from floor {current_floor} to floor {next_floor}")
-        elif current_is_stairs and next_is_stairs:
-            instructions.append(f"Take the stairs from floor {current_floor} to floor {next_floor}")
-        elif current_is_escalator and next_is_escalator:
-            instructions.append(f"Take the escalator from floor {current_floor} to floor {next_floor}")
-        elif current_is_hallway and next_is_hallway:
-            instructions.append(f"Continue through the hallway on floor {current_floor}")
-        elif current_is_hallway:
-            room_num = next_parts[-1]
-            if next_is_elevator:
-                instructions.append(f"Look for the elevator along the hallway")
-            elif next_is_stairs:
-                instructions.append(f"Look for the stairs along the hallway")
-            elif next_is_escalator:
-                instructions.append(f"Look for the escalator along the hallway")
-            else:
-                instructions.append(f"Look for room {next_building}-{room_num} along the hallway")
-        elif next_is_hallway:
-            current_num = current_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and enter the hallway")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and enter the hallway")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and enter the hallway")
-            else:
-                instructions.append(f"Exit room {current_building}-{current_num} and enter the hallway")
-        else:
-            current_num = current_parts[-1]
-            next_num = next_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and go to room {next_building}-{next_num}")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and go to room {next_building}-{next_num}")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and go to room {next_building}-{next_num}")
-            else:
-                instructions.append(f"Go from room {current_building}-{current_num} to room {next_building}-{next_num}")
-    
-    instructions.append(f"\nTotal distance: {distance:.1f} meters")
+        current = parse_node(path[i])
+        next_node = parse_node(path[i + 1])
+        instructions.append(describe_transition(current, next_node))
+
     return "\n".join(instructions)
+
 
 def handle_follow_up(query: str, context: NavigationContext) -> str:
     """Handle follow-up questions about the last navigation"""
@@ -273,12 +298,14 @@ def get_tasks_from_storage():
         import os
         from pathlib import Path
 
+        EXPO_DIRECTORY = '.expo'
+        TASK_DIRECTORY = 'tasks.json'
         # Try multiple possible locations for tasks
         possible_paths = [
-            Path(os.getcwd()) / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / 'app' / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / 'app' / 'services' / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / '.expo' / 'async-storage' / 'tasks.json'
+            Path(os.getcwd()) / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / 'app' / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / 'app' / 'services' / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY
         ]
 
         for storage_file in possible_paths:
@@ -311,78 +338,87 @@ SAMPLE_TASKS = [
     }
 ]
 
+
+def handle_exit(user_input):
+    if user_input.lower() == 'exit':
+        print("Goodbye!")
+        return True
+    return False
+
+def handle_help(user_input):
+    if user_input.lower() == 'help':
+        print("\nAvailable commands:")
+        print("- Ask for directions (e.g., 'How do I get to H-820?')")
+        print("- Ask about tasks (e.g., 'What tasks do I have today?')")
+        print("- 'exit' to quit")
+        print("- 'help' for this menu")
+        return True
+    return False
+
+def handle_task_query_if_applicable(user_input):
+    if is_task_query(user_input):
+        tasks = get_tasks_from_storage()
+        if not tasks:
+            print("No tasks found in storage, using sample tasks")
+            tasks = SAMPLE_TASKS
+        print(f"Using {len(tasks)} tasks")
+        response = handle_task_query(user_input, tasks)
+        print("\nConcordia Assistant:", response)
+        return True
+    return False
+
+def handle_navigation_query_if_applicable(user_input, nav_api):
+    if is_navigation_query(user_input):
+        start_room, end_room = extract_rooms(user_input)
+        if not start_room or not end_room:
+            print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
+            return True
+        path_info = nav_api.find_shortest_path(start_room, end_room)
+        nav_context.last_navigation = path_info
+        nav_context.last_start_room = start_room
+        nav_context.last_end_room = end_room
+        response = interpret_path(path_info)
+        print("\nConcordia Assistant:", response)
+        return True
+    return False
+
+def handle_follow_up_if_applicable(user_input):
+    if nav_context.last_navigation:
+        response = handle_follow_up(user_input, nav_context)
+        print("\n Concordia Assistant:", response)
+        return True
+    return False
+
+def print_default_prompt():
+    print("\nConcordia Assistant: I can help you with navigation and tasks. Try asking:")
+    print("- 'How do I get to H-820?'")
+    print("- 'What tasks do I have today?'")
+    print("- Type 'help' for more options")
+
+
 def main():
-    # Load environment variables
     load_dotenv()
-    
-    # Initialize OpenAI client and Navigation API
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     nav_api = AINavigationAPI()
-    
+
     print("Welcome to the Concordia Indoor Navigation and Task Assistant!")
     print("I can help you find your way around campus and manage your tasks.")
     print("Type 'exit' to quit")
     print("Type 'help' for available commands")
-    
+
     while True:
         try:
             user_input = input("\nYou: ").strip()
-            
-            if user_input.lower() == 'exit':
-                print("Goodbye!")
-                break
-            elif user_input.lower() == 'help':
-                print("\nAvailable commands:")
-                print("- Ask for directions (e.g., 'How do I get to H-820?')")
-                print("- Ask about tasks (e.g., 'What tasks do I have today?')")
-                print("- 'exit' to quit")
-                print("- 'help' for this menu")
-                continue
-            
-            # Check if it's a task query
-            if is_task_query(user_input):
-                # Get tasks from AsyncStorage
-                tasks = get_tasks_from_storage()
-                if not tasks:
-                    print("No tasks found in storage, using sample tasks") # Debug print
-                    tasks = SAMPLE_TASKS
-                
-                print(f"Using {len(tasks)} tasks") # Debug print
-                response = handle_task_query(user_input, tasks)
-                print("\nConcordia Assistant:", response)
-                continue
-            
-            # Check if it's a navigation query
-            if is_navigation_query(user_input):
-                start_room, end_room = extract_rooms(user_input)
-                
-                if not start_room or not end_room:
-                    print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
-                    continue
-                
-                path_info = nav_api.find_shortest_path(start_room, end_room)
-                nav_context.last_navigation = path_info
-                nav_context.last_start_room = start_room
-                nav_context.last_end_room = end_room
-                
-                response = interpret_path(path_info)
-                print("\nConcordia Assistant:", response)
-                continue
-            
-            # Handle follow-up questions about the last navigation
-            if nav_context.last_navigation:
-                response = handle_follow_up(user_input, nav_context)
-                print("\nConcordia Assistant:", response)
-                continue
-            
-            print("\nConcordia Assistant: I can help you with navigation and tasks. Try asking:")
-            print("- 'How do I get to H-820?'")
-            print("- 'What tasks do I have today?'")
-            print("- Type 'help' for more options")
-            
+            if handle_exit(user_input): break
+            if handle_help(user_input): continue
+            if handle_task_query_if_applicable(user_input): continue
+            if handle_navigation_query_if_applicable(user_input, nav_api): continue
+            if handle_follow_up_if_applicable(user_input): continue
+            print_default_prompt()
         except Exception as e:
             print(f"\nError: {str(e)}")
             print("Please try again with a different query.")
+
 
 if __name__ == "__main__":
     main() 

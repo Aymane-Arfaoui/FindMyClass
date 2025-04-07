@@ -73,7 +73,7 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
     };
 
     const getSectionCenter = (section) => {
-        if (!section || !section.d) return null;
+        if (!section?.d) return null;
 
         try {
             const numbers = section.d.match(/[-+]?\d*\.?\d+/g)?.map(Number) || [];
