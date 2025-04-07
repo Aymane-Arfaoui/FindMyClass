@@ -58,11 +58,11 @@ const Map = ({
 
     const mapStyleURL = useMemo(() => {
         if (colorBlindMode) {
-            return isDark 
-                ? 'mapbox://styles/mapbox/light-v11'  // Light theme for better contrast in dark mode
-                : 'mapbox://styles/mapbox/streets-v12'; // Regular streets for normal mode
+            return isDark
+                ? 'mapbox://styles/rwz/cm8nzp5wf005l01sddncm7d4m'  // Light theme for better contrast in dark mode
+                : 'mapbox://styles/rwz/cm8nzeycl005c01qr2k6rds82'; // Regular streets for normal mode
         }
-        
+
         return isDark
             ? 'mapbox://styles/mapbox/dark-v11'  // Dark theme
             : 'mapbox://styles/mapbox/streets-v12';  // Regular Light theme
@@ -126,15 +126,16 @@ const Map = ({
                                     lineColor: [
                                         'match',
                                         ['get', 'congestion'],
-                                        'low', '#4CAF50',
-                                        'moderate', '#FFA000',
-                                        'heavy', '#FF5252',
-                                        'severe', '#D32F2F',
-                                        '#4CAF50'
+                                        'low', theme.colors.traffic.low,
+                                        'moderate', theme.colors.traffic.moderate,
+                                        'heavy', theme.colors.traffic.heavy,
+                                        'severe', theme.colors.traffic.severe,
+                                        theme.colors.traffic.default
                                     ],
                                     lineWidth: 3,
-                                    lineOpacity: 0.8
+                                    lineOpacity: 0.9
                                 }}
+
                             />
                         </MapboxGL.ShapeSource>
 
@@ -149,26 +150,28 @@ const Map = ({
                             }}
                         >
                             {/* Professional 3D building layer */}
-                            <MapboxGL.FillExtrusionLayer
-                                id="building-extrusion"
-                                style={{
-                                    fillExtrusionColor: [
-                                        'case',
-                                        ['boolean', ['feature-state', 'hover'], false],
-                                        '#ff1a1a',
-                                        '#e60000'
-                                    ],
-                                    fillExtrusionOpacity: 0.9,
-                                    fillExtrusionHeight: [
-                                        'case',
-                                        ['has', 'height'],
-                                        ['*', ['to-number', ['get', 'height'], 15], 0.6],
-                                        15
-                                    ],
-                                    fillExtrusionBase: 0,
-                                    fillExtrusionVerticalGradient: true
-                                }}
-                            />
+
+                                <MapboxGL.FillExtrusionLayer
+                                    id="building-extrusion"
+                                    style={{
+                                        fillExtrusionColor: [
+                                            'case',
+                                            ['boolean', ['feature-state', 'hover'], false],
+                                            theme.colors.map.buildingExtrusion.hover,
+                                            theme.colors.map.buildingExtrusion.base,
+                                        ],
+                                        fillExtrusionOpacity: 0.9,
+                                        fillExtrusionHeight: [
+                                            'case',
+                                            ['has', 'height'],
+                                            ['*', ['to-number', ['get', 'height'], 15], 0.6],
+                                            15,
+                                        ],
+                                        fillExtrusionBase: 0,
+                                        fillExtrusionVerticalGradient: true
+                                    }}
+                                />
+
 
                             {/* Building Labels */}
                             <MapboxGL.SymbolLayer
@@ -176,8 +179,8 @@ const Map = ({
                                 style={{
                                     textField: ['get', 'name'],
                                     textSize: 13,
-                                    textColor: '#1a1a1a',
-                                    textHaloColor: '#ffffff',
+                                    textColor: theme.colors.map?.buildingLabel?.text ?? theme.colors.text,
+                                    textHaloColor: theme.colors.map?.buildingLabel?.halo ?? theme.colors.white,
                                     textHaloWidth: 2,
                                     textHaloBlur: 1,
                                     textAnchor: 'center',
@@ -208,9 +211,9 @@ const Map = ({
                                     id="user-location-layer"
                                     style={{
                                         circleRadius: 6,
-                                        circleColor: '#e60000',
+                                        circleColor: theme.colors.map?.userLocation,
                                         circleStrokeWidth: 2,
-                                        circleStrokeColor: '#ffffff',
+                                        circleStrokeColor: theme.colors.white,
                                         circlePitchAlignment: 'map'
                                     }}
                                 />
@@ -218,7 +221,7 @@ const Map = ({
                                     id="user-location-halo"
                                     style={{
                                         circleRadius: 15,
-                                        circleColor: '#e60000',
+                                        circleColor: theme.colors.map.userLocation,
                                         circleOpacity: 0.2,
                                         circlePitchAlignment: 'map'
                                     }}
@@ -280,7 +283,9 @@ const Map = ({
                             <MapboxGL.LineLayer
                                 id={`route-line-${index}`}
                                 style={{
-                                    lineColor: isSelected ? '#e60000' : '#ff4d4d',
+                                    lineColor: isSelected
+                                        ? theme.colors.map.selectedRoute
+                                        : theme.colors.map.route,
                                     lineWidth: isSelected ? 4 : 3,
                                     lineOpacity: isSelected ? 1 : 0.8,
                                     lineCap: 'round',
@@ -333,7 +338,7 @@ const createStyles = (theme) => StyleSheet.create({
         circleRadius: 8,
         circleColor: theme.colors.userLocation,
         circleStrokeWidth: 2,
-        circleStrokeColor: '#fff',
+        circleStrokeColor: theme.colors.white,
     },
     route: {
         lineColor: theme.colors.route,
@@ -351,7 +356,7 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 10,
         backgroundColor: theme.colors.endpoint,
         borderWidth: 2,
-        borderColor: '#fff',
+        borderColor: theme.colors.white,
     },
 });
 

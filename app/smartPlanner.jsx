@@ -9,7 +9,8 @@ import CreateTask from '@/components/CreateTask';
 import SmartPlannerHeader from "@/components/SmartPlannerHeader";
 import {ThemeContext} from '@/context/ThemeProvider'
 import {StatusBar} from "expo-status-bar";
-import {getEventsAndTasks} from './services/fetchSmartPlanner';
+import {getEventsAndTasks} from '../services/fetchSmartPlanner';
+import PropTypes from "prop-types";
 
 const CalendarFilter = ({
                             availableCalendars,
@@ -58,7 +59,9 @@ const CalendarFilter = ({
     );
 };
 
-
+CalendarFilter.propTypes = {
+    availableCalendars: PropTypes.any, selectedCalendars: PropTypes.any, onToggleCalendar: PropTypes.func, setSelectedCalendars: PropTypes.func, setIsVisible: PropTypes.func, styles:PropTypes.any, theme:PropTypes.any
+}
 const SmartPlanner = () => {
     const router = useRouter();
     const currentDate = new Date();

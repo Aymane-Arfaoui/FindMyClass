@@ -22,7 +22,6 @@ const StartPointSearchBar = ({
         setSearchQuery('');
         setSearchResults([]);
         setSearchActive(false);
-        // setSelectedSection(null);
         resetTransform();
     };
 
@@ -74,18 +73,9 @@ const StartPointSearchBar = ({
     const {theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
     const handleSelectSearchResultStartLocation = (result) => {
-        // setSelectedFloorKey(result.floorKey);
-        // setSelectedSection(result.section);
         setSearchQuery(result.id);
         setSearchResults([]);
         setSearchActive(false);
-
-        // const sectionCenter = getSectionCenter(result.section);
-        //
-        // if (sectionCenter) {
-        //     resetTransform(sectionCenter);
-        // }
-
         resetTransform();
 
         navigation.navigate("MapScreen", {
@@ -161,7 +151,7 @@ const createStyles = (theme) => StyleSheet.create({
     sPSearchInput: {
         flex: 1,
         fontSize: hp(1.8),
-        color: theme.colors.gray,
+        color: '#2D2D2D',
     },
 
     sPSearchIcon: {
@@ -199,7 +189,7 @@ const createStyles = (theme) => StyleSheet.create({
     },
     sPSearchResultText: {
         fontSize: hp(1.7),
-        color: theme.colors.gray,
+        color: '#2D2D2D',
         fontWeight: '500',
     },
 });

@@ -19,22 +19,18 @@ import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
 
 
-import mapHall1 from '../api/app/data/campus_jsons/hall/map_hall_1.json';
-import mapHall2 from '../api/app/data/campus_jsons/hall/map_hall_2.json';
-import mapHall8 from '../api/app/data/campus_jsons/hall/map_hall_8.json';
-import mapHall9 from '../api/app/data/campus_jsons/hall/map_hall_9.json';
-
-import mapMB1 from '../api/app/data/campus_jsons/mb/map_mb_1.json';
-import mapMBS2 from '../api/app/data/campus_jsons/mb/map_mb_s2.json';
-
-import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
-
-
 import IndoorSearchBars from "@/components/IndoorSearchBars";
 import IndoorSearchBar from "@/components/IndoorSearchBar";
 import PropTypes from "prop-types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {ThemeContext} from "@/context/ThemeProvider";
+import {
+    getIndoorPath,
+    getMultiFloorMessage,
+    getNodeData,
+    getNodeDataRefID,
+    getPathFromNodes
+} from "../services/indoorNodesHelper";
 
 
 const MapScreen = () => {
@@ -116,43 +112,7 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
     };
 
 
-    const getPathFromNodes = (nodeIds) => {
-        const coordinates = nodeIds.map(nodeId => {
-            let node = null;
-            let yDif = 0;
-            if (buildingKey == 'Hall') {
-                if (selectedFloorKey == 1) {
-                    node = mapHall1.nodes.find(n => n.id === nodeId);
-                } else if (selectedFloorKey == 2) {
-                    node = mapHall2.nodes.find(n => n.id === nodeId);
-                } else if (selectedFloorKey == 8) {
-                    node = mapHall8.nodes.find(n => n.id === nodeId);
-                } else if (selectedFloorKey == 9) {
-                    node = mapHall9.nodes.find(n => n.id === nodeId);
-                }
-                yDif = 1132;
-            } else if (buildingKey == "MB") {
-                if (selectedFloorKey == "S2") {
-                    node = mapMB1.nodes.find(n => n.id === nodeId);
-                } else if (selectedFloorKey == "S1") {
-                    node = mapMBS2.nodes.find(n => n.id === nodeId);
-                }
-                yDif = 1132;
 
-            } else if (buildingKey == "CC") {
-                if (selectedFloorKey == "1") {
-                    node = mapCC1.nodes.find(n => n.id === nodeId);
-                }
-                yDif = 746;
-
-            }
-
-
-            return node ? `${node.x},${yDif - node.y}` : null;
-        }).filter(coord => coord !== null);
-
-        return `M${coordinates.join(' L')}`;
-    };
 
     const [path, setPath] = useState(null);
     const [selectedPath, setSelectedPath] = useState(null);
@@ -163,39 +123,10 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
 
     useEffect(() => {
         if (path) {
-            const nodeIds = path;
-            const newPath = getPathFromNodes(nodeIds);
+            const newPath = getPathFromNodes(path,buildingKey,selectedFloorKey);
             setSelectedPath(newPath);
-
-
-            const floorChanges = [];
-            let lastFloor = null;
-
-            nodeIds.forEach((nodeId) => {
-                const node = getNodeData(nodeId);
-
-                if (node) {
-                    const currentFloor = node.floor_number;
-                    if (lastFloor !== null && currentFloor !== lastFloor) {
-                        floorChanges.push({
-                            transitionNode: node,
-                            previousFloor: lastFloor,
-                            newFloor: currentFloor
-                        });
-                    }
-                    lastFloor = currentFloor;
-                }
-            });
-
-            if (floorChanges.length > 0) {
-                let message = "There are floor changes in you path, you need to go:\n";
-                floorChanges.forEach(change => {
-                    message += `  - From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
-                });
-                setMultiFloorMessage(message);
-            } else {
-                setMultiFloorMessage("");
-            }
+            const message=getMultiFloorMessage(path,buildingKey);
+            setMultiFloorMessage(message);
         }
 
 
@@ -208,84 +139,14 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
         };
         loadAccessibilityOption();
     }, []);
-
-
-    const getNodeData = (nodeId) => {
-        let node = null;
-        if (buildingKey === 'Hall') {
-            node = [...mapHall1.nodes, ...mapHall2.nodes, ...mapHall8.nodes, ...mapHall9.nodes].find(n => n.id === nodeId);
-        } else if (buildingKey === "MB") {
-            node = [...mapMB1.nodes, ...mapMBS2.nodes].find(n => n.id === nodeId);
-        } else if (buildingKey === "CC") {
-            node = mapCC1.nodes.find(n => n.id === nodeId);
-        }
-        return node;
-    };
-
-    const getNodeDataRefID = (nodeId) => {
-        const buildingFloors = floorsData[buildingKey];
-        let foundSection = null;
-
-        Object.values(buildingFloors).forEach(floor => {
-            const section = floor.sections.find(s => s.id === nodeId);
-            if (section) {
-                foundSection = section;
-            }
-        });
-
-
-        if (foundSection) {
-            if (foundSection !== "") {
-                if (foundSection.ref_ID !== "") {
-                    return foundSection.ref_ID;
-                }
-            }
-        }
-        return null;
-    };
-
-
-    const getFromFloorData = (nodeId) => {
-        const buildingFloors = floorsData[buildingKey];
-        if (!buildingFloors) {
-            return false;
-        }
-
-        return Object.values(buildingFloors).some(floor => {
-            return floor.sections.some(section => section.id === nodeId);
-        });
-    };
-
-    const checkNodeInFloorData = (nodeId) => {
-        return getFromFloorData(nodeId);
-    };
-
-
     const handleShowDirectionsSection = async (endId) => {
-        if (checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)) {
-            const transformedStartLocationIndoor = getNodeDataRefID(startLocationIndoor)
-            const transformedEndId = endId.ref_ID;
-
-            if (transformedStartLocationIndoor && transformedEndId) {
-                try {
-                    const host = Platform.OS === "android" ? "10.0.2.2" : "127.0.0.1";
-                    const response = await fetch(
-                        `http://${host}:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}&accessibility=${accessibilityOption}`
-                    );
-
-                    if (response.ok) {
-                        const data = await response.json();
-                        setPath(data.path.path);
-
-                    } else {
-                        console.error("Error fetching data");
-                    }
-                } catch (error) {
-                    console.error("Request failed", error);
-                }
-            }
+        const indoorPath = await getIndoorPath(startLocationIndoor, endId, buildingKey, accessibilityOption);
+        if(indoorPath)
+        {
+            setPath(indoorPath)
         }
-    };
+    }
+
 
     const handleShowDirectionsTemp = () => {
         setShowSearchBar(true);
@@ -360,9 +221,7 @@ const InnerMapScreen = ({buildingKey,styles, theme}) => { //avoids creating reac
                                                         ? theme.colors.primaryLight
                                                         : section.id === "floor"
                                                             ? theme.colors.roomFill
-                                                            : section.id === "background"
-                                                                ? theme.colors.floorFill
-                                                                : theme.colors.floorFill
+                                                            : theme.colors.floorFill
 
                                                 }
                                                 stroke={theme.colors.line}

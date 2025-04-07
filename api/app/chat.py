@@ -1,7 +1,7 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from api.app.aiapi import AINavigationAPI
+from .aiapi import AINavigationAPI
 import re
 
 class NavigationContext:

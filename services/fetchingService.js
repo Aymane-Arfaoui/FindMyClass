@@ -111,6 +111,7 @@ export const fetchRoutesData = async (origin, destination, mode, setLoading, set
     } catch (error) {
         setRoutes([]);
         setFastestRoute(null);
+        console.warn(error);
     } finally {
         setLoading(false);
     }
