@@ -1,12 +1,17 @@
+jest.useFakeTimers()
 import React from 'react';
 import { render, userEvent, screen} from '@testing-library/react-native';
 import FloorSelector from '../FloorSelector';
 
 describe('FloorSelector', () => {
     let setSelectedFloorKey;
+    let onChangeUpdateRoute;
+    let  onChangeUpdateRouteTemp;
 
     beforeEach(() => {
-        setSelectedFloorKey = jest.fn();
+        setSelectedFloorKey = jest.fn()
+        onChangeUpdateRoute=jest.fn();
+        onChangeUpdateRouteTemp=jest.fn();
     });
 
     it('should render null when there is 1 or fewer floors', () => {
@@ -53,11 +58,13 @@ describe('FloorSelector', () => {
 
     it('should navigate to the next floor when right arrow is pressed', async () => {
         const user=userEvent.setup()
-        render( <FloorSelector floorKeys={['1', '2', '3']} selectedFloorKey="2" setSelectedFloorKey={setSelectedFloorKey} /> );
+        render( <FloorSelector floorKeys={['1', '2', '3']} selectedFloorKey="2" setSelectedFloorKey={setSelectedFloorKey} onChangeUpdateRoute={onChangeUpdateRoute} onChangeUpdateRouteTemp={onChangeUpdateRouteTemp}/> );
 
         const rightArrowButton = screen.getByTestId('forward-arrow');
         await user.press(rightArrowButton);
 
         expect(setSelectedFloorKey).toHaveBeenCalledWith('3');
+        expect(onChangeUpdateRoute).toHaveBeenCalled();
+        expect(onChangeUpdateRouteTemp).toHaveBeenCalled();
     });
 });

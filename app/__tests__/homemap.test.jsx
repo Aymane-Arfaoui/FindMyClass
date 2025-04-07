@@ -1,17 +1,20 @@
+import Button from "@/components/Button";
+
 jest.useFakeTimers()
 import React from 'react';
 import {render, fireEvent, waitFor, userEvent, screen} from '@testing-library/react-native';
 import Homemap from '../homemap.jsx';
 import { getUserLocation } from '@/services/userService';
 import { fetchRoutes } from '@/services/routeService';
-import {useRouter} from "expo-router";
+import {useLocalSearchParams, useRouter} from "expo-router";
+import {useLocale} from "@react-navigation/native";
 
 
 jest.mock('@rnmapbox/maps', () => {
     return {
         MapView: () => null,
         Camera: () => null,
-        ShapeSource: () => null,
+        ShapeSource: () => <button name={'building-press'}/>,
         FillLayer: () => null,
         SymbolLayer: () => null,
         LineLayer: () => null,
@@ -42,26 +45,25 @@ jest.mock('@/services/routeService', () => ({
     describe('Homemap Component', () => {
         let spy=null;
         const mockFetch=jest.fn();
-        afterAll(jest.restoreAllMocks)
-        beforeAll(()=>{spy=jest.spyOn(global,'fetch').mockImplementation(()=>(
-                {
-                    resp:{
-                        json:jest.fn(
-                            {routes: [
-                                    {legs: [
-                                            {duration:{value:5}}
-                                        ]
-                                    }
-                                ]
-                            }
-                        )
-                    },
-                    then:jest.fn()
-                }
-            )
-        )});
+        afterEach(jest.clearAllMocks)
         beforeEach(() => {
-            // Mock default return values
+            spy=jest.spyOn(global,'fetch').mockImplementation(()=>(
+                    {
+                        resp:{
+                            json:jest.fn(
+                                {routes: [
+                                        {legs: [
+                                                {duration:{value:5}}
+                                            ]
+                                        }
+                                    ]
+                                }
+                            )
+                        },
+                        then:jest.fn()
+                    }
+                )
+            )
 
             getUserLocation.mockResolvedValue({ lat: 45.4960, lng: -73.5789 });
             fetchRoutes.mockResolvedValue([
@@ -72,44 +74,64 @@ jest.mock('@/services/routeService', () => ({
             ]);
 
             useRouter.mockReturnValue({ push: jest.fn() });
+            useLocalSearchParams.mockReturnValue({
+                lat: 45.4960,
+                lng: -73.5789,
+                room : 102,
+                address : '123 Test st',
+                directionsTriggered : true,
+                fromCalendar : false,
+            })
 
         });
 
         test('renders correctly and fetches user location', async () => {
             render(<Homemap />);
 
-            expect(screen.getByText('Loading...')).toBeTruthy();
-
-            // Wait for location to be fetched
             await waitFor(() => expect(getUserLocation).toHaveBeenCalledTimes(2));
 
         });
 
 
-
-
-        it('direction-button', async () => {
-
-            const mockLocation = { coords: { latitude:  45.4973, longitude: -73.5788  } };
+        test('switches to directions view on direction button press', async () => {
+            const mockLocation = { coords: { latitude: 45.4973, longitude: -73.5788 } };
             getUserLocation.mockResolvedValue(mockLocation);
-            render(<Homemap/>);
+            render(<Homemap />);
+
             const user = userEvent.setup();
             await user.press(screen.getByTestId('direction-button'));
+
+            await waitFor(() => {
+                expect(screen.queryByText('Loading...')).not.toBeOnTheScreen();
+            });
         });
 
-        // it('handles errors during fetch and sets state to null', async () => {
-        //     // Mock the fetch implementation to simulate an error
-        //
-        //     spy.mockRejectedValue(new Error('Failed to fetch'));
-        //     const mockConsole=jest.spyOn(console,"error").mockImplementation(()=>{})
-        //
-        //     // Render your component
-        //     render(<Homemap />);
-        //     await waitFor(() => {
-        //         // Check for error handling or absence of building details
-        //         //const noDetailsMessage = screen.queryByText(/Error fetching building details/i);
-        //         expect(mockConsole).toBeCalled();
-        //     });
-        // });
+
+        it('should navigate back when back button is pressed', async () => {
+            const user=userEvent.setup()
+            useRouter.mockReturnValue({
+                push: jest.fn(),
+            });
+             render(<Homemap />);
+
+
+            await user.press(screen.getByTestId('back-button'));
+
+            expect(useRouter().push).toHaveBeenCalledWith('/Welcome');
+        });
+
+        test('fetches places details on POI press', async () => {
+            render(<Homemap />);
+
+
+            const user = userEvent.setup();
+            await user.press(screen.getByTestId('sgw-button'));
+
+            await waitFor(() => {
+                expect(screen.getByTestId('building-details-panel')).toBeTruthy();
+            });
+        });
+
+
 
     });

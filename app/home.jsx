@@ -1,8 +1,7 @@
 import {Image, ScrollView, StyleSheet, Text, TouchableOpacity, View} from 'react-native'
-import React from 'react'
+import React, {useContext, useMemo} from 'react'
 import ScreenWrapper from '../components/ScreenWrapper'
 import {StatusBar} from 'expo-status-bar'
-import {theme} from '@/constants/theme'
 import {hp} from '@/helpers/common'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import {useRouter} from 'expo-router'
@@ -10,8 +9,11 @@ import {fetchBuildingCoordinates} from "@/services/routeService";
 import {Ionicons} from "@expo/vector-icons";
 import Calendar from "@/components/Calendar";
 import AppNavigationPanel from "@/components/AppNavigationPannel";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const Home = () => {
+    const {isDark, theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const [userInfo, setUserInfo] = React.useState(null);
     const [calendarEvents, setCalendarEvents] = React.useState([]);
     const router = useRouter();
@@ -29,11 +31,6 @@ const Home = () => {
         if (events) {
             setCalendarEvents(JSON.parse(events));
         }
-    };
-
-    const handleSignOut = async () => {
-        await AsyncStorage.multiRemove(["@user", "@calendar"]);
-        router.replace("/");
     };
 
     const handleClassSelect = async (event) => {
@@ -62,7 +59,7 @@ const Home = () => {
 
     return (
         <ScreenWrapper>
-            <StatusBar style='dark'/>
+            <StatusBar style={isDark ? 'light' : 'dark'}/>
             <ScrollView contentContainerStyle={styles.contentContainerStyle} style={styles.container}>
                 {userInfo && (
                     <>
@@ -82,7 +79,6 @@ const Home = () => {
                         <View style={styles.quickActions}>
                             <TouchableOpacity
                                 style={styles.actionCard}
-                                onPress={() => router.push("/smartPlanner")}
                                 testID={'smart-planner-button'}
                             >
                                 <View style={styles.actionIconContainer}>
@@ -96,16 +92,6 @@ const Home = () => {
                         <Calendar events={calendarEvents} onClassSelect={handleClassSelect}/>
                     </>
                 )}
-                {userInfo && (
-                    <View style={styles.bottomContainer}>
-                        <TouchableOpacity onPress={handleSignOut} testID={'button'} style={styles.signOutButton}>
-                            <View style={styles.signOutContainer}>
-                                <Ionicons name="log-out-outline" size={24} color="#fff"/>
-                                <Text style={styles.signOutText}>Sign Out</Text>
-                            </View>
-                        </TouchableOpacity>
-                    </View>
-                )}
             </ScrollView>
 
             <AppNavigationPanel/>
@@ -116,101 +102,76 @@ const Home = () => {
 
 export default Home;
 
-const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    contentContainerStyle: {
-        padding: hp(2),
-    },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: hp(3),
-    },
-    userCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    userImage: {
-        width: hp(6),
-        height: hp(6),
-        borderRadius: hp(3),
-        marginRight: hp(2),
-    },
-    userInfo: {
-        flex: 1,
-    },
-    welcomeText: {
-        fontSize: hp(1.8),
-        color: theme.colors.dark,
-        opacity: 0.7,
-    },
-    userName: {
-        fontSize: hp(2.4),
-        fontWeight: 'bold',
-        color: theme.colors.dark,
-    },
-    quickActions: {
-        flexDirection: 'row',
-        marginBottom: hp(3),
-    },
-    actionCard: {
-        backgroundColor: '#fff',
-        padding: hp(2),
-        borderRadius: 15,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.1,
-        shadowRadius: 3.84,
-        elevation: 5,
-        width: '48%',
-    },
-    actionIconContainer: {
-        width: hp(5),
-        height: hp(5),
-        borderRadius: hp(2.5),
-        backgroundColor: theme.colors.lightPrimary,
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginBottom: hp(1),
-    },
-    actionTitle: {
-        fontSize: hp(2),
-        fontWeight: '600',
-        color: theme.colors.dark,
-        marginBottom: hp(0.5),
-    },
-    actionSubtitle: {
-        fontSize: hp(1.6),
-        color: theme.colors.dark,
-        opacity: 0.7,
-    },
-    bottomContainer: {
-        padding: hp(2),
-        paddingBottom: hp(8),
-        // backgroundColor: '#fff',
-        // borderTopWidth: 1,
-        // borderTopColor: theme.colors.lightGray,
-    },
-    signOutButton: {
-        backgroundColor: theme.colors.primary,
-        padding: hp(1.5),
-        paddingHorizontal: hp(4),
-        borderRadius: theme.radius.lg,
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    signOutContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    signOutText: {
-        marginLeft: hp(1),
-        fontSize: hp(1.8),
-        color: '#fff',
-        fontWeight: '600',
-    },
-});
+const createStyles = (theme) =>
+    StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.calendarbackground,
+        },
+        contentContainerStyle: {
+            padding: hp(2),
+        },
+        header: {
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: hp(3),
+        },
+        userCard: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        userImage: {
+            width: hp(6),
+            height: hp(6),
+            borderRadius: hp(3),
+            marginRight: hp(2),
+        },
+        userInfo: {
+            flex: 1,
+        },
+        welcomeText: {
+            fontSize: hp(1.8),
+            color: theme.colors.dark,
+            opacity: 0.7,
+        },
+        userName: {
+            fontSize: hp(2.4),
+            fontWeight: 'bold',
+            color: theme.colors.dark,
+        },
+        quickActions: {
+            flexDirection: 'row',
+            marginBottom: hp(3),
+        },
+        actionCard: {
+            backgroundColor: theme.colors.cardBackground,
+            padding: hp(2),
+            borderRadius: 15,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.1,
+            shadowRadius: 3.84,
+            elevation: 5,
+            width: '48%',
+        },
+        actionIconContainer: {
+            width: hp(5),
+            height: hp(5),
+            borderRadius: hp(2.5),
+            justifyContent: 'center',
+            alignItems: 'center',
+            marginBottom: hp(1),
+        },
+        actionTitle: {
+            fontSize: hp(2),
+            fontWeight: '600',
+            color: theme.colors.dark,
+            marginBottom: hp(0.5),
+        },
+        actionSubtitle: {
+            fontSize: hp(1.6),
+            color: theme.colors.dark,
+            opacity: 0.7,
+        },
+    });

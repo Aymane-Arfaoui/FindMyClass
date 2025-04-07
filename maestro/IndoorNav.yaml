@@ -1,0 +1,21 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- tapOn: "GET STARTED"
+- tapOn:
+      point: 45%,35%
+- waitForAnimationToEnd
+- tapOn:
+      point: 51%,94%
+- waitForAnimationToEnd
+- tapOn:
+      point: 71%,72%
+- tapOn:
+      point: 45%,35%
+- tapOn:
+      point: 69%,53%
+- tapOn: 
+- tapOn:
+      point: 21%,14%
+- inputText: H-110
+- tapOn:
+      point: 50%,22%

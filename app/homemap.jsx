@@ -9,12 +9,20 @@ import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
+import ChatBotButton from '@/components/ChatBotButton';
 import Config from 'react-native-config';
 import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
 import {ThemeContext} from "@/context/ThemeProvider";
+import {
+    fetchPoI,
+    fetchPlacesOfInterest,
+    fetchBuildingData,
+    fetchRoutesData,
+    fetchDirections
+} from '../services/fetchingService.js'
 
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
@@ -30,6 +38,7 @@ export default function Homemap() {
     const [centerCoordinate, setCenterCoordinate] = useState([-73.5789, 45.4960]);
     const cameraRef = useRef(null);
     const [isDirectionsView, setIsDirectionsView] = useState(false);
+    const [isFetchingPlaces, setIsFetchingPlaces] = useState(false);
     const [modeSelected, setModeSelected] = useState('walking');
     const panelY = useRef(new Animated.Value(500)).current;
     const [currentOrigin, setCurrentOrigin] = useState(null);
@@ -318,28 +327,10 @@ export default function Homemap() {
         setWantsClassroom(wantsClassroom);
         SetClassroomNumber(classroom);
 
-        try {
-            const originCoords = origin.geometry?.coordinates;
-            const destCoords = dest.geometry?.coordinates;
+        await fetchDirections(origin, dest, mode, setTravelTimes, setIsDirectionsView, setLoading, setRoutes, setFastestRoute);
 
-            if (!originCoords || !destCoords) {
-                setLoading(false);
-                return;
-            }
+        setLoading(false);
 
-            const formattedOrigin = `${originCoords[1]},${originCoords[0]}`;
-            const formattedDestination = `${destCoords[1]},${destCoords[0]}`;
-
-            const times = await fetchAllModesData(formattedOrigin, formattedDestination);
-            setTravelTimes(times);
-            await fetchRoutesData(formattedOrigin, formattedDestination, mode);
-
-            setIsDirectionsView(true);
-        } catch (error) {
-            console.warn(error);
-        } finally {
-            setLoading(false);
-        }
     };
     const handleRoutePress = (route) => {
         setFastestRoute(route);
@@ -359,7 +350,7 @@ export default function Homemap() {
             const formattedO = `${originCoords[1]},${originCoords[0]}`;
             const formattedD = `${destCoords[1]},${destCoords[0]}`;
 
-            fetchRoutesData(formattedO, formattedD, modeSelected);
+            fetchRoutesData(formattedO, formattedD, modeSelected, setLoading, setRoutes, setFastestRoute);
         }
     }, [modeSelected, currentOrigin, currentDestination]);
 
@@ -368,99 +359,7 @@ export default function Homemap() {
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
 
-        if (!building && (lng === null || lat === null)) {
-            console.error("⚠️ No building or coordinates provided.");
-            setLoading(false);
-            return;
-        }
-
-        let placeId = null;
-        let buildingLng = lng, buildingLat = lat;
-
-        if (building) {
-            buildingLng = building.textPosition ? building.textPosition[0] : lng;
-            buildingLat = building.textPosition ? building.textPosition[1] : lat;
-
-            if (building.name === lastFetchedPlaceId) {
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const placeSearchUrl = "https://places.googleapis.com/v1/places:searchText";
-                const requestBody = {
-                    textQuery: building.name,
-                    locationBias: {
-                        circle: {
-                            center: {
-                                latitude: buildingLat,
-                                longitude: buildingLng
-                            },
-                            radius: 2000.0
-                        }
-                    },
-                    pageSize: 1
-                };
-
-                const response = await fetch(placeSearchUrl, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                        "X-Goog-FieldMask": "places.id"
-                    },
-                    body: JSON.stringify(requestBody)
-                });
-
-                const data = await response.json();
-
-                if (data.places && data.places.length > 0) {
-                    placeId = data.places[0].id;
-                    setLastFetchedPlaceId(placeId);
-                } else {
-
-                }
-            } catch (error) {
-
-            }
-        }
-
-        if (placeId) {
-            try {
-                const placeDetailsUrl = `https://places.googleapis.com/v1/places/${placeId}`;
-
-
-                const detailsResponse = await fetch(placeDetailsUrl, {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                        "X-Goog-FieldMask": "displayName,formattedAddress,primaryType,googleMapsUri,photos"
-                    }
-                });
-
-                const detailsData = await detailsResponse.json();
-
-
-                if (detailsData) {
-                    setBuildingDetails(detailsData);
-                } else {
-                    setBuildingDetails(null);
-                }
-            } catch (error) {
-
-                setBuildingDetails(null);
-            }
-        }
-
-        setSelectedLocation({
-            type: "Feature",
-            geometry: {
-                type: "Point",
-                coordinates: [buildingLng, buildingLat]
-            },
-            name: building?.name || "Unknown Location"
-        });
+        await fetchBuildingData(building , lng, lat, setLoading, lastFetchedPlaceId, setLastFetchedPlaceId, setBuildingDetails,setSelectedLocation);
 
         Animated.timing(panelY, {
             toValue: 0,
@@ -537,43 +436,6 @@ export default function Homemap() {
         const url = `https://places.googleapis.com/v1/places:searchNearby`;
 
 
-        try {
-            const response = await fetch(url, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                    "X-Goog-FieldMask": "places.id,places.displayName,places.location",
-                },
-                body: JSON.stringify(requestBody),
-            });
-
-            const data = await response.json();
-
-            if (data.places && data.places.length > 0) {
-                const formattedPlaces = data.places.map((place) => ({
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [
-                            place.location.longitude,
-                            place.location.latitude,
-                        ],
-                    },
-                    name: place.displayName?.text || "Unnamed Place",
-                    place_id: place.id || null,
-                    category: category,
-                }));
-
-                setPlaces(formattedPlaces);
-
-            } else {
-            }
-        } catch (error) {
-        } finally {
-            isFetchingPlaces = false;
-        }
-    };
 
     const handlePOIPress = async (place) => {
         if (!place || !place.place_id) {
@@ -588,27 +450,7 @@ export default function Homemap() {
             useNativeDriver: true,
         }).start();
 
-        const url = `https://places.googleapis.com/v1/places/${place.place_id}`;
-
-        try {
-            const response = await fetch(url, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "X-Goog-Api-Key": GOOGLE_PLACES_API_KEY,
-                    "X-Goog-FieldMask": "displayName,formattedAddress,photos",
-                },
-            });
-
-            const data = await response.json();
-
-            if (data) {
-                setBuildingDetails(data);
-            } else {
-            }
-        } catch (error) {
-
-        }
+        await fetchPoI (place, setBuildingDetails);
     };
 
 
@@ -637,7 +479,7 @@ export default function Homemap() {
             {!isDirectionsView && (
                 <View style={styles.searchContainer}>
                     {/* Back Button */}
-                    <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
+                    <TouchableOpacity testID={'back-button'} style={styles.backButton} onPress={() => router.push('/Welcome')}>
                         <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
                     </TouchableOpacity>
 
@@ -651,9 +493,9 @@ export default function Homemap() {
 
                     {/* Filter Button (Now Functional) */}
                     <PlaceFilterButtons
-                        onSelectCategory={(category) => {
+                        onSelectCategory={ (category) => {
                             if (category) {
-                                fetchPlacesOfInterest(category);
+                                fetchPlacesOfInterest(category, currentLocation, isFetchingPlaces,setIsFetchingPlaces, setPlaces);
                             } else {
                                 setPlaces([]);
                             }
@@ -684,6 +526,9 @@ export default function Homemap() {
             )}
             {!isDirectionsView && (
                 <AppNavigationPannel/>
+            )}
+            {!isDirectionsView && (
+                <ChatBotButton/>
             )}
 
             {selectedLocation && !isDirectionsView && (
@@ -756,11 +601,12 @@ const createStyles = (theme) => StyleSheet.create({
         borderRadius: 10,
         shadowOpacity: 0.3,
         shadowRadius: 5,
-        elevation: 5
+        // elevation: 5
     },
     mapButtonsContainer: {
         position: 'absolute',
-        top: 80,
+        backgroundColor: theme.colors.main,
+        bottom: 830,
         left: 0,
         right: 0,
         zIndex: 10,
@@ -780,7 +626,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.25,
         shadowRadius: 4,
-        elevation: 6,
     },
     backButton: {
         marginTop: 1,
@@ -806,15 +651,3 @@ const createStyles = (theme) => StyleSheet.create({
     routeMode: {fontSize: 16, fontWeight: "bold"},
     noRoutes: {textAlign: "center", color: "gray", marginTop: 10}
 });
-
-
-const getCentroid = (polygon) => {
-    let x = 0, y = 0, n = polygon.length;
-
-    polygon.forEach(([lng, lat]) => {
-        x += lng;
-        y += lat;
-    });
-
-    return [x / n, y / n];
-};

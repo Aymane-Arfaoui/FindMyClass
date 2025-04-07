@@ -3,7 +3,7 @@ from flask_cors import CORS
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from chat import handle_task_query, is_task_query, SAMPLE_TASKS, is_navigation_query, extract_rooms, interpret_path
+from .chat import handle_task_query, is_task_query, SAMPLE_TASKS, is_navigation_query, extract_rooms, interpret_path
 from app.aiapi import AINavigationAPI
 
 api = Blueprint('api', __name__)

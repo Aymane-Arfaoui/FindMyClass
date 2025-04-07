@@ -1,11 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {Platform, StatusBar, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {theme} from '@/constants/theme';
 import {hp, wp} from '@/helpers/common';
 import TransportOptions from "@/components/TransportOptions";
 import Config from 'react-native-config';
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const GOOGLE_API_KEY = Config.GOOGLE_PLACES_API_KEY;
 
@@ -21,6 +21,8 @@ const SearchBars = ({
 
     const [startLocation, setStartLocation] = useState('Fetching current location...');
     const [endLocation, setEndLocation] = useState(destination || 'Destination');
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
 
     useEffect(() => {
         if (currentLocation?.geometry?.coordinates) {
@@ -44,7 +46,7 @@ const SearchBars = ({
     }, [currentLocation]);
 
 
-    const [suggestions, setSuggestions] = useState([]);
+    const [, setSuggestions] = useState([]);
     const handleAddressChange = (text, isStart) => {
         if (text.length > 2) {
             fetch(
@@ -105,59 +107,60 @@ const SearchBars = ({
         </View>
     );
 };
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: theme.colors.primary,
-        paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
-        paddingHorizontal: wp(4),
-        paddingBottom: hp(1),
-        borderBottomLeftRadius: wp(6),
-        borderBottomRightRadius: wp(6),
-        position: 'absolute',
-        top: 0,
-        left: 0,
-        right: 0,
-        zIndex: 100,
-        elevation: 10,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: hp(0.5)},
-        shadowOpacity: 0.2,
-        shadowRadius: wp(3),
-    },
+const createStyles = (theme) =>
+    StyleSheet.create({
+        container: {
+            backgroundColor: theme.colors.primary,
+            paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
+            paddingHorizontal: wp(4),
+            paddingBottom: hp(1),
+            borderBottomLeftRadius: wp(6),
+            borderBottomRightRadius: wp(6),
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            zIndex: 100,
+            elevation: 10,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: hp(0.5)},
+            shadowOpacity: 0.2,
+            shadowRadius: wp(3),
+        },
 
-    backButton: {
-        position: 'absolute',
-        top: Platform.OS === 'ios' ? hp(6) : hp(5),
-        left: wp(2),
-        padding: wp(1),
-        borderRadius: wp(5),
-    },
+        backButton: {
+            position: 'absolute',
+            top: Platform.OS === 'ios' ? hp(6) : hp(5),
+            left: wp(2),
+            padding: wp(1),
+            borderRadius: wp(5),
+        },
 
-    inputContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: 'white',
-        paddingVertical: hp(1.5),
-        paddingHorizontal: wp(3),
-        borderRadius: wp(4),
-        marginTop: hp(1.2),
-        elevation: 2,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: hp(0.3)},
-        shadowOpacity: 0.1,
-        shadowRadius: wp(2),
-    },
+        inputContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            backgroundColor: 'white',
+            paddingVertical: hp(1.5),
+            paddingHorizontal: wp(3),
+            borderRadius: wp(4),
+            marginTop: hp(1.2),
+            elevation: 2,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: hp(0.3)},
+            shadowOpacity: 0.1,
+            shadowRadius: wp(2),
+        },
 
-    icon: {
-        marginRight: wp(2),
-    },
+        icon: {
+            marginRight: wp(2),
+        },
 
-    input: {
-        flex: 1,
-        fontSize: hp(1.8),
-        color: 'black',
-    },
-});
+        input: {
+            flex: 1,
+            fontSize: hp(1.8),
+            color: 'black',
+        },
+    });
 
 SearchBars.propTypes = {
     currentLocation: PropTypes.any,

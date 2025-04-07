@@ -182,7 +182,11 @@ const MainSearchBar = ({onLocationSelect, onBuildingPress}) => {
                     </TouchableOpacity>
                 ) : (
                     <TouchableOpacity testID={'mic-button'} style={styles.micButton} onPress={startVoiceRecognition}>
-                        <Ionicons name={isListening ? "mic-off" : "mic"} size={22} color={theme.colors.grayDark}/>
+                        <Ionicons
+                            name={isListening ? "mic" : "mic-off"}
+                            size={22}
+                            color={isListening ? theme.colors.success : theme.colors.grayDark}
+                        />
                     </TouchableOpacity>
                 )}
             </View>

@@ -1,7 +1,6 @@
 import React, {useContext, useEffect, useMemo, useState} from 'react';
 import {SafeAreaView, ScrollView, StyleSheet, Switch, Text, TouchableOpacity, View} from 'react-native';
 import {useRouter} from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import {Ionicons} from '@expo/vector-icons';
 import AppNavigationPanel from '@/components/AppNavigationPannel';
 import WeekNavigation from '@/components/WeekNavigation';
@@ -10,8 +9,59 @@ import CreateTask from '@/components/CreateTask';
 import SmartPlannerHeader from "@/components/SmartPlannerHeader";
 import {ThemeContext} from '@/context/ThemeProvider'
 import {StatusBar} from "expo-status-bar";
+import {getEventsAndTasks} from '../services/fetchSmartPlanner';
+import PropTypes from "prop-types";
 
+const CalendarFilter = ({
+                            availableCalendars,
+                            selectedCalendars,
+                            onToggleCalendar,
+                            setSelectedCalendars,
+                            setIsVisible,
+                            styles,
+                            theme
+                        }) => {
+    return (
+        <View style={styles.calendarFilter}>
+            <View style={styles.calendarFilterHeader}>
+                <Text style={styles.calendarFilterTitle}>Calendars</Text>
+                <View style={styles.calendarFilterActions}>
+                    <TouchableOpacity onPress={() =>
+                        setSelectedCalendars(availableCalendars.reduce((acc, cal) => ({...acc, [cal]: true}), {}))
+                    }>
+                        <Text style={styles.calendarFilterActionText}>All</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() =>
+                        setSelectedCalendars(availableCalendars.reduce((acc, cal) => ({...acc, [cal]: false}), {}))
+                    }>
+                        <Text style={styles.calendarFilterActionText}>None</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setIsVisible(false)}>
+                        <Ionicons name="close" size={24} color={theme.colors.dark}/>
+                    </TouchableOpacity>
+                </View>
+            </View>
 
+            {availableCalendars.map(calendar => (
+                <View key={calendar} style={styles.calendarFilterItem}>
+                    <Text style={styles.calendarFilterText}>
+                        {calendar.includes('@') ? calendar.split('@')[0] : calendar}
+                    </Text>
+                    <Switch
+                        value={selectedCalendars[calendar] || false}
+                        onValueChange={(value) => onToggleCalendar(calendar, value)}
+                        trackColor={{false: '#fff', true: theme.colors.primary}}
+                        thumbColor={selectedCalendars[calendar] ? '#fff' : theme.colors.darkgray}
+                    />
+                </View>
+            ))}
+        </View>
+    );
+};
+
+CalendarFilter.propTypes = {
+    availableCalendars: PropTypes.any, selectedCalendars: PropTypes.any, onToggleCalendar: PropTypes.func, setSelectedCalendars: PropTypes.func, setIsVisible: PropTypes.func, styles:PropTypes.any, theme:PropTypes.any
+}
 const SmartPlanner = () => {
     const router = useRouter();
     const currentDate = new Date();
@@ -31,81 +81,28 @@ const SmartPlanner = () => {
     const {isDark, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
-    useEffect(() => {
-        loadEventsAndTasks();
-    }, [selectedDate, selectedCalendars]);
 
     const loadEventsAndTasks = async () => {
         try {
-        const storedUser = await AsyncStorage.getItem("@user");
-        if (!storedUser) {
-            setEvents([]);
-            setTasks([]);
-            return;
-        }
-        const storedEvents = await AsyncStorage.getItem("@calendar");
-        const storedTasks = await AsyncStorage.getItem("tasks");
+            const result = await getEventsAndTasks(selectedDate, selectedCalendars, theme);
 
-            if (storedEvents) {
-                const parsedEvents = JSON.parse(storedEvents);
-                const calendars = [...new Set(parsedEvents.map(event => event.calendarName || 'Main'))];
-                setAvailableCalendars(calendars);
-
-                if (Object.keys(selectedCalendars).length === 0) {
-                    const initialCalendars = calendars.reduce((acc, cal) => ({...acc, [cal]: true}), {});
-                    setSelectedCalendars(initialCalendars);
-                    return;
-                }
-
-                const filteredEvents = parsedEvents.filter(event => {
-                    let eventDate;
-                    if (event.start?.date) {
-                        eventDate = event.start.date;
-                    } else {
-                        eventDate = getLocalDateString(event.start?.dateTime);
-                    }
-                    const calendarName = event.calendarName || 'Main';
-                    return eventDate === selectedDate && selectedCalendars[calendarName];
-                }).map(event => ({
-                    ...event,
-                    itemType: 'event',
-                    calendarName: event.calendarName || 'Main',
-                    calendarColor: event.calendarColor || theme.colors.blueDark
-                }));
-
-                setEvents(filteredEvents);
+            if (result.initialCalendars) {
+                setSelectedCalendars(result.initialCalendars);
             }
 
-            if (storedTasks) {
-                const parsedTasks = JSON.parse(storedTasks);
-                const filteredTasks = parsedTasks.filter(task => {
-                    const taskDate = getLocalDateString(task.date);
-                    return taskDate === selectedDate;
-                }).map(task => ({
-                    itemType: 'task',
-                    summary: task.taskName,
-                    description: task.notes,
-                    location: task.address,
-                    start: task.allDayEvent
-                        ? {date: getLocalDateString(task.date)}
-                        : {dateTime: task.startTime},
-                    end: task.allDayEvent
-                        ? {date: getLocalDateString(task.date)}
-                        : {dateTime: task.endTime},
-                    allDayEvent: task.allDayEvent,
-                    id: task.id
-                }));
-
-                setTasks(filteredTasks);
-            }
+            setEvents(result.events);
+            setTasks(result.tasks);
+            setAvailableCalendars(result.availableCalendars);
         } catch (error) {
             console.error('Error loading events and tasks:', error);
-            // Set empty in case of errors
             setEvents([]);
             setTasks([]);
             setAvailableCalendars([]);
         }
     };
+    useEffect(() => {
+        loadEventsAndTasks();
+    }, [selectedDate, selectedCalendars]);
 
     const allItems = [...events, ...tasks].sort((a, b) => {
         if (a.allDayEvent) return -1;
@@ -119,41 +116,6 @@ const SmartPlanner = () => {
         setSelectedCalendars(prev => ({...prev, [calendar]: value}));
     };
 
-    const renderCalendarFilter = () => (
-        <View style={styles.calendarFilter}>
-            <View style={styles.calendarFilterHeader}>
-                <Text style={styles.calendarFilterTitle}>Calendars</Text>
-                <View style={styles.calendarFilterActions}>
-                    <TouchableOpacity onPress={() => setSelectedCalendars(
-                        availableCalendars.reduce((acc, cal) => ({...acc, [cal]: true}), {})
-                    )}><Text style={styles.calendarFilterActionText}>All</Text></TouchableOpacity>
-                    <TouchableOpacity onPress={() => setSelectedCalendars(
-                        availableCalendars.reduce((acc, cal) => ({...acc, [cal]: false}), {})
-                    )}><Text style={styles.calendarFilterActionText}>None</Text></TouchableOpacity>
-                    <TouchableOpacity onPress={() => setIsCalendarFilterVisible(false)}>
-                        <Ionicons name="close" size={24} color={theme.colors.dark}/>
-                    </TouchableOpacity>
-                </View>
-            </View>
-
-            {availableCalendars.map(calendar => (
-                <View key={calendar} style={styles.calendarFilterItem}>
-                    <Text
-                        style={styles.calendarFilterText}>{calendar.includes('@') ? calendar.split('@')[0] : calendar}</Text>
-                    <Switch
-                        value={selectedCalendars[calendar] || false}
-                        onValueChange={(value) => handleCalendarToggle(calendar, value)}
-                        trackColor={{
-                            false: '#fff',
-                            true: theme.colors.primary
-                        }}
-                        thumbColor={selectedCalendars[calendar] ? '#fff' : theme.colors.darkgray}
-                    />
-                </View>
-            ))}
-        </View>
-    );
-
     const handleCancelRoute = () => {
         setIsPlanRouteMode(false);
         setSelectedRouteEvents({});
@@ -165,9 +127,6 @@ const SmartPlanner = () => {
             alert("Please select at least one event with an address.");
             return;
         }
-
-        console.warn("Submitting route:", selectedRouteEvents);
-
         setIsPlanRouteMode(false);
         setResetSelectionFlag(prev => !prev);
     };
@@ -196,14 +155,25 @@ const SmartPlanner = () => {
                         {isPlanRouteMode ? "Select" : "Time"}
                     </Text>
                     <Text style={styles.eventHeaderText}>Course</Text>
-                    <TouchableOpacity style={styles.filterButton}
+                    <TouchableOpacity testID={'filter-button'} style={styles.filterButton}
                                       onPress={() => setIsCalendarFilterVisible(!isCalendarFilterVisible)}>
                         <Ionicons name="filter" size={22} color={theme.colors.grayDark}/>
                     </TouchableOpacity>
                 </View>
 
                 {isCalendarFilterVisible &&
-                    <View style={{position: 'absolute', top: 190, left: 16, right: 16}}>{renderCalendarFilter()}</View>}
+                    <View style={{position: 'absolute', top: 190, left: 16, right: 16}}>
+                        <CalendarFilter
+                            availableCalendars={availableCalendars}
+                            selectedCalendars={selectedCalendars}
+                            onToggleCalendar={handleCalendarToggle}
+                            setSelectedCalendars={setSelectedCalendars}
+                            setIsVisible={setIsCalendarFilterVisible}
+                            styles={styles}
+                            theme={theme}
+                        />
+                    </View>
+                }
 
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <EventList
@@ -217,10 +187,12 @@ const SmartPlanner = () => {
             </View>
             {isPlanRouteMode && allItems.length > 0 && (
                 <View style={styles.stickyRouteActions}>
-                    <TouchableOpacity style={styles.cancelRouteButton} onPress={handleCancelRoute}>
+                    <TouchableOpacity testID={'cancel-route-button'} style={styles.cancelRouteButton}
+                                      onPress={handleCancelRoute}>
                         <Text style={styles.cancelRouteButtonText}>Cancel</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity style={styles.submitRouteButton} onPress={handleSubmitRoute}>
+                    <TouchableOpacity testID={'submit-route-button'} style={styles.submitRouteButton}
+                                      onPress={handleSubmitRoute}>
                         <Text style={styles.submitRouteButtonText}>Plan Route</Text>
                     </TouchableOpacity>
                 </View>
@@ -241,6 +213,7 @@ const SmartPlanner = () => {
 };
 
 export default SmartPlanner;
+
 
 const createStyles = (theme) => StyleSheet.create({
     stickyRouteActions: {
@@ -365,3 +338,4 @@ const createStyles = (theme) => StyleSheet.create({
         padding: 4,
     },
 });
+

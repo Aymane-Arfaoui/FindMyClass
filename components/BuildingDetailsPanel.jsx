@@ -155,6 +155,7 @@ function BuildingDetailsPanel({
                     )}
 
                     <Modal
+                        testID={'modal'}
                         animationType="fade"
                         transparent={true}
                         visible={modalVisible}
@@ -307,7 +308,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: {width: 0, height: 3},
         shadowOpacity: 0.1,
         shadowRadius: 5,
-        elevation: 6,
         zIndex: 10,
     },
     dragBar: {
@@ -368,7 +368,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.15,
         shadowRadius: 5,
-        elevation: 6,
     },
     indoorMapButtonText: {
         color: theme.colors.white,

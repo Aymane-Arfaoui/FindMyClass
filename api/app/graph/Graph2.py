@@ -22,7 +22,7 @@ class Graph:
 
     def _calculate_weight(self, node1: Dict[str, Any], node2: Dict[str, Any]) -> float:
         if(node1["poi_type"] == "elevator" and node2["poi_type"] == "elevator"):#if both are elevators
-            return 10
+            return 15
         elif(node1["poi_type"] == "escalator" and node2["poi_type"] == "escalator"):
             return 15
         elif(node1["poi_type"] == "stairs" and node2["poi_type"] == "stairs"):
@@ -71,7 +71,6 @@ class Graph:
     def find_shortest_path(self, start_id: str, end_id: str) -> Dict[str, Any]:
         try:
             shortest_path = nx.dijkstra_path(self.graph, start_id, end_id, weight='weight')
-            #distance = nx.dijkstra_path_length(self.graph, start_id, end_id, weight='weight')
             distance = nx.path_weight(self.graph,shortest_path,weight='distance')
             return {
                 "path": shortest_path,
@@ -96,3 +95,38 @@ class Graph:
             return paths
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return []
+
+    def find_paths_to_multiple_destinations(self, start_id: str, destination_ids: List[str]) -> Dict[str, Any]:
+        """
+        Find shortest paths sequentially through multiple destinations in the specified order.
+        Returns paths and distances for each segment, plus total distance.
+        """
+        paths_info = []
+        total_distance = 0
+        current_position = start_id
+
+        for dest_id in destination_ids:
+            try:
+                # Find path from current position to next destination
+                path = nx.dijkstra_path(self.graph, current_position, dest_id, weight='weight')
+                distance = nx.path_weight(self.graph, path, weight='distance')
+                
+                paths_info.append({
+                    "destination": dest_id,
+                    "path": path,
+                    "distance": distance
+                })
+                
+                total_distance += distance
+                current_position = dest_id  # Update current position for next destination
+                
+            except (nx.NetworkXNoPath, nx.NodeNotFound):
+                paths_info.append({
+                    "destination": dest_id,
+                    "error": "No path found or invalid destination"
+                })
+
+        return {
+            "paths": paths_info,
+            "total_distance": total_distance
+        }

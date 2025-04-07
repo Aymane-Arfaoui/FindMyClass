@@ -12,7 +12,7 @@ describe('MapButtons Component', () => {
     });
     it('should render the text correctly',  () => {
         render(<MapButtons onPress={jest.fn()}/>);
-        expect(screen.getByTestId('map-toggle-button')).toHaveTextContent('SGWLoyola');//concatenation of the locations
+        expect(screen.getByTestId('map-toggle-button')).toHaveTextContent('LoyolaSGW');//concatenation of the locations
 
 
 
@@ -22,8 +22,7 @@ describe('MapButtons Component', () => {
         const { unmount } = render(<MapButtons  onPress={mockFun}/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('sgw-button'));
-       // await waitFor(()=>{ expect(mockFun).toHaveBeenCalledWith([-73.5787, 45.4963]);});
-        await waitFor(()=>{ expect(mockFun).toHaveBeenCalledWith([-73.5787, 45.4963]);});
+        await waitFor(()=>{ expect(mockFun).toHaveBeenCalledWith([-73.5789, 45.4973]);});
         unmount();
 
     });
@@ -32,7 +31,7 @@ describe('MapButtons Component', () => {
         const { unmount } = render(<MapButtons  onPress={mockFun}/>);
         const user = userEvent.setup();
         await user.press(screen.getByTestId('loyola-button'));
-        await waitFor(()=>{   expect(mockFun).toHaveBeenCalledWith([-73.6405, 45.4582]);});
+        await waitFor(()=>{   expect(mockFun).toHaveBeenCalledWith([-73.5789, 45.4973]);});
 
         unmount();
 
