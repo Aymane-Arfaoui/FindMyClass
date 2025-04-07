@@ -27,7 +27,6 @@ const StartPointSearchBar = ({
 
     const handleSearchStartLocation = (query) => {
         setSearchQuery(query);
-        let results = [];
 
         if (!query) {
             setSearchResults([]);
@@ -35,28 +34,40 @@ const StartPointSearchBar = ({
             return;
         }
 
-        Object.keys(floorsData).forEach((buildingKey) => {
-            const buildingFloorsSP = floorsData[buildingKey];
-
-            Object.keys(buildingFloorsSP).forEach((floorKey) => {
-                const {sections} = buildingFloorsSP[floorKey];
-
-                sections.forEach((section) => {
-                    if (section.id.toLowerCase().includes(query.toLowerCase())) {
-                        results.push({
-                            id: section.id,
-                            buildingKey,
-                            floorKey,
-                            section,
-                        });
-                    }
-                });
-            });
-        });
-
+        const results = getMatchingStartLocations(query);
         setSearchResults(results);
         setSearchActive(true);
     };
+
+    const getMatchingStartLocations = (query) => {
+        const results = [];
+        const lowerQuery = query.toLowerCase();
+
+        for (const buildingKey of Object.keys(floorsData)) {
+            const buildingFloorsSP = floorsData[buildingKey];
+
+            for (const floorKey of Object.keys(buildingFloorsSP)) {
+                const { sections } = buildingFloorsSP[floorKey];
+
+                const matches = findSections(sections, lowerQuery, buildingKey, floorKey);
+                results.push(...matches);
+            }
+        }
+
+        return results;
+    };
+
+    const findSections = (sections, lowerQuery, buildingKey, floorKey) => {
+        return sections
+            .filter(section => section.id.toLowerCase().includes(lowerQuery))
+            .map(section => ({
+                id: section.id,
+                buildingKey,
+                floorKey,
+                section,
+            }));
+    };
+
 
 
     const {theme} = useContext(ThemeContext);

@@ -150,10 +150,14 @@ const User = () => {
                                 const storedUser = await AsyncStorage.getItem('@user');
                                 if (!storedUser) {
                                     setRedirectToCalendar(true); // <--- this sets the intent
-                                    Alert.alert("Google Sign-In Required", "Please sign in to access your calendar.", [
-                                        {text: "Cancel", style: "cancel"},
-                                        {text: "Sign In", onPress: () => promptAsync()}
-                                    ]);
+                                    Alert.alert(
+                                        "Google Sign-In Required",
+                                        "Please sign in to access your calendar.",
+                                        [
+                                            { text: "Cancel", style: "cancel" },
+                                            { text: "Sign In", onPress: () => { void promptAsync(); } }
+                                        ]
+                                    );
                                 } else {
                                     router.push('/home');
                                 }

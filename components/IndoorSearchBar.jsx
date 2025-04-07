@@ -30,30 +30,40 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
             return;
         }
 
-        let results = [];
-
-        Object.keys(floorsData).forEach((buildingKey) => {
-            const buildingFloors = floorsData[buildingKey];
-
-            Object.keys(buildingFloors).forEach((floorKey) => {
-                const { sections } = buildingFloors[floorKey];
-
-                sections.forEach((section) => {
-                    if (section.id.toLowerCase().includes(query.toLowerCase())) {
-                        results.push({
-                            id: section.id,
-                            buildingKey,
-                            floorKey,
-                            section,
-                        });
-                    }
-                });
-            });
-        });
-
+        const results = getMatchingSectionsFromFloors(query);
         setSearchResults(results);
         setSearchActive(true);
     };
+
+    const getMatchingSectionsFromFloors = (query) => {
+        const results = [];
+        const lowerQuery = query.toLowerCase();
+
+        for (const buildingKey of Object.keys(floorsData)) {
+            const buildingFloors = floorsData[buildingKey];
+
+            for (const floorKey of Object.keys(buildingFloors)) {
+                const { sections } = buildingFloors[floorKey];
+
+                const matches = findMatchingSections(sections, lowerQuery, buildingKey, floorKey);
+                results.push(...matches);
+            }
+        }
+
+        return results;
+    };
+
+    const findMatchingSections = (sections, lowerQuery, buildingKey, floorKey) => {
+        return sections
+            .filter(section => section.id.toLowerCase().includes(lowerQuery))
+            .map(section => ({
+                id: section.id,
+                buildingKey,
+                floorKey,
+                section,
+            }));
+    };
+
 
     const handleClearSearch = () => {
         setSearchQuery('');
@@ -64,7 +74,7 @@ const IndoorSearchBar = ({ navigation, setSelectedFloorKey, setSelectedSection, 
     };
 
     const getSectionCenter = (section) => {
-        if (!section || !section.d) return null;
+        if (!section?.d) return null;
 
         try {
             const numbers = section.d.match(/[-+]?\d*\.?\d+/g)?.map(Number) || [];

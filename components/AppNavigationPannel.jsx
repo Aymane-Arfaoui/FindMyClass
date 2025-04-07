@@ -12,13 +12,16 @@ const AppNavigationPanel = () => {
     const pathname = usePathname();
     const {theme} = React.useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
-    
+
+    const getScaleForPath = (currentPath, targetPath) => (
+        new Animated.Value(currentPath === targetPath ? 1.1 : 1)
+    );
+
     // Animation values for each tab
-    const calendarScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
-    const mapScale = useRef(new Animated.Value(pathname === "/homemap" ? 1.1 : 1)).current;
-    // const plannerScale = useRef(new Animated.Value(pathname === "/smartPlanner" ? 1.1 : 1)).current;
-    // const chatScale = useRef(new Animated.Value(pathname === "/chat" ? 1.1 : 1)).current;
-    const profileScale = useRef(new Animated.Value(pathname === "/user" ? 1.1 : 1)).current;
+    const calendarScale = useRef(getScaleForPath(pathname, "/home")).current;
+    const mapScale = useRef(getScaleForPath(pathname, "/homemap")).current;
+    const profileScale = useRef(getScaleForPath(pathname, "/user")).current;
+
     
     // Animate active tab when pathname changes
     useEffect(() => {
