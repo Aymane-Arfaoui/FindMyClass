@@ -219,6 +219,8 @@ def interpret_path(path_info: dict) -> str:
         next_node = parse_node(path[i + 1])
         instructions.append(describe_transition(current, next_node))
 
+        instructions.append(f"\nTotal distance: {path_info.get('distance', 0):.1f} meters")
+
     return "\n".join(instructions)
 
 
