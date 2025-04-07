@@ -267,80 +267,19 @@ def interpret_path(path_info: dict) -> str:
     
     # Handle simple indoor path
     path = path_info.get("path", [])
-    distance = path_info.get("distance", 0)
-    
     if not path:
         return "No path found between these rooms."
-    
+
     instructions = ["Here's how to get to your destination:"]
-    
     for i in range(len(path) - 1):
-        current = path[i]
-        next_node = path[i + 1]
-        
-        # Extract building, floor, and room/hallway info
-        current_parts = current.split('_')
-        next_parts = next_node.split('_')
-        
-        # Get building and floor info
-        current_building = current_parts[0][0].upper()  # 'h' from 'h1'
-        current_floor = current_parts[0][1]            # '1' from 'h1'
-        next_building = next_parts[0][0].upper()
-        next_floor = next_parts[0][1]
-        
-        # Check node types
-        current_is_hallway = len(current_parts) > 1 and current_parts[1].startswith('hw')
-        next_is_hallway = len(next_parts) > 1 and next_parts[1].startswith('hw')
-        current_is_elevator = 'elevator' in current
-        next_is_elevator = 'elevator' in next_node
-        current_is_stairs = 'stairs' in current
-        next_is_stairs = 'stairs' in next_node
-        current_is_escalator = 'escalator' in current
-        next_is_escalator = 'escalator' in next_node
-        
-        # Handle special nodes
-        if current_is_elevator and next_is_elevator:
-            instructions.append(f"Take the elevator from floor {current_floor} to floor {next_floor}")
-        elif current_is_stairs and next_is_stairs:
-            instructions.append(f"Take the stairs from floor {current_floor} to floor {next_floor}")
-        elif current_is_escalator and next_is_escalator:
-            instructions.append(f"Take the escalator from floor {current_floor} to floor {next_floor}")
-        elif current_is_hallway and next_is_hallway:
-            instructions.append(f"Continue through the hallway on floor {current_floor}")
-        elif current_is_hallway:
-            room_num = next_parts[-1]
-            if next_is_elevator:
-                instructions.append(f"Look for the elevator along the hallway")
-            elif next_is_stairs:
-                instructions.append(f"Look for the stairs along the hallway")
-            elif next_is_escalator:
-                instructions.append(f"Look for the escalator along the hallway")
-            else:
-                instructions.append(f"Look for room {next_building}-{room_num} along the hallway")
-        elif next_is_hallway:
-            current_num = current_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and enter the hallway")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and enter the hallway")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and enter the hallway")
-            else:
-                instructions.append(f"Exit room {current_building}-{current_num} and enter the hallway")
-        else:
-            current_num = current_parts[-1]
-            next_num = next_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and go to room {next_building}-{next_num}")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and go to room {next_building}-{next_num}")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and go to room {next_building}-{next_num}")
-            else:
-                instructions.append(f"Go from room {current_building}-{current_num} to room {next_building}-{next_num}")
-    
-    instructions.append(f"\nTotal distance: {distance:.1f} meters")
+        current = parse_node(path[i])
+        next_node = parse_node(path[i + 1])
+        instructions.append(describe_transition(current, next_node))
+
+        instructions.append(f"\nTotal distance: {path_info.get('distance', 0):.1f} meters")
+
     return "\n".join(instructions)
+
 
 def handle_follow_up(query: str, context: NavigationContext) -> str:
     """Handle follow-up questions about the last navigation"""
@@ -438,12 +377,14 @@ def get_tasks_from_storage():
         import os
         from pathlib import Path
 
+        EXPO_DIRECTORY = '.expo'
+        TASK_DIRECTORY = 'tasks.json'
         # Try multiple possible locations for tasks
         possible_paths = [
-            Path(os.getcwd()) / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / 'app' / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / 'app' / 'services' / '.expo' / 'async-storage' / 'tasks.json',
-            Path(os.getcwd()).parent / '.expo' / 'async-storage' / 'tasks.json'
+            Path(os.getcwd()) / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / 'app' / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / 'app' / 'services' / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY,
+            Path(os.getcwd()).parent / EXPO_DIRECTORY / 'async-storage' / TASK_DIRECTORY
         ]
 
         for storage_file in possible_paths:
@@ -476,19 +417,74 @@ SAMPLE_TASKS = [
     }
 ]
 
+
+def handle_exit(user_input):
+    if user_input.lower() == 'exit':
+        print("Goodbye!")
+        return True
+    return False
+
+def handle_help(user_input):
+    if user_input.lower() == 'help':
+        print("\nAvailable commands:")
+        print("- Ask for directions (e.g., 'How do I get to H-820?')")
+        print("- Ask about tasks (e.g., 'What tasks do I have today?')")
+        print("- 'exit' to quit")
+        print("- 'help' for this menu")
+        return True
+    return False
+
+def handle_task_query_if_applicable(user_input):
+    if is_task_query(user_input):
+        tasks = get_tasks_from_storage()
+        if not tasks:
+            print("No tasks found in storage, using sample tasks")
+            tasks = SAMPLE_TASKS
+        print(f"Using {len(tasks)} tasks")
+        response = handle_task_query(user_input, tasks)
+        print("\nConcordia Assistant:", response)
+        return True
+    return False
+
+def handle_navigation_query_if_applicable(user_input, nav_api):
+    if is_navigation_query(user_input):
+        start_room, end_room = extract_rooms(user_input)
+        if not start_room or not end_room:
+            print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
+            return True
+        path_info = nav_api.find_shortest_path(start_room, end_room)
+        nav_context.last_navigation = path_info
+        nav_context.last_start_room = start_room
+        nav_context.last_end_room = end_room
+        response = interpret_path(path_info)
+        print("\nConcordia Assistant:", response)
+        return True
+    return False
+
+def handle_follow_up_if_applicable(user_input):
+    if nav_context.last_navigation:
+        response = handle_follow_up(user_input, nav_context)
+        print("\n Concordia Assistant:", response)
+        return True
+    return False
+
+def print_default_prompt():
+    print("\nConcordia Assistant: I can help you with navigation and tasks. Try asking:")
+    print("- 'How do I get to H-820?'")
+    print("- 'What tasks do I have today?'")
+    print("- Type 'help' for more options")
+
+
 def main():
-    # Load environment variables
     load_dotenv()
-    
-    # Initialize OpenAI client and Navigation API
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     nav_api = AINavigationAPI()
-    
+
     print("Welcome to the Concordia Indoor Navigation and Task Assistant!")
     print("I can help you find your way around campus and manage your tasks.")
     print("Type 'exit' to quit")
     print("Type 'help' for available commands")
-    
+
     while True:
         try:
             user_input = input("\nYou: ").strip()
@@ -582,6 +578,7 @@ def main():
         except Exception as e:
             print(f"\nError: {str(e)}")
             print("Please try again with a different query.")
+
 
 if __name__ == "__main__":
     main() 

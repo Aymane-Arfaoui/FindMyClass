@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-nati
 import { Ionicons } from '@expo/vector-icons';
 import PropTypes from 'prop-types';
 import {ThemeContext} from "@/context/ThemeProvider";
+import {hp} from '@/helpers/common';
 
 const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute, onChangeUpdateRouteTemp }) => {
     const { theme } = useContext(ThemeContext);
@@ -82,16 +83,17 @@ export default FloorSelector;
 
 const createStyles = (theme) =>
     StyleSheet.create({
+        // MAKE THIS TRANSAPRENT
         floorPanel: {
             position: 'absolute',
-            top: 620,
+            top: hp(75),
             left: 15,
             right: 15,
-            backgroundColor: theme.colors.cardBackground,
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
             borderRadius: 20,
             paddingVertical: 10,
             paddingHorizontal: 10,
-            elevation: 10,
+            // elevation: 2,
             shadowColor: '#000',
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.15,

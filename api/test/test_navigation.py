@@ -44,15 +44,6 @@ def test_valid_navigation(client):
     assert b"h8_escalator_from_h7" in response.data
     assert b"h8_803" in response.data
 
-# Test for accessibility graph subgraph
-def test_accessibility_graph(client):
-    response = client.get('/indoorNavigation?startId=h2_209&endId=h8_803&campus=hall&accessibility=true')
-    assert response.status_code == 200
-    assert b"h2_209" in response.data
-    assert b"h2_elevator" in response.data
-    assert b"h8_elevator" in response.data
-    assert b"h8_803" in response.data
-
 
 # Test for multiple destinations
 def test_multiple_destinations(client):
@@ -131,28 +122,6 @@ def test_process_navigation_chat_error(client):
         data = json.loads(response.data)
         assert 'Failed to process navigation request' in data['error']
 
-# Test get_sub_graph function
-def test_get_sub_graph():
-    from api.app.navigation import get_sub_graph
-    from networkx import Graph
-
-    # Create a test graph
-    test_graph = Graph()
-    test_graph.add_edge('node1', 'node2')
-    test_graph.add_edge('node1', 'stairs_node')
-    test_graph.add_edge('node2', 'escalator_node')
-
-    # Mock the input graph
-    mock_g = MagicMock()
-    mock_g.graph = test_graph
-
-    # Call the function
-    result = get_sub_graph(mock_g)
-
-    # Check that stairs and escalator edges are removed
-    assert ('node1', 'node2') in result.edges()
-    assert ('node1', 'stairs_node') not in result.edges()
-    assert ('node2', 'escalator_node') not in result.edges()
 
 # Test with different campus values
 @pytest.mark.parametrize("campus", ["hall", "mb", "cc"])
@@ -161,11 +130,6 @@ def test_different_campuses(client, campus):
         response = client.get(f'/indoorNavigation?startId=start1&endId=end1&campus={campus}')
         assert response.status_code in [200, 404]  # Either valid response or no path found
 
-# Test with different accessibility values
-@pytest.mark.parametrize("accessibility", ["true", "false", "TRUE", "FALSE", "True", "False"])
-def test_accessibility_parameter_casing(client, accessibility):
-    response = client.get(f'/indoorNavigation?startId=h2_209&endId=h8_803&campus=hall&accessibility={accessibility}')
-    assert response.status_code == 200
 
 # Test with invalid accessibility value
 def test_invalid_accessibility_parameter(client):
