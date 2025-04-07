@@ -166,7 +166,76 @@ const SmartPlanner = () => {
             return;
         }
 
-        console.warn("Submitting route:", selectedRouteEvents);
+        console.log("Selected events:", selectedRouteEvents);
+
+        // Filter tasks that have addresses and format classroom locations
+        const tasksWithAddresses = Object.values(selectedRouteEvents)
+            .filter(event => {
+                const address = event.location;
+                console.log("Checking address for event:", event.summary, "Address:", address);
+                return address && address !== 'No location available';
+            })
+            .map(event => {
+                const address = event.location;
+                let formattedAddress = address;
+                let isClassroom = false;
+
+                console.log("Processing address:", address);
+
+                // Handle JMSB room format (e.g., "Rm S2.330")
+                const jmsbRoomMatch = address.match(/Rm\s+([A-Z][0-9]\.[0-9]+)/i);
+                if (jmsbRoomMatch) {
+                    formattedAddress = `JMSB ${jmsbRoomMatch[1]}`;
+                    isClassroom = true;
+                }
+                // Handle MB building format
+                else if (address.includes("MB Concordia University") || 
+                        address.includes("John Molson School of Business") ||
+                        address.includes("MB Building")) {
+                    formattedAddress = "MB Building, Concordia University";
+                    isClassroom = true;
+                }
+                // Handle H building format
+                else if (address.includes("H Building") || address.includes("Hall Building")) {
+                    formattedAddress = "Hall Building, Concordia University";
+                    isClassroom = true;
+                }
+                // Handle general Concordia University addresses
+                else if (address.includes("Concordia University")) {
+                    formattedAddress = address;
+                    isClassroom = true;
+                }
+
+                console.log("Formatted address:", formattedAddress);
+
+                const taskData = {
+                    taskName: event.summary,
+                    address: formattedAddress,
+                    startTime: event.start?.dateTime,
+                    endTime: event.end?.dateTime,
+                    isClassroom: isClassroom,
+                    originalAddress: address
+                };
+
+                console.log("Task data:", taskData);
+                return taskData;
+            });
+
+        console.log("Tasks with addresses:", tasksWithAddresses);
+
+        if (tasksWithAddresses.length === 0) {
+            alert("Please select tasks that have valid addresses.");
+            return;
+        }
+
+        // Navigate to chat with the tasks
+        router.push({
+            pathname: '/chat',
+            params: {
+                routePlanning: true,
+                tasks: JSON.stringify(tasksWithAddresses)
+            }
+        });
 
         setIsPlanRouteMode(false);
         setResetSelectionFlag(prev => !prev);

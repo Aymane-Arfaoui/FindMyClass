@@ -61,7 +61,7 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
                                 setRouteSelectionDate(null);
                             }
                         } else {
-                            if (!event.location || event.location.trim() === "") {
+                            if (!event.location && !event.address) {
                                 alert("This event has no address and cannot be added to your route.");
                                 return;
                             }
@@ -80,18 +80,14 @@ const EventList = ({events, onUpdate, isPlanRouteMode = false, onSelectForRoute,
 
                         const selectedEvents = events.filter(e => updated.includes(e.id));
                         const routeDict = {};
-                        selectedEvents.forEach((e, idx) => {
-                            routeDict[(idx + 1).toString()] = [
-                                e.summary,
-                                e.location || "No location",
-                                eventDate,
-                                e.start?.dateTime
-                                    ? new Date(e.start.dateTime).toLocaleTimeString([], {
-                                        hour: "2-digit",
-                                        minute: "2-digit"
-                                    })
-                                    : "All day"
-                            ];
+                        selectedEvents.forEach(e => {
+                            routeDict[e.id] = {
+                                summary: e.summary || e.taskName,
+                                location: e.location || e.address,
+                                start: e.start,
+                                end: e.end,
+                                itemType: e.itemType
+                            };
                         });
 
                         onSelectForRoute(routeDict);

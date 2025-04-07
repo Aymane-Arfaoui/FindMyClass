@@ -57,61 +57,36 @@ def extract_rooms(query: str) -> tuple:
     query_lower = query.lower()
     print(f"CHAT.PY: Extracting rooms from: '{query_lower}'")
     
-    # Try different patterns
-    
-    # Pattern 1: Direct "from H109 to H110" pattern
-    direct_pattern = r'(?:from\s+)?h\s*[-_ ]?\s*(\d{3})(?:\s+to|\s+and)\s+h\s*[-_ ]?\s*(\d{3})'
-    direct_match = re.search(direct_pattern, query_lower)
-    
-    if direct_match:
-        start_room_num = direct_match.group(1)
-        end_room_num = direct_match.group(2)
-        
-        # Get floor numbers (first digit of the room number)
-        start_floor = start_room_num[0]
-        end_floor = end_room_num[0]
-        
-        # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{start_room_num}"
-        end_room = f"h{end_floor}_{end_room_num}"
-        
-        print(f"CHAT.PY: Extracted rooms (direct pattern): {start_room} to {end_room}")
-        return start_room, end_room
-    
-    # Pattern 2: "How to go from H 109 to H 110" pattern
-    go_pattern = r'how to go from h\s*[-_ ]?\s*(\d{3})\s+to\s+h\s*[-_ ]?\s*(\d{3})'
-    go_match = re.search(go_pattern, query_lower)
-    
-    if go_match:
-        start_room_num = go_match.group(1)
-        end_room_num = go_match.group(2)
-        
-        # Get floor numbers (first digit of the room number)
-        start_floor = start_room_num[0]
-        end_floor = end_room_num[0]
-        
-        # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{start_room_num}"
-        end_room = f"h{end_floor}_{end_room_num}"
-        
-        print(f"CHAT.PY: Extracted rooms (go pattern): {start_room} to {end_room}")
-        return start_room, end_room
-    
-    # Pattern 3: Just find all room numbers and use the first two
-    room_pattern = r'h\s*[-_ ]?\s*(\d{3})'
-    rooms = re.findall(room_pattern, query_lower)
+    # First, check for the exact API format (h1_110)
+    exact_pattern = r'h\d_\d{3}'
+    rooms = re.findall(exact_pattern, query_lower)
     
     if len(rooms) >= 2:
-        # Get floor numbers from room numbers
-        start_floor = rooms[0][0]  # First digit is floor number
-        end_floor = rooms[1][0]    # First digit is floor number
+        start_room_id = rooms[0]
+        end_room_id = rooms[1]
+        print(f"CHAT.PY: Found exact format room IDs: {start_room_id} to {end_room_id}")
+        return start_room_id, end_room_id
+    
+    # Try formats with floor numbers (H8-862, H-196)
+    room_pattern = r'h(\d*)-?(\d{3})'
+    rooms = re.findall(room_pattern, query_lower)
+    print(f"CHAT.PY: Found room matches: {rooms}")
+    
+    if len(rooms) >= 2:
+        # Extract floor and room numbers
+        start_floor, start_room = rooms[0]
+        end_floor, end_room = rooms[1]
         
-        # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{rooms[0]}"
-        end_room = f"h{end_floor}_{rooms[1]}"
+        # If floor number is not specified, assume floor 1
+        start_floor = start_floor if start_floor else '1'
+        end_floor = end_floor if end_floor else '1'
         
-        print(f"CHAT.PY: Extracted rooms (generic pattern): {start_room} to {end_room}")
-        return start_room, end_room
+        # Format room IDs
+        start_room_id = f"h{start_floor}_{start_room}"
+        end_room_id = f"h{end_floor}_{end_room}"
+        
+        print(f"CHAT.PY: Final room IDs: {start_room_id} to {end_room_id}")
+        return start_room_id, end_room_id
     
     print("CHAT.PY: Could not extract rooms from query")
     return None, None
@@ -226,6 +201,25 @@ def handle_task_query(query, tasks):
     # Load environment variables and initialize OpenAI client
     load_dotenv()
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+    # Check if the query is asking to list all tasks
+    if any(keyword in query.lower() for keyword in ["list", "show", "what are", "what's", "what is"]):
+        if not tasks:
+            return "You don't have any tasks scheduled."
+        
+        formatted_tasks = []
+        for task in tasks:
+            task_time = ""
+            if task.get('startTime'):
+                time = task['startTime'].split('T')[1][:5] if 'T' in task['startTime'] else task['startTime']
+                task_time = f" at {time}"
+            
+            location = f" at {task['address']}" if task.get('address') and task['address'] != 'No location available' else ""
+            notes = f" ({task['notes']})" if task.get('notes') and task['notes'] != 'No additional details' else ""
+            
+            formatted_tasks.append(f"- {task['taskName']}{task_time}{location}{notes}")
+        
+        return "Here are your tasks:\n" + "\n".join(formatted_tasks)
 
     # Format tasks for OpenAI
     tasks_description = "Here are the user's current tasks:\n"
