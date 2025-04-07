@@ -1,16 +1,18 @@
 import {Pressable, StyleSheet, Text, View} from 'react-native';
-import React from 'react';
+import React, {useContext, useMemo} from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome5';
-import {theme} from '@/constants/theme';
 import {hp, wp} from '@/helpers/common';
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 
-const TransportOptions = ({ modeSelected, setModeSelected, travelTimes }) => {
+const TransportOptions = ({modeSelected, setModeSelected, travelTimes}) => {
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     const transportModes = [
-        { mode: 'driving', icon: 'car', time: travelTimes.DRIVE },
-        { mode: 'transit', icon: 'bus', time: travelTimes.TRANSIT },
-        { mode: 'walking', icon: 'walking', time: travelTimes.WALK },
-        { mode: 'bicycling', icon: 'bicycle', time: travelTimes.BICYCLE },
+        {mode: 'driving', icon: 'car', time: travelTimes.DRIVE},
+        {mode: 'transit', icon: 'bus', time: travelTimes.TRANSIT},
+        {mode: 'walking', icon: 'walking', time: travelTimes.WALK},
+        {mode: 'bicycling', icon: 'bicycle', time: travelTimes.BICYCLE},
     ];
     return (
         <View style={styles.container} testID={'transport-options'}>
@@ -40,7 +42,7 @@ const TransportOptions = ({ modeSelected, setModeSelected, travelTimes }) => {
         </View>
     );
 };
-TransportOptions.propTypes={
+TransportOptions.propTypes = {
     modeSelected: PropTypes.string,
     setModeSelected: PropTypes.func,
     travelTimes: PropTypes.object
@@ -48,49 +50,50 @@ TransportOptions.propTypes={
 
 export default TransportOptions;
 
-const styles = StyleSheet.create({
-    container: {
-        flexDirection: 'row',
-        justifyContent: 'space-around',
-        backgroundColor: theme.colors.primary,
-        paddingVertical: hp(1.5),
-        marginTop: 3,
-        elevation: 4,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: hp(0.5)},
-        shadowOpacity: 0.2,
-        shadowRadius: wp(2),
-        overflow: 'hidden',
-    },
+const createStyles = (theme) =>
+    StyleSheet.create({
+        container: {
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+            backgroundColor: theme.colors.primary,
+            paddingVertical: hp(1.5),
+            marginTop: 3,
+            elevation: 4,
+            shadowColor: '#000',
+            shadowOffset: {width: 0, height: hp(0.5)},
+            shadowOpacity: 0.2,
+            shadowRadius: wp(2),
+            overflow: 'hidden',
+        },
 
-    option: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        paddingVertical: hp(1),
-        paddingHorizontal: wp(1),
-        borderRadius: wp(2),
-        backgroundColor: 'transparent',
-    },
+        option: {
+            flexDirection: 'row',
+            alignItems: 'center',
+            paddingVertical: hp(1),
+            paddingHorizontal: wp(1),
+            borderRadius: wp(2),
+            backgroundColor: 'transparent',
+        },
 
-    selectedOption: {
-        backgroundColor: 'white',
-        paddingVertical: hp(1),
-        paddingHorizontal: wp(2),
-        borderRadius: wp(4),
-        elevation: 4,
-    },
+        selectedOption: {
+            backgroundColor: 'white',
+            paddingVertical: hp(1),
+            paddingHorizontal: wp(2),
+            borderRadius: wp(4),
+            elevation: 4,
+        },
 
-    icon: {
-        marginRight: wp(2),
-    },
+        icon: {
+            marginRight: wp(2),
+        },
 
-    text: {
-        color: 'white',
-        fontSize: hp(1.8),
-    },
+        text: {
+            color: 'white',
+            fontSize: hp(1.8),
+        },
 
-    selectedText: {
-        color: theme.colors.primary,
-        fontWeight: 'bold',
-    },
-});
+        selectedText: {
+            color: theme.colors.primary,
+            fontWeight: 'bold',
+        },
+    });

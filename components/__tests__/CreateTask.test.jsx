@@ -110,6 +110,7 @@ describe('CreateTask Component', () => {
     });
 
     test('should handle start and end time pickers', async () => {
+        jest.spyOn(console, 'error').mockImplementation(() => {});
         const user =userEvent.setup()
        render(<CreateTask isVisible={true} onClose={() => {}} onTaskCreated={() => {}} />);
 
@@ -120,6 +121,8 @@ describe('CreateTask Component', () => {
         await user.press(screen.getByTestId('start-time-picker-toggle'));
         await user.press(screen.getByTestId('end-time-picker-toggle'));
 
+        expect(screen.getByTestId('end-time-picker')).toBeOnTheScreen()
+        expect(screen.getByTestId('start-time-picker')).toBeOnTheScreen()
     });
 });
 

@@ -1,10 +1,13 @@
-import React from 'react';
+import React, {useContext, useMemo} from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { theme } from '@/constants/theme';
 import PropTypes from 'prop-types';
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute, onChangeUpdateRouteTemp }) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     if (floorKeys.length <= 1) return null;
 
     const testFunc = () => {
@@ -27,7 +30,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onCha
                     }}
                     disabled={floorKeys.indexOf(selectedFloorKey) === 0}
                 >
-                    <Ionicons name="chevron-back" size={20} color={theme.colors.primaryDark} />
+                    <Ionicons name="chevron-back" size={20} color={theme.colors.text} />
                 </TouchableOpacity>
                 {floorKeys.map((floorKey) => (
                     <TouchableOpacity
@@ -62,7 +65,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onCha
                     }}
                     disabled={floorKeys.indexOf(selectedFloorKey) === floorKeys.length - 1}
                 >
-                    <Ionicons name="chevron-forward" size={20} color={theme.colors.primaryDark} />
+                    <Ionicons name="chevron-forward" size={20} color={theme.colors.text} />
                 </TouchableOpacity>
             </ScrollView>
         </View>
@@ -77,58 +80,64 @@ FloorSelector.propTypes={
 }
 export default FloorSelector;
 
-const styles = StyleSheet.create({
-    floorPanel: {
-        position: 'absolute',
-        top: 700,
-        left: 15,
-        right: 15,
-        backgroundColor: theme.colors.white,
-        borderRadius: theme.radius.xl,
-        paddingVertical: 12,
-        paddingHorizontal: 15,
-        elevation: 6,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        zIndex: 10,
-    },
-    scrollContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    arrowButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: theme.radius.md,
-        backgroundColor: theme.colors.gray,
-        marginHorizontal: 5,
-    },
-    arrowDisabled: {
-        backgroundColor: theme.colors.grayDark,
-        opacity: 0.5,
-    },
-    floorButton: {
-        paddingVertical: 8,
-        paddingHorizontal: 18,
-        marginHorizontal: 5,
-        borderRadius: theme.radius.lg,
-        backgroundColor: theme.colors.white,
-        borderWidth: 1,
-        borderColor: theme.colors.grayDark,
-    },
-    floorButtonActive: {
-        backgroundColor: theme.colors.primary,
-        borderColor: theme.colors.primaryDark,
-    },
-    floorButtonText: {
-        fontSize: 16,
-        color: theme.colors.textLight,
-        fontWeight: '500',
-    },
-    floorButtonTextActive: {
-        color: theme.colors.white,
-        fontWeight: 'bold',
-    },
-});
+const createStyles = (theme) =>
+    StyleSheet.create({
+        floorPanel: {
+            position: 'absolute',
+            top: 620,
+            left: 15,
+            right: 15,
+            backgroundColor: theme.colors.cardBackground,
+            borderRadius: 20,
+            paddingVertical: 10,
+            paddingHorizontal: 10,
+            elevation: 10,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.15,
+            shadowRadius: 5,
+            zIndex: 10,
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+        },
+        scrollContainer: {
+            flexDirection: 'row',
+            alignItems: 'center',
+        },
+        arrowButton: {
+            paddingVertical: 10,
+            paddingHorizontal: 14,
+            borderRadius: 16,
+            backgroundColor: theme.colors.cardSecondary,
+            marginHorizontal: 4,
+        },
+        arrowDisabled: {
+            backgroundColor: theme.colors.cardDisabled,
+            opacity: 0.6,
+        },
+        floorButton: {
+            paddingVertical: 10,
+            paddingHorizontal: 20,
+            marginHorizontal: 4,
+            borderRadius: 16,
+            backgroundColor: theme.colors.cardSecondary,
+            borderWidth: 1,
+            borderColor: theme.colors.cardBorder,
+        },
+        floorButtonActive: {
+            backgroundColor: theme.colors.primary,
+            borderColor: theme.colors.primaryDark,
+        },
+        floorButtonText: {
+            fontSize: 16,
+            color: theme.colors.text,
+            fontWeight: '500',
+        },
+        floorButtonTextActive: {
+            color: theme.colors.white,
+            fontWeight: 'bold',
+        },
+    });
+
+

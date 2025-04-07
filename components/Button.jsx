@@ -1,9 +1,10 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
-import { theme } from '../constants/theme'
+import React, {useContext, useMemo} from 'react'
 import Loading from './Loading'
-import { hp } from '../helpers/common'
+import { hp } from '@/helpers/common'
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
+
 
 const Button = ({
     buttonStyle,
@@ -13,6 +14,10 @@ const Button = ({
     loading=false,
     hasShadow = true,
 }) => {
+
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     const shadowStyle = {
         shadowColor: theme.colors.dark,
         shadowOffset: {width: 0, height: 10},
@@ -29,7 +34,7 @@ const Button = ({
         );
     }
 
-  return (
+    return (
     <Pressable testID={'button'} onPress={onPress} style={[styles.button, buttonStyle, hasShadow && shadowStyle]}>
         <Text style={[styles.text, textStyle]}>{title}</Text>
     </Pressable>
@@ -45,7 +50,8 @@ Button.propTypes={
 }
 export default Button
 
-const styles = StyleSheet.create({
+const createStyles = (theme) =>
+    StyleSheet.create({
     button:{
         backgroundColor: theme.colors.primary,
         height: hp(6.6),

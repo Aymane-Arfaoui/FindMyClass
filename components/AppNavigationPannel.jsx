@@ -55,7 +55,7 @@ const AppNavigationPanel = () => {
             <TouchableOpacity
                 style={styles.tabItem}
                 onPress={() => router.push("/home")}
-                testID={'button-navigate-to-calendar'}
+                testID={'button-navigate-to-home'}
                 activeOpacity={0.7}
             >
                 <Animated.View style={{transform: [{scale: calendarScale}]}}>

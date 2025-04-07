@@ -28,7 +28,7 @@ describe('Map Component', () => {
     const mockOnRoutePress = jest.fn();
     const mockOnSelectedPOI = jest.fn();
 
-    const cameraRef = { current: { flyTo: jest.fn() } };
+    const cameraRef = { current: { flyTo: jest.fn(), setCamera: jest.fn() } };
 
     const selectedLocation = [45.4215, -75.6972]; // Example coordinates (Ottawa)
     const userLocation = {
@@ -102,7 +102,7 @@ describe('Map Component', () => {
             />
         );
 
-        expect(cameraRef.current.flyTo).toHaveBeenCalledWith(selectedLocation, 800);
+        expect(cameraRef.current.setCamera).toHaveBeenCalledWith(expect.objectContaining ({centerCoordinate:selectedLocation}));
     });
 
 });

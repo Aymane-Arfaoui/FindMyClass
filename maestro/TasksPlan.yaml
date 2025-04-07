@@ -1,7 +1,14 @@
 appId: com.aymanearfaoui.FindMyClass
 ---
 - tapOn: "GET STARTED"
+- tapOn:  Planner
+- tapOn: 
+- tapOn: Task Name
+- inputText: Test
+- tapOn: Enter Address
+- inputText: Concordia
 - tapOn:
-    point: "17%,93%"
-- tapOn:
-    point: "26%,25%"
+    point: 41%,44%
+- tapOn: return
+- tapOn: Create Event
+- tapOn: OK

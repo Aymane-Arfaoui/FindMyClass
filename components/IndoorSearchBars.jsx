@@ -1,13 +1,11 @@
-import React, {useEffect, useState} from 'react';
-import {Platform, StyleSheet, TextInput, TouchableOpacity, View, Text,} from 'react-native';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
+import {Platform, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
-import {theme} from '@/constants/theme';
-
 import {hp, wp} from '@/helpers/common';
-import IndoorSearchBar from "@/components/IndoorSearchBar";
 import StartPointSearchBar from "@/components/StartPointSearchBar";
 
 import PropTypes from 'prop-types';
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const IndoorSearchBars = ({startLocation,
                               setStartLocation,
@@ -16,8 +14,6 @@ const IndoorSearchBars = ({startLocation,
                               destination,
                               onBackPress,
                               navigation,
-                              // setSelectedFloorKey,
-                              // setSelectedSection,
                               resetTransform,
 
                           }) => {
@@ -32,7 +28,8 @@ const IndoorSearchBars = ({startLocation,
         onShowDirectionsUpdateTemp();
     }, [localStart, setLocalStart]);
 
-
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
     return (
         <View style={styles.containerIM} testID={'search-bars'}>
 
@@ -46,8 +43,6 @@ const IndoorSearchBars = ({startLocation,
 
                 <StartPointSearchBar
                     navigation={navigation}
-                    // setSelectedFloorKey={setSelectedFloorKey}
-                    // setSelectedSection={setSelectedSection}
                     resetTransform={resetTransform}
 
                     searchQuery={localStart}
@@ -63,7 +58,6 @@ const IndoorSearchBars = ({startLocation,
                 <TextInput
                     style={styles.inputIM}
                     value={destination}
-                    // onChangeText={(text) => handleAddressChange(text, false)}
                     placeholder="Destination"
                 />
             </View>
@@ -85,96 +79,67 @@ IndoorSearchBars.propTypes = {
 export default IndoorSearchBars;
 
 
-const styles = StyleSheet.create({
-        containerIM: {
-            backgroundColor: theme.colors.primary,
-
-            paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
-            position: 'absolute',
-
-            top: 0,
-            left: 0,
-            right: 0,
-            zIndex: 100,
-            elevation: 10,
-            shadowColor: theme.colors.dark,
-            shadowOpacity: 0.2,
-            shadowOffset: {width: 0, height: hp(0.5)},
-
-            shadowRadius: wp(3),
-            paddingHorizontal: wp(4),
-            paddingBottom: hp(1),
-            borderBottomLeftRadius: wp(6),
-            borderBottomRightRadius: wp(6),
-
-        },
-
-        backButtonIM: {
-            position: 'absolute',
-            top: Platform.OS === 'ios' ? hp(6) : hp(5),
-            left: wp(2),
-            padding: wp(1),
-            borderRadius: wp(5),
-        },
-
-        inputContainerIM: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: theme.colors.white,
-            paddingVertical: hp(1.5),
-            paddingHorizontal: wp(3),
-            borderRadius: wp(4),
-            marginTop: hp(1.2),
-            elevation: 2,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: hp(0.3)},
-            shadowOpacity: 0.1,
-            shadowRadius: wp(2),
-            maxHeight: 250,
-
-
-        },
-        inputContainerIMStart: {
-            flexDirection: 'row',
-            alignItems: 'center',
-            backgroundColor: theme.colors.white,
-            paddingVertical: hp(1),
-            // paddingHorizontal: wp(3),
-            borderRadius: wp(4),
-            marginTop: hp(1.2),
-            elevation: 2,
-            shadowColor: '#000',
-            shadowOffset: {width: 0, height: hp(0.3)},
-            shadowOpacity: 0.1,
-            shadowRadius: wp(2),
-            zIndex: 10,
-
-        },
-
-        iconIM: {
-            marginRight: wp(2),
-        },
-
-        inputIM: {
-            flex: 1,
-            fontSize: hp(1.8),
-            color: theme.colors.dark,
-
-        },
-
-        confirmButton: {
-            backgroundColor: theme.colors.blueDark,
-            padding: 10,
-            borderRadius: wp(4),
-            alignItems: 'center',
-            marginTop: 10,
-        },
-
-        buttonText: {
-            color: theme.colors.white,
-            fontSize: 16,
-            fontWeight: 'bold',
-        },
-
-    }
-);
+const createStyles = (theme) => StyleSheet.create({
+    containerIM: {
+        backgroundColor: theme.colors.primary,
+        paddingTop: Platform.OS === 'ios' ? hp(10) : hp(8),
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 100,
+        elevation: 10,
+        shadowColor: theme.colors.dark,
+        shadowOpacity: 0.2,
+        shadowOffset: { width: 0, height: hp(0.5) },
+        shadowRadius: wp(3),
+        paddingHorizontal: wp(4),
+        paddingBottom: hp(3),
+        borderBottomLeftRadius: wp(6),
+        borderBottomRightRadius: wp(6),
+    },
+    backButtonIM: {
+        position: 'absolute',
+        top: Platform.OS === 'ios' ? hp(6) : hp(5),
+        left: wp(2),
+        padding: wp(1),
+        borderRadius: wp(5),
+    },
+    inputContainerIM: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.white,
+        paddingVertical: hp(1.5),
+        paddingHorizontal: wp(3),
+        borderRadius: wp(4),
+        marginTop: hp(1.2),
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: hp(0.3) },
+        shadowOpacity: 0.1,
+        shadowRadius: wp(2),
+        maxHeight: 250,
+    },
+    inputContainerIMStart: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: theme.colors.white,
+        paddingVertical: hp(1),
+        borderRadius: wp(4),
+        marginTop: hp(1.2),
+        elevation: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: hp(0.3) },
+        shadowOpacity: 0.1,
+        shadowRadius: wp(2),
+        zIndex: 10,
+    },
+    iconIM: {
+        marginRight: wp(2),
+    },
+    inputIM: {
+        flex: 1,
+        fontSize: hp(1.8),
+        color: '#2D2D2D',
+    },
+});

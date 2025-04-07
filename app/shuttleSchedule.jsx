@@ -1,10 +1,10 @@
-import { View, Text, FlatList, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { StatusBar } from 'expo-status-bar';
-import { useRouter } from 'expo-router';
-import { theme } from "@/constants/theme";
+import {FlatList, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
+import {StatusBar} from 'expo-status-bar';
+import {useRouter} from 'expo-router';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { getShuttleTimes } from '@/services/shuttleService';
-import { useState, useEffect } from "react";
+import {getShuttleTimes} from '@/services/shuttleService';
+import {useContext, useEffect, useMemo, useState} from "react";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 const ShuttleSchedule = () => {
     const router = useRouter();
@@ -12,10 +12,13 @@ const ShuttleSchedule = () => {
     const [previousShuttle, setPreviousShuttle] = useState(null);
     const [previousShuttleMinutesAgo, setPreviousShuttleMinutesAgo] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
 
     useEffect(() => {
         const fetchShuttleData = () => {
-            const { nextShuttles, allShuttles } = getShuttleTimes(5);
+            const {nextShuttles, allShuttles} = getShuttleTimes(5);
 
             if (Array.isArray(nextShuttles) && (nextShuttles.length > 0 || (Array.isArray(allShuttles) && allShuttles.length > 0))) {
                 setErrorMessage("");
@@ -86,11 +89,11 @@ const ShuttleSchedule = () => {
 
     return (
         <View style={styles.container}>
-            <StatusBar style="light" />
+            <StatusBar style="light"/>
             <View style={styles.header}></View>
             <View style={styles.concordiaShuttleBox}>
                 <TouchableOpacity onPress={handleGoBack} testID={'back-button'}>
-                    <Icon name="chevron-left" size={25} color={theme.colors.dark} style={styles.chevronLeft} />
+                    <Icon name="chevron-left" size={25} color={theme.colors.dark} style={styles.chevronLeft}/>
                 </TouchableOpacity>
                 <Text style={styles.concordiaShuttleText}>Concordia Shuttle</Text>
             </View>
@@ -102,11 +105,12 @@ const ShuttleSchedule = () => {
                 <FlatList
                     data={shuttleData}
                     keyExtractor={(item) => item.id}
-                    renderItem={({ item }) => (
+                    renderItem={({item}) => (
                         <View style={[styles.shuttleCard, item.status === 'Departed' && styles.previousShuttle]}>
                             <View style={styles.shuttleInfo}>
                                 <View style={styles.imageTextContainer}>
-                                    <Image source={require('@/assets/images/ConcordiaLogo.png')} style={styles.logoImage} />
+                                    <Image source={require('@/assets/images/ConcordiaLogo.png')}
+                                           style={styles.logoImage}/>
                                     <Text style={styles.shuttleTitle}>Shuttle</Text>
                                 </View>
                                 <Text style={styles.routeText}>SGW ➝ Loyola</Text>
@@ -129,10 +133,10 @@ const ShuttleSchedule = () => {
 
 export default ShuttleSchedule;
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
     },
     header: {
         backgroundColor: theme.colors.primary,
@@ -142,7 +146,7 @@ const styles = StyleSheet.create({
         paddingBottom: 40,
     },
     concordiaShuttleBox: {
-        backgroundColor: theme.colors.gray,
+        backgroundColor: theme.colors.backgroundNav,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
@@ -150,7 +154,7 @@ const styles = StyleSheet.create({
         shadowColor: theme.colors.grayDark,
     },
     chevronLeft: {
-        paddingLeft: 10,
+        paddingLeft: 0,
     },
     concordiaShuttleText: {
         color: theme.colors.dark,
@@ -164,7 +168,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         padding: 16,
         borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
+        borderBottomColor: theme.colors.cardBorder,
         alignItems: 'center',
     },
     shuttleInfo: {
@@ -182,6 +186,7 @@ const styles = StyleSheet.create({
     shuttleTitle: {
         fontSize: 18,
         fontWeight: theme.fonts.bold,
+        color: theme.colors.text,
     },
     routeText: {
         fontSize: 14,
@@ -198,7 +203,7 @@ const styles = StyleSheet.create({
         color: theme.colors.grayDark,
     },
     previousShuttle: {
-        backgroundColor: theme.colors.white,
+        backgroundColor: theme.colors.backgroundNav,
     },
     previousShuttleText: {
         color: theme.colors.error,

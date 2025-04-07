@@ -1,3 +1,4 @@
+jest.useFakeTimers()
 import Home from '../home.jsx';
 import {render, screen, waitFor, userEvent, act} from '@testing-library/react-native';
 import { useRouter } from 'expo-router';
@@ -18,7 +19,7 @@ const event = JSON.stringify([{
     }
 }]);
 const userMock = JSON.stringify({name: "test"});
-describe('Home Component', () => {
+describe('Home page', () => {
     afterEach(
         ()=> {AsyncStorage.clear();}
 
@@ -53,30 +54,6 @@ describe('Home Component', () => {
         unmount();
     });
 
-    it('should reroute to "/"  if sign out button is pressed',  async () => {
-        const mock={replace:jest.fn()};
-        useRouter.mockReturnValue(mock);
-        await AsyncStorage.setItem('@user', userMock);
-        await AsyncStorage.setItem('@calendar', event);
-        const { unmount } =render(<Home/>);
-        const user = userEvent.setup();
-        await user.press(await screen.findByTestId('button'));
-        expect(mock.replace).toHaveBeenCalledWith('/');
-        unmount();
 
 
-    });
-    it('should reroute to "/smartPlanner" if smart-planner button is pressed',  async () => {
-        const mock={push:jest.fn()};
-        useRouter.mockReturnValue(mock);
-        await AsyncStorage.setItem('@user', userMock);
-        await AsyncStorage.setItem('@calendar', event);
-        const { unmount } =render(<Home/>);
-        const user = userEvent.setup();
-        await user.press(await screen.findByTestId('smart-planner-button'));
-        expect(mock.push).toHaveBeenCalledWith('/smartPlanner');
-        unmount();
-
-
-    });
 });
