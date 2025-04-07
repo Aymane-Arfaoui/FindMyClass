@@ -662,6 +662,10 @@
     [
       "h1_hw1",
       "h2_stairs2_to_h1"
+    ],
+    [
+      "h1_escalator_to_tunnel",
+      "mb_s2_metro"
     ]
   ],
   "scale_factor": 0.05

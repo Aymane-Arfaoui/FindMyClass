@@ -46,6 +46,45 @@ class IntegratedRoutingService:
                 "success": False
             }
     
+    def _is_bad_weather(self, weather_data: Optional[Dict[str, Any]]) -> bool:
+        """Check if weather conditions are bad for outdoor travel"""
+        if not weather_data or not weather_data.get("success"):
+            return False
+            
+        return (
+            weather_data.get("precipitation", 0) > 1 or 
+            weather_data.get("weather_code", 0) in [56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 85, 86, 95, 96] or
+            weather_data.get("temperature", 20) < 0 or
+            weather_data.get("wind_speed", 0) > 20
+        )
+    
+    def _create_indoor_segment(self, path: List[str], distance: float, campus: str) -> Dict[str, Any]:
+        """Create an indoor path segment"""
+        return {
+            "type": "indoor",
+            "path": path,
+            "distance": distance,
+            "campus": campus
+        }
+    
+    def _create_outdoor_segment(self, path: Dict[str, Any], distance: float, weather_adjusted: bool = False) -> Dict[str, Any]:
+        """Create an outdoor path segment"""
+        return {
+            "type": "outdoor",
+            "path": path,
+            "distance": distance,
+            "weather_adjusted": weather_adjusted
+        }
+    
+    def _create_integrated_path(self, segments: List[Dict[str, Any]], total_distance: float) -> Dict[str, Any]:
+        """Create an integrated path with multiple segments"""
+        return {
+            "segments": segments,
+            "total_distance": total_distance,
+            "success": True,
+            "type": "integrated"
+        }
+    
     def find_indoor_path(self, start_id: str, end_id: str, campus: str = 'hall', accessibility: bool = False) -> Dict[str, Any]:
         """Find the shortest path between two indoor locations"""
         if campus not in self.indoor_graphs:
@@ -90,11 +129,8 @@ class IntegratedRoutingService:
             from config import GOOGLE_MAPS_API_KEY
             
             # Adjust mode based on weather conditions
-            if weather_data and weather_data.get("success"):
-                if weather_data.get("precipitation", 0) > 0 or weather_data.get("weather_code", 0) in [56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 80, 81, 82, 85, 86, 95, 96, 99]:
-                    # If it's raining, prefer transit over walking
-                    if mode == "walking":
-                        mode = "transit"
+            # if self._is_bad_weather(weather_data) and mode == "walking":
+            #     mode = "transit"
             
             response = requests.get(
                 "https://maps.googleapis.com/maps/api/directions/json",
@@ -178,23 +214,90 @@ class IntegratedRoutingService:
     def _find_cross_building_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
                                  weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Find a path between two buildings, which may involve going outside"""
-        # Get building exit points (this would be defined in your data)
+        # Check if weather conditions suggest using indoor routes
+        is_bad_weather = self._is_bad_weather(weather_data)
+        
+        # Special case for Hall and JMSB (MB) buildings during bad weather
+        if is_bad_weather and (
+            (start_location["campus"] == "hall" and end_location["campus"] == "mb") or
+            (start_location["campus"] == "mb" and end_location["campus"] == "hall")
+        ):
+            # Use the tunnel in Hall and metro entrance in JMSB S2
+            if start_location["campus"] == "hall":
+                # From Hall to JMSB
+                # Indoor path from start to tunnel in Hall
+                indoor_start_path = self.find_indoor_path(start_location["id"], "h1_tunnel_entrance", start_location["campus"])
+                if not indoor_start_path["success"]:
+                    return {"error": "Failed to find path to tunnel in Hall", "success": False}
+                
+                # Indoor path from metro entrance in JMSB S2 to end
+                indoor_end_path = self.find_indoor_path("mb_s2_metro_entrance", end_location["id"], end_location["campus"])
+                if not indoor_end_path["success"]:
+                    return {"error": "Failed to find path from metro entrance in JMSB", "success": False}
+                
+                # Create path segments
+                segments = [
+                    self._create_indoor_segment(
+                        indoor_start_path["path"],
+                        indoor_start_path["distance"],
+                        start_location["campus"]
+                    ),
+                    self._create_indoor_segment(
+                        ["h1_tunnel_entrance", "mb_s2_metro_entrance"],  # Tunnel path
+                        50.0,  # Approximate distance through tunnel
+                        "tunnel"
+                    ),
+                    self._create_indoor_segment(
+                        indoor_end_path["path"],
+                        indoor_end_path["distance"],
+                        end_location["campus"]
+                    )
+                ]
+                
+                total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
+                return self._create_integrated_path(segments, total_distance)
+            else:
+                # From JMSB to Hall
+                # Indoor path from start to metro entrance in JMSB S2
+                indoor_start_path = self.find_indoor_path(start_location["id"], "mb_s2_metro_entrance", start_location["campus"])
+                if not indoor_start_path["success"]:
+                    return {"error": "Failed to find path to metro entrance in JMSB", "success": False}
+                
+                # Indoor path from tunnel in Hall to end
+                indoor_end_path = self.find_indoor_path("h1_tunnel_entrance", end_location["id"], end_location["campus"])
+                if not indoor_end_path["success"]:
+                    return {"error": "Failed to find path from tunnel in Hall", "success": False}
+                
+                # Create path segments
+                segments = [
+                    self._create_indoor_segment(
+                        indoor_start_path["path"],
+                        indoor_start_path["distance"],
+                        start_location["campus"]
+                    ),
+                    self._create_indoor_segment(
+                        ["mb_s2_metro_entrance", "h1_tunnel_entrance"],  # Tunnel path
+                        50.0,  # Approximate distance through tunnel
+                        "tunnel"
+                    ),
+                    self._create_indoor_segment(
+                        indoor_end_path["path"],
+                        indoor_end_path["distance"],
+                        end_location["campus"]
+                    )
+                ]
+                
+                total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
+                return self._create_integrated_path(segments, total_distance)
+        
+        # For other cases or good weather, use the standard approach
+        # Get building exit points
         start_exits = self._get_building_exits(start_location["campus"])
         end_exits = self._get_building_exits(end_location["campus"])
         
         # Find the best combination of indoor and outdoor segments
         best_path = None
         best_total_distance = float('inf')
-        
-        # Check if weather conditions suggest prioritizing indoor routes
-        is_bad_weather = False
-        if weather_data and weather_data.get("success"):
-            is_bad_weather = (
-                weather_data.get("precipitation", 0) > 0 or 
-                weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
-                weather_data.get("temperature", 20) < 10 or
-                weather_data.get("wind_speed", 0) > 20
-            )
         
         for start_exit in start_exits:
             for end_exit in end_exits:
@@ -218,45 +321,61 @@ class IntegratedRoutingService:
                     continue
                 
                 # Calculate total distance
+                outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
                 total_distance = (
                     indoor_start_path["distance"] + 
-                    float(outdoor_path["routes"][0]["distance"].split()[0]) + 
+                    outdoor_distance + 
                     indoor_end_path["distance"]
                 )
                 
-                # Adjust for weather if available
-                if is_bad_weather:
-                    # Add penalties for outdoor segments in bad weather
-                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
-                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
-                
-                if total_distance < best_total_distance:
+                # If weather is bad, prioritize routes with shorter outdoor segments
+                # but don't artificially inflate the distance
+                if is_bad_weather and total_distance < best_total_distance * 1.2:  # Allow slightly longer routes if they have less outdoor time
                     best_total_distance = total_distance
-                    best_path = {
-                        "segments": [
-                            {
-                                "type": "indoor",
-                                "path": indoor_start_path["path"],
-                                "distance": indoor_start_path["distance"],
-                                "campus": start_location["campus"]
-                            },
-                            {
-                                "type": "outdoor",
-                                "path": outdoor_path["routes"][0],
-                                "distance": float(outdoor_path["routes"][0]["distance"].split()[0]),
-                                "weather_adjusted": weather_data["success"] if weather_data else False
-                            },
-                            {
-                                "type": "indoor",
-                                "path": indoor_end_path["path"],
-                                "distance": indoor_end_path["distance"],
-                                "campus": end_location["campus"]
-                            }
-                        ],
-                        "total_distance": best_total_distance,
-                        "success": True,
-                        "type": "integrated"
-                    }
+                    
+                    # Create path segments
+                    segments = [
+                        self._create_indoor_segment(
+                            indoor_start_path["path"],
+                            indoor_start_path["distance"],
+                            start_location["campus"]
+                        ),
+                        self._create_outdoor_segment(
+                            outdoor_path["routes"][0],
+                            outdoor_distance,
+                            weather_data["success"] if weather_data else False
+                        ),
+                        self._create_indoor_segment(
+                            indoor_end_path["path"],
+                            indoor_end_path["distance"],
+                            end_location["campus"]
+                        )
+                    ]
+                    
+                    best_path = self._create_integrated_path(segments, best_total_distance)
+                elif not is_bad_weather and total_distance < best_total_distance:
+                    best_total_distance = total_distance
+                    
+                    # Create path segments
+                    segments = [
+                        self._create_indoor_segment(
+                            indoor_start_path["path"],
+                            indoor_start_path["distance"],
+                            start_location["campus"]
+                        ),
+                        self._create_outdoor_segment(
+                            outdoor_path["routes"][0],
+                            outdoor_distance,
+                            weather_data["success"] if weather_data else False
+                        ),
+                        self._create_indoor_segment(
+                            indoor_end_path["path"],
+                            indoor_end_path["distance"],
+                            end_location["campus"]
+                        )
+                    ]
+                    
+                    best_path = self._create_integrated_path(segments, best_total_distance)
         
         if best_path:
             return best_path
@@ -268,134 +387,153 @@ class IntegratedRoutingService:
         """Find a path when one location is indoor and the other is outdoor"""
         if start_location["type"] == "indoor":
             # Start is indoor, end is outdoor
-            exits = self._get_building_exits(start_location["campus"])
-            
-            best_path = None
-            best_total_distance = float('inf')
-            
-            # Check if weather conditions suggest prioritizing indoor routes
-            is_bad_weather = False
-            if weather_data and weather_data.get("success"):
-                is_bad_weather = (
-                    weather_data.get("precipitation", 0) > 0 or 
-                    weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
-                    weather_data.get("temperature", 20) < 10 or
-                    weather_data.get("wind_speed", 0) > 20
-                )
-            
-            for exit_point in exits:
-                # Indoor path from start to exit
-                indoor_path = self.find_indoor_path(start_location["id"], exit_point["id"], start_location["campus"])
-                if not indoor_path["success"]:
-                    continue
-                
-                # Outdoor path from exit to end
-                outdoor_path = self.find_outdoor_path(
-                    f"{exit_point['lat']},{exit_point['lng']}", 
-                    f"{end_location['lat']},{end_location['lng']}",
-                    weather_data=weather_data
-                )
-                if not outdoor_path["success"]:
-                    continue
-                
-                # Calculate total distance
-                total_distance = (
-                    indoor_path["distance"] + 
-                    float(outdoor_path["routes"][0]["distance"].split()[0])
-                )
-                
-                # Adjust for weather if available
-                if is_bad_weather:
-                    # Add penalties for outdoor segments in bad weather
-                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
-                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
-                
-                if total_distance < best_total_distance:
-                    best_total_distance = total_distance
-                    best_path = {
-                        "segments": [
-                            {
-                                "type": "indoor",
-                                "path": indoor_path["path"],
-                                "distance": indoor_path["distance"],
-                                "campus": start_location["campus"]
-                            },
-                            {
-                                "type": "outdoor",
-                                "path": outdoor_path["routes"][0],
-                                "distance": float(outdoor_path["routes"][0]["distance"].split()[0]),
-                                "weather_adjusted": weather_data["success"] if weather_data else False
-                            }
-                        ],
-                        "total_distance": best_total_distance,
-                        "success": True,
-                        "type": "integrated"
-                    }
+            return self._find_indoor_to_outdoor_path(start_location, end_location, weather_data)
         else:
             # Start is outdoor, end is indoor
-            entrances = self._get_building_entrances(end_location["campus"])
+            return self._find_outdoor_to_indoor_path(start_location, end_location, weather_data)
+    
+    def _find_indoor_to_outdoor_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
+                                    weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Find a path from an indoor location to an outdoor location"""
+        exits = self._get_building_exits(start_location["campus"])
+        
+        best_path = None
+        best_total_distance = float('inf')
+        
+        # Check if weather conditions suggest prioritizing indoor routes
+        is_bad_weather = self._is_bad_weather(weather_data)
+        
+        for exit_point in exits:
+            # Indoor path from start to exit
+            indoor_path = self.find_indoor_path(start_location["id"], exit_point["id"], start_location["campus"])
+            if not indoor_path["success"]:
+                continue
             
-            best_path = None
-            best_total_distance = float('inf')
+            # Outdoor path from exit to end
+            outdoor_path = self.find_outdoor_path(
+                f"{exit_point['lat']},{exit_point['lng']}", 
+                f"{end_location['lat']},{end_location['lng']}",
+                weather_data=weather_data
+            )
+            if not outdoor_path["success"]:
+                continue
             
-            # Check if weather conditions suggest prioritizing indoor routes
-            is_bad_weather = False
-            if weather_data and weather_data.get("success"):
-                is_bad_weather = (
-                    weather_data.get("precipitation", 0) > 0 or 
-                    weather_data.get("weather_code", 0) in [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82] or
-                    weather_data.get("temperature", 20) < 10 or
-                    weather_data.get("wind_speed", 0) > 20
-                )
+            # Calculate total distance
+            outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+            total_distance = indoor_path["distance"] + outdoor_distance
             
-            for entrance in entrances:
-                # Outdoor path from start to entrance
-                outdoor_path = self.find_outdoor_path(
-                    f"{start_location['lat']},{start_location['lng']}", 
-                    f"{entrance['lat']},{entrance['lng']}",
-                    weather_data=weather_data
-                )
-                if not outdoor_path["success"]:
-                    continue
+            # If weather is bad, prioritize routes with shorter outdoor segments
+            # but don't artificially inflate the distance
+            if is_bad_weather and total_distance < best_total_distance * 1.2:  # Allow slightly longer routes if they have less outdoor time
+                best_total_distance = total_distance
                 
-                # Indoor path from entrance to end
-                indoor_path = self.find_indoor_path(entrance["id"], end_location["id"], end_location["campus"])
-                if not indoor_path["success"]:
-                    continue
+                # Create path segments
+                segments = [
+                    self._create_indoor_segment(
+                        indoor_path["path"],
+                        indoor_path["distance"],
+                        start_location["campus"]
+                    ),
+                    self._create_outdoor_segment(
+                        outdoor_path["routes"][0],
+                        outdoor_distance,
+                        weather_data["success"] if weather_data else False
+                    )
+                ]
                 
-                # Calculate total distance
-                total_distance = (
-                    float(outdoor_path["routes"][0]["distance"].split()[0]) +
-                    indoor_path["distance"]
-                )
+                best_path = self._create_integrated_path(segments, best_total_distance)
+            elif not is_bad_weather and total_distance < best_total_distance:
+                best_total_distance = total_distance
                 
-                # Adjust for weather if available
-                if is_bad_weather:
-                    # Add penalties for outdoor segments in bad weather
-                    outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
-                    total_distance += outdoor_distance * 0.5  # 50% penalty for outdoor segments in bad weather
+                # Create path segments
+                segments = [
+                    self._create_indoor_segment(
+                        indoor_path["path"],
+                        indoor_path["distance"],
+                        start_location["campus"]
+                    ),
+                    self._create_outdoor_segment(
+                        outdoor_path["routes"][0],
+                        outdoor_distance,
+                        weather_data["success"] if weather_data else False
+                    )
+                ]
                 
-                if total_distance < best_total_distance:
-                    best_total_distance = total_distance
-                    best_path = {
-                        "segments": [
-                            {
-                                "type": "outdoor",
-                                "path": outdoor_path["routes"][0],
-                                "distance": float(outdoor_path["routes"][0]["distance"].split()[0]),
-                                "weather_adjusted": weather_data["success"] if weather_data else False
-                            },
-                            {
-                                "type": "indoor",
-                                "path": indoor_path["path"],
-                                "distance": indoor_path["distance"],
-                                "campus": end_location["campus"]
-                            }
-                        ],
-                        "total_distance": best_total_distance,
-                        "success": True,
-                        "type": "integrated"
-                    }
+                best_path = self._create_integrated_path(segments, best_total_distance)
+        
+        if best_path:
+            return best_path
+        else:
+            return {"error": "No valid path found", "success": False}
+    
+    def _find_outdoor_to_indoor_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
+                                    weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+        """Find a path from an outdoor location to an indoor location"""
+        entrances = self._get_building_entrances(end_location["campus"])
+        
+        best_path = None
+        best_total_distance = float('inf')
+        
+        # Check if weather conditions suggest prioritizing indoor routes
+        is_bad_weather = self._is_bad_weather(weather_data)
+        
+        for entrance in entrances:
+            # Outdoor path from start to entrance
+            outdoor_path = self.find_outdoor_path(
+                f"{start_location['lat']},{start_location['lng']}", 
+                f"{entrance['lat']},{entrance['lng']}",
+                weather_data=weather_data
+            )
+            if not outdoor_path["success"]:
+                continue
+            
+            # Indoor path from entrance to end
+            indoor_path = self.find_indoor_path(entrance["id"], end_location["id"], end_location["campus"])
+            if not indoor_path["success"]:
+                continue
+            
+            # Calculate total distance
+            outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+            total_distance = outdoor_distance + indoor_path["distance"]
+            
+            # If weather is bad, prioritize routes with shorter outdoor segments
+            # but don't artificially inflate the distance
+            if is_bad_weather and total_distance < best_total_distance * 1.2:  # Allow slightly longer routes if they have less outdoor time
+                best_total_distance = total_distance
+                
+                # Create path segments
+                segments = [
+                    self._create_outdoor_segment(
+                        outdoor_path["routes"][0],
+                        outdoor_distance,
+                        weather_data["success"] if weather_data else False
+                    ),
+                    self._create_indoor_segment(
+                        indoor_path["path"],
+                        indoor_path["distance"],
+                        end_location["campus"]
+                    )
+                ]
+                
+                best_path = self._create_integrated_path(segments, best_total_distance)
+            elif not is_bad_weather and total_distance < best_total_distance:
+                best_total_distance = total_distance
+                
+                # Create path segments
+                segments = [
+                    self._create_outdoor_segment(
+                        outdoor_path["routes"][0],
+                        outdoor_distance,
+                        weather_data["success"] if weather_data else False
+                    ),
+                    self._create_indoor_segment(
+                        indoor_path["path"],
+                        indoor_path["distance"],
+                        end_location["campus"]
+                    )
+                ]
+                
+                best_path = self._create_integrated_path(segments, best_total_distance)
         
         if best_path:
             return best_path
