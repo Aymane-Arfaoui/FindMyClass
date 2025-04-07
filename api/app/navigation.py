@@ -5,7 +5,7 @@ from .graph.Graph2 import Graph
 from pathlib import Path
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from chat import handle_task_query, is_task_query, extract_rooms, interpret_path
+from .chat import handle_task_query, is_task_query, extract_rooms, interpret_path
 from .aiapi import AINavigationAPI
 
 # import app.graph.Graph as Graph

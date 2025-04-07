@@ -39,7 +39,7 @@ const SectionPanel = ({
 
                 {showText && (
                     <View style={styles.multiFloorRow}>
-                        <Ionicons name="warning" size={18} color={theme.colors.warning || theme.colors.primary}
+                        <Ionicons name="warning" size={18} color={theme.colors.primary}
                                   style={styles.warningIcon}/>
                         <Text style={styles.multiFloorText}>{multiFloorText}</Text>
                     </View>
@@ -152,7 +152,7 @@ const createStyles = (theme) => StyleSheet.create({
 
     multiFloorText: {
         fontSize: hp(1.7),
-        color: theme.colors.warning || theme.colors.text,
+        color: theme.colors.text,
         flex: 1,
         lineHeight: hp(2.3),
     },

@@ -5,8 +5,6 @@ import { hp } from '@/helpers/common'
 import PropTypes from "prop-types";
 import {ThemeContext} from "@/context/ThemeProvider";
 
-const { theme } = useContext(ThemeContext);
-const styles = useMemo(() => createStyles(theme), [theme]);
 
 const Button = ({
     buttonStyle,
@@ -16,6 +14,10 @@ const Button = ({
     loading=false,
     hasShadow = true,
 }) => {
+
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     const shadowStyle = {
         shadowColor: theme.colors.dark,
         shadowOffset: {width: 0, height: 10},

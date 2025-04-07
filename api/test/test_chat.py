@@ -1,5 +1,4 @@
-import pytest
-from api.chat import (
+from api.app.chat import (
     is_navigation_query,
     extract_rooms,
     interpret_path,
@@ -9,13 +8,11 @@ from api.chat import (
     handle_task_query,
     get_tasks_from_storage,
     SAMPLE_TASKS,
-    is_task_query
 )
 from unittest.mock import patch, MagicMock
 import tempfile
 import json
 from pathlib import Path
-import os
 
 
 # ------------------ Navigation Query Tests ------------------
@@ -170,7 +167,7 @@ def test_is_task_query_matches():
     assert not is_task_query("Hello, how are you?")
 
 
-@patch("api.chat.OpenAI")
+@patch("api.app.chat.OpenAI")
 def test_handle_task_query_success(mock_openai):
     mock_response = MagicMock()
     mock_response.choices = [
@@ -208,7 +205,7 @@ def test_get_tasks_from_storage_missing():
         assert isinstance(tasks, list)
 
 
-@patch("api.chat.OpenAI")
+@patch("api.app.chat.OpenAI")
 def test_handle_task_query_openai_failure(mock_openai):
     mock_openai.return_value.chat.completions.create.side_effect = Exception("API error")
     result = handle_task_query("When is my test?", SAMPLE_TASKS)
@@ -248,7 +245,7 @@ def test_interpret_path_room_to_room():
     assert "Go from room H-110 to room H-120" in result
 
 
-@patch("api.chat.OpenAI")
+@patch("api.app.chat.OpenAI")
 def test_handle_task_query_empty_openai(mock_openai):
     mock_openai.return_value.chat.completions.create.return_value.choices = []
     result = handle_task_query("What tasks?", SAMPLE_TASKS)

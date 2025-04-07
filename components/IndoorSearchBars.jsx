@@ -140,6 +140,6 @@ const createStyles = (theme) => StyleSheet.create({
     inputIM: {
         flex: 1,
         fontSize: hp(1.8),
-        color: theme.colors.gray,
+        color: '#2D2D2D',
     },
 });

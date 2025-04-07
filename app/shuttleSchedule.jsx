@@ -9,8 +9,8 @@ import {ThemeContext} from "@/context/ThemeProvider";
 const ShuttleSchedule = () => {
     const router = useRouter();
     const [shuttleData, setShuttleData] = useState([]);
-    const [, setPreviousShuttle] = useState(null);
-    const [, setPreviousShuttleMinutesAgo] = useState(null);
+    const [previousShuttle, setPreviousShuttle] = useState(null);
+    const [previousShuttleMinutesAgo, setPreviousShuttleMinutesAgo] = useState(null);
     const [errorMessage, setErrorMessage] = useState("");
     const {theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);

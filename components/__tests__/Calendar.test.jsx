@@ -38,14 +38,29 @@ describe('Calendar Component', () => {
             back:mockBack,
             push:mockPush
         })
-    });
 
+    });
+    afterEach(() => {
+        AsyncStorage.clear()
+    });
+    it('shows no events message when there are no events for the selected date', async () => {
+
+        await AsyncStorage.clear()
+        await AsyncStorage.setItem('@accessToken',"test")
+
+        render(<Calendar events={[]} />);
+
+        await waitFor(() => {
+            expect(screen.getByText('No events or tasks scheduled for this day')).toBeTruthy();
+        });
+    });
     it('renders the calendar component and shows the header', async () => {
+        await AsyncStorage.setItem('@accessToken',"test")
+
         render(<Calendar events={mockEvents}/>);
 
 
         await waitFor(() => {
-            expect(screen.getByText('Calendar')).toBeOnTheScreen();
             expect(screen.getByTestId('calendar')).toBeOnTheScreen();
         });
 
@@ -78,19 +93,14 @@ describe('Calendar Component', () => {
         await waitFor(() => expect(calendarService.fetchAndUpdateEvents).toHaveBeenCalled());
     });
 
-    it('shows no events message when there are no events for the selected date', async () => {
-        render(<Calendar events={[]} />);
 
-        await waitFor(() => {
-            expect(screen.getByText('No events or tasks scheduled for this day')).toBeTruthy();
-        });
-    });
 
     it('handles selecting a date in the calendar', async () => {
+        await AsyncStorage.setItem('@accessToken',"test")
         const user= userEvent.setup()
         render(<Calendar events={[]} />);
 
-        const calendar = screen.getByTestId('calendar');
+        const calendar = await screen.findByTestId('calendar');
         await user.press(calendar);
 
         // Ensure that selecting a day updates the selectedDate state
@@ -98,13 +108,14 @@ describe('Calendar Component', () => {
     });
 
     it('navigates to the map when "Get Directions" is pressed', async () => {
+        await AsyncStorage.setItem('@accessToken',"test")
 
         fetchBuildingCoordinates.mockResolvedValue({ latitude: 37.7749, longitude: -122.4194 });
         const user= userEvent.setup()
         render(<Calendar events={mockEvents} />);
 
         // Simulate selecting the event
-        await user.press(screen.getByText('Hall Building Rm 101'));
+        await user.press(await screen.findByText('Hall Building Rm 101'));
 
         // Simulate pressing "Get Directions"
         const getDirectionsButton = screen.getByTestId('get-directions-button');

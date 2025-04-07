@@ -72,8 +72,8 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                         notes,
                         address,
                         date: date.toISOString(),
-                        startTime: allDayEvent ? null : startTime.toISOString(),
-                        endTime: allDayEvent ? null : endTime.toISOString(),
+                        startTime: allDayEvent ? null : startTime?.toISOString(),
+                        endTime: allDayEvent ? null : endTime?.toISOString(),
                         allDayEvent,
                         updatedAt: new Date().toISOString()
                     }

@@ -1,23 +1,14 @@
-import React, {useCallback, useEffect, useState} from 'react';
-import {
-    StyleSheet,
-    Text,
-    TouchableOpacity,
-    View,
-    Alert,
-    Image,
-    ActivityIndicator,
-    SafeAreaView,
-} from 'react-native';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import {ActivityIndicator, Alert, SafeAreaView, StyleSheet, Text, TouchableOpacity, View,} from 'react-native';
 import {Calendar as RNCalendar} from 'react-native-calendars';
-import {theme} from '@/constants/theme';
-import {hp, wp} from '@/helpers/common';
+import {hp} from '@/helpers/common';
 import {Ionicons} from '@expo/vector-icons';
 import {useRouter} from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {fetchBuildingCoordinates} from "@/services/buildingService";
 import {calendarService} from '@/services/calendarService';
 import PropTypes from "prop-types";
+import {ThemeContext} from "@/context/ThemeProvider";
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 
@@ -31,6 +22,9 @@ const Calendar = ({events: propEvents}) => {
     const [activeEvent, setActiveEvent] = useState(null);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [eventCoordinates, setEventCoordinates] = useState({});
+    const {theme} = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
 
@@ -270,7 +264,7 @@ const Calendar = ({events: propEvents}) => {
     if (loading) {
         return (
             <SafeAreaView style={styles.fullScreenContainer}>
-                <ActivityIndicator size="large" color={theme.colors.primary} />
+                <ActivityIndicator size="large" color={theme.colors.primary}/>
             </SafeAreaView>
         );
     }
@@ -283,10 +277,10 @@ const Calendar = ({events: propEvents}) => {
                         <Ionicons name="arrow-back" size={24} color={theme.colors.dark}/>
                     </TouchableOpacity>
                     <Text style={styles.headerTitle}>Calendar</Text>
-                    <View style={{width: 24}} />
+                    <View style={{width: 24}}/>
                 </View>
                 <View style={styles.centerContainer}>
-                    <Ionicons name="calendar" size={80} color={theme.colors.primary} style={styles.calendarIcon} />
+                    <Ionicons name="calendar" size={80} color={theme.colors.primary} style={styles.calendarIcon}/>
                     <Text style={styles.signInTitle}>Calendar Access Required</Text>
                     <Text style={styles.signInText}>
                         Please sign in with your Google account to view and manage your calendar events.
@@ -295,7 +289,7 @@ const Calendar = ({events: propEvents}) => {
                         style={styles.signInButton}
                         onPress={() => promptAsync()}
                     >
-                        <Ionicons name="logo-google" size={24} color="white" style={styles.buttonIcon} />
+                        <Ionicons name="logo-google" size={24} color="white" style={styles.buttonIcon}/>
                         <Text style={styles.signInButtonText}>Sign in with Google</Text>
                     </TouchableOpacity>
                 </View>
@@ -346,8 +340,6 @@ const Calendar = ({events: propEvents}) => {
                     },
                 }}
             />
-
-
             <View style={styles.eventsContainer}>
                 <Text style={styles.dateHeader}>
                     {formattedSelectedDate}
@@ -434,9 +426,6 @@ const createStyles = (theme) => StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: hp(2),
-        backgroundColor: '#fff',
-        borderBottomWidth: 1,
-        borderBottomColor: theme.colors.gray,
     },
     headerTitle: {
         fontSize: hp(2.2),
@@ -445,6 +434,8 @@ const createStyles = (theme) => StyleSheet.create({
     },
     eventsContainer: {
         padding: hp(2),
+        borderBottomWidth: 1,
+        borderBottomColor: theme.colors.gray,
     },
     dateHeader: {
         fontSize: hp(2),
@@ -523,70 +514,6 @@ const createStyles = (theme) => StyleSheet.create({
     noEventsText: {
         fontSize: hp(1.6),
         color: theme.colors.grayDark,
-    },
-    eventDescription: {
-        fontSize: hp(1.4),
-        color: theme.colors.dark,
-        opacity: 0.6,
-        marginTop: hp(0.5),
-    },
-    noLocationText: {
-        fontSize: hp(1.6),
-        color: 'gray',
-        alignSelf: 'flex-start',
-        marginTop: hp(1),
-        marginLeft: hp(2),
-    },
-    centerContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-        backgroundColor: '#fff',
-    },
-    calendarIcon: {
-        marginBottom: 20,
-    },
-    signInTitle: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        marginBottom: 10,
-        color: theme.colors.text,
-        textAlign: 'center',
-    },
-    signInText: {
-        fontSize: 16,
-        color: theme.colors.grayDark,
-        textAlign: 'center',
-        marginBottom: 30,
-        lineHeight: 22,
-        paddingHorizontal: 20,
-    },
-    signInButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: theme.colors.primary,
-        paddingVertical: 12,
-        paddingHorizontal: 24,
-        borderRadius: 25,
-        elevation: 3,
-        shadowColor: '#000',
-        shadowOffset: {width: 0, height: 2},
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    signInButtonText: {
-        color: 'white',
-        fontSize: 16,
-        fontWeight: '600',
-        marginLeft: 10,
-    },
-    buttonIcon: {
-        marginRight: 8,
-    },
-    fullScreenContainer: {
-        flex: 1,
-        backgroundColor: '#fff',
     },
 });
 

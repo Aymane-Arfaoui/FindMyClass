@@ -6,6 +6,9 @@ import {ThemeContext} from "@/context/ThemeProvider";
 import {hp} from '@/helpers/common';
 
 const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onChangeUpdateRoute, onChangeUpdateRouteTemp }) => {
+    const { theme } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
     if (floorKeys.length <= 1) return null;
 
     const testFunc = () => {
@@ -15,8 +18,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onCha
 
     };
 
-    const { theme } = useContext(ThemeContext);
-    const styles = useMemo(() => createStyles(theme), [theme]);
+
     return (
         <View style={styles.floorPanel}>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
