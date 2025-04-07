@@ -23,7 +23,6 @@ export function ThemeProvider({children}) {
                 return;
             }
 
-            const storedTheme = await AsyncStorage.getItem('@theme');
             const storedCBMode = await AsyncStorage.getItem('@colorBlindMode');
 
             const darkMode = storedTheme === 'dark';

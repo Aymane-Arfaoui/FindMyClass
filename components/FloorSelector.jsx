@@ -45,7 +45,7 @@ const FloorSelector = ({ floorKeys, selectedFloorKey, setSelectedFloorKey, onCha
                                 selectedFloorKey === floorKey && styles.floorButtonTextActive,
                             ]}
                         >
-                            {floorKey}
+                            {(floorKey === "3")?"VE2":floorKey}
                         </Text>
                     </TouchableOpacity>
                 ))}
