@@ -6,7 +6,6 @@ import PropTypes from "prop-types";
 import {isShuttleRunningNow } from "@/services/shuttleService";
 import {ThemeContext} from "@/context/ThemeProvider";
 import { fetchGoogleRoutes } from "@/services/routeService";
-import { getShuttleTravelTime } from "@/services/shuttleService";
 import ShuttleSchedule from "@/app/shuttleSchedule";
 
 
@@ -49,11 +48,92 @@ function hasIndoorMapBottomPanel(buildingName = "") {
     return buildingKey;
 }
 
+const getMatchedTime = (selectedRoute, travelTimes, modeMapping) => {
+    if (!selectedRoute) return null;
+    const mode = selectedRoute.mode;
+    return travelTimes[modeMapping[mode]] || null;
+};
+
+const getBuildingKey = (selectedBuilding) => {
+    return selectedBuilding
+        ? hasIndoorMapBottomPanel(selectedBuilding.name)
+        : null;
+};
+
+
+const getDistanceText = (selectedRoute, routeDetails) => {
+    if (selectedRoute?.distance) {
+        return `Distance: ${selectedRoute.distance}`;
+    } else if (routeDetails?.distance) {
+        return `Distance: ${routeDetails.distance}`;
+    } else {
+        return "Distance: N/A";
+    }
+};
+
+
+const renderRouteSteps = (selectedRoute, styles) => {
+    if (!selectedRoute.steps || selectedRoute.steps.length === 0) {
+        return <Text style={styles.text}>No step-by-step instructions available.</Text>;
+    }
+
+    return selectedRoute.steps.map((step, index) => {
+        const commonElements = (
+            <>
+                <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
+                <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
+            </>
+        );
+
+        if (selectedRoute.mode === "transit") {
+            if (step.vehicle === "Shuttle Bus") {
+                return (
+                    <View
+                        key={`${step.instruction}-${step.departure_time || 'unknown'}-${step.arrival_time || 'unknown'}`}
+                        style={styles.stepContainer}
+                        testID="transit-steps"
+                    >
+                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
+                            <Text style={[styles.stepText, { flex: 1 }]}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                        </View>
+                        <Text style={styles.stepSubText}>{`Departs: ${step.departure_time || "N/A"}`}</Text>
+                        <Text style={styles.stepSubText}>{`Arrives: ${step.arrival_time || "N/A"}`}</Text>
+                        <ShuttleSchedule />
+                    </View>
+                );
+            }
+
+            return (
+                selectedRoute.steps.map((step) => (
+                    <View key={step.instruction} style={styles.stepContainer} testID="transit-steps">
+                        <Text style={styles.stepText}>{`Step: ${step.instruction}`}</Text>
+                        {commonElements}
+                    </View>
+                ))
+            );
+        }
+
+        return (
+            <View
+                key={`${step.instruction}-${step.distance || '0'}-${step.maneuver || 'none'}`}
+                style={styles.stepContainer}
+                testID="other-mode-steps"
+            >
+                <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                    <Text style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
+                </View>
+                {commonElements}
+            </View>
+        );
+    });
+};
+
+
 
 
 const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selectedBuilding, travelTimes, startLocation, endLocation,}) => {
     const [expanded, setExpanded] = useState(false);
-    const animatedHeight = useState(new Animated.Value(100))[0];
+    const [animatedHeight] = useState(new Animated.Value(100));
     const [selectedRoute, setSelectedRoute] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const router = useRouter();
@@ -186,10 +266,8 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
         bicycling: "BICYCLE",
     };
 
-    const matchedTime = selectedRoute ? travelTimes[modeMapping[selectedRoute.mode]] : null;
-
-
-    const buildingKey = selectedBuilding ? hasIndoorMapBottomPanel(selectedBuilding.name) : null;
+    const matchedTime = getMatchedTime(selectedRoute, travelTimes, modeMapping);
+    const buildingKey = getBuildingKey(selectedBuilding);
 
     const handleGoInside = () => {
         if (buildingKey) {
@@ -213,7 +291,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                             Duration: {matchedTime || selectedRoute?.duration || routeDetails?.duration || "N/A"}
                         </Text>
                         <Text style={styles.subText}>
-                            {selectedRoute ? `Distance: ${selectedRoute.distance}` : `Distance: ${routeDetails?.distance || 'N/A'}`}
+                            {getDistanceText(selectedRoute, routeDetails)}
                         </Text>
 
                     </View>
@@ -239,10 +317,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                 <View style={styles.modalContainer}>
                     <ScrollView style={styles.stepsScroll}>
 
-                        <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButtonBPup}
-                                          testID={'close-button'}>
-                            <Text style={styles.closeButtonText}>Close</Text>
-                        </TouchableOpacity>
+
 
                         <View style={styles.content}>
                             {selectedRoute ? (
@@ -271,58 +346,7 @@ const BottomPanel = ({transportMode, routeDetails, routes, wantsClassroom, selec
                                     <Text style={[styles.subSubTextHeader, {marginTop: 10}]}>Step-by-step
                                         Directions:</Text>
 
-                                    {selectedRoute.steps && selectedRoute.steps.length > 0 ? (
-                                        selectedRoute.mode === "transit" ? (
-                                            selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer} testID={'transit-steps'}>
-                                                    <Text
-                                                        style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-
-                                                    {step.vehicle === "Shuttle Bus" ? (
-                                                        <>
-                                                            <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 4 }}>
-                                                                <Text style={[styles.stepText, { flex: 1 }]}>{`Step ${index + 1}: ${step.instruction}`}</Text>
-                                                            </View>
-
-                                                            <Text
-                                                                style={styles.stepSubText}>{`Departs: ${step.departure_time || "N/A"}`}
-                                                            </Text>
-                                                            <Text
-                                                                style={styles.stepSubText}>{`Arrives: ${step.arrival_time || "N/A"}`}
-                                                            </Text>
-
-                                                            <ShuttleSchedule />
-                                                        </>
-                                                    ) : (
-
-                                                        <>
-                                                            <Text style={styles.stepSubText}>
-                                                                {`Distance: ${step.distance}`}
-                                                            </Text>
-                                                            <Text style={styles.stepSubText}>
-                                                                {`Maneuver: ${step.maneuver || "Continue"}`}
-                                                            </Text>
-                                                        </>
-                                                    )}
-                                                </View>
-                                            ))
-                                        ) : (
-                                            selectedRoute.steps.map((step, index) => (
-                                                <View key={index} style={styles.stepContainer} testID={'other-mode-steps'}>
-                                                    <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                                                        <Text
-                                                            style={styles.stepText}>{`Step ${index + 1}: ${step.instruction}`}
-                                                        </Text>
-
-                                                    </View>
-                                                    <Text style={styles.stepSubText}>{`Distance: ${step.distance}`}</Text>
-                                                    <Text style={styles.stepSubText}>{`Maneuver: ${step.maneuver || "Continue"}`}</Text>
-                                                </View>
-                                            ))
-                                        )
-                                    ) : (
-                                        <Text style={styles.text}>No step-by-step instructions available.</Text>
-                                    )}
+                                    {renderRouteSteps(selectedRoute, styles)}
                                 </View>
                             ) : (
                                 <Text style={styles.text}>No route selected</Text>
