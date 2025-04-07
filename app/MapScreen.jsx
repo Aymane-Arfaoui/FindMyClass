@@ -348,10 +348,8 @@ const MapScreen = () => {
     };
     const checkNodeInFloorData2 = (nodeId, building) => {
         if (getFromFloorData(nodeId, building)) {
-            // console.log(`Node ${nodeId} exists in floor data`);
             return true
         } else {
-            // console.log(`Node ${nodeId} does not exist in floor data`);
             return false
         }
     };
@@ -385,65 +383,41 @@ const MapScreen = () => {
     };
 
 
+    const buildingToEntranceMap = {
+        Hall: "Hall Building Entrance",
+        MB: "Escalator to S2",
+        CC: "Stairs and Entrance",
+        VL: "Vanier Library Entrance"
+    };
+    const getEntranceFromBuilding = (building) => buildingToEntranceMap[building] || "";
 
+    const resolveEffectiveStartLocation = (startIdIndoor, endBuilding1, startLocationIndoor) => {
+        if (startIdIndoor === "") {
+            if (startLocationIndoor === "Entrance") {
+                const mapped = getEntranceFromBuilding(endBuilding1);
+                setStartLocationIndoorTemp(mapped);
+                return mapped;
+            } else {
+                setStartLocationIndoorTemp(startLocationIndoor);
+                return startLocationIndoor;
+            }
+        } else {
+            return getEntranceFromBuilding(endBuilding1);
+        }
+    };
 
     const handleShowDirectionsSection = async (endId, startIdIndoor = "") => {
 
         const endBuilding1 = getBuildingFromSectionId(endId.id);
 
-        let startLocationId;
-
-        if (endBuilding1 === 'Hall') {
-            startLocationId = "Hall Building Entrance";
-        } else if (endBuilding1 === "MB") {
-            startLocationId = "Escalator to S2";
-        } else if (endBuilding1 === "CC") {
-            startLocationId = "Stairs and Entrance";
-        } else if (endBuilding1 === "VL") {
-            startLocationId = "Vanier Library Entrance";
-        }
+        let startLocationId = getEntranceFromBuilding(endBuilding1);
 
 
-        let effectiveStartLocation = "";
-        // if (startIdIndoor === ""){
-        //     effectiveStartLocation  = startLocationIndoor;
-        //     setStartLocationIndoorTemp(startLocationIndoor);
-        // }else{
-        //     effectiveStartLocation = startLocationId;
-        //     // effectiveStartLocation = "Stairs and Escalator to the Tunnel";
-        // }
+        const effectiveStartLocation = resolveEffectiveStartLocation(startIdIndoor, endBuilding1, startLocationIndoor);
 
-
-        if (startIdIndoor === ""){
-            if(startLocationIndoor === "Entrance") {
-                if(endBuilding1 === 'Hall'){
-                    effectiveStartLocation = "Hall Building Entrance";
-                    setStartLocationIndoorTemp("Hall Building Entrance");
-                } else if (endBuilding1 === "MB") {
-                    effectiveStartLocation = "Escalator to S2";
-                    setStartLocationIndoorTemp("Escalator to S2");
-                } else if (endBuilding1 === "CC") {
-                    effectiveStartLocation = "Stairs and Entrance";
-                    setStartLocationIndoorTemp("Stairs and Entrance");
-                } else if (endBuilding1 === "VL") {
-                    effectiveStartLocation = "Vanier Library Entrance";
-                    setStartLocationIndoorTemp("Vanier Library Entrance");
-                }
-            }
-            else{
-                effectiveStartLocation = startLocationIndoor;
-                setStartLocationIndoorTemp(startLocationIndoor);
-            }
-        }else{
-
-            effectiveStartLocation = startLocationId;
-            // effectiveStartLocation = "Stairs and Escalator to the Tunnel";
-        }
 
         const startBuilding1 = getBuildingFromSectionId(effectiveStartLocation);
 
-
-        // if(checkNodeInFloorData(startLocationIndoor) && checkNodeInFloorData(endId.id)){
         if(checkNodeInFloorData2(effectiveStartLocation, startBuilding1) && checkNodeInFloorData2(endId.id, endBuilding1)){
 
             const startBuilding = getBuildingFromSectionId(effectiveStartLocation);
@@ -451,18 +425,6 @@ const MapScreen = () => {
 
 
             if (startBuilding !== endBuilding) {
-                console.log("REMOVE NOWWWWWWWWWWWWW: effectiveStartLocation : " + effectiveStartLocation)
-                console.log("REMOVE NOWWWWWWWWWWWWW: startBuilding : " + startBuilding)
-                console.log("REMOVE NOWWWWWWWWWWWWW: endId.id : " + endId.id)
-                console.log("REMOVE NOWWWWWWWWWWWWW: endBuilding : " + endBuilding)
-
-                // Alert.alert(
-                //     "Navigation Error",
-                //     "Cross-building navigation is not supported at the moment.",
-                //     [{ text: "OK", onPress: () => console.log("OK Pressed") }]
-                // );
-
-                console.log("HEREWECHANGEHEREWECHANGEHEREWECHANGEHEREWECHANGEHEREWECHANGE")
 
                 setShowSearchBar(false);
                 setMultiFloorMessage("")
@@ -478,7 +440,6 @@ const MapScreen = () => {
 
                 setSwitchedBuilding(true);
                 setIsSwitchToOutdoor(true);
-                console.log("RRRRRRRRRRRRRRRRRRRRRRRR SWITCHED BOOLEAN TO TRUE ")
 
                 // navigation.navigate("MapScreen", { buildingKey });
 
@@ -486,7 +447,6 @@ const MapScreen = () => {
                     buildingKey: startBuilding,
                     // floorKey: "1",
                 });
-                console.log("REMOVE NOWWWWWWWWWWWWW: switchedBuilding : " + switchedBuilding)
 
                 // navigation.navigate("MapScreen", {
                 //     buildingKey: startBuilding,
@@ -523,13 +483,8 @@ const MapScreen = () => {
             // const transformedStartLocationIndoor = "h1_128";
             // const transformedEndId = "h1_110";
 
-            console.log("++++++++++++++++++++ transformedStartLocationIndoor" + transformedStartLocationIndoor)
-            console.log("++++++++++++++++++++ transformedEndId" + transformedEndId)
-
-
             if ((transformedStartLocationIndoor && transformedEndId) && (transformedStartLocationIndoor !== transformedEndId)) {
                 try {
-                    console.log("SENDING REQUEST SENDING REQUEST SENDING REQUEST SENDING REQUEST SENDING REQUEST SENDING REQUEST ")
                     const response = await fetch(
                         `http://10.0.2.2:5000/indoorNavigation?startId=${transformedStartLocationIndoor}&endId=${transformedEndId}&campus=${buildingKey}`
                     );http://127.0.0.1:5000/indoorNavigation?startId=h2_209&endId=h2_260&campus=hall
@@ -545,16 +500,9 @@ const MapScreen = () => {
                     console.error("Request failed", error);
                 }
             }
-            else{
-                console.log("2NOT YET!!!!!!")
-            }
-
 
         }
-        else{
-            const aa = endId.id;
-            console.log("NO!!!!!!")
-        }
+
 
     };
 
@@ -571,9 +519,6 @@ const MapScreen = () => {
         );
 
         if (startLocationIndoor && selectedSection?.id && startLocationIndoor !== "" && showSearchBar) {
-            console.log("USE EFFECT 2 WORKING NOW //////////////////////////////////////////////////")
-
-            console.log("selectedSection 2 " + selectedSection?.id + ", " + selectedSection?.ref_ID)
 
             handleShowDirectionsSection(selectedSection);
             handleShowDirectionsTemp();
@@ -581,7 +526,6 @@ const MapScreen = () => {
     }, [startLocationIndoor, selectedSection?.id, selectedSection]); // consider adding buildingKey as a dependency? Look into it later.
 
     useEffect(() => {
-        console.log("!!!!!!!!!!!!!!!!!! BUILDING KEY HAS CHANGED HERE !!!!!!!!!!!!!!!!!!!!!")
     }, [buildingKey]);
 
     useEffect(() => {
