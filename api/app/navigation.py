@@ -71,7 +71,7 @@ def indoor_navigation():
     if accessibility and accessibility.lower() == 'true':
         if campus not in accessibility_graph:
             accessibility_graph[campus] = Graph()
-            accessibility_graph[campus].graph = get_sub_graph(g[campus])
+            accessibility_graph[campus].graph_var = get_sub_graph(g[campus])
         graph_to_use = accessibility_graph[campus]
 
     else:

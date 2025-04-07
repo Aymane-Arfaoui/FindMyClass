@@ -12,6 +12,9 @@ class Graph:
         node_id = node_data["id"]
         self.graph_var.add_node(node_id, **node_data)
 
+    def get_neighbors(self, node_id: str) -> List[str]:
+        return list(self.graph_var.neighbors(node_id))
+
     def add_edge(self, node1_id: str, node2_id: str):
         # Calculate weight as Euclidean distance scaled by scale_factor
         node1 = self.graph_var.nodes[node1_id]
