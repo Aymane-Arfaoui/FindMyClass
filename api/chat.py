@@ -11,6 +11,8 @@ class NavigationContext:
         self.last_start_room = None
         self.last_end_room = None
         self.last_weather_data = None
+        self.last_start_location = None
+        self.last_end_location = None
 
 # Initialize global context
 nav_context = NavigationContext()
@@ -119,11 +121,151 @@ def extract_rooms(query: str) -> tuple:
     print("CHAT.PY: Could not extract rooms from query")
     return None, None
 
+def extract_building_names(query: str) -> tuple:
+    """Extract building names from the query for cross-building navigation"""
+    query_lower = query.lower()
+    
+    # Define building mappings
+    building_mappings = {
+        "hall": ["hall", "h building", "h-b", "h building"],
+        "mb": ["mb", "jmsb", "john molson", "john molson school of business"],
+        "cc": ["cc", "concordia campus", "campus"]
+    }
+    
+    # Check for building names in the query
+    start_building = None
+    end_building = None
+    
+    for building, aliases in building_mappings.items():
+        for alias in aliases:
+            if alias in query_lower:
+                # If we find a building name, check if it's the start or end building
+                if "from" in query_lower and query_lower.index(alias) < query_lower.index("from"):
+                    start_building = building
+                elif "to" in query_lower and query_lower.index(alias) > query_lower.index("to"):
+                    end_building = building
+    
+    # If we couldn't determine the buildings, default to "hall" for both
+    if not start_building:
+        start_building = "hall"
+    if not end_building:
+        end_building = "hall"
+    
+    return start_building, end_building
+
 def interpret_path(path_info: dict) -> str:
     """Convert path information into human-readable instructions"""
     if not path_info or "error" in path_info:
         return path_info.get("error", "Could not find a path between these rooms.")
     
+    # Handle integrated path with segments
+    if path_info.get("type") == "integrated":
+        segments = path_info.get("segments", [])
+        total_distance = path_info.get("total_distance", 0)
+        
+        if not segments:
+            return "No path found between these locations."
+        
+        instructions = ["Here's how to get to your destination:"]
+        
+        for i, segment in enumerate(segments):
+            segment_type = segment.get("type")
+            
+            if segment_type == "indoor":
+                path = segment.get("path", [])
+                distance = segment.get("distance", 0)
+                campus = segment.get("campus", "unknown")
+                
+                if campus == "tunnel":
+                    instructions.append(f"Take the tunnel connecting the buildings ({distance:.1f} meters)")
+                else:
+                    # Format indoor path
+                    for j in range(len(path) - 1):
+                        current = path[j]
+                        next_node = path[j + 1]
+                        
+                        # Extract building, floor, and room/hallway info
+                        current_parts = current.split('_')
+                        next_parts = next_node.split('_')
+                        
+                        # Get building and floor info
+                        current_building = current_parts[0][0].upper()  # 'h' from 'h1'
+                        current_floor = current_parts[0][1]            # '1' from 'h1'
+                        next_building = next_parts[0][0].upper()
+                        next_floor = next_parts[0][1]
+                        
+                        # Check node types
+                        current_is_hallway = len(current_parts) > 1 and current_parts[1].startswith('hw')
+                        next_is_hallway = len(next_parts) > 1 and next_parts[1].startswith('hw')
+                        current_is_elevator = 'elevator' in current
+                        next_is_elevator = 'elevator' in next_node
+                        current_is_stairs = 'stairs' in current
+                        next_is_stairs = 'stairs' in next_node
+                        current_is_escalator = 'escalator' in current
+                        next_is_escalator = 'escalator' in next_node
+                        
+                        # Handle special nodes
+                        if current_is_elevator and next_is_elevator:
+                            instructions.append(f"Take the elevator from floor {current_floor} to floor {next_floor}")
+                        elif current_is_stairs and next_is_stairs:
+                            instructions.append(f"Take the stairs from floor {current_floor} to floor {next_floor}")
+                        elif current_is_escalator and next_is_escalator:
+                            instructions.append(f"Take the escalator from floor {current_floor} to floor {next_floor}")
+                        elif current_is_hallway and next_is_hallway:
+                            instructions.append(f"Continue through the hallway on floor {current_floor}")
+                        elif current_is_hallway:
+                            room_num = next_parts[-1]
+                            if next_is_elevator:
+                                instructions.append(f"Look for the elevator along the hallway")
+                            elif next_is_stairs:
+                                instructions.append(f"Look for the stairs along the hallway")
+                            elif next_is_escalator:
+                                instructions.append(f"Look for the escalator along the hallway")
+                            else:
+                                instructions.append(f"Look for room {next_building}-{room_num} along the hallway")
+                        elif next_is_hallway:
+                            current_num = current_parts[-1]
+                            if current_is_elevator:
+                                instructions.append(f"Exit the elevator and enter the hallway")
+                            elif current_is_stairs:
+                                instructions.append(f"Exit the stairs and enter the hallway")
+                            elif current_is_escalator:
+                                instructions.append(f"Exit the escalator and enter the hallway")
+                            else:
+                                instructions.append(f"Exit room {current_building}-{current_num} and enter the hallway")
+                        else:
+                            current_num = current_parts[-1]
+                            next_num = next_parts[-1]
+                            if current_is_elevator:
+                                instructions.append(f"Exit the elevator and go to room {next_building}-{next_num}")
+                            elif current_is_stairs:
+                                instructions.append(f"Exit the stairs and go to room {next_building}-{next_num}")
+                            elif current_is_escalator:
+                                instructions.append(f"Exit the escalator and go to room {next_building}-{next_num}")
+                            else:
+                                instructions.append(f"Go from room {current_building}-{current_num} to room {next_building}-{next_num}")
+            
+            elif segment_type == "outdoor":
+                path = segment.get("path", {})
+                distance = segment.get("distance", 0)
+                weather_adjusted = segment.get("weather_adjusted", False)
+                
+                # Add outdoor navigation instructions
+                instructions.append(f"Go outside and follow the path ({distance:.1f} meters)")
+                
+                # Add weather warning if applicable
+                if weather_adjusted:
+                    instructions.append("Note: The route has been adjusted due to weather conditions.")
+                
+                # Add steps from Google Maps if available
+                if "steps" in path:
+                    for step in path["steps"]:
+                        instructions.append(f"- {step['instruction']} ({step['distance']}, {step['duration']})")
+        
+        instructions.append(f"\nTotal distance: {total_distance:.1f} meters")
+        return "\n".join(instructions)
+    
+    # Handle simple indoor path
     path = path_info.get("path", [])
     distance = path_info.get("distance", 0)
     
@@ -220,7 +362,16 @@ def handle_follow_up(query: str, context: NavigationContext) -> str:
     if "weather" in query_lower and context.last_weather_data:
         if context.last_weather_data["success"]:
             temp = context.last_weather_data["temperature"]
-            return f"The current temperature is {temp}°C. This may affect your route if you need to go outside."
+            precip = context.last_weather_data["precipitation"]
+            wind = context.last_weather_data["wind_speed"]
+            
+            weather_desc = f"The current temperature is {temp}°C"
+            if precip > 0:
+                weather_desc += f" with precipitation of {precip}mm"
+            if wind > 10:
+                weather_desc += f" and wind speed of {wind} m/s"
+            
+            return f"{weather_desc}. This may affect your route if you need to go outside."
         else:
             return "I couldn't retrieve the weather data for your route."
     
@@ -369,15 +520,49 @@ def main():
             # Check if it's a navigation query
             if is_navigation_query(user_input):
                 start_room, end_room = extract_rooms(user_input)
+                start_building, end_building = extract_building_names(user_input)
                 
                 if not start_room or not end_room:
                     print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
                     continue
                 
-                path_info = nav_api.find_shortest_path(start_room, end_room)
-                nav_context.last_navigation = path_info
-                nav_context.last_start_room = start_room
-                nav_context.last_end_room = end_room
+                # Create location objects for integrated routing
+                start_location = {
+                    "type": "indoor",
+                    "id": start_room,
+                    "campus": start_building
+                }
+                
+                end_location = {
+                    "type": "indoor",
+                    "id": end_room,
+                    "campus": end_building
+                }
+                
+                # Get weather data for the route
+                weather_data = None
+                if start_building != end_building:
+                    # For cross-building routes, get weather data
+                    # Use the midpoint between buildings for weather data
+                    if start_building == "hall" and end_building == "mb":
+                        # Approximate coordinates for the midpoint between Hall and JMSB
+                        mid_lat = 45.4961  # Approximate midpoint latitude
+                        mid_lng = -73.5785  # Approximate midpoint longitude
+                        weather_data = routing_service.get_weather_for_location(mid_lat, mid_lng)
+                        nav_context.last_weather_data = weather_data
+                
+                # Use integrated routing for cross-building navigation
+                if start_building != end_building:
+                    path_info = routing_service.find_integrated_path(start_location, end_location, weather_data=weather_data)
+                    nav_context.last_navigation = path_info
+                    nav_context.last_start_location = start_location
+                    nav_context.last_end_location = end_location
+                else:
+                    # Use simple indoor navigation for same-building routes
+                    path_info = nav_api.find_shortest_path(start_room, end_room, campus=start_building)
+                    nav_context.last_navigation = path_info
+                    nav_context.last_start_room = start_room
+                    nav_context.last_end_room = end_room
                 
                 response = interpret_path(path_info)
                 print("\nConcordia Assistant:", response)
