@@ -56,8 +56,8 @@ export const lightColors = {
             base: '#C62828',
         },
         buildingLabel: {
-            text: '#1A1A1A',
-            halo: '#FFFFFF'
+            text: '#FAFAFA',
+            halo: '#333333',
         },
         userLocation: '#C62828',
         endpoint: '#C62828',
@@ -171,7 +171,7 @@ export const colorBlindLightColors = {
         default: '#56B4E9',
     },
     settingColor: '#999999',
-    textCalendar: '#000',
+    textCalendar: '#fff',
     roomFill: '#999999',
     floorFill: '#FAFAFA',
     line: '#E5E5E5',
@@ -192,7 +192,7 @@ export const colorBlindLightColors = {
         },
         buildingLabel: {
             text: '#000000',
-            textLight: '#E69F00',
+            textLight: '#E69F00'
         },
         userLocation: '#D55E00',
         endpoint: '#D55E00',

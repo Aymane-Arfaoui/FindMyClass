@@ -20,11 +20,20 @@ export function ThemeProvider({ children }) {
                 ]);
 
                 const hasUser = !!storedUser;
+                if (storedTheme === null) {
+                    await AsyncStorage.setItem('@theme', 'light');
+                }
 
-                setIsDark(storedTheme === 'dark' && hasUser);
-                setColorBlindMode(storedCBMode === 'true' && hasUser);
+                if (storedCBMode === null) {
+                    await AsyncStorage.setItem('@colorBlindMode', 'false');
+                }
+                const darkPref = (storedTheme ?? 'light') === 'dark';
+                const cbPref = (storedCBMode ?? 'false') === 'true';
+
+                setIsDark(hasUser ? darkPref : false);
+                setColorBlindMode(hasUser ? cbPref : false);
             } catch (error) {
-                console.error('Error loading theme:', error);
+                console.error('Error loading theme preferences:', error);
                 setIsDark(false);
                 setColorBlindMode(false);
             } finally {
@@ -34,6 +43,8 @@ export function ThemeProvider({ children }) {
 
         loadThemePreferences();
     }, []);
+
+
 
     const toggleTheme = useCallback(async () => {
         try {
