@@ -134,7 +134,7 @@ const User = () => {
                                 <Image source={UserProfileIcon} style={styles.profileIcon}/>
                             )}
                             <View style={styles.textContainer}>
-                                <Text style={styles.welcomeText}>Welcome back</Text>
+                                <Text style={styles.welcomeText}>Welcome</Text>
                                 <Text style={styles.userName}>{userInfo?.given_name || 'Guest'}</Text>
                             </View>
                         </View>
@@ -242,6 +242,7 @@ const createStyles = (theme) =>
             paddingBottom: 20,
         },
         profileContainer: {
+            paddingTop: hp(5),
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
@@ -275,17 +276,18 @@ const createStyles = (theme) =>
         calendarBlock: {
             backgroundColor: theme.colors.cardBackground,
             padding: hp(2),
-            borderRadius: 15,
+            borderRadius: 12,
             shadowColor: '#000',
             shadowOffset: {width: 0, height: 2},
             shadowOpacity: 0.1,
             shadowRadius: 3.84,
-            elevation: 5,
             width: '48%',
             marginTop: hp(3),
             marginBottom: hp(2),
             alignSelf: 'flex-start',
-            marginLeft: wp(5),
+            marginLeft: wp(2),
+            borderWidth: 2,
+            borderColor: theme.colors.cardBorder,
         },
         actionIconContainer: {
             width: hp(5),
@@ -302,13 +304,14 @@ const createStyles = (theme) =>
             color: theme.colors.text,
         },
         scheduleText: {
-            fontSize: 14,
+            fontSize: hp(1.57),
             color: theme.colors.grayDark,
         },
         scheduleBlock: {
             backgroundColor: theme.colors.cardBackground,
             padding: 15,
             marginTop: 20,
+            marginLeft: wp(2),
             borderRadius: 10,
             borderWidth: 2,
             borderColor: theme.colors.cardBorder,
@@ -354,7 +357,7 @@ const createStyles = (theme) =>
             fontWeight: 'bold',
         },
         noEventsText: {
-            fontSize: hp(1.8),
+            fontSize: hp(1.57),
             color: theme.colors.grayDark,
             textAlign: 'center',
             marginTop: 10,

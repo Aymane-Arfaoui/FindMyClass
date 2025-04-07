@@ -88,7 +88,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: {width: 0, height: -3},
         shadowOpacity: 0.12,
         shadowRadius: 6,
-        elevation: 10,
     },
     dragBar: {
         width: wp(10),
@@ -137,7 +136,6 @@ const createStyles = (theme) => StyleSheet.create({
         shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.3,
         shadowRadius: 4,
-        elevation: 5,
         marginRight: wp(5),
     },
     multiFloorRow: {

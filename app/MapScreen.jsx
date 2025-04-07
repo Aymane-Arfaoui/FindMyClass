@@ -17,6 +17,19 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {Ionicons} from '@expo/vector-icons';
 import FloorSelector from '../components/FloorSelector';
 import SectionPanel from '../components/SectionPanel';
+import AppNavigationPanel from '@/components/AppNavigationPannel';
+import {hp, wp} from '@/helpers/common';
+
+
+import mapHall1 from '../api/app/data/campus_jsons/hall/map_hall_1.json';
+import mapHall2 from '../api/app/data/campus_jsons/hall/map_hall_2.json';
+import mapHall8 from '../api/app/data/campus_jsons/hall/map_hall_8.json';
+import mapHall9 from '../api/app/data/campus_jsons/hall/map_hall_9.json';
+
+import mapMB1 from '../api/app/data/campus_jsons/mb/map_mb_1.json';
+import mapMBS2 from '../api/app/data/campus_jsons/mb/map_mb_s2.json';
+
+import mapCC1 from '../api/app/data/campus_jsons/cc/map_cc_1.json';
 
 
 import IndoorSearchBars from "@/components/IndoorSearchBars";
@@ -331,12 +344,11 @@ const createStyles = (theme) =>
         },
         backButton: {
             position: 'absolute',
-            top: 57,
+            top: hp(5.5),
             left: 0,
             paddingVertical: 8,
             paddingHorizontal: 15,
             borderRadius: theme.radius.lg,
-            elevation: 5,
             zIndex: 10,
             shadowColor: '#000',
             shadowOffset: {width: 0, height: 2},
