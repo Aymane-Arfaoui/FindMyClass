@@ -1,10 +1,16 @@
-import React from 'react';
-import { render, fireEvent,screen } from '@testing-library/react-native';
+import {ThemeContext} from "@/context/ThemeProvider";
+
+jest.useFakeTimers()
+import React, {useContext} from 'react';
+import {render, fireEvent, screen, userEvent} from '@testing-library/react-native';
 import Settings from '../settingsPage';
 import {useRouter} from "expo-router";
+
+
 describe('Settings', () => {
     const mockRouterBack = jest.fn();
 
+    const {isDark, toggleTheme, colorBlindMode, toggleColorBlindMode, theme} = useContext(ThemeContext);
     beforeEach(() => {
         useRouter.mockReturnValue({
             back: mockRouterBack,
@@ -33,7 +39,7 @@ describe('Settings', () => {
 
         fireEvent(darkModeSwitch, 'valueChange', true);
 
-        expect(darkModeSwitch.props.value).toBe(true);
+        expect(toggleTheme).toHaveBeenCalled();
     });
 
     it('toggles Color Blind Mode switch', () => {
@@ -43,14 +49,15 @@ describe('Settings', () => {
 
         fireEvent(colorBlindModeSwitch, 'valueChange', true);
 
-        expect(colorBlindModeSwitch.props.value).toBe(true);
+        expect(toggleColorBlindMode).toHaveBeenCalled();
     });
 
-    it('navigates back when back button is pressed', () => {
-       render(<Settings />);
+    it('navigates back when back button is pressed', async () => {
+        const user=userEvent.setup()
+        render(<Settings />);
 
         const backButton = screen.getByTestId('back-button');
-        fireEvent.press(backButton);
+        await user.press(backButton);
 
         // Ensure that the router back function was called
         expect(mockRouterBack).toHaveBeenCalled();

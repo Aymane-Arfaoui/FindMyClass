@@ -93,7 +93,7 @@ const User = () => {
                 setUserInfo(userData);
 
                 try {
-                    const events = await calendarService.fetchAndUpdateEvents(accessToken);
+                    const events = await calendarService?.fetchAndUpdateEvents(accessToken);
                     await AsyncStorage.setItem("@calendar", JSON.stringify(events));
                     setCalendarEvents(events);
                     if (redirectToCalendar) {

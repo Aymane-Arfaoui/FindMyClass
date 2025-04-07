@@ -15,6 +15,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { chatService } from '../app/services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
+import PropTypes from "prop-types";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -65,7 +66,7 @@ const ChatInterface = ({ navigation }) => {
     setIsLoading(true);
     
     try {
-      const response = await chatService.processMessage(userMessage.text);
+      const response = await chatService?.processMessage(userMessage.text);
       
       // Ensure loading shows for at least 1 second
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -207,7 +208,9 @@ const ChatInterface = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-
+ChatInterface.propTypes={
+  navigation:PropTypes.any
+}
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,

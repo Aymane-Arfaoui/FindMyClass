@@ -9,7 +9,7 @@ describe('AppNavigationPannel Component', () => {
         const {unmount}=render(<AppNavigationPannel/>);
         expect(screen.getByTestId('navigation-panel')).toBeOnTheScreen();
         expect(screen.getByTestId('button-navigate-to-home')).toBeOnTheScreen();
-        expect(screen.getByTestId('button-navigate-to-homemap')).toBeOnTheScreen();
+        expect(screen.getByTestId('button-navigate-to-map')).toBeOnTheScreen();
         expect(screen.getByTestId('button-navigate-to-user')).toBeOnTheScreen();
         unmount();
 
@@ -33,14 +33,14 @@ describe('AppNavigationPannel Component', () => {
         usePathname.mockReturnValue("/homemap");
         const {unmount}= render(<AppNavigationPannel/>);
         const user = userEvent.setup();
-        await user.press(screen.getByTestId('button-navigate-to-homemap'));
+        await user.press(screen.getByTestId('button-navigate-to-map'));
         await waitFor(() => {
             expect(mock.push).toHaveBeenCalledWith('/homemap');
         });
         unmount();
 
     });
-    it('should reroute to /home if home button is pressed',  async () => {
+    it('should reroute to /user if user button is pressed',  async () => {
         const mock = {push: jest.fn()};
         useRouter.mockReturnValue(mock);
         usePathname.mockReturnValue("/user");
@@ -49,6 +49,33 @@ describe('AppNavigationPannel Component', () => {
         await user.press(screen.getByTestId('button-navigate-to-user'));
         await waitFor(() => {
             expect(mock.push).toHaveBeenCalledWith('/user');
+        });
+        unmount();
+
+    });
+
+    it('should reroute to /chat if chat button is pressed',  async () => {
+        const mock = {push: jest.fn()};
+        useRouter.mockReturnValue(mock);
+        usePathname.mockReturnValue("/user");
+        const {unmount}=render(<AppNavigationPannel/>);
+        const user = userEvent.setup();
+        await user.press(screen.getByTestId('button-navigate-to-chat'));
+        await waitFor(() => {
+            expect(mock.push).toHaveBeenCalledWith('/chat');
+        });
+        unmount();
+
+    });
+    it('should reroute to /smartPlanner if planner button is pressed',  async () => {
+        const mock = {push: jest.fn()};
+        useRouter.mockReturnValue(mock);
+        usePathname.mockReturnValue("/user");
+        const {unmount}=render(<AppNavigationPannel/>);
+        const user = userEvent.setup();
+        await user.press(screen.getByTestId('button-navigate-to-planner'));
+        await waitFor(() => {
+            expect(mock.push).toHaveBeenCalledWith('/smartPlanner');
         });
         unmount();
 

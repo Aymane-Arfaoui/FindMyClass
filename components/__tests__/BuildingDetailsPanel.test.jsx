@@ -58,12 +58,21 @@ describe('BuildingDetailsPanel', () => {
         expect(mockOnClose).toHaveBeenCalled();
     });
 
-    it('should call onDirectionPress when directions button is pressed', async () => {
-        render(buildingDetailsComponent({ name: "Hall Building" },false));
+    it('should call onDirectionPress when directions button is pressed and building does  not have indoor map', async () => {
+        const user = userEvent.setup()
+        render(buildingDetailsComponent({ name: "test Building" },false));
+
+        await user.press(screen.getByTestId('direction-button'));
+        expect(mockOnDirectionPress).toHaveBeenCalledWith(currentLocation, { name: "test Building" }, mode,false);
+    });
+
+    it('should show the modal when directions button is pressed and building does  have indoor map', async () => {
 
         const user = userEvent.setup()
+        render(buildingDetailsComponent({ name: "Hall Building" },false));
+
         await user.press(screen.getByTestId('direction-button'));
-        expect(mockOnDirectionPress).toHaveBeenCalledWith(currentLocation, { name: "Hall Building" }, mode);
+        expect(screen.getByTestId('modal')).toBeOnTheScreen()
     });
 
     it('should navigate to "MapScreen" with key hall when indoor map button is pressed and hall is selected', async () => {

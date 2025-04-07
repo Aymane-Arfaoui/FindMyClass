@@ -1,3 +1,4 @@
+jest.useFakeTimers()
 import React from 'react';
 import {render, screen, waitFor, userEvent} from '@testing-library/react-native';
 import ShuttleSchedule from '../shuttleSchedule.jsx';
@@ -12,7 +13,7 @@ jest.mock('expo-status-bar', () => ({
     StatusBar: jest.fn(),
 }));
 
-describe('ShuttleSchedule Component', () => {
+describe('ShuttleSchedule', () => {
     const mockRouter = { back: jest.fn() };
 
     beforeEach(() => {

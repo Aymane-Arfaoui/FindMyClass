@@ -1,0 +1,12 @@
+appId: com.aymanearfaoui.FindMyClass
+---
+- tapOn: GET STARTED
+- tapOn:  Planner
+- tapOn: Mon 7
+- tapOn: Plan Route
+- tapOn:
+   point: 14%,56%
+- tapOn:
+    point: 14%,71%
+- tapOn:
+    point: 14%,86%

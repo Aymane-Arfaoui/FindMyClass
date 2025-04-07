@@ -4,8 +4,8 @@ import { taskService } from './taskService';
 class ChatService {
     getBaseUrl() {
         // Use localhost for iOS simulator and 10.0.2.2 for Android emulator
-        const host = Platform.OS === 'ios' ? 'localhost' : '10.0.2.2';
-        const url = `http://${host}:5001`;
+        const host = Platform.OS === 'ios' ? '127.0.0.1' : '10.0.2.2';
+        const url = `http://${host}:5000`;
         return url;
     }
 

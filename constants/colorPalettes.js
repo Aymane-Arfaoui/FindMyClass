@@ -37,9 +37,33 @@ export const lightColors = {
     },
     settingColor: '#999999',
     textCalendar: '#fff',
-    roomFill: '#F3F4F6',
-    floorFill: '#D1D5DB',
-    line:'#E5E5E5',
+    roomFill: '#999999',
+    floorFill: '#FAFAFA',
+    line: '#E5E5E5',
+    cardSecondary: '#F5F5F5',
+    cardDisabled: '#DADADA',
+    calendarbackground: '#FAFAFA',
+    traffic: {
+        low: '#4CAF50',
+        moderate: '#FFC107',
+        heavy: '#FF7043',
+        severe: '#D32F2F',
+        default: '#9E9E9E'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#C62828',
+            base: '#C62828',
+        },
+        buildingLabel: {
+            text: '#FAFAFA',
+            halo: '#333333',
+        },
+        userLocation: '#C62828',
+        endpoint: '#C62828',
+        selectedRoute: '#B71C1C',
+        route: '#EF5350'
+    }
 }
 export const darkColors = {
     primary: '#912238',
@@ -81,10 +105,33 @@ export const darkColors = {
     settingColor: '#E5E5E5',
     textCalendar: '#fff',
     indoorMap: '#E5E5E5',
-    roomFill: '#5C5C5C',    // A soft dark that separates rooms from the darker floor
-    floorFill: '#2B2B2B',
-    line:'#757575',
-
+    roomFill: '#5C5C5C',
+    floorFill: '#FAFAFA',
+    line: '#757575',
+    cardSecondary: '#2F2F2F',
+    cardDisabled: '#3C3C3C',
+    calendarbackground: '#757575',
+    traffic: {
+        low: '#81C784',
+        moderate: '#FFD54F',
+        heavy: '#FF8A65',
+        severe: '#EF5350',
+        default: '#B0BEC5'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#C62828',
+            base: '#C62828',
+        },
+        buildingLabel: {
+            text: '#ECEFF1',
+            halo: '#263238'
+        },
+        userLocation: '#FF6F61',
+        endpoint: '#FF6F61',
+        selectedRoute: '#FF6F61',
+        route: '#FF8A80'
+    }
 };
 export const colorBlindLightColors = {
     primary: '#0072B2',
@@ -124,11 +171,34 @@ export const colorBlindLightColors = {
         default: '#56B4E9',
     },
     settingColor: '#999999',
-    textCalendar: '#000',
-    roomFill: '#F5F5F5',     // Nearly white with a subtle contrast
-    floorFill: '#CCCCCC',
-    line:'#E5E5E5',
-
+    textCalendar: '#fff',
+    roomFill: '#999999',
+    floorFill: '#FAFAFA',
+    line: '#E5E5E5',
+    cardSecondary: '#F5F5F5',
+    cardDisabled: '#DADADA',
+    calendarbackground: '#FAFAFA',
+    traffic: {
+        low: '#009E73',
+        moderate: '#E69F00',
+        heavy: '#56B4E9',
+        severe: '#D55E00',
+        default: '#999999'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#56B4E9',
+            base: '#56B4E9',
+        },
+        buildingLabel: {
+            text: '#000000',
+            textLight: '#E69F00'
+        },
+        userLocation: '#D55E00',
+        endpoint: '#D55E00',
+        selectedRoute: '#0072B2',
+        route: '#56B4E9'
+    }
 };
 export const colorBlindDarkColors = {
     primary: '#56B4E9',
@@ -169,8 +239,32 @@ export const colorBlindDarkColors = {
     },
     settingColor: '#E5E5E5',
     textCalendar: '#000',
-    roomFill: '#3C3C3C',
-    floorFill: '#202020',
-    line:'#757575',
+    roomFill: '#5C5C5C',
+    floorFill: '#FAFAFA',
+    line: '#757575',
+    cardSecondary: '#2F2F2F',
+    cardDisabled: '#3C3C3C',
+    calendarbackground: '#757575',
+    traffic: {
+        low: '#66C2A5',
+        moderate: '#FC8D62',
+        heavy: '#8DA0CB',
+        severe: '#E78AC3',
+        default: '#CCCCCC'
+    },
+    map: {
+        buildingExtrusion: {
+            hover: '#E78AC3',
+            base: '#E78AC3',
+        },
+        buildingLabel: {
+            text: '#000000',
+            textLight: '#8F8F8F'
+        },
+        userLocation: '#E78AC3',
+        endpoint: '#E78AC3',
+        selectedRoute: '#8DA0CB',
+        route: '#66C2A5'
+    }
 };
 
