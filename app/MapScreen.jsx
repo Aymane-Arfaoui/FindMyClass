@@ -199,9 +199,7 @@ const MapScreen = () => {
                 }
                 yDif = 1132;
 
-            }
-
-            else if (buildingKey == "CC"){
+            } else if (buildingKey == "CC") {
                 if (selectedFloorKey == "1") {
                     node = mapCC1.nodes.find(n => n.id === nodeId);
                 }
@@ -231,7 +229,7 @@ const MapScreen = () => {
             const floorChanges = [];
             let lastFloor = null;
 
-            nodeIds.forEach((nodeId, index) => {
+            nodeIds.forEach((nodeId) => {
                 const node = getNodeData(nodeId);
 
                 if (node) {
@@ -253,16 +251,13 @@ const MapScreen = () => {
                     message += `  - From floor ${change.previousFloor} to floor ${change.newFloor} using ${change.transitionNode.poi_type}\n`;
                 });
                 setMultiFloorMessage(message);
-            }
-            else{
+            } else {
                 setMultiFloorMessage("");
             }
         }
 
 
     }, [path, selectedFloorKey]);
-
-
 
 
     const getNodeData = (nodeId) => {
@@ -299,8 +294,8 @@ const MapScreen = () => {
 
 
         if (foundSection) {
-            if(foundSection !== ""){
-                if(foundSection.ref_ID !== ""){
+            if (foundSection !== "") {
+                if (foundSection.ref_ID !== "") {
                     return foundSection.ref_ID;
                 }
             }
@@ -345,7 +340,7 @@ const MapScreen = () => {
     };
 
     const getFromFloorData = (nodeId, building) => {
-        // const buildingFloors = floorsData[buildingKey]; //HERE IT IS (FIRST ONE, ORIGINAL)
+        // const buildingFloors = floorsData[buildingKey]; //HERE IT IS (FIRST ONE, ORIGINAL) From main
 
         const buildingFloors = floorsData[building]; //HERE IT IS
         // const buildingFloors = floorsData[..."MB", ..."Hall", ..."CC"]; //HERE IT IS
@@ -372,13 +367,7 @@ const MapScreen = () => {
     };
 
     const checkNodeInFloorData = (nodeId) => {
-        if (getFromFloorData(nodeId)) {
-            // console.log(`Node ${nodeId} exists in floor data`);
-            return true
-        } else {
-            // console.log(`Node ${nodeId} does not exist in floor data`);
-            return false
-        }
+        return getFromFloorData(nodeId);
     };
     const checkNodeInFloorData2 = (nodeId, building) => {
         if (getFromFloorData(nodeId, building)) {
@@ -730,16 +719,13 @@ const MapScreen = () => {
     // }, [classroomNum, selectedSection]);
 
 
-    const closeIndoorSearchBars = (bool) => {
+    const closeIndoorSearchBars = () => {
         setShowSearchBar(false);
         setMultiFloorMessage("");
         setSelectedPath(null);
         setStartLocationIndoor("");
         setPath(null);
     };
-
-
-
 
     return (
         <GestureHandlerRootView style={styles.container}>
@@ -844,7 +830,6 @@ const MapScreen = () => {
                                         )}
 
 
-
                                     </Svg>
                                 </Animated.View>
                             </PinchGestureHandler>
@@ -895,6 +880,7 @@ const MapScreen = () => {
         </GestureHandlerRootView>
     );
 };
+
 MapScreen.propTypes={
     buildingKey:PropTypes.any
 }
