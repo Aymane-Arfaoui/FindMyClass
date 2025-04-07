@@ -26,7 +26,6 @@ def create_app():
 
     from .routes import api
     
-    app.register_blueprint(navigation_routes)
     app.register_blueprint(api)
     
     return app
