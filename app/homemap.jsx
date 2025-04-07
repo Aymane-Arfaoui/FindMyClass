@@ -47,7 +47,7 @@ export default function Homemap() {
     const [placeDetailsCache, setPlaceDetailsCache] = useState({});
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
-    const { theme, isDark } = useContext(ThemeContext);
+    const {theme, isDark} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
 
 
@@ -118,10 +118,12 @@ export default function Homemap() {
     };
 
     useEffect(() => {
-        const { startBuilding,
+        const {
+            startBuilding,
             endBuilding,
             triggerRoute,
-            destinationClassroom } = params;
+            destinationClassroom
+        } = params;
 
         if (triggerRoute === 'true' && startBuilding && endBuilding && !hasTriggeredRoute.current) {
             const startCoords = BUILDING_COORDINATES[startBuilding];
@@ -158,7 +160,6 @@ export default function Homemap() {
             }
         }
     }, [params.startBuilding, params.endBuilding, params.triggerRoute, modeSelected]);
-
 
 
     useEffect(() => {
@@ -359,7 +360,7 @@ export default function Homemap() {
     const handleBuildingPress = async (building = null, lng = null, lat = null) => {
         setLoading(true);
 
-        await fetchBuildingData(building , lng, lat, setLoading, lastFetchedPlaceId, setLastFetchedPlaceId, setBuildingDetails,setSelectedLocation);
+        await fetchBuildingData(building, lng, lat, setLoading, lastFetchedPlaceId, setLastFetchedPlaceId, setBuildingDetails, setSelectedLocation);
 
         Animated.timing(panelY, {
             toValue: 0,
@@ -406,19 +407,19 @@ export default function Homemap() {
         })
     ).current;
 
-    let isFetchingPlaces = false;
+    setIsFetchingPlaces(false);
 
     const fetchPlacesOfInterest = async (category) => {
         if (!currentLocation || isFetchingPlaces) {
             return;
         }
 
-        isFetchingPlaces = true;
+        setIsFetchingPlaces(true);
         setPlaces([]);
 
         const {coordinates} = currentLocation.geometry;
         if (!coordinates || coordinates.length !== 2) {
-            isFetchingPlaces = false;
+            setIsFetchingPlaces(false);
             return;
         }
 
@@ -436,218 +437,220 @@ export default function Homemap() {
         const url = `https://places.googleapis.com/v1/places:searchNearby`;
 
 
+        const handlePOIPress = async (place) => {
+            if (!place || !place.place_id) {
+                return;
+            }
 
-    const handlePOIPress = async (place) => {
-        if (!place || !place.place_id) {
-            return;
-        }
+            setSelectedLocation(place);
 
-        setSelectedLocation(place);
+            Animated.timing(panelY, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }).start();
 
-        Animated.timing(panelY, {
-            toValue: 0,
-            duration: 300,
-            useNativeDriver: true,
-        }).start();
-
-        await fetchPoI (place, setBuildingDetails);
-    };
+            await fetchPoI(place, setBuildingDetails);
+        };
 
 
-    return (
-        <View style={styles.container}>
-            <StatusBar
-                translucent
-                backgroundColor="transparent"
-                barStyle={isDark ? 'light-content' : 'dark-content'}
-            />
-            <Map
-                onBuildingPress={handleBuildingPress}
-                selectedLocation={selectedLocation}
-                userLocation={currentLocation}
-                routes={routes}
-                selectedRoute={fastestRoute}
-                onMapPress={handleClosePanel}
-                cameraRef={cameraRef}
-                centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
-                onRoutePress={handleRoutePress}
-                places={places}
-                onSelectedPOI={handlePOIPress}
-                selectedCampus={selectedCampus}
-            />
+        return (
+            <View style={styles.container}>
+                <StatusBar
+                    translucent
+                    backgroundColor="transparent"
+                    barStyle={isDark ? 'light-content' : 'dark-content'}
+                />
+                <Map
+                    onBuildingPress={handleBuildingPress}
+                    selectedLocation={selectedLocation}
+                    userLocation={currentLocation}
+                    routes={routes}
+                    selectedRoute={fastestRoute}
+                    onMapPress={handleClosePanel}
+                    cameraRef={cameraRef}
+                    centerCoordinate={selectedLocation?.geometry?.coordinates || centerCoordinate}
+                    onRoutePress={handleRoutePress}
+                    places={places}
+                    onSelectedPOI={handlePOIPress}
+                    selectedCampus={selectedCampus}
+                />
 
-            {!isDirectionsView && (
-                <View style={styles.searchContainer}>
-                    {/* Back Button */}
-                    <TouchableOpacity testID={'back-button'} style={styles.backButton} onPress={() => router.push('/Welcome')}>
-                        <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
-                    </TouchableOpacity>
+                {!isDirectionsView && (
+                    <View style={styles.searchContainer}>
+                        {/* Back Button */}
+                        <TouchableOpacity testID={'back-button'} style={styles.backButton}
+                                          onPress={() => router.push('/Welcome')}>
+                            <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
+                        </TouchableOpacity>
 
-                    {/* Search Bar */}
-                    <View style={styles.searchWrapper}>
-                        <MainSearchBar
-                            onLocationSelect={setSelectedLocation}
-                            onBuildingPress={handleBuildingPress}
+                        {/* Search Bar */}
+                        <View style={styles.searchWrapper}>
+                            <MainSearchBar
+                                onLocationSelect={setSelectedLocation}
+                                onBuildingPress={handleBuildingPress}
+                            />
+                        </View>
+
+                        {/* Filter Button (Now Functional) */}
+                        <PlaceFilterButtons
+                            onSelectCategory={(category) => {
+                                if (category) {
+                                    fetchPlacesOfInterest(category, currentLocation, isFetchingPlaces, setIsFetchingPlaces, setPlaces);
+                                } else {
+                                    setPlaces([]);
+                                }
+                            }}
                         />
                     </View>
+                )}
 
-                    {/* Filter Button (Now Functional) */}
-                    <PlaceFilterButtons
-                        onSelectCategory={ (category) => {
-                            if (category) {
-                                fetchPlacesOfInterest(category, currentLocation, isFetchingPlaces,setIsFetchingPlaces, setPlaces);
-                            } else {
-                                setPlaces([]);
-                            }
-                        }}
-                    />
-                </View>
-            )}
+                {!isDirectionsView && (
+                    <View style={styles.mapButtonsContainer}>
+                        <MapButtons
+                            onPress={(location) => {
+                                setSelectedLocation({
+                                    type: "Feature",
+                                    geometry: {
+                                        type: "Point",
+                                        coordinates: location,
+                                    },
+                                });
+                                handleClosePanel();
+                            }}
+                            onCampusChange={setSelectedCampus}
+                        />
+                    </View>
+                )}
+                {!isDirectionsView && (
+                    <LiveLocationButton onPress={setSelectedLocation}/>
+                )}
+                {!isDirectionsView && (
+                    <AppNavigationPannel/>
+                )}
+                {!isDirectionsView && (
+                    <ChatBotButton/>
+                )}
 
-            {!isDirectionsView && (
-                <View style={styles.mapButtonsContainer}>
-                    <MapButtons
-                        onPress={(location) => {
-                            setSelectedLocation({
-                                type: "Feature",
-                                geometry: {
-                                    type: "Point",
-                                    coordinates: location,
-                                },
-                            });
-                            handleClosePanel();
-                        }}
-                        onCampusChange={setSelectedCampus}
-                    />
-                </View>
-            )}
-            {!isDirectionsView && (
-                <LiveLocationButton onPress={setSelectedLocation}/>
-            )}
-            {!isDirectionsView && (
-                <AppNavigationPannel/>
-            )}
-            {!isDirectionsView && (
-                <ChatBotButton/>
-            )}
-
-            {selectedLocation && !isDirectionsView && (
-                <BuildingDetailsPanel
-                    currentLocation={currentLocation}
-                    selectedBuilding={selectedLocation}
-                    buildingDetails={buildingDetails}
-                    loading={loading}
-                    panelY={panelY}
-                    panHandlers={panResponder.panHandlers}
-                    onClose={handleClosePanel}
-                    onDirectionPress={handleDirectionPress}
-                    GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
-                    mode={modeSelected}
-                />
-            )}
-
-
-            {isDirectionsView && (
-                <>
-                    <SearchBars
+                {selectedLocation && !isDirectionsView && (
+                    <BuildingDetailsPanel
                         currentLocation={currentLocation}
-                        destination={destinationAddress || buildingDetails?.formattedAddress}
-                        onBackPress={() => switchToRegularMapView(false)}
-                        modeSelected={modeSelected}
-                        setModeSelected={setModeSelected}
-                        travelTimes={travelTimes}
-                    />
-
-
-                    <BottomPanel
-                        transportMode={modeSelected}
-                        routeDetails={fastestRoute}
-                        routes={routes}
-                        wantsClassroom={wantsClassroom}
                         selectedBuilding={selectedLocation}
-                        travelTimes={travelTimes}
-                        classroomNum={classroomNumber}
-                        startLocation={currentOrigin && currentOrigin.geometry?.coordinates ? {
-                            lat: currentOrigin.geometry.coordinates[1],
-                            lng: currentOrigin.geometry.coordinates[0],
-                        } : undefined}
-                        endLocation={currentDestination && currentDestination.geometry?.coordinates ? {
-                            lat: currentDestination.geometry.coordinates[1],
-                            lng: currentDestination.geometry.coordinates[0],
-                        } : undefined}
+                        buildingDetails={buildingDetails}
+                        loading={loading}
+                        panelY={panelY}
+                        panHandlers={panResponder.panHandlers}
+                        onClose={handleClosePanel}
+                        onDirectionPress={handleDirectionPress}
+                        GOOGLE_PLACES_API_KEY={GOOGLE_PLACES_API_KEY}
+                        mode={modeSelected}
                     />
-                </>
-            )}
+                )}
 
-        </View>
-    );
+
+                {isDirectionsView && (
+                    <>
+                        <SearchBars
+                            currentLocation={currentLocation}
+                            destination={destinationAddress || buildingDetails?.formattedAddress}
+                            onBackPress={() => switchToRegularMapView(false)}
+                            modeSelected={modeSelected}
+                            setModeSelected={setModeSelected}
+                            travelTimes={travelTimes}
+                        />
+
+
+                        <BottomPanel
+                            transportMode={modeSelected}
+                            routeDetails={fastestRoute}
+                            routes={routes}
+                            wantsClassroom={wantsClassroom}
+                            selectedBuilding={selectedLocation}
+                            travelTimes={travelTimes}
+                            classroomNum={classroomNumber}
+                            startLocation={currentOrigin && currentOrigin.geometry?.coordinates ? {
+                                lat: currentOrigin.geometry.coordinates[1],
+                                lng: currentOrigin.geometry.coordinates[0],
+                            } : undefined}
+                            endLocation={currentDestination && currentDestination.geometry?.coordinates ? {
+                                lat: currentDestination.geometry.coordinates[1],
+                                lng: currentDestination.geometry.coordinates[0],
+                            } : undefined}
+                        />
+                    </>
+                )}
+
+            </View>
+        );
+    };
+
+    const createStyles = (theme) => StyleSheet.create({
+        container: {
+            flex: 1,
+            backgroundColor: theme.colors.background,
+            paddingTop: StatusBar.currentHeight || 0,
+            position: 'relative',
+        },
+
+        infoBox: {
+            position: 'absolute',
+            bottom: 20,
+            left: 10,
+            right: 10,
+            backgroundColor: 'white',
+            padding: 15,
+            borderRadius: 10,
+            shadowOpacity: 0.3,
+            shadowRadius: 5,
+            // elevation: 5
+        },
+        mapButtonsContainer: {
+            position: 'absolute',
+            backgroundColor: theme.colors.main,
+            bottom: 830,
+            left: 0,
+            right: 0,
+            zIndex: 10,
+            alignItems: 'center',
+        },
+        searchContainer: {
+            position: "absolute",
+            top: 70,
+            left: 10,
+            right: 10,
+            zIndex: 20,
+            flexDirection: "row",
+            alignItems: "center",
+            borderRadius: 30,
+            paddingHorizontal: 10,
+            shadowColor: "#000",
+            shadowOffset: {width: 0, height: 2},
+            shadowOpacity: 0.25,
+            shadowRadius: 4,
+        },
+        backButton: {
+            marginTop: 1,
+            padding: 2,
+            marginRight: 1,
+            marginLeft: -7,
+        },
+        searchWrapper: {
+            flex: 1,
+        },
+        filterButton: {
+            backgroundColor: theme.colors.primary,
+            width: 40,
+            height: 40,
+            marginTop: 50,
+            borderRadius: 20,
+            justifyContent: "center",
+            alignItems: "center",
+            marginLeft: 2,
+        },
+        header: {fontSize: 18, fontWeight: "bold"},
+        routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
+        routeMode: {fontSize: 16, fontWeight: "bold"},
+        noRoutes: {textAlign: "center", color: "gray", marginTop: 10}
+    });
+
 };
-
-const createStyles = (theme) => StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: theme.colors.background,
-        paddingTop: StatusBar.currentHeight || 0,
-        position: 'relative',
-    },
-
-    infoBox: {
-        position: 'absolute',
-        bottom: 20,
-        left: 10,
-        right: 10,
-        backgroundColor: 'white',
-        padding: 15,
-        borderRadius: 10,
-        shadowOpacity: 0.3,
-        shadowRadius: 5,
-        // elevation: 5
-    },
-    mapButtonsContainer: {
-        position: 'absolute',
-        backgroundColor: theme.colors.main,
-        bottom: 830,
-        left: 0,
-        right: 0,
-        zIndex: 10,
-        alignItems: 'center',
-    },
-    searchContainer: {
-        position: "absolute",
-        top: 70,
-        left: 10,
-        right: 10,
-        zIndex: 20,
-        flexDirection: "row",
-        alignItems: "center",
-        borderRadius: 30,
-        paddingHorizontal: 10,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-    },
-    backButton: {
-        marginTop: 1,
-        padding: 2,
-        marginRight: 1,
-        marginLeft: -7,
-    },
-    searchWrapper: {
-        flex: 1,
-    },
-    filterButton: {
-        backgroundColor: theme.colors.primary,
-        width: 40,
-        height: 40,
-        marginTop: 50,
-        borderRadius: 20,
-        justifyContent: "center",
-        alignItems: "center",
-        marginLeft: 2,
-    },
-    header: {fontSize: 18, fontWeight: "bold"},
-    routeCard: {padding: 10, borderBottomWidth: 1, borderBottomColor: '#ddd'},
-    routeMode: {fontSize: 16, fontWeight: "bold"},
-    noRoutes: {textAlign: "center", color: "gray", marginTop: 10}
-});
