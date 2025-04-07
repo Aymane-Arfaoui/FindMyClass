@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Platform, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
+import {Platform, StatusBar, StyleSheet, TextInput, TouchableOpacity, View,} from 'react-native';
 import {Ionicons} from '@expo/vector-icons';
 import {theme} from '@/constants/theme';
 import {hp, wp} from '@/helpers/common';
@@ -66,7 +66,11 @@ const SearchBars = ({
 
     return (
         <View style={styles.container} testID={'search-bars'}>
-
+            <StatusBar
+                translucent
+                backgroundColor="transparent"
+                barStyle='#fff'
+            />
             <TouchableOpacity testID={'back-button'} onPress={onBackPress} style={styles.backButton}>
                 <Ionicons name="chevron-back" size={26} color="white"/>
             </TouchableOpacity>
@@ -155,12 +159,12 @@ const styles = StyleSheet.create({
     },
 });
 
-SearchBars.propTypes={
-    currentLocation:PropTypes.any,
-    destination:PropTypes.any,
-    onBackPress:PropTypes.func,
-    modeSelected:PropTypes.string,
-    setModeSelected:PropTypes.func,
-    travelTimes:PropTypes.object
+SearchBars.propTypes = {
+    currentLocation: PropTypes.any,
+    destination: PropTypes.any,
+    onBackPress: PropTypes.func,
+    modeSelected: PropTypes.string,
+    setModeSelected: PropTypes.func,
+    travelTimes: PropTypes.object
 }
 export default SearchBars;

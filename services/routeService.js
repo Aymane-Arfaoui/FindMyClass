@@ -25,7 +25,7 @@ export const fetchRoutes = async (origin, destination, mode) => {
     }
 };
 
-const fetchGoogleRoutes = async (origin, destination, mode) => {
+export const fetchGoogleRoutes = async (origin, destination, mode) => {
     try {
         const response = await axios.get(`https://maps.googleapis.com/maps/api/directions/json`, {
             params: {

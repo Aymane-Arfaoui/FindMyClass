@@ -24,13 +24,86 @@ def is_navigation_query(query: str) -> bool:
         "to", "from", "how long", "time", "distance"
     ]
     query_lower = query.lower()
-    return any(keyword in query_lower for keyword in navigation_keywords)
+    
+    # Debug output
+    print(f"CHAT.PY: Checking navigation query: '{query_lower}'")
+    
+    # Check for direct patterns like "how to go from H 109 to H 110"
+    direct_pattern = r'how to go from h\s*\d{3} to h\s*\d{3}'
+    is_direct_match = bool(re.search(direct_pattern, query_lower))
+    print(f"CHAT.PY: Direct match: {is_direct_match}")
+    
+    # Check for room numbers (H-109, H 110, etc.)
+    room_pattern = r'h\s*[-_ ]?\s*\d{3}'
+    room_matches = re.findall(room_pattern, query_lower)
+    has_room_numbers = len(room_matches) > 0
+    multiple_rooms = len(room_matches) >= 2
+    print(f"CHAT.PY: Room matches: {room_matches}")
+    print(f"CHAT.PY: Has room numbers: {has_room_numbers}")
+    print(f"CHAT.PY: Multiple rooms: {multiple_rooms}")
+    
+    # Check for navigation keywords
+    has_nav_keywords = any(keyword in query_lower for keyword in navigation_keywords)
+    print(f"CHAT.PY: Has navigation keywords: {has_nav_keywords}")
+    
+    # The query is a navigation query if:
+    # 1. It directly matches our pattern, OR
+    # 2. It mentions multiple rooms, OR
+    # 3. It has room numbers AND navigation keywords
+    is_nav_query = is_direct_match or multiple_rooms or (has_room_numbers and has_nav_keywords)
+    print(f"CHAT.PY: Final decision - Is navigation query: {is_nav_query}")
+    
+    return is_nav_query
 
 def extract_rooms(query: str) -> tuple:
     """Extract room numbers from the query"""
-    # Look for patterns like H-102, H 102, H102, H_102
-    pattern = r'[h][-_ ]?(\d{3})'
-    rooms = re.findall(pattern, query.lower())
+    query_lower = query.lower()
+    print(f"CHAT.PY: Extracting rooms from: '{query_lower}'")
+    
+    # Try different patterns
+    
+    # Pattern 1: Direct "from H109 to H110" pattern
+    direct_pattern = r'(?:from\s+)?h\s*[-_ ]?\s*(\d{3})(?:\s+to|\s+and)\s+h\s*[-_ ]?\s*(\d{3})'
+    direct_match = re.search(direct_pattern, query_lower)
+    
+    if direct_match:
+        start_room_num = direct_match.group(1)
+        end_room_num = direct_match.group(2)
+        
+        # Get floor numbers (first digit of the room number)
+        start_floor = start_room_num[0]
+        end_floor = end_room_num[0]
+        
+        # Format room IDs for the navigation system
+        start_room = f"h{start_floor}_{start_room_num}"
+        end_room = f"h{end_floor}_{end_room_num}"
+        
+        print(f"CHAT.PY: Extracted rooms (direct pattern): {start_room} to {end_room}")
+        return start_room, end_room
+    
+    # Pattern 2: "How to go from H 109 to H 110" pattern
+    go_pattern = r'how to go from h\s*[-_ ]?\s*(\d{3})\s+to\s+h\s*[-_ ]?\s*(\d{3})'
+    go_match = re.search(go_pattern, query_lower)
+    
+    if go_match:
+        start_room_num = go_match.group(1)
+        end_room_num = go_match.group(2)
+        
+        # Get floor numbers (first digit of the room number)
+        start_floor = start_room_num[0]
+        end_floor = end_room_num[0]
+        
+        # Format room IDs for the navigation system
+        start_room = f"h{start_floor}_{start_room_num}"
+        end_room = f"h{end_floor}_{end_room_num}"
+        
+        print(f"CHAT.PY: Extracted rooms (go pattern): {start_room} to {end_room}")
+        return start_room, end_room
+    
+    # Pattern 3: Just find all room numbers and use the first two
+    room_pattern = r'h\s*[-_ ]?\s*(\d{3})'
+    rooms = re.findall(room_pattern, query_lower)
+    
     if len(rooms) >= 2:
         # Get floor numbers from room numbers
         start_floor = rooms[0][0]  # First digit is floor number
@@ -39,7 +112,11 @@ def extract_rooms(query: str) -> tuple:
         # Format room IDs for the navigation system
         start_room = f"h{start_floor}_{rooms[0]}"
         end_room = f"h{end_floor}_{rooms[1]}"
+        
+        print(f"CHAT.PY: Extracted rooms (generic pattern): {start_room} to {end_room}")
         return start_room, end_room
+    
+    print("CHAT.PY: Could not extract rooms from query")
     return None, None
 
 def interpret_path(path_info: dict) -> str:
@@ -149,74 +226,104 @@ def handle_follow_up(query: str, context: NavigationContext) -> str:
     
     return "I'm not sure what you're asking about. Could you please rephrase your question?"
 
-def extract_locations(query: str) -> tuple:
-    """Extract indoor and outdoor locations from the query"""
-    # Look for indoor locations (room numbers)
-    indoor_pattern = r'[h][-_ ]?(\d{3})'
-    rooms = re.findall(indoor_pattern, query.lower())
-    
-    # Look for outdoor locations (coordinates or place names)
-    # This is a simplified pattern and would need to be enhanced for real-world use
-    outdoor_pattern = r'at\s+([\d\.-]+),\s*([\d\.-]+)'
-    outdoor_matches = re.findall(outdoor_pattern, query)
-    
-    start_location = None
-    end_location = None
-    
-    # Process indoor locations
-    if len(rooms) >= 2:
-        start_floor = rooms[0][0]
-        end_floor = rooms[1][0]
-        start_room = f"h{start_floor}_{rooms[0]}"
-        end_room = f"h{end_floor}_{rooms[1]}"
+def is_task_query(query: str) -> bool:
+    """Check if the query is about tasks"""
+    task_keywords = [
+        "task", "todo", "to do", "deadline", "due", "schedule",
+        "remind", "reminder", "assignment", "project"
+    ]
+    query_lower = query.lower()
+    return any(keyword in query_lower for keyword in task_keywords)
+
+def handle_task_query(query, tasks):
+    """Handle any query with the given tasks context."""
+    # Load environment variables and initialize OpenAI client
+    load_dotenv()
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+
+    # Format tasks for OpenAI
+    tasks_description = "Here are the user's current tasks:\n"
+    for task in tasks:
+        task_time = ""
+        if task.get('startTime'):
+            time = task['startTime'].split('T')[1][:5] if 'T' in task['startTime'] else task['startTime']
+            task_time = f" at {time}"
         
-        start_location = {
-            "type": "indoor",
-            "id": start_room,
-            "campus": "hall"
-        }
+        location = f" at {task['address']}" if task.get('address') and task['address'] != 'No location available' else ""
+        notes = f" ({task['notes']})" if task.get('notes') and task['notes'] != 'No additional details' else ""
         
-        end_location = {
-            "type": "indoor",
-            "id": end_room,
-            "campus": "hall"
-        }
-    
-    # Process outdoor locations
-    if outdoor_matches:
-        if len(outdoor_matches) >= 2:
-            start_lat, start_lng = outdoor_matches[0]
-            end_lat, end_lng = outdoor_matches[1]
-            
-            start_location = {
-                "type": "outdoor",
-                "lat": float(start_lat),
-                "lng": float(start_lng)
-            }
-            
-            end_location = {
-                "type": "outdoor",
-                "lat": float(end_lat),
-                "lng": float(end_lng)
-            }
-        elif len(outdoor_matches) == 1 and start_location:
-            # One outdoor location and one indoor location
-            lat, lng = outdoor_matches[0]
-            
-            if start_location["type"] == "indoor":
-                end_location = {
-                    "type": "outdoor",
-                    "lat": float(lat),
-                    "lng": float(lng)
-                }
-            else:
-                start_location = {
-                    "type": "outdoor",
-                    "lat": float(lat),
-                    "lng": float(lng)
-                }
-    
-    return start_location, end_location
+        tasks_description += f"- {task['taskName']}{task_time}{location}{notes}\n"
+
+    # Create the prompt for OpenAI
+    prompt = f"""As an AI assistant, you're helping the user with their tasks and schedule. Here's their question:
+"{query}"
+
+{tasks_description}
+
+Focus on directly answering the user's question without any preamble like "Based on your tasks" or "You have the following tasks". 
+Just answer directly and conversationally as if continuing a chat.
+
+If they're asking about tasks, provide relevant information about times, locations, and details.
+If they ask something unrelated to tasks, still give a helpful response while being aware of their schedule context."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful AI assistant focused on task and schedule management. Respond directly without introductory phrases."},
+                {"role": "user", "content": prompt}
+            ],
+            max_tokens=300
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        print(f"Error in OpenAI call: {e}")
+        return "I encountered an error while processing your request. Please try again."
+
+def get_tasks_from_storage():
+    """Get tasks from AsyncStorage or filesystem"""
+    try:
+        import json
+        import os
+        from pathlib import Path
+
+        # Try multiple possible locations for tasks
+        possible_paths = [
+            Path(os.getcwd()) / '.expo' / 'async-storage' / 'tasks.json',
+            Path(os.getcwd()).parent / 'app' / '.expo' / 'async-storage' / 'tasks.json',
+            Path(os.getcwd()).parent / 'app' / 'services' / '.expo' / 'async-storage' / 'tasks.json',
+            Path(os.getcwd()).parent / '.expo' / 'async-storage' / 'tasks.json'
+        ]
+
+        for storage_file in possible_paths:
+            if storage_file.exists():
+                print(f"Found tasks at: {storage_file}")  # Debug print
+                with open(storage_file, 'r') as f:
+                    tasks = json.load(f)
+                    return tasks
+
+        print("No tasks file found in any location")  # Debug print
+        return []
+    except Exception as e:
+        print(f"Error reading tasks from storage: {e}")
+        return []
+
+SAMPLE_TASKS = [
+    {
+        "id": "task1",
+        "taskName": "Test 1",
+        "startTime": "2025-04-04T17:33:00",
+        "address": "Concordia University, Boulevard De Maisonneuve Ouest, Montreal, QC, Canada",
+        "notes": "No additional details"
+    },
+    {
+        "id": "task2",
+        "taskName": "Test 2", 
+        "startTime": "2025-04-04T17:35:00",
+        "address": "Concordia University, Boulevard De Maisonneuve Ouest, Montreal, QC, Canada",
+        "notes": "This is a test"
+    }
+]
 
 def main():
     # Load environment variables
@@ -226,102 +333,70 @@ def main():
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     nav_api = AINavigationAPI()
     
-    print("Welcome to the Concordia Indoor Navigation Assistant!")
-    print("I can help you find your way around Concordia's buildings, especially the EV, H, and MB buildings.")
+    print("Welcome to the Concordia Indoor Navigation and Task Assistant!")
+    print("I can help you find your way around campus and manage your tasks.")
     print("Type 'exit' to quit")
     print("Type 'help' for available commands")
     
     while True:
         try:
-            # Get user input
             user_input = input("\nYou: ").strip()
             
-            # Check for exit command
             if user_input.lower() == 'exit':
-                print("Goodbye! Good luck with your studies at Concordia!")
+                print("Goodbye!")
                 break
-                
-            # Check for help command
-            if user_input.lower() == 'help':
+            elif user_input.lower() == 'help':
                 print("\nAvailable commands:")
-                print("- help: Show this help message")
-                print("- exit: Exit the program")
-                print("- You can ask me about:")
-                print("  * Finding specific rooms (e.g., 'How do I get from H-109 to H-110?' or simply 'H109 to H110')")
-                print("  * Finding routes between indoor and outdoor locations (e.g., 'How do I get from H-109 to 45.4972,-73.5790?')")
-                print("  * Building layouts (e.g., 'What's on the 9th floor of EV?')")
-                print("  * Navigation tips (e.g., 'How do I get from EV to H building?')")
-                print("  * Accessibility information (e.g., 'Are there elevators in the MB building?')")
+                print("- Ask for directions (e.g., 'How do I get to H-820?')")
+                print("- Ask about tasks (e.g., 'What tasks do I have today?')")
+                print("- 'exit' to quit")
+                print("- 'help' for this menu")
                 continue
             
-            # Check if this is a navigation query
+            # Check if it's a task query
+            if is_task_query(user_input):
+                # Get tasks from AsyncStorage
+                tasks = get_tasks_from_storage()
+                if not tasks:
+                    print("No tasks found in storage, using sample tasks") # Debug print
+                    tasks = SAMPLE_TASKS
+                
+                print(f"Using {len(tasks)} tasks") # Debug print
+                response = handle_task_query(user_input, tasks)
+                print("\nConcordia Assistant:", response)
+                continue
+            
+            # Check if it's a navigation query
             if is_navigation_query(user_input):
-                # If we have a previous navigation and the query is a follow-up
-                if nav_context.last_navigation and not any(word in user_input.lower() for word in ["from", "to", "get"]):
-                    response_text = handle_follow_up(user_input, nav_context)
-                    print("\nConcordia Assistant:", response_text)
-                    continue
-                
-                # Try to extract indoor and outdoor locations
-                start_location, end_location = extract_locations(user_input)
-                
-                if start_location and end_location:
-                    # Use integrated routing service
-                    result = routing_service.generate_route_with_weather(start_location, end_location)
-                    
-                    if result["success"]:
-                        nav_context.last_navigation = result["path"]
-                        nav_context.last_weather_data = result.get("weather_data")
-                        
-                        # If we have instructions from ChatGPT, use them
-                        if "instructions" in result:
-                            response_text = result["instructions"]
-                        else:
-                            # Fall back to basic interpretation
-                            if result["path"]["type"] == "indoor":
-                                response_text = interpret_path(result["path"])
-                            else:
-                                response_text = "I found a route for you, but couldn't generate detailed instructions."
-                    else:
-                        response_text = result.get("error", "Could not find a route between these locations.")
-                    
-                    print("\nConcordia Assistant:", response_text)
-                    continue
-                
-                # Fall back to basic indoor navigation
                 start_room, end_room = extract_rooms(user_input)
-                if start_room and end_room:
-                    # Use navigation API to find path
-                    path_info = nav_api.find_shortest_path(start_room, end_room)
-                    response_text = interpret_path(path_info)
-                    if "error" not in path_info:
-                        nav_context.last_navigation = path_info
-                        nav_context.last_start_room = start_room
-                        nav_context.last_end_room = end_room
-                    print("\nConcordia Assistant:", response_text)
+                
+                if not start_room or not end_room:
+                    print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
                     continue
+                
+                path_info = nav_api.find_shortest_path(start_room, end_room)
+                nav_context.last_navigation = path_info
+                nav_context.last_start_room = start_room
+                nav_context.last_end_room = end_room
+                
+                response = interpret_path(path_info)
+                print("\nConcordia Assistant:", response)
+                continue
             
-            # Use OpenAI for general queries or if location extraction failed
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": """You are a helpful Concordia University indoor navigation assistant. 
-                    You have knowledge about Concordia's buildings, especially the EV, H, and MB buildings.
-                    You can help students find their way around campus, locate specific rooms, and provide navigation tips.
-                    Be friendly and specific in your responses, and mention relevant building codes and room numbers when applicable.
-                    For specific room-to-room navigation, suggest using the format 'H109 to H110' or 'How do I get from H-109 to H-110?'
-                    You can also help with routes that include both indoor and outdoor segments, considering weather conditions."""},
-                    {"role": "user", "content": user_input}
-                ]
-            )
+            # Handle follow-up questions about the last navigation
+            if nav_context.last_navigation:
+                response = handle_follow_up(user_input, nav_context)
+                print("\nConcordia Assistant:", response)
+                continue
             
-            print("\nConcordia Assistant:", response.choices[0].message.content)
+            print("\nConcordia Assistant: I can help you with navigation and tasks. Try asking:")
+            print("- 'How do I get to H-820?'")
+            print("- 'What tasks do I have today?'")
+            print("- Type 'help' for more options")
             
-        except KeyboardInterrupt:
-            print("\nGoodbye! Good luck with your studies at Concordia!")
-            break
         except Exception as e:
             print(f"\nError: {str(e)}")
+            print("Please try again with a different query.")
 
 if __name__ == "__main__":
     main() 

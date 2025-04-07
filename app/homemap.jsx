@@ -1,20 +1,20 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Animated, PanResponder, StatusBar, StyleSheet, TouchableOpacity, View} from 'react-native';
 import Map from '../components/Map';
 import {fetchRoutes} from '@/services/routeService';
 import {getUserLocation} from '@/services/userService';
 import BuildingDetailsPanel from "@/components/BuildingDetailsPanel";
-import {theme} from "@/constants/theme";
 import MapButtons from "@/components/MapButtons";
 import MainSearchBar from "@/components/MainSearchBar";
 import LiveLocationButton from '@/components/LiveLocationButton';
 import SearchBars from '@/components/SearchBars';
 import BottomPanel from "@/components/BottomPanel";
 import Config from 'react-native-config';
-import {useRouter} from 'expo-router';
+import {useLocalSearchParams, useRouter} from 'expo-router';
 import {Ionicons} from "@expo/vector-icons";
 import PlaceFilterButtons from "@/components/PlaceFilterButtons";
 import AppNavigationPannel from "@/components/AppNavigationPannel";
+import {ThemeContext} from "@/context/ThemeProvider";
 
 
 const GOOGLE_PLACES_API_KEY = Config.GOOGLE_PLACES_API_KEY;
@@ -35,10 +35,69 @@ export default function Homemap() {
     const [currentOrigin, setCurrentOrigin] = useState(null);
     const [currentDestination, setCurrentDestination] = useState(null);
     const [places, setPlaces] = useState([]);
-    // Cache implementation to reduce api calls
     const [placeDetailsCache, setPlaceDetailsCache] = useState({});
 
     const [wantsClassroom, setWantsClassroom] = useState(false);
+    const { theme, isDark } = useContext(ThemeContext);
+    const styles = useMemo(() => createStyles(theme), [theme]);
+
+
+    const params = useLocalSearchParams();
+    const {
+        lat = null,
+        lng = null,
+        room = null,
+        address = null,
+        directionsTriggered = null,
+        fromCalendar = null,
+    } = useLocalSearchParams();
+
+
+    const [destinationAddress, setDestinationAddress] = useState(null);
+    const [hasTriggeredDirections, setHasTriggeredDirections] = useState(false);
+
+    const [selectedCampus, setSelectedCampus] = useState('SGW');
+
+    useEffect(() => {
+        if (selectedCampus) {
+            handleClosePanel();
+            setBuildingDetails(null);
+        }
+    }, [selectedCampus]);
+
+    useEffect(() => {
+        if (lat && lng) {
+            const parsedLat = parseFloat(lat);
+            const parsedLng = parseFloat(lng);
+            const decodedAddress = address ? decodeURIComponent(address) : null;
+
+            const destinationPoint = {
+                type: "Feature",
+                geometry: {
+                    type: "Point",
+                    coordinates: [parsedLng, parsedLat],
+                },
+                name: decodedAddress || "Selected Location",
+            };
+
+            setSelectedLocation(destinationPoint);
+            setCurrentDestination(destinationPoint);
+            setDestinationAddress(decodedAddress);
+        }
+    }, [lat, lng, address]);
+
+    useEffect(() => {
+        if (
+            directionsTriggered === 'true' &&
+            !hasTriggeredDirections &&
+            currentLocation?.geometry?.coordinates &&
+            currentDestination?.geometry?.coordinates
+        ) {
+            setHasTriggeredDirections(true);
+            handleDirectionPress(currentLocation, currentDestination, modeSelected, fromCalendar === 'true');
+        }
+    }, [directionsTriggered, currentLocation, currentDestination, modeSelected, hasTriggeredDirections]);
+
 
     useEffect(() => {
         let isMounted = true;
@@ -102,12 +161,12 @@ export default function Homemap() {
                 const requestBody = {
                     origin: {
                         location: {
-                            latLng: { latitude: originLat, longitude: originLng }
+                            latLng: {latitude: originLat, longitude: originLng}
                         }
                     },
                     destination: {
                         location: {
-                            latLng: { latitude: destinationLat, longitude: destinationLng }
+                            latLng: {latitude: destinationLat, longitude: destinationLng}
                         }
                     },
                     travelMode: mode, // DRIVE, TRANSIT, WALK, BICYCLE
@@ -116,7 +175,6 @@ export default function Homemap() {
                     units: "METRIC"
                 };
 
-                // Only add routingPreference for DRIVE mode
                 if (mode === "DRIVE") {
                     requestBody.routingPreference = "TRAFFIC_AWARE";
                 }
@@ -505,7 +563,11 @@ export default function Homemap() {
 
     return (
         <View style={styles.container}>
-            <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+            <StatusBar
+                translucent
+                backgroundColor="transparent"
+                barStyle={isDark ? 'light-content' : 'dark-content'}
+            />
             <Map
                 onBuildingPress={handleBuildingPress}
                 selectedLocation={selectedLocation}
@@ -518,13 +580,14 @@ export default function Homemap() {
                 onRoutePress={handleRoutePress}
                 places={places}
                 onSelectedPOI={handlePOIPress}
+                selectedCampus={selectedCampus}
             />
 
             {!isDirectionsView && (
                 <View style={styles.searchContainer}>
                     {/* Back Button */}
                     <TouchableOpacity style={styles.backButton} onPress={() => router.push('/Welcome')}>
-                        <Ionicons name="chevron-back" size={28} color="black"/>
+                        <Ionicons name="chevron-back" size={28} color={theme.colors.dark}/>
                     </TouchableOpacity>
 
                     {/* Search Bar */}
@@ -561,6 +624,7 @@ export default function Homemap() {
                             });
                             handleClosePanel();
                         }}
+                        onCampusChange={setSelectedCampus}
                     />
                 </View>
             )}
@@ -591,12 +655,14 @@ export default function Homemap() {
                 <>
                     <SearchBars
                         currentLocation={currentLocation}
-                        destination={buildingDetails?.formattedAddress}
+                        destination={destinationAddress || buildingDetails?.formattedAddress}
                         onBackPress={() => switchToRegularMapView(false)}
                         modeSelected={modeSelected}
                         setModeSelected={setModeSelected}
                         travelTimes={travelTimes}
                     />
+
+
                     <BottomPanel
                         transportMode={modeSelected}
                         routeDetails={fastestRoute}
@@ -604,6 +670,14 @@ export default function Homemap() {
                         wantsClassroom={wantsClassroom}
                         selectedBuilding={selectedLocation}
                         travelTimes={travelTimes}
+                        startLocation={currentOrigin && currentOrigin.geometry?.coordinates ? {
+                            lat: currentOrigin.geometry.coordinates[1],
+                            lng: currentOrigin.geometry.coordinates[0],
+                        } : undefined}
+                        endLocation={currentDestination && currentDestination.geometry?.coordinates ? {
+                            lat: currentDestination.geometry.coordinates[1],
+                            lng: currentDestination.geometry.coordinates[0],
+                        } : undefined}
                     />
                 </>
             )}
@@ -612,7 +686,7 @@ export default function Homemap() {
     );
 };
 
-const styles = StyleSheet.create({
+const createStyles = (theme) => StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: theme.colors.background,
@@ -634,7 +708,7 @@ const styles = StyleSheet.create({
     },
     mapButtonsContainer: {
         position: 'absolute',
-        bottom: 830,
+        top: 80,
         left: 0,
         right: 0,
         zIndex: 10,
@@ -650,9 +724,11 @@ const styles = StyleSheet.create({
         alignItems: "center",
         borderRadius: 30,
         paddingHorizontal: 10,
-        elevation: 5,
-        shadowOpacity: 0.2,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
         shadowRadius: 4,
+        elevation: 6,
     },
     backButton: {
         marginTop: 1,
