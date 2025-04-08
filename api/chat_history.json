@@ -1,0 +1,30 @@
+{
+  "messages": [
+    {
+      "id": "1",
+      "text": "Hi! I can help with your tasks and schedule, or provide indoor directions. What would you like to know?",
+      "isUser": false,
+      "timestamp": "2025-04-06T21:31:10.539121"
+    },
+    {
+      "id": "user-1743989509545",
+      "text": "Hey",
+      "isUser": true,
+      "timestamp": "2025-04-07T01:31:49.545Z"
+    },
+    {
+      "id": "task-1743989509.590784",
+      "text": "I can help you with your tasks! Try asking about deadlines, priorities, or specific tasks.",
+      "isUser": false,
+      "timestamp": "2025-04-06T21:31:49.590800"
+    },
+    {
+      "id": "working-1743989534.024928",
+      "text": "Working on your route plan...",
+      "isUser": false,
+      "timestamp": "2025-04-06T21:32:14.024943"
+    }
+  ],
+  "preferences": {},
+  "last_route_tasks": []
+}
