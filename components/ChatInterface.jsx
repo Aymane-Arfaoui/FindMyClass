@@ -16,6 +16,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { chatService } from '../app/services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
 import { useLocalSearchParams } from 'expo-router';
+import PropTypes from 'prop-types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -272,9 +273,11 @@ const ChatInterface = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-ChatInterface.propTypes={
-  navigation:PropTypes.any
-}
+
+ChatInterface.propTypes = {
+  navigation: PropTypes.any
+};
+
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,

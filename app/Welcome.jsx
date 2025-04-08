@@ -28,45 +28,47 @@ WebBrowser.maybeCompleteAuthSession();
 const Welcome = () => {
     const {isDark, theme} = useContext(ThemeContext);
     const styles = useMemo(() => createStyles(theme), [theme]);
+    
     const [request, response, promptAsync] = Google.useAuthRequest({
-    iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
-    androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
-    scopes: [
-      'profile',
-      'email',
-      'https://www.googleapis.com/auth/calendar',
-      'https://www.googleapis.com/auth/calendar.readonly',
-      'https://www.googleapis.com/auth/calendar.events',
-      'https://www.googleapis.com/auth/calendar.events.readonly',
-      'https://www.googleapis.com/auth/calendar.settings.readonly',
-      'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
-    ],
-    redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
-  });
+        iosClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        androidClientId: '449179918461-habdo22us8rjk9mc8si9mpgulhec5iao.apps.googleusercontent.com',
+        webClientId: '794159243993-frttedg6jh95qulh4eh6ff8090t4018q.apps.googleusercontent.com',
+        scopes: [
+            'profile',
+            'email',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly',
+            'https://www.googleapis.com/auth/calendar.calendarlist.readonly'
+        ],
+        redirectUri: 'com.aymanearfaoui.findmyclass:/oauth2redirect'
+    });
 
-  const router = useRouter();
-  const [isLoading, setLoading] = useState(false);
+    const router = useRouter();
+    const [isLoading, setLoading] = useState(false);
 
-  useEffect(() => {
-    handleSignInWithGoogle();
-  }, [response]);
+    useEffect(() => {
+        handleSignInWithGoogle();
+    }, [response]);
 
-  async function handleSignInWithGoogle() {
-    if (response?.type === "success") {
-      setLoading(true);
-      try {
-        const userData = await getUserInfo(response.authentication.accessToken);
-        if (userData) {
-          await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
-          router.replace("/home");
+    async function handleSignInWithGoogle() {
+        if (response?.type === "success") {
+            setLoading(true);
+            try {
+                const userData = await getUserInfo(response.authentication.accessToken);
+                if (userData) {
+                    await AsyncStorage.setItem("@accessToken", response.authentication.accessToken);
+                    router.replace("/home");
+                }
+            } catch (error) {
+                console.error('Sign in error:', error);
+            } finally {
+                setLoading(false);
+            }
         }
-      } catch (error) {
-        console.error('Sign in error:', error);
-      } finally {
-        setLoading(false);
-      }
     }
-  }
 
     const handleGoogleSignIn = async () => {
         setLoading(true);
