@@ -741,7 +741,7 @@ class IntegratedRoutingService:
         # For now, return a placeholder
         if campus == "hall":
             return [
-                {"id": "h1_entrance", "lat": 45.4972, "lng": -73.5790},
+                {"id": "h1_entrance"," lat": 45.4972, "lng": -73.5790},
             ]
         elif campus == "mb":
             return [

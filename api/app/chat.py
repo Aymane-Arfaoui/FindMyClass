@@ -479,7 +479,7 @@ def main():
     load_dotenv()
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     nav_api = AINavigationAPI()
-
+    routing_service = IntegratedRoutingService()
     print("Welcome to the Concordia Indoor Navigation and Task Assistant!")
     print("I can help you find your way around campus and manage your tasks.")
     print("Type 'exit' to quit")
@@ -540,26 +540,23 @@ def main():
                 if start_building != end_building:
                     # For cross-building routes, get weather data
                     # Use the midpoint between buildings for weather data
-                    if start_building == "hall" and end_building == "mb":
-                        # Approximate coordinates for the midpoint between Hall and JMSB
-                        mid_lat = 45.4961  # Approximate midpoint latitude
-                        mid_lng = -73.5785  # Approximate midpoint longitude
-                        weather_data = routing_service.get_weather_for_location(mid_lat, mid_lng)
-                        nav_context.last_weather_data = weather_data
-                
-                # Use integrated routing for cross-building navigation
-                if start_building != end_building:
+                    start = routing_service.get_entrance_for_building(start_building)
+                    end = routing_service.get_entrance_for_building(end_building)
+                    mid_lat = (start.get("lat") + end.get("lat")) / 2
+                    mid_lng = (start.get("lng") + end.get("lng")) / 2
+                    weather_data = routing_service.get_weather_for_location(mid_lat, mid_lng)
+                    nav_context.last_weather_data = weather_data
                     path_info = routing_service.find_integrated_path(start_location, end_location, weather_data=weather_data)
-                    nav_context.last_navigation = path_info
-                    nav_context.last_start_location = start_location
-                    nav_context.last_end_location = end_location
+
                 else:
                     # Use simple indoor navigation for same-building routes
+                    print("simple path navigation used.")
                     path_info = nav_api.find_shortest_path(start_room, end_room, campus=start_building)
-                    nav_context.last_navigation = path_info
-                    nav_context.last_start_room = start_room
-                    nav_context.last_end_room = end_room
                 
+                nav_context.last_navigation = path_info
+                nav_context.last_start_location = start_location
+                nav_context.last_end_location = end_location
+            
                 response = interpret_path(path_info)
                 print("\nConcordia Assistant:", response)
                 continue
