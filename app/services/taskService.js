@@ -9,13 +9,13 @@ class TaskService {
             const tasks = JSON.parse(tasksJson);
             return tasks
                 .filter(task => {
-                    // Check for empty or invalid task name
+                    // check for empty or invalid task name
                     const taskName = (task.summary || task.taskName)?.trim();
                     if (!taskName || taskName === '') {
                         return false;
                     }
 
-                    // Check for empty or invalid date
+                    // check for emptyor invalid
                     const taskDate = task.date || task.start?.date || task.start?.dateTime;
                     if (!taskDate || taskDate === '') {
                         return false;
