@@ -237,6 +237,13 @@
       "y": 377.39,
       "floor_number": "1",
       "poi_type": "hallway"
+    },
+    {
+      "id": "cc_entrance_main",
+      "x":  1669.05,
+      "y": 426.21,
+      "floor_number": "1",
+      "poi_type": "entrance"
     }
   ],
   "edges": [
@@ -371,6 +378,10 @@
     [
       "cc_101",
       "cc_hw10"
+    ],
+    [
+      "cc_entrance_main",
+      "cc_hw12"
     ]
   ],
   "scale_factor": 0.05

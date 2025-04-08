@@ -3,8 +3,8 @@ import json
 import requests
 from typing import Dict, List, Any, Optional, Tuple
 from pathlib import Path
-from .graph.Graph2 import Graph
-from openaiHelper.getWeather import get_weather
+from graph.Graph2 import Graph
+from  openaiHelper.getWeather import get_weather
 from openai import OpenAI
 from dotenv import load_dotenv
 
@@ -13,21 +13,38 @@ class IntegratedRoutingService:
         self.indoor_graphs = {}
         self.accessibility_graphs = {}
         self._initialize_graphs()
-        load_dotenv()
+        load_dotenv("/Users/evanteboul/SOEN390/FindMyClass/.env.local")
         self.openai_client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         
     def _initialize_graphs(self):
-        """Initialize graphs for all campuses"""
+        """Initialize a single giant graph for all campuses"""
         current_dir = Path(os.getcwd())
         if 'api' not in current_dir.parts:
             current_dir = current_dir / 'api'
         
         base_path = current_dir / 'app/data/campus_jsons'
+        
+        # Create a single graph for all campuses
+        self.indoor_graph = Graph()
+        
+        # First pass: Load all nodes from all campuses
         for campus in ['hall', 'mb', 'cc']:
             campus_path = base_path / campus
             if campus_path.exists():
-                self.indoor_graphs[campus] = Graph()
-                self.indoor_graphs[campus].load_from_json_folder(str(campus_path))
+                self.indoor_graph.load_from_json_folder(str(campus_path))
+        
+        # Second pass: Load all edges from all campuses
+        for campus in ['hall', 'mb', 'cc']:
+            campus_path = base_path / campus
+            if campus_path.exists():
+                # Load edges for the single graph
+                self.indoor_graph.load_edges_from_json_folder(str(campus_path))
+        
+        # Create accessibility graph as a copy of the indoor graph
+        self.accessibility_graph = Graph()
+        # We'll need to implement a method to copy the graph with only accessible routes
+        # This is a placeholder for now
+        # self.accessibility_graph = self._create_accessibility_graph(self.indoor_graph)
     
     def get_weather_for_location(self, latitude: float, longitude: float) -> Dict[str, Any]:
         """Get weather data for a location"""
@@ -85,17 +102,35 @@ class IntegratedRoutingService:
             "type": "integrated"
         }
     
-    def find_indoor_path(self, start_id: str, end_id: str, campus: str = 'hall', accessibility: bool = False) -> Dict[str, Any]:
+    def find_indoor_path(self, start_id: str, end_id: str, accessibility: bool = False) -> Dict[str, Any]:
         """Find the shortest path between two indoor locations"""
-        if campus not in self.indoor_graphs:
-            return {"error": f"Campus {campus} not found", "success": False}
+        # Use the single indoor graph for all campuses
+        graph_to_use = self.indoor_graph
         
-        graph_to_use = self.indoor_graphs[campus]
         if accessibility:
-            if campus not in self.accessibility_graphs:
-                self.accessibility_graphs[campus] = Graph()
-                self.accessibility_graphs[campus].graph = self._get_sub_graph(self.indoor_graphs[campus])
-            graph_to_use = self.accessibility_graphs[campus]
+            # Create accessibility graph if it doesn't exist
+            if not hasattr(self, 'accessibility_graph') or self.accessibility_graph is None:
+                self.accessibility_graph = Graph()
+                # Create a copy of the indoor graph with only accessible routes
+                self.accessibility_graph.graph = self._get_sub_graph(self.indoor_graph)
+            graph_to_use = self.accessibility_graph
+        
+        # Check if the nodes exist in the graph
+        if start_id not in graph_to_use.graph_var.nodes:
+            # Try to find a similar node
+            similar_nodes = [node for node in graph_to_use.graph_var.nodes if start_id.lower() in node.lower()]
+            if similar_nodes:
+                start_id = similar_nodes[0]  # Use the first similar node found
+            else:
+                return {"error": f"Start node '{start_id}' not found in graph", "success": False}
+                
+        if end_id not in graph_to_use.graph_var.nodes:
+            # Try to find a similar node
+            similar_nodes = [node for node in graph_to_use.graph_var.nodes if end_id.lower() in node.lower()]
+            if similar_nodes:
+                end_id = similar_nodes[0]  # Use the first similar node found
+            else:
+                return {"error": f"End node '{end_id}' not found in graph", "success": False}
         
         path_info = graph_to_use.find_shortest_path(start_id, end_id)
         if not path_info:
@@ -110,27 +145,37 @@ class IntegratedRoutingService:
     
     def _get_sub_graph(self, graph):
         """Get a subgraph with only accessible routes (no stairs/escalators)"""
-        nx_graph = graph.graph
-        allowed_edges = set(nx_graph.edges())
-
-        # Remove escalator and stairs edges
+        # Create a copy of the graph to avoid modifying the original
+        nx_graph = graph.graph.copy()
+        
+        # Find edges to remove (those containing escalator or stairs)
+        edges_to_remove = []
         for edge in nx_graph.edges():
             if "escalator" in edge[0] or "stairs" in edge[0] or "escalator" in edge[1] or "stairs" in edge[1]:
-                allowed_edges.remove(edge)
-
-        # Create a subgraph with allowed edges only
-        return nx_graph.edge_subgraph(allowed_edges).copy()
+                edges_to_remove.append(edge)
+        
+        # Remove the edges
+        for edge in edges_to_remove:
+            nx_graph.remove_edge(edge[0], edge[1])
+        
+        return nx_graph
     
     def find_outdoor_path(self, origin: str, destination: str, mode: str = "walking", weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Find the shortest path between two outdoor locations using Google Maps API"""
         try:
             import requests
             import polyline
-            from config import GOOGLE_MAPS_API_KEY
+            GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
             
             # Adjust mode based on weather conditions
             # if self._is_bad_weather(weather_data) and mode == "walking":
             #     mode = "transit"
+            
+            # Check if we have a valid API key
+            if not GOOGLE_MAPS_API_KEY or GOOGLE_MAPS_API_KEY == "YOUR_API_KEY":
+                return {"error": "No API key found", "success": False}
+                # Return a mock path for testing
+                # return self._create_mock_outdoor_path(origin, destination)
             
             response = requests.get(
                 "https://maps.googleapis.com/maps/api/directions/json",
@@ -144,6 +189,8 @@ class IntegratedRoutingService:
             )
             
             if response.status_code != 200:
+                # Return a mock path if the API call fails
+                # return self._create_mock_outdoor_path(origin, destination)
                 return {"error": "Failed to get directions", "success": False}
             
             data = response.json()
@@ -187,17 +234,19 @@ class IntegratedRoutingService:
         Find an integrated path that may include both indoor and outdoor segments
         
         Args:
-            start_location: Dict with keys 'id', 'type' ('indoor' or 'outdoor'), 'campus' (for indoor), 'lat', 'lng' (for outdoor)
+            start_location: Dict with keys 'id', 'type' ('indoor' or 'outdoor'), 'lat', 'lng' (for outdoor)
             end_location: Same structure as start_location
             weather_data: Optional weather data to consider in route planning
         """
         # If both locations are indoor, use indoor routing
         if start_location["type"] == "indoor" and end_location["type"] == "indoor":
-            if start_location["campus"] == end_location["campus"]:
-                return self.find_indoor_path(start_location["id"], end_location["id"], start_location["campus"])
-            else:
-                # Different buildings, need to go outside
-                return self._find_cross_building_path(start_location, end_location, weather_data)
+            # Try to find a direct path first
+            direct_path = self.find_indoor_path(start_location["id"], end_location["id"])
+            if direct_path["success"]:
+                return direct_path
+            
+            # If direct path fails, try to find a path through exits
+            return self._find_cross_building_path(start_location, end_location, weather_data)
         
         # If both locations are outdoor, use outdoor routing
         elif start_location["type"] == "outdoor" and end_location["type"] == "outdoor":
@@ -217,97 +266,216 @@ class IntegratedRoutingService:
         # Check if weather conditions suggest using indoor routes
         is_bad_weather = self._is_bad_weather(weather_data)
         
-        # Special case for Hall and JMSB (MB) buildings during bad weather
-        if is_bad_weather and (
-            (start_location["campus"] == "hall" and end_location["campus"] == "mb") or
-            (start_location["campus"] == "mb" and end_location["campus"] == "hall")
-        ):
-            # Use the tunnel in Hall and metro entrance in JMSB S2
-            if start_location["campus"] == "hall":
-                # From Hall to JMSB
-                # Indoor path from start to tunnel in Hall
-                indoor_start_path = self.find_indoor_path(start_location["id"], "h1_tunnel_entrance", start_location["campus"])
+        # Try to find a path through the tunnel between Hall and JMSB
+        if "h1" in start_location["id"] and "mb" in end_location["id"]:
+            # From Hall to JMSB
+            # Indoor path from start to tunnel in Hall
+            indoor_start_path = self.find_indoor_path(start_location["id"], "h1_tunnel_entrance")
+            if not indoor_start_path["success"]:
+                # Try alternative path if the specific tunnel entrance isn't found
+                indoor_start_path = self.find_indoor_path(start_location["id"], "h1_exit_main")
                 if not indoor_start_path["success"]:
-                    return {"error": "Failed to find path to tunnel in Hall", "success": False}
-                
-                # Indoor path from metro entrance in JMSB S2 to end
-                indoor_end_path = self.find_indoor_path("mb_s2_metro_entrance", end_location["id"], end_location["campus"])
+                    return {"error": "Failed to find path to exit in Hall", "success": False}
+            
+            # Indoor path from metro entrance in JMSB S2 to end
+            indoor_end_path = self.find_indoor_path("mb_s2_metro_entrance", end_location["id"])
+            if not indoor_end_path["success"]:
+                # Try alternative path if the specific metro entrance isn't found
+                indoor_end_path = self.find_indoor_path("mb1_entrance_main", end_location["id"])
                 if not indoor_end_path["success"]:
-                    return {"error": "Failed to find path from metro entrance in JMSB", "success": False}
-                
-                # Create path segments
-                segments = [
-                    self._create_indoor_segment(
-                        indoor_start_path["path"],
-                        indoor_start_path["distance"],
-                        start_location["campus"]
-                    ),
-                    self._create_indoor_segment(
-                        ["h1_tunnel_entrance", "mb_s2_metro_entrance"],  # Tunnel path
-                        50.0,  # Approximate distance through tunnel
-                        "tunnel"
-                    ),
-                    self._create_indoor_segment(
-                        indoor_end_path["path"],
-                        indoor_end_path["distance"],
-                        end_location["campus"]
-                    )
-                ]
-                
-                total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
-                return self._create_integrated_path(segments, total_distance)
-            else:
-                # From JMSB to Hall
-                # Indoor path from start to metro entrance in JMSB S2
-                indoor_start_path = self.find_indoor_path(start_location["id"], "mb_s2_metro_entrance", start_location["campus"])
+                    return {"error": "Failed to find path from entrance in JMSB", "success": False}
+            
+            # Create path segments
+            segments = [
+                self._create_indoor_segment(
+                    indoor_start_path["path"],
+                    indoor_start_path["distance"],
+                    "hall"
+                ),
+                self._create_indoor_segment(
+                    ["h1_tunnel_entrance", "mb_s2_metro_entrance"],  # Tunnel path
+                    50.0,  # Approximate distance through tunnel
+                    "tunnel"
+                ),
+                self._create_indoor_segment(
+                    indoor_end_path["path"],
+                    indoor_end_path["distance"],
+                    "mb"
+                )
+            ]
+            
+            total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
+            return self._create_integrated_path(segments, total_distance)
+        elif "mb" in start_location["id"] and "h1" in end_location["id"]:
+            # From JMSB to Hall
+            # Indoor path from start to metro entrance in JMSB S2
+            indoor_start_path = self.find_indoor_path(start_location["id"], "mb_s2_metro_entrance")
+            if not indoor_start_path["success"]:
+                # Try alternative path if the specific metro entrance isn't found
+                indoor_start_path = self.find_indoor_path(start_location["id"], "mb1_exit_main")
                 if not indoor_start_path["success"]:
-                    return {"error": "Failed to find path to metro entrance in JMSB", "success": False}
-                
-                # Indoor path from tunnel in Hall to end
-                indoor_end_path = self.find_indoor_path("h1_tunnel_entrance", end_location["id"], end_location["campus"])
+                    return {"error": "Failed to find path to exit in JMSB", "success": False}
+            
+            # Indoor path from tunnel in Hall to end
+            indoor_end_path = self.find_indoor_path("h1_tunnel_entrance", end_location["id"])
+            if not indoor_end_path["success"]:
+                # Try alternative path if the specific tunnel entrance isn't found
+                indoor_end_path = self.find_indoor_path("h1_entrance_main", end_location["id"])
                 if not indoor_end_path["success"]:
-                    return {"error": "Failed to find path from tunnel in Hall", "success": False}
-                
-                # Create path segments
-                segments = [
-                    self._create_indoor_segment(
-                        indoor_start_path["path"],
-                        indoor_start_path["distance"],
-                        start_location["campus"]
-                    ),
-                    self._create_indoor_segment(
-                        ["mb_s2_metro_entrance", "h1_tunnel_entrance"],  # Tunnel path
-                        50.0,  # Approximate distance through tunnel
-                        "tunnel"
-                    ),
-                    self._create_indoor_segment(
-                        indoor_end_path["path"],
-                        indoor_end_path["distance"],
-                        end_location["campus"]
-                    )
-                ]
-                
-                total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
-                return self._create_integrated_path(segments, total_distance)
+                    return {"error": "Failed to find path from entrance in Hall", "success": False}
+            
+            # Create path segments
+            segments = [
+                self._create_indoor_segment(
+                    indoor_start_path["path"],
+                    indoor_start_path["distance"],
+                    "mb"
+                ),
+                self._create_indoor_segment(
+                    ["mb_s2_metro_entrance", "h1_tunnel_entrance"],  # Tunnel path
+                    50.0,  # Approximate distance through tunnel
+                    "tunnel"
+                ),
+                self._create_indoor_segment(
+                    indoor_end_path["path"],
+                    indoor_end_path["distance"],
+                    "hall"
+                )
+            ]
+            
+            total_distance = indoor_start_path["distance"] + 50.0 + indoor_end_path["distance"]
+            return self._create_integrated_path(segments, total_distance)
+        elif start_location["id"].startswith("h") and "cc" in end_location["id"]:
+            # From Hall to CC - requires going outdoors
+            # Indoor path from start to exit in Hall
+            indoor_start_path = self.find_indoor_path(start_location["id"], "h1_entrance")
+            if not indoor_start_path["success"]:
+                # Try alternative exit if the main entrance isn't found
+                return {"error": "Failed to find path to exit in Hall", "success": False}
+                    
+            
+            # Indoor path from entrance in CC to end
+            indoor_end_path = self.find_indoor_path("cc_entrance_main", end_location["id"])
+            if not indoor_end_path["success"]:
+                return {"error": "Failed to find path from entrance in CC", "success": False}
+            
+            # Get the coordinates for Hall exit and CC entrance
+            hall_exits = self._get_building_exits('hall')
+            cc_entrances = self._get_building_entrances('cc')
+            
+            if not hall_exits or not cc_entrances:
+                return {"error": "Missing building exit/entrance coordinates", "success": False}
+            
+            # Outdoor path between Hall exit and CC entrance
+            outdoor_path = self.find_outdoor_path(
+                f"{hall_exits[0]['lat']},{hall_exits[0]['lng']}", 
+                f"{cc_entrances[0]['lat']},{cc_entrances[0]['lng']}",
+                weather_data=weather_data
+            )
+            if not outdoor_path["success"]:
+                return {"error": "Failed to find outdoor path between Hall and CC", "success": False}
+            
+            # Calculate total distance
+            outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+            total_distance = indoor_start_path["distance"] + outdoor_distance + indoor_end_path["distance"]
+            
+            # Create path segments
+            segments = [
+                self._create_indoor_segment(
+                    indoor_start_path["path"],
+                    indoor_start_path["distance"],
+                    "hall"
+                ),
+                self._create_outdoor_segment(
+                    outdoor_path["routes"][0],
+                    outdoor_distance,
+                    weather_data["success"] if weather_data else False
+                ),
+                self._create_indoor_segment(
+                    indoor_end_path["path"],
+                    indoor_end_path["distance"],
+                    "cc"
+                )
+            ]
+            
+            return self._create_integrated_path(segments, total_distance)
+        elif "cc" in start_location["id"] and "h1" in end_location["id"]:
+            # From CC to Hall - requires going outdoors
+            # Indoor path from start to exit in CC
+            indoor_start_path = self.find_indoor_path(start_location["id"], "cc_entrance_main")
+            if not indoor_start_path["success"]:
+                return {"error": "Failed to find path to exit in CC", "success": False}
+            
+            # Indoor path from entrance in Hall to end
+            indoor_end_path = self.find_indoor_path("h1_entrance", end_location["id"])
+            if not indoor_end_path["success"]:
+                # Try alternative entrance if the main entrance isn't found
+                return {"error": "Failed to find path from entrance in Hall", "success": False}
+
+            # Get the coordinates for CC exit and Hall entrance
+            cc_exits = self._get_building_exits('cc')
+            hall_entrances = self._get_building_entrances('hall')
+            
+            if not cc_exits or not hall_entrances:
+                return {"error": "Missing building exit/entrance coordinates", "success": False}
+            
+            # Outdoor path between CC exit and Hall entrance
+            outdoor_path = self.find_outdoor_path(
+                f"{cc_exits[0]['lat']},{cc_exits[0]['lng']}", 
+                f"{hall_entrances[0]['lat']},{hall_entrances[0]['lng']}",
+                weather_data=weather_data
+            )
+            if not outdoor_path["success"]:
+                return {"error": "Failed to find outdoor path between CC and Hall", "success": False}
+            
+            # Calculate total distance
+            outdoor_distance = float(outdoor_path["routes"][0]["distance"].split()[0])
+            total_distance = indoor_start_path["distance"] + outdoor_distance + indoor_end_path["distance"]
+            
+            # Create path segments
+            segments = [
+                self._create_indoor_segment(
+                    indoor_start_path["path"],
+                    indoor_start_path["distance"],
+                    "cc"
+                ),
+                self._create_outdoor_segment(
+                    outdoor_path["routes"][0],
+                    outdoor_distance,
+                    weather_data["success"] if weather_data else False
+                ),
+                self._create_indoor_segment(
+                    indoor_end_path["path"],
+                    indoor_end_path["distance"],
+                    "hall"
+                )
+            ]
+            
+            return self._create_integrated_path(segments, total_distance)
         
-        # For other cases or good weather, use the standard approach
-        # Get building exit points
-        start_exits = self._get_building_exits(start_location["campus"])
-        end_exits = self._get_building_exits(end_location["campus"])
+        # For other cases, use the standard approach with exits
+        # Get all exit points
+        all_exits = self._get_all_exits()
         
         # Find the best combination of indoor and outdoor segments
         best_path = None
         best_total_distance = float('inf')
         
-        for start_exit in start_exits:
-            for end_exit in end_exits:
+        for start_exit in all_exits:
+            for end_exit in all_exits:
+                # Skip if both exits are from the same building
+                if (("h1" in start_exit["id"] and "h1" in end_exit["id"]) or
+                    ("mb" in start_exit["id"] and "mb" in end_exit["id"]) or
+                    ("cc" in start_exit["id"] and "cc" in end_exit["id"])):
+                    continue
+                
                 # Indoor path from start to exit
-                indoor_start_path = self.find_indoor_path(start_location["id"], start_exit["id"], start_location["campus"])
+                indoor_start_path = self.find_indoor_path(start_location["id"], start_exit["id"])
                 if not indoor_start_path["success"]:
                     continue
                 
                 # Indoor path from entrance to end
-                indoor_end_path = self.find_indoor_path(end_exit["id"], end_location["id"], end_location["campus"])
+                indoor_end_path = self.find_indoor_path(end_exit["id"], end_location["id"])
                 if not indoor_end_path["success"]:
                     continue
                 
@@ -333,12 +501,16 @@ class IntegratedRoutingService:
                 if is_bad_weather and total_distance < best_total_distance * 1.2:  # Allow slightly longer routes if they have less outdoor time
                     best_total_distance = total_distance
                     
+                    # Determine campus from node ID
+                    start_campus = "hall" if "h1" in start_exit["id"] else "mb" if "mb" in start_exit["id"] else "cc"
+                    end_campus = "hall" if "h1" in end_exit["id"] else "mb" if "mb" in end_exit["id"] else "cc"
+                    
                     # Create path segments
                     segments = [
                         self._create_indoor_segment(
                             indoor_start_path["path"],
                             indoor_start_path["distance"],
-                            start_location["campus"]
+                            start_campus
                         ),
                         self._create_outdoor_segment(
                             outdoor_path["routes"][0],
@@ -348,7 +520,7 @@ class IntegratedRoutingService:
                         self._create_indoor_segment(
                             indoor_end_path["path"],
                             indoor_end_path["distance"],
-                            end_location["campus"]
+                            end_campus
                         )
                     ]
                     
@@ -356,12 +528,16 @@ class IntegratedRoutingService:
                 elif not is_bad_weather and total_distance < best_total_distance:
                     best_total_distance = total_distance
                     
+                    # Determine campus from node ID
+                    start_campus = "hall" if "h1" in start_exit["id"] else "mb" if "mb" in start_exit["id"] else "cc"
+                    end_campus = "hall" if "h1" in end_exit["id"] else "mb" if "mb" in end_exit["id"] else "cc"
+                    
                     # Create path segments
                     segments = [
                         self._create_indoor_segment(
                             indoor_start_path["path"],
                             indoor_start_path["distance"],
-                            start_location["campus"]
+                            start_campus
                         ),
                         self._create_outdoor_segment(
                             outdoor_path["routes"][0],
@@ -371,7 +547,7 @@ class IntegratedRoutingService:
                         self._create_indoor_segment(
                             indoor_end_path["path"],
                             indoor_end_path["distance"],
-                            end_location["campus"]
+                            end_campus
                         )
                     ]
                     
@@ -381,6 +557,14 @@ class IntegratedRoutingService:
             return best_path
         else:
             return {"error": "No valid path found", "success": False}
+            
+    def _get_all_exits(self) -> List[Dict[str, Any]]:
+        """Get all exit points from all buildings"""
+        all_exits = []
+        all_exits.extend(self._get_building_exits("hall"))
+        all_exits.extend(self._get_building_exits("mb"))
+        all_exits.extend(self._get_building_exits("cc"))
+        return all_exits
     
     def _find_mixed_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
                         weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -395,7 +579,10 @@ class IntegratedRoutingService:
     def _find_indoor_to_outdoor_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
                                     weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Find a path from an indoor location to an outdoor location"""
-        exits = self._get_building_exits(start_location["campus"])
+        # Determine campus from node ID
+        campus = "hall" if "h1" in start_location["id"] else "mb" if "mb" in start_location["id"] else "cc"
+        
+        exits = self._get_building_exits(campus)
         
         best_path = None
         best_total_distance = float('inf')
@@ -405,7 +592,7 @@ class IntegratedRoutingService:
         
         for exit_point in exits:
             # Indoor path from start to exit
-            indoor_path = self.find_indoor_path(start_location["id"], exit_point["id"], start_location["campus"])
+            indoor_path = self.find_indoor_path(start_location["id"], exit_point["id"])
             if not indoor_path["success"]:
                 continue
             
@@ -432,7 +619,7 @@ class IntegratedRoutingService:
                     self._create_indoor_segment(
                         indoor_path["path"],
                         indoor_path["distance"],
-                        start_location["campus"]
+                        campus
                     ),
                     self._create_outdoor_segment(
                         outdoor_path["routes"][0],
@@ -450,7 +637,7 @@ class IntegratedRoutingService:
                     self._create_indoor_segment(
                         indoor_path["path"],
                         indoor_path["distance"],
-                        start_location["campus"]
+                        campus
                     ),
                     self._create_outdoor_segment(
                         outdoor_path["routes"][0],
@@ -469,7 +656,10 @@ class IntegratedRoutingService:
     def _find_outdoor_to_indoor_path(self, start_location: Dict[str, Any], end_location: Dict[str, Any], 
                                     weather_data: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         """Find a path from an outdoor location to an indoor location"""
-        entrances = self._get_building_entrances(end_location["campus"])
+        # Determine campus from node ID
+        campus = "hall" if "h1" in end_location["id"] else "mb" if "mb" in end_location["id"] else "cc"
+        
+        entrances = self._get_building_entrances(campus)
         
         best_path = None
         best_total_distance = float('inf')
@@ -488,7 +678,7 @@ class IntegratedRoutingService:
                 continue
             
             # Indoor path from entrance to end
-            indoor_path = self.find_indoor_path(entrance["id"], end_location["id"], end_location["campus"])
+            indoor_path = self.find_indoor_path(entrance["id"], end_location["id"])
             if not indoor_path["success"]:
                 continue
             
@@ -511,7 +701,7 @@ class IntegratedRoutingService:
                     self._create_indoor_segment(
                         indoor_path["path"],
                         indoor_path["distance"],
-                        end_location["campus"]
+                        campus
                     )
                 ]
                 
@@ -529,7 +719,7 @@ class IntegratedRoutingService:
                     self._create_indoor_segment(
                         indoor_path["path"],
                         indoor_path["distance"],
-                        end_location["campus"]
+                        campus
                     )
                 ]
                 
@@ -542,20 +732,8 @@ class IntegratedRoutingService:
     
     def _get_building_exits(self, campus: str) -> List[Dict[str, Any]]:
         """Get exit points for a building"""
-        # This would be defined in your data
-        # For now, return a placeholder
-        if campus == "hall":
-            return [
-                {"id": "h1_exit_main", "lat": 45.4972, "lng": -73.5790},
-                {"id": "h1_exit_side", "lat": 45.4975, "lng": -73.5785}
-            ]
-        elif campus == "mb":
-            return [
-                {"id": "mb1_exit_main", "lat": 45.4950, "lng": -73.5780},
-                {"id": "mb1_exit_side", "lat": 45.4955, "lng": -73.5775}
-            ]
-        else:
-            return []
+        # Use the same entrances as exits
+        return self._get_building_entrances(campus)
     
     def _get_building_entrances(self, campus: str) -> List[Dict[str, Any]]:
         """Get entrance points for a building"""
@@ -563,13 +741,16 @@ class IntegratedRoutingService:
         # For now, return a placeholder
         if campus == "hall":
             return [
-                {"id": "h1_entrance_main", "lat": 45.4972, "lng": -73.5790},
-                {"id": "h1_entrance_side", "lat": 45.4975, "lng": -73.5785}
+                {"id": "h1_entrance", "lat": 45.4972, "lng": -73.5790},
             ]
         elif campus == "mb":
             return [
-                {"id": "mb1_entrance_main", "lat": 45.4950, "lng": -73.5780},
-                {"id": "mb1_entrance_side", "lat": 45.4955, "lng": -73.5775}
+                {"id": "mb_1_entrance_1", "lat": 45.4950, "lng": -73.5780},
+                {"id": "mb_1_entrance_2", "lat": 45.4955, "lng": -73.5775}
+            ]
+        elif campus == "cc":
+            return [
+                {"id": "cc_entrance_main", "lat": 45.4960, "lng": -73.5770},
             ]
         else:
             return []
@@ -649,5 +830,37 @@ class IntegratedRoutingService:
             prompt += f"- Wind Speed: {weather_data['wind_speed']} m/s\n\n"
         
         prompt += "Please provide clear, step-by-step instructions for navigating this route, including any weather considerations."
-        
+         
         return prompt 
+    def find_path_evan(self, start_location: str, end_location: Dict[str, Any]) -> Dict[str, Any]:
+        """Find a path between two locations using the integrated routing service"""
+        start_node = self.indoor_graph.get_node_by_id(start_location)
+        end_node = self.indoor_graph.get_node_by_id(end_location)
+
+       
+
+
+        if start_node is None or end_node is None:
+            return {"error": "Invalid start or end location", "success": False}
+        
+        if start_node["id"].startswith("h"):
+            exit_node = self.indoor_graph.get_node_by_id("h1_entrance")
+            if exit_node is None:
+                return {"error": "Failed to find exit node", "success": False}
+            path = self.indoor_graph.find_shortest_path(exit_node, end_node)
+            if path is None:
+                return {"error": "Failed to find path", "success": False}
+            return path
+        # Find the shortest path between the two nodes
+        path = self.find_shortest_path(start_node, end_node)
+
+        return self.find_integrated_path(start_location, end_location)
+    
+    
+if __name__ == "__main__":
+    
+    integrated_routing = IntegratedRoutingService()
+    start_location = {"id": "h1_110", "type": "indoor"}
+    end_location = { "type": "indoor", "id": "cc_102"}
+    result = integrated_routing.generate_route_with_weather(start_location, end_location)
+    print(result)

@@ -8,6 +8,8 @@ class Graph:
         self.graph_var = nx.Graph()
         self.scale_factor = scale_factor
 
+    def get_node_by_id(self, node_id: str) -> Dict[str, Any]:
+        return self.graph_var.nodes[node_id]
     def add_node(self, node_data: Dict[str, Any]):
         node_id = node_data["id"]
         self.graph_var.add_node(node_id, **node_data)
@@ -70,21 +72,42 @@ class Graph:
             data = json.load(f)
             for edge_pair in data.get("edges", []):
                 if len(edge_pair) == 2:
-                    self.add_edge(edge_pair[0], edge_pair[1])
-
+                    # Check if both nodes exist before adding the edge
+                    if edge_pair[0] in self.graph_var.nodes and edge_pair[1] in self.graph_var.nodes:
+                        self.add_edge(edge_pair[0], edge_pair[1])
+                    else:
+                        missing_nodes = []
+                        if edge_pair[0] not in self.graph_var.nodes:
+                            missing_nodes.append(edge_pair[0])
+                        if edge_pair[1] not in self.graph_var.nodes:
+                            missing_nodes.append(edge_pair[1])
+                        print(f"Warning: Skipping edge in {file_path} - nodes not found: {', '.join(missing_nodes)}")
 
     def load_from_json_folder(self, folder_path: str):
+        """Load only nodes from all JSON files in the folder"""
         if not os.path.exists(folder_path):
             raise FileNotFoundError(f"Folder not found: {folder_path}")
 
         json_files = self._collect_json_files(folder_path)
-
+        
+        # Load all nodes from all files
         for file_path in json_files:
             self._load_nodes_from_file(file_path)
 
-        for file_path in json_files:
-            self._load_edges_from_file(file_path)
+    def load_edges_from_json_folder(self, folder_path: str):
+        """Load only edges from all JSON files in the folder"""
+        if not os.path.exists(folder_path):
+            raise FileNotFoundError(f"Folder not found: {folder_path}")
 
+        json_files = self._collect_json_files(folder_path)
+        
+        # Load all edges from all files
+        for file_path in json_files:
+            try:
+                self._load_edges_from_file(file_path)
+            except KeyError as e:
+                print(f"Warning: Node not found while loading edges from {file_path}: {str(e)}")
+                continue
 
     def find_shortest_path(self, start_id: str, end_id: str) -> Dict[str, Any]:
         try:
@@ -94,6 +117,8 @@ class Graph:
                 "path": shortest_path,
                 "distance": distance
             }
+        
+        
         except (nx.NetworkXNoPath, nx.NodeNotFound):
             return None
 
