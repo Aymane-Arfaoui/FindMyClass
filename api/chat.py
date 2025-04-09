@@ -3,6 +3,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from app.aiapi import AINavigationAPI
 import re
+import json
 
 class NavigationContext:
     def __init__(self):
@@ -13,86 +14,82 @@ class NavigationContext:
 # Initialize global context
 nav_context = NavigationContext()
 
-def is_navigation_query(query: str) -> bool:
-    """Check if the query is asking for directions"""
-    navigation_keywords = [
-        "how do i get", "how to get", "where is", "directions to",
-        "path to", "route to", "way to", "navigate to", "go from",
-        "to", "from", "how long", "time", "distance"
-    ]
-    query_lower = query.lower()
+def analyze_navigation_query(query: str) -> dict:
+    """Use AI to analyze if the query is about navigation and extract destinations"""
+    load_dotenv()
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
-    # Debug output
-    print(f"CHAT.PY: Checking navigation query: '{query_lower}'")
-    
-    # Check for direct patterns like "how to go from H 109 to H 110"
-    direct_pattern = r'how to go from h\s*\d{3} to h\s*\d{3}'
-    is_direct_match = bool(re.search(direct_pattern, query_lower))
-    print(f"CHAT.PY: Direct match: {is_direct_match}")
-    
-    # Check for room numbers (H-109, H 110, etc.)
-    room_pattern = r'h\s*[-_ ]?\s*\d{3}'
-    room_matches = re.findall(room_pattern, query_lower)
-    has_room_numbers = len(room_matches) > 0
-    multiple_rooms = len(room_matches) >= 2
-    print(f"CHAT.PY: Room matches: {room_matches}")
-    print(f"CHAT.PY: Has room numbers: {has_room_numbers}")
-    print(f"CHAT.PY: Multiple rooms: {multiple_rooms}")
-    
-    # Check for navigation keywords
-    has_nav_keywords = any(keyword in query_lower for keyword in navigation_keywords)
-    print(f"CHAT.PY: Has navigation keywords: {has_nav_keywords}")
-    
-    # The query is a navigation query if:
-    # 1. It directly matches our pattern, OR
-    # 2. It mentions multiple rooms, OR
-    # 3. It has room numbers AND navigation keywords
-    is_nav_query = is_direct_match or multiple_rooms or (has_room_numbers and has_nav_keywords)
-    print(f"CHAT.PY: Final decision - Is navigation query: {is_nav_query}")
-    
-    return is_nav_query
+    prompt = f"""Analyze the following query and determine if it's asking for directions/navigation between locations.
+If it is a navigation query, extract all locations in sequence in the format "hX_YYY" where X is the floor number and YYY is the room number.
+If it's not a navigation query, set is_navigation to false.
 
-def extract_rooms(query: str) -> tuple:
-    """Extract room numbers from the query"""
-    query_lower = query.lower()
-    print(f"CHAT.PY: Extracting rooms from: '{query_lower}'")
-    
-    # First, check for the exact API format (h1_110)
-    exact_pattern = r'h\d_\d{3}'
-    rooms = re.findall(exact_pattern, query_lower)
-    
-    if len(rooms) >= 2:
-        start_room_id = rooms[0]
-        end_room_id = rooms[1]
-        print(f"CHAT.PY: Found exact format room IDs: {start_room_id} to {end_room_id}")
-        return start_room_id, end_room_id
-    
-    # Try formats with floor numbers (H8-862, H-196)
-    room_pattern = r'h(\d*)-?(\d{3})'
-    rooms = re.findall(room_pattern, query_lower)
-    print(f"CHAT.PY: Found room matches: {rooms}")
-    
-    if len(rooms) >= 2:
-        # Extract floor and room numbers
-        start_floor, start_room = rooms[0]
-        end_floor, end_room = rooms[1]
+Query: "{query}"
+
+Respond in JSON format with the following structure:
+{{
+    "is_navigation": boolean,
+    "locations": [string] or null,  # List of locations in sequence
+    "explanation": string
+}}
+
+Examples:
+1. For "how to go from H-196 to H-840":
+{{
+    "is_navigation": true,
+    "locations": ["h1_196", "h8_840"],
+    "explanation": "Query is asking for directions between two rooms"
+}}
+
+2. For "how to go from H-110 to H-196 then to H-840 and finally to H-109":
+{{
+    "is_navigation": true,
+    "locations": ["h1_110", "h1_196", "h8_840", "h1_109"],
+    "explanation": "Query is asking for directions through multiple rooms in sequence"
+}}
+
+3. For "what's the weather like":
+{{
+    "is_navigation": false,
+    "locations": null,
+    "explanation": "Query is not about navigation"
+}}"""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant that analyzes queries to determine if they are about navigation and extracts locations in the correct format."},
+                {"role": "user", "content": prompt}
+            ],
+            response_format={ "type": "json_object" }
+        )
         
-        # If floor number is not specified, assume floor 1
-        start_floor = start_floor if start_floor else '1'
-        end_floor = end_floor if end_floor else '1'
+        result = json.loads(response.choices[0].message.content)
+        print(f"AI Analysis Result: {result}")
+        return result
         
-        # Format room IDs
-        start_room_id = f"h{start_floor}_{start_room}"
-        end_room_id = f"h{end_floor}_{end_room}"
-        
-        print(f"CHAT.PY: Final room IDs: {start_room_id} to {end_room_id}")
-        return start_room_id, end_room_id
-    
-    print("CHAT.PY: Could not extract rooms from query")
-    return None, None
+    except Exception as e:
+        print(f"Error in AI analysis: {str(e)}")
+        return {
+            "is_navigation": False,
+            "locations": None,
+            "explanation": f"Error analyzing query: {str(e)}"
+        }
+
+def is_navigation_query(query: str) -> bool:
+    """Check if the query is asking for directions using AI"""
+    result = analyze_navigation_query(query)
+    return result["is_navigation"]
+
+def extract_rooms(query: str) -> list:
+    """Extract room numbers from the query using AI"""
+    result = analyze_navigation_query(query)
+    if result["is_navigation"]:
+        return result["locations"]
+    return None
 
 def interpret_path(path_info: dict) -> str:
-    """Convert path information into human-readable instructions"""
+    """Convert path information into human-readable instructions using AI"""
     if not path_info or "error" in path_info:
         return path_info.get("error", "Could not find a path between these rooms.")
     
@@ -102,75 +99,122 @@ def interpret_path(path_info: dict) -> str:
     if not path:
         return "No path found between these rooms."
     
-    instructions = ["Here's how to get to your destination:"]
+    load_dotenv()
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
-    for i in range(len(path) - 1):
-        current = path[i]
-        next_node = path[i + 1]
+    prompt = f"""Convert the following path information into clear, natural walking directions.
+The path is a sequence of nodes representing a journey through a building.
+Each node has a specific type and may indicate floor changes.
+
+Path: {path}
+Total distance: {distance} meters
+
+Please provide:
+1. Clear step-by-step instructions
+2. Mention any floor changes and how to make them (elevator, stairs, escalator)
+3. Include approximate walking time (assuming average walking speed of 1.4 m/s)
+4. Make the instructions sound natural and conversational
+5. Use the exact room identifiers (e.g., h1_109, h1_110) when referring to rooms
+
+Example format:
+"Here's how to get there:
+1. Start at [starting point]
+2. [First instruction]
+3. [Second instruction]
+...
+It should take about X minutes to walk there."
+
+Node types to watch for:
+- elevator: indicates an elevator
+- stairs: indicates stairs
+- escalator: indicates an escalator
+- hw: indicates a hallway
+- room numbers: indicate specific rooms (use exact identifiers like h1_109)
+
+Please provide the instructions in a clear, friendly tone."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful indoor navigation assistant that provides clear, natural walking directions."},
+                {"role": "user", "content": prompt}
+            ]
+        )
         
-        # Extract building, floor, and room/hallway info
-        current_parts = current.split('_')
-        next_parts = next_node.split('_')
+        return response.choices[0].message.content
         
-        # Get building and floor info
-        current_building = current_parts[0][0].upper()  # 'h' from 'h1'
-        current_floor = current_parts[0][1]            # '1' from 'h1'
-        next_building = next_parts[0][0].upper()
-        next_floor = next_parts[0][1]
-        
-        # Check node types
-        current_is_hallway = len(current_parts) > 1 and current_parts[1].startswith('hw')
-        next_is_hallway = len(next_parts) > 1 and next_parts[1].startswith('hw')
-        current_is_elevator = 'elevator' in current
-        next_is_elevator = 'elevator' in next_node
-        current_is_stairs = 'stairs' in current
-        next_is_stairs = 'stairs' in next_node
-        current_is_escalator = 'escalator' in current
-        next_is_escalator = 'escalator' in next_node
-        
-        # Handle special nodes
-        if current_is_elevator and next_is_elevator:
-            instructions.append(f"Take the elevator from floor {current_floor} to floor {next_floor}")
-        elif current_is_stairs and next_is_stairs:
-            instructions.append(f"Take the stairs from floor {current_floor} to floor {next_floor}")
-        elif current_is_escalator and next_is_escalator:
-            instructions.append(f"Take the escalator from floor {current_floor} to floor {next_floor}")
-        elif current_is_hallway and next_is_hallway:
-            instructions.append(f"Continue through the hallway on floor {current_floor}")
-        elif current_is_hallway:
-            room_num = next_parts[-1]
-            if next_is_elevator:
-                instructions.append(f"Look for the elevator along the hallway")
-            elif next_is_stairs:
-                instructions.append(f"Look for the stairs along the hallway")
-            elif next_is_escalator:
-                instructions.append(f"Look for the escalator along the hallway")
-            else:
-                instructions.append(f"Look for room {next_building}-{room_num} along the hallway")
-        elif next_is_hallway:
-            current_num = current_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and enter the hallway")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and enter the hallway")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and enter the hallway")
-            else:
-                instructions.append(f"Exit room {current_building}-{current_num} and enter the hallway")
-        else:
-            current_num = current_parts[-1]
-            next_num = next_parts[-1]
-            if current_is_elevator:
-                instructions.append(f"Exit the elevator and go to room {next_building}-{next_num}")
-            elif current_is_stairs:
-                instructions.append(f"Exit the stairs and go to room {next_building}-{next_num}")
-            elif current_is_escalator:
-                instructions.append(f"Exit the escalator and go to room {next_building}-{next_num}")
-            else:
-                instructions.append(f"Go from room {current_building}-{current_num} to room {next_building}-{next_num}")
+    except Exception as e:
+        print(f"Error in path interpretation: {str(e)}")
+        return "I encountered an error while generating the directions. Please try again."
+
+def interpret_multiple_paths(paths_info: dict) -> str:
+    """Convert multiple paths information into human-readable instructions"""
+    if not paths_info or "error" in paths_info:
+        return paths_info.get("error", "Could not find paths between the rooms.")
     
-    instructions.append(f"\nTotal distance: {distance:.1f} meters")
-    return "\n".join(instructions)
+    paths = paths_info.get("paths", [])
+    total_distance = paths_info.get("total_distance", 0)
+    
+    if not paths:
+        return "No paths found between the rooms."
+    
+    load_dotenv()
+    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    
+    prompt = f"""Convert the following multiple paths information into clear, natural walking directions.
+Each path represents a journey between two consecutive destinations.
+
+Paths: {paths}
+Total distance: {total_distance} meters
+
+Please provide:
+1. Clear step-by-step instructions for each segment
+2. Mention any floor changes and how to make them (elevator, stairs, escalator)
+3. Include approximate walking time for each segment and total time (assuming average walking speed of 1.4 m/s)
+4. Make the instructions sound natural and conversational
+5. Use the exact room identifiers (e.g., h1_109, h1_110) when referring to rooms
+
+Example format:
+"Here's your complete route:
+
+First segment (X to Y):
+1. [First instruction]
+2. [Second instruction]
+...
+This segment should take about X minutes.
+
+Second segment (Y to Z):
+1. [First instruction]
+2. [Second instruction]
+...
+This segment should take about Y minutes.
+
+Total journey time: About Z minutes."
+
+Node types to watch for:
+- elevator: indicates an elevator
+- stairs: indicates stairs
+- escalator: indicates an escalator
+- hw: indicates a hallway
+- room numbers: indicate specific rooms (use exact identifiers like h1_109)
+
+Please provide the instructions in a clear, friendly tone."""
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {"role": "system", "content": "You are a helpful indoor navigation assistant that provides clear, natural walking directions."},
+                {"role": "user", "content": prompt}
+            ]
+        )
+        
+        return response.choices[0].message.content
+        
+    except Exception as e:
+        print(f"Error in path interpretation: {str(e)}")
+        return "I encountered an error while generating the directions. Please try again."
 
 def handle_follow_up(query: str, context: NavigationContext) -> str:
     """Handle follow-up questions about the last navigation"""
@@ -200,7 +244,11 @@ def handle_task_query(query, tasks):
     """Handle any query with the given tasks context."""
     # Load environment variables and initialize OpenAI client
     load_dotenv()
-    client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
+    client = OpenAI(
+        api_key=os.getenv('OPENAI_API_KEY'),
+        max_retries=3,
+        timeout=30.0
+    )
 
     # Check if the query is asking to list all tasks
     if any(keyword in query.lower() for keyword in ["list", "show", "what are", "what's", "what is"]):
@@ -305,13 +353,44 @@ SAMPLE_TASKS = [
     }
 ]
 
+def process_navigation_query(query: str) -> str:
+    """Process a navigation query using AI analysis and path finding"""
+    # First, analyze the query using AI
+    analysis = analyze_navigation_query(query)
+    
+    if not analysis["is_navigation"]:
+        return analysis["explanation"]
+    
+    locations = analysis["locations"]
+    
+    if not locations or len(locations) < 2:
+        return "I couldn't identify the locations. Please try rephrasing your question."
+    
+    # Initialize the navigation API
+    nav_api = AINavigationAPI()
+    
+    try:
+        if len(locations) == 2:
+            # Simple path between two points
+            path_info = nav_api.find_shortest_path(locations[0], locations[1])
+            return interpret_path(path_info)
+        else:
+            # Multiple destinations
+            start = locations[0]
+            destinations = locations[1:]
+            paths_info = nav_api.find_multiple_destinations(start, destinations)
+            return interpret_multiple_paths(paths_info)
+        
+    except Exception as e:
+        print(f"Error in path finding: {str(e)}")
+        return "I encountered an error while finding the path. Please try again."
+
 def main():
     # Load environment variables
     load_dotenv()
     
-    # Initialize OpenAI client and Navigation API
+    # Initialize OpenAI client
     client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-    nav_api = AINavigationAPI()
     
     print("Welcome to the Concordia Indoor Navigation and Task Assistant!")
     print("I can help you find your way around campus and manage your tasks.")
@@ -346,33 +425,9 @@ def main():
                 print("\nConcordia Assistant:", response)
                 continue
             
-            # Check if it's a navigation query
-            if is_navigation_query(user_input):
-                start_room, end_room = extract_rooms(user_input)
-                
-                if not start_room or not end_room:
-                    print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
-                    continue
-                
-                path_info = nav_api.find_shortest_path(start_room, end_room)
-                nav_context.last_navigation = path_info
-                nav_context.last_start_room = start_room
-                nav_context.last_end_room = end_room
-                
-                response = interpret_path(path_info)
-                print("\nConcordia Assistant:", response)
-                continue
-            
-            # Handle follow-up questions about the last navigation
-            if nav_context.last_navigation:
-                response = handle_follow_up(user_input, nav_context)
-                print("\nConcordia Assistant:", response)
-                continue
-            
-            print("\nConcordia Assistant: I can help you with navigation and tasks. Try asking:")
-            print("- 'How do I get to H-820?'")
-            print("- 'What tasks do I have today?'")
-            print("- Type 'help' for more options")
+            # Process as a navigation query
+            response = process_navigation_query(user_input)
+            print("\nConcordia Assistant:", response)
             
         except Exception as e:
             print(f"\nError: {str(e)}")

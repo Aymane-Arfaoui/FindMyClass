@@ -1,13 +1,11 @@
-from flask import Blueprint, jsonify, request
-from datetime import datetime
-from chat import extract_rooms, interpret_path, is_navigation_query as is_nav_query, handle_task_query
-from app.aiapi import AINavigationAPI
+from flask import Blueprint, request, jsonify
 from flask_cors import CORS
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from chat import SAMPLE_TASKS
-import re
+from chat import handle_task_query, is_task_query, SAMPLE_TASKS, is_navigation_query, extract_rooms, interpret_path
+from app.aiapi import AINavigationAPI
+from datetime import datetime
 
 api = Blueprint('api', __name__)
 CORS(api)  # Enable CORS for all routes in this blueprint
@@ -41,7 +39,7 @@ def process_task_chat():
             print(f"API ROUTE: Sample tasks: {tasks}")
         
         # Debug output for navigation detection
-        is_nav_query = is_nav_query(query)
+        is_nav_query = is_navigation_query(query)
         print(f"API ROUTE: Is navigation query: {is_nav_query}")
         
         # Check if it's a navigation query
@@ -113,53 +111,27 @@ def plan_route():
                 except:
                     time_str = 'Time not specified'
 
-            # Extract room numbers for navigation
-            if i > 0:
+            # Create the instruction
+            if i == 0:
+                instruction = f"1. Start at {task_name} ({address}) at {time_str}"
+            else:
                 prev_task = tasks[i-1]
                 prev_address = prev_task.get('address', '')
                 
-                # Extract room numbers from addresses using regex
-                def extract_hall_room(addr):
-                    # Match patterns like H-196, H8-862
-                    match = re.search(r'H-?(\d?)[-]?(\d{3})', addr)
-                    if match:
-                        floor = match.group(1) or '1'  # Default to floor 1 if not specified
-                        room = match.group(2)
-                        return f"h{floor}_{room}"
-                    return None
-                
-                start_room = extract_hall_room(prev_address)
-                end_room = extract_hall_room(address)
-                
-                print(f"Extracted rooms: {start_room} -> {end_room}")
-                
-                if start_room and end_room:
-                    # Get navigation instructions between rooms
-                    try:
-                        path_info = nav_api.find_shortest_path(start_room, end_room)
-                        nav_instructions = interpret_path(path_info)
-                        
-                        # Format the instruction with the task details
-                        instruction = f"{i+1}. Head to {address} for {task_name} at {time_str}\n"
-                        instruction += nav_instructions
-                        
-                        # Add the navigation instructions
-                        route_instructions.append(instruction)
-                        continue  # Skip the regular instruction since we added navigation
-                    except Exception as e:
-                        print(f"Error getting navigation instructions: {e}")
-                        # Fall back to regular instructions if navigation fails
-                
-            # Create the regular instruction if navigation wasn't added
-            if i == 0:
-                instruction = f"{i+1}. Start at {task_name} ({address}) at {time_str}"
-            else:
-                instruction = f"{i+1}. Head to {address} for {task_name} at {time_str}"
+                # Special handling for connected buildings
+                if is_classroom and prev_task.get('isClassroom', False):
+                    if ('MB' in prev_address and 'Hall' in address) or ('Hall' in prev_address and 'MB' in address):
+                        instruction = f"{i+1}. Take the tunnel from {prev_address} to {address} for {task_name} at {time_str}"
+                    else:
+                        instruction = f"{i+1}. Go to {address} for {task_name} at {time_str}"
+                else:
+                    instruction = f"{i+1}. Head to {address} for {task_name} at {time_str}"
+
             route_instructions.append(instruction)
 
         # Create the response message
         response = "Here's your optimized route:\n\n"
-        response += "\n\n".join(route_instructions)
+        response += "\n".join(route_instructions)
         
         if len(tasks) > 1:
             response += "\n\nNote: This route is optimized based on your task schedule. For classroom locations, I've included specific navigation hints between connected buildings."

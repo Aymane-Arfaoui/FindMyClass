@@ -28,7 +28,6 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
     const [startTime, setStartTime] = useState(null);
     const [endTime, setEndTime] = useState(null);
     const [isEditingAddress, setIsEditingAddress] = useState(false);
-    const [useManualAddress, setUseManualAddress] = useState(false);
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openStartTimePicker, setOpenStartTimePicker] = useState(false);
     const [openEndTimePicker, setOpenEndTimePicker] = useState(false);
@@ -54,23 +53,6 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
 
     const formatTime = (time) =>
         time ? time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "N/A";
-
-    const formatRoomNumber = (input) => {
-        // Match patterns like H-196, H 196, H196
-        const roomPattern = /^h-?\s*(\d?)(\d{3})$/i;
-        const match = input.trim().match(roomPattern);
-        
-        if (match) {
-            const [, floor = '1', room] = match; // Default to floor 1 if not specified
-            return `H${floor}-${room}`; // Return in human-readable format (H1-196)
-        }
-        return input; // Return original input if it doesn't match room pattern
-    };
-
-    const handleManualAddressChange = (text) => {
-        const formattedAddress = formatRoomNumber(text);
-        setAddress(formattedAddress);
-    };
 
     const handleUpdateTask = async () => {
         if (!taskName.trim()) {
@@ -151,52 +133,19 @@ const EditTasks = ({ isVisible, onClose, taskData, onUpdate }) => {
                         onChangeText={setTaskName}
                     />
 
-                    <View style={styles.addressToggleContainer}>
-                        <Text style={styles.editTaskLabel}>Address Input Method:</Text>
-                        <View style={styles.toggleContainer}>
-                            <TouchableOpacity 
-                                style={[styles.toggleButton, !useManualAddress && styles.toggleButtonActive]}
-                                onPress={() => setUseManualAddress(false)}
-                            >
-                                <Text style={[styles.toggleText, !useManualAddress && styles.toggleTextActive]}>
-                                    Auto-suggest
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity 
-                                style={[styles.toggleButton, useManualAddress && styles.toggleButtonActive]}
-                                onPress={() => setUseManualAddress(true)}
-                            >
-                                <Text style={[styles.toggleText, useManualAddress && styles.toggleTextActive]}>
-                                    Manual Entry
-                                </Text>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
                     {isEditingAddress ? (
-                        useManualAddress ? (
-                            <TextInput
-                                placeholderTextColor={theme.colors.inputPlaceholder}
-                                style={styles.editTaskInput}
-                                value={address}
-                                onChangeText={handleManualAddressChange}
-                                placeholder="Enter Room (e.g., H-196, H8-862)"
-                                autoFocus={true}
-                            />
-                        ) : (
-                            <GooglePlacesAutocomplete
-                                address={address}
-                                onAddressSelect={(newAddress) => {
-                                    setAddress(newAddress);
-                                    setIsEditingAddress(false);
-                                }}
-                                autoFocus={true}
-                            />
-                        )
+                        <GooglePlacesAutocomplete
+                            address={address}
+                            onAddressSelect={(newAddress) => {
+                                setAddress(newAddress);
+                                setIsEditingAddress(false);
+                            }}
+                            autoFocus={true}
+                        />
                     ) : (
                         <TouchableOpacity onPress={() => setIsEditingAddress(true)} style={styles.editTaskInput}>
                             <Text style={[styles.editTaskInputText, !address && styles.editTaskPlaceholderText]}>
-                                {address || "Enter Room (e.g., H-196, H8-862)"}
+                                {address || "Enter Address"}
                             </Text>
                         </TouchableOpacity>
                     )}
@@ -428,33 +377,6 @@ const createStyles = (theme) => StyleSheet.create({
         fontSize: 16,
         fontWeight: 'bold',
         marginLeft: 8,
-    },
-    addressToggleContainer: {
-        marginBottom: 10,
-    },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: theme.colors.inputBackground,
-        borderRadius: 10,
-        padding: 2,
-        marginTop: 5,
-    },
-    toggleButton: {
-        flex: 1,
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    toggleButtonActive: {
-        backgroundColor: theme.colors.primary,
-    },
-    toggleText: {
-        color: theme.colors.text,
-        fontSize: 14,
-    },
-    toggleTextActive: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
 });
 

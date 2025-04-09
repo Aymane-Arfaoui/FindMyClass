@@ -5,7 +5,7 @@ from .graph.Graph2 import Graph
 from pathlib import Path
 import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from chat import handle_task_query, is_task_query, extract_rooms, interpret_path
+from chat import handle_task_query, is_task_query, extract_rooms, interpret_path, interpret_multiple_paths
 from .aiapi import AINavigationAPI
 
 # import app.graph.Graph as Graph
@@ -136,23 +136,6 @@ def process_task_chat():
 @cross_origin()
 def process_navigation_chat():
     try:
-        # Check for URL parameters first
-        start_room = request.args.get('start')
-        end_room = request.args.get('end')
-        
-        if start_room and end_room:
-            print(f'NAVIGATION ROUTE: Using URL parameters - from {start_room} to {end_room}')
-            # Find the shortest path
-            path_info = ai_nav.find_shortest_path(start_room, end_room)
-            print(f'NAVIGATION ROUTE: Path info: {path_info}')
-            
-            # Interpret the path
-            response = interpret_path(path_info)
-            print(f'NAVIGATION ROUTE: Generated response: {response}')
-            
-            return jsonify({"response": response})
-            
-        # If no URL parameters, process as before
         data = request.get_json()
         print('NAVIGATION ROUTE: Received request data:', data)
         
@@ -192,23 +175,29 @@ def process_navigation_chat():
             
             return jsonify({"response": response})
         
-        # Fall back to regular extraction
-        start_room, end_room = extract_rooms(query)
-        print(f'NAVIGATION ROUTE: Extracted rooms: {start_room}, {end_room}')
+        # Extract all rooms in sequence
+        locations = extract_rooms(query)
+        print(f'NAVIGATION ROUTE: Extracted locations: {locations}')
         
-        if not start_room or not end_room:
+        if not locations or len(locations) < 2:
             return jsonify({
-                "response": "I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-109 to H-110?')"
+                "response": "I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-109 to H-110?' or 'How to go from H-110 to H-196 then to H-840?')"
             })
         
-        # Find the shortest path
-        path_info = ai_nav.find_shortest_path(start_room, end_room)
-        print(f'NAVIGATION ROUTE: Path info: {path_info}')
-        
-        # Interpret the path
-        response = interpret_path(path_info)
+        if len(locations) == 2:
+            # Simple path between two points
+            path_info = ai_nav.find_shortest_path(locations[0], locations[1])
+            print(f'NAVIGATION ROUTE: Path info: {path_info}')
+            response = interpret_path(path_info)
+        else:
+            # Multiple destinations
+            start = locations[0]
+            destinations = locations[1:]
+            paths_info = ai_nav.find_multiple_destinations(start, destinations)
+            print(f'NAVIGATION ROUTE: Multiple paths info: {paths_info}')
+            response = interpret_multiple_paths(paths_info)
+            
         print(f'NAVIGATION ROUTE: Generated response: {response}')
-        
         return jsonify({"response": response})
         
     except Exception as e:

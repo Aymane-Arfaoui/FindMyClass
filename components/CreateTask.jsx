@@ -19,7 +19,6 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     const [startTime, setStartTime] = useState(new Date());
     const [endTime, setEndTime] = useState(new Date(now.getTime() + 60 * 60 * 1000));
     const [allDayEvent, setAllDayEvent] = useState(false);
-    const [useManualAddress, setUseManualAddress] = useState(false);
 
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openStartTimePicker, setOpenStartTimePicker] = useState(false);
@@ -42,23 +41,6 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
     }, [isVisible]);
 
     const formatTime = (time) => time.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-
-    const formatRoomNumber = (input) => {
-        // Match patterns like H-196, H 196, H196
-        const roomPattern = /^h-?\s*(\d?)(\d{3})$/i;
-        const match = input.trim().match(roomPattern);
-        
-        if (match) {
-            const [, floor = '1', room] = match; // Default to floor 1 if not specified
-            return `H${floor}-${room}`; // Return in human-readable format (H1-196)
-        }
-        return input; // Return original input if it doesn't match room pattern
-    };
-
-    const handleManualAddressChange = (text) => {
-        const formattedAddress = formatRoomNumber(text);
-        setAddress(formattedAddress);
-    };
 
     const saveTaskToStorage = async (newTask) => {
         try {
@@ -131,40 +113,7 @@ const CreateTask = ({isVisible, onClose, onTaskCreated}) => {
                             onChangeText={setTaskName}
                             placeholder="Task Name"
                         />
-
-                        <View style={styles.addressToggleContainer}>
-                            <Text style={styles.createTaskLabel}>Address Input Method:</Text>
-                            <View style={styles.toggleContainer}>
-                                <TouchableOpacity 
-                                    style={[styles.toggleButton, !useManualAddress && styles.toggleButtonActive]}
-                                    onPress={() => setUseManualAddress(false)}
-                                >
-                                    <Text style={[styles.toggleText, !useManualAddress && styles.toggleTextActive]}>
-                                        Auto-suggest
-                                    </Text>
-                                </TouchableOpacity>
-                                <TouchableOpacity 
-                                    style={[styles.toggleButton, useManualAddress && styles.toggleButtonActive]}
-                                    onPress={() => setUseManualAddress(true)}
-                                >
-                                    <Text style={[styles.toggleText, useManualAddress && styles.toggleTextActive]}>
-                                        Manual Entry
-                                    </Text>
-                                </TouchableOpacity>
-                            </View>
-                        </View>
-
-                        {useManualAddress ? (
-                            <TextInput
-                                placeholderTextColor={theme.colors.inputPlaceholder}
-                                style={styles.createTaskInput}
-                                value={address}
-                                onChangeText={handleManualAddressChange}
-                                placeholder="Enter Room (e.g., H-196, H8-862)"
-                            />
-                        ) : (
-                            <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
-                        )}
+                        <GooglePlacesAutocomplete address={address} onAddressSelect={setAddress}/>
 
                         <Text style={styles.createTaskLabel}>Date</Text>
                         <TouchableOpacity testID={'date-picker-toggle'} onPress={() => setOpenDatePicker(true)} style={styles.createTaskInputButton}>
@@ -367,33 +316,6 @@ const createStyles = (theme) => StyleSheet.create({
     },
     createTaskAllDayContainer: {
         marginBottom: 10,
-    },
-    addressToggleContainer: {
-        marginBottom: 10,
-    },
-    toggleContainer: {
-        flexDirection: 'row',
-        backgroundColor: theme.colors.inputBackground,
-        borderRadius: 10,
-        padding: 2,
-        marginTop: 5,
-    },
-    toggleButton: {
-        flex: 1,
-        padding: 10,
-        borderRadius: 8,
-        alignItems: 'center',
-    },
-    toggleButtonActive: {
-        backgroundColor: theme.colors.primary,
-    },
-    toggleText: {
-        color: theme.colors.text,
-        fontSize: 14,
-    },
-    toggleTextActive: {
-        color: '#fff',
-        fontWeight: 'bold',
     },
 });
 
