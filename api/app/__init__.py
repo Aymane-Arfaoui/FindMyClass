@@ -17,9 +17,15 @@ def create_app():
     
     # Register blueprints
     from .navigation import navigation_routes
+    from .integrated_routes import integrated_routes
+
+
+    # Register blueprints for routes and authentication
+    app.register_blueprint(navigation_routes)
+    app.register_blueprint(integrated_routes)
+
     from .routes import api
     
-    app.register_blueprint(navigation_routes)
     app.register_blueprint(api)
     
     return app

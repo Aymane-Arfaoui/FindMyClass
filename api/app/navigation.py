@@ -7,6 +7,7 @@ import sys
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from .chat import handle_task_query, is_task_query, extract_rooms, interpret_path
 from .aiapi import AINavigationAPI
+from .services.weather_service import WeatherService
 
 # import app.graph.Graph as Graph
 # from collections import defaultdict
@@ -14,6 +15,7 @@ from .aiapi import AINavigationAPI
 navigation_routes = Blueprint('navigation', __name__)
 CORS(navigation_routes)  # Enable CORS for all routes in this blueprint
 ai_nav = AINavigationAPI()
+weather_service = WeatherService()
 
 g = {}
 accessibility_graph = {}
@@ -136,8 +138,38 @@ def process_task_chat():
 @cross_origin()
 def process_navigation_chat():
     try:
+        # Get weather information first
+        weather_message = weather_service.get_weather_message()
+        weather = weather_service.get_current_weather()
+        use_indoor_routes = weather and weather.get('is_unfavorable', False)
+
+        # Check for URL parameters first
+        start_room = request.args.get('start')
+        end_room = request.args.get('end')
+        
+        if start_room and end_room:
+            print(f'NAVIGATION ROUTE: Using URL parameters - from {start_room} to {end_room}')
+            # Find the shortest path
+            path_info = ai_nav.find_shortest_path(start_room, end_room)
+            print(f'NAVIGATION ROUTE: Path info: {path_info}')
+            
+            # Interpret the path
+            response = interpret_path(path_info)
+            
+            # Add weather information
+            response = f"{weather_message}\n\n{response}"
+            print(f'NAVIGATION ROUTE: Generated response with weather: {response}')
+            
+            return jsonify({"response": response})
+            
+        # If no URL parameters, process as before
         data = request.get_json()
         print('NAVIGATION ROUTE: Received request data:', data)
+        
+        # Check if this is a weather query
+        query = data.get('query', '').lower()
+        if 'weather' in query:
+            return jsonify({"response": weather_message})
         
         query, error_response = validate_query(data)
         if error_response:
@@ -171,7 +203,10 @@ def process_navigation_chat():
             
             # Interpret the path
             response = interpret_path(path_info)
-            print(f'NAVIGATION ROUTE: Generated response: {response}')
+            
+            # Add weather information
+            response = f"{weather_message}\n\n{response}"
+            print(f'NAVIGATION ROUTE: Generated response with weather: {response}')
             
             return jsonify({"response": response})
         
@@ -190,7 +225,10 @@ def process_navigation_chat():
         
         # Interpret the path
         response = interpret_path(path_info)
-        print(f'NAVIGATION ROUTE: Generated response: {response}')
+        
+        # Add weather information
+        response = f"{weather_message}\n\n{response}"
+        print(f'NAVIGATION ROUTE: Generated response with weather: {response}')
         
         return jsonify({"response": response})
         

@@ -1,8 +1,14 @@
-python-dotenv
+flask==2.0.1
+flask-cors==3.0.10
+networkx==2.6.3
+python-dotenv==0.19.0
+openai==1.3.7
+requests==2.31.0
+python-dateutil==2.8.2
+pytz==2023.3
 Flask
 oauthlib
 Flask-Login
-requests
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
@@ -13,4 +19,5 @@ pytest
 opencv-python
 networkx
 openai
+polyline
 coverage

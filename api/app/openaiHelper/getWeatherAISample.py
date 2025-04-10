@@ -4,10 +4,13 @@ import json
 from dotenv import load_dotenv
 import os
 
-load_dotenv("./.env.local")
+load_dotenv("/Users/evanteboul/SOEN390/FindMyClass/.env.local")
 api_key = os.getenv("OPENAI_API_KEY")
 if api_key is None:
     raise ValueError("API key not found. Please set the OPENAI_API_KEY environment variable.")
+
+import openai
+openai.api_key = api_key
 
 client = OpenAI(api_key=api_key)
 

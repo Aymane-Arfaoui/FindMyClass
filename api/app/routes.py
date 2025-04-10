@@ -1,10 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, jsonify, request
+from datetime import datetime
+from chat import extract_rooms, interpret_path, is_navigation_query as is_nav_query, handle_task_query
+from app.aiapi import AINavigationAPI
 from flask_cors import CORS
 import sys
 import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from .chat import handle_task_query, is_task_query, SAMPLE_TASKS, is_navigation_query, extract_rooms, interpret_path
-from app.aiapi import AINavigationAPI
+from chat import SAMPLE_TASKS
+import re
 
 api = Blueprint('api', __name__)
 CORS(api)  # Enable CORS for all routes in this blueprint
@@ -38,7 +41,7 @@ def process_task_chat():
             print(f"API ROUTE: Sample tasks: {tasks}")
         
         # Debug output for navigation detection
-        is_nav_query = is_navigation_query(query)
+        is_nav_query = is_nav_query(query)
         print(f"API ROUTE: Is navigation query: {is_nav_query}")
         
         # Check if it's a navigation query
@@ -78,6 +81,101 @@ def process_task_chat():
         return jsonify({
             'response': "I encountered an error while processing your request. Please try again."
         })
+
+@api.route('/chat/route-planning', methods=['POST'])
+def plan_route():
+    try:
+        data = request.get_json()
+        if not data or 'tasks' not in data:
+            return jsonify({'error': 'No tasks provided'}), 400
+
+        tasks = data['tasks']
+        if not tasks:
+            return jsonify({'error': 'Empty task list'}), 400
+
+        # Sort tasks by start time if not already sorted
+        tasks.sort(key=lambda x: x.get('startTime', ''))
+
+        # Generate route instructions
+        route_instructions = []
+        for i, task in enumerate(tasks):
+            task_name = task.get('taskName', 'Unknown')
+            address = task.get('address', '')
+            start_time = task.get('startTime', '')
+            is_classroom = task.get('isClassroom', False)
+
+            # Format the time
+            time_str = ''
+            if start_time:
+                try:
+                    dt = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+                    time_str = dt.strftime('%I:%M %p')
+                except:
+                    time_str = 'Time not specified'
+
+            # Extract room numbers for navigation
+            if i > 0:
+                prev_task = tasks[i-1]
+                prev_address = prev_task.get('address', '')
+                
+                # Extract room numbers from addresses using regex
+                def extract_hall_room(addr):
+                    # Match patterns like H-196, H8-862, MB-123, CC-456
+                    match = re.search(r'(H|MB|CC)-?(\d?)[-]?(\d{3})', addr, re.IGNORECASE)
+                    if match:
+                        building = match.group(1).lower()
+                        floor = match.group(2) or '1'  # Default to floor 1 if not specified
+                        room = match.group(3)
+                        
+                        # For H building, include floor in the ID
+                        if building == 'h':
+                            return f"h{floor}_{room}"
+                        else:
+                            # For MB and CC, don't include floor in the building code
+                            return f"{building}_{room}"
+                    return None
+                
+                start_room = extract_hall_room(prev_address)
+                end_room = extract_hall_room(address)
+                
+                print(f"Extracted rooms: {start_room} -> {end_room}")
+                
+                if start_room and end_room:
+                    # Get navigation instructions between rooms
+                    try:
+                        path_info = nav_api.find_shortest_path(start_room, end_room)
+                        nav_instructions = interpret_path(path_info)
+                        
+                        # Format the instruction with the task details
+                        instruction = f"{i+1}. Head to {address} for {task_name} at {time_str}\n"
+                        instruction += nav_instructions
+                        
+                        # Add the navigation instructions
+                        route_instructions.append(instruction)
+                        continue  # Skip the regular instruction since we added navigation
+                    except Exception as e:
+                        print(f"Error getting navigation instructions: {e}")
+                        # Fall back to regular instructions if navigation fails
+                
+            # Create the regular instruction if navigation wasn't added
+            if i == 0:
+                instruction = f"{i+1}. Start at {task_name} ({address}) at {time_str}"
+            else:
+                instruction = f"{i+1}. Head to {address} for {task_name} at {time_str}"
+            route_instructions.append(instruction)
+
+        # Create the response message
+        response = "Here's your optimized route:\n\n"
+        response += "\n\n".join(route_instructions)
+        
+        if len(tasks) > 1:
+            response += "\n\nNote: This route is optimized based on your task schedule. For classroom locations, I've included specific navigation hints between connected buildings."
+
+        return jsonify({'response': response})
+
+    except Exception as e:
+        print(f"Error in route planning: {str(e)}")
+        return jsonify({'error': 'Failed to plan route'}), 500
 
 @api.route('/health', methods=['GET'])
 def health_check():

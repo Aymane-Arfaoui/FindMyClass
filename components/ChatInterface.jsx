@@ -15,7 +15,8 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { chatService } from '../app/services/chatService';
 import { ThemeContext } from '@/context/ThemeProvider';
-import PropTypes from "prop-types";
+import { useLocalSearchParams } from 'expo-router';
+import PropTypes from 'prop-types';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -29,6 +30,70 @@ const ChatInterface = ({ navigation }) => {
   const { isDark, theme } = useContext(ThemeContext);
   const styles = createStyles(theme);
   const dotAnimation = useRef(new Animated.Value(0)).current;
+  const params = useLocalSearchParams();
+
+  useEffect(() => {
+    // Check if we're in route planning mode
+    if (params.routePlanning === 'true' && params.tasks) {
+      try {
+        const tasks = JSON.parse(params.tasks);
+        if (tasks.length > 0) {
+          // Use a single state update for both messages
+          setMessages(prev => [
+            ...prev,
+            {
+              id: Date.now().toString(),
+              text: "I'll help you plan the most efficient route between your selected tasks.",
+              isUser: false,
+              timestamp: new Date()
+            },
+            {
+              id: (Date.now() + 1).toString(),
+              text: "Planning your route...",
+              isUser: false,
+              timestamp: new Date()
+            }
+          ]);
+
+          // Process route planning
+          processRoutePlan(tasks);
+        }
+      } catch (error) {
+        console.error('Error parsing tasks:', error);
+      }
+    }
+  }, []); // Empty dependency array since we only want this to run once
+
+  const processRoutePlan = async (tasks) => {
+    setIsLoading(true);
+    try {
+      // Sort tasks by start time
+      tasks.sort((a, b) => {
+        const aTime = a.startTime ? new Date(a.startTime) : new Date(0);
+        const bTime = b.startTime ? new Date(b.startTime) : new Date(0);
+        return aTime - bTime;
+      });
+
+      const response = await chatService.processRoutePlanning(tasks);
+      
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        text: response,
+        isUser: false,
+        timestamp: new Date()
+      }]);
+    } catch (error) {
+      console.error('Error planning route:', error);
+      setMessages(prev => [...prev, {
+        id: Date.now().toString(),
+        text: "Sorry, I encountered an error while planning your route. Please try again.",
+        isUser: false,
+        timestamp: new Date()
+      }]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (isLoading) {
@@ -208,9 +273,11 @@ const ChatInterface = ({ navigation }) => {
     </SafeAreaView>
   );
 };
-ChatInterface.propTypes={
-  navigation:PropTypes.any
-}
+
+ChatInterface.propTypes = {
+  navigation: PropTypes.any
+};
+
 const createStyles = (theme) => StyleSheet.create({
   container: {
     flex: 1,

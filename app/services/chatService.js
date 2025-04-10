@@ -133,6 +133,34 @@ class ChatService {
         
         return result;
     }
+
+    async processRoutePlanning(tasks) {
+        try {
+            const url = `${this.getBaseUrl()}/chat/route-planning`;
+            
+            const requestBody = {
+                tasks: tasks
+            };
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Server error: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            return data.response;
+        } catch (error) {
+            console.error('Error in processRoutePlanning:', error);
+            throw error;
+        }
+    }
 }
 
 export const chatService = new ChatService(); 
