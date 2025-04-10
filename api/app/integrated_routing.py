@@ -367,6 +367,8 @@ class IntegratedRoutingService:
                 return {"error": "Missing building exit/entrance coordinates", "success": False}
             
             # Outdoor path between Hall exit and CC entrance
+            print(hall_exits[0])
+            print(cc_entrances[0])
             outdoor_path = self.find_outdoor_path(
                 f"{hall_exits[0]['lat']},{hall_exits[0]['lng']}", 
                 f"{cc_entrances[0]['lat']},{cc_entrances[0]['lng']}",
@@ -741,7 +743,7 @@ class IntegratedRoutingService:
         # For now, return a placeholder
         if campus == "hall":
             return [
-                {"id": "h1_entrance"," lat": 45.4972, "lng": -73.5790},
+                {"id": "h1_entrance", "lat": 45.4972, "lng": -73.5790},
             ]
         elif campus == "mb":
             return [
@@ -832,29 +834,29 @@ class IntegratedRoutingService:
         prompt += "Please provide clear, step-by-step instructions for navigating this route, including any weather considerations."
          
         return prompt 
-    def find_path_evan(self, start_location: str, end_location: Dict[str, Any]) -> Dict[str, Any]:
-        """Find a path between two locations using the integrated routing service"""
-        start_node = self.indoor_graph.get_node_by_id(start_location)
-        end_node = self.indoor_graph.get_node_by_id(end_location)
+    # def find_path_evan(self, start_location: str, end_location: Dict[str, Any]) -> Dict[str, Any]:
+    #     """Find a path between two locations using the integrated routing service"""
+    #     start_node = self.indoor_graph.get_node_by_id(start_location)
+    #     end_node = self.indoor_graph.get_node_by_id(end_location)
 
        
 
 
-        if start_node is None or end_node is None:
-            return {"error": "Invalid start or end location", "success": False}
+    #     if start_node is None or end_node is None:
+    #         return {"error": "Invalid start or end location", "success": False}
         
-        if start_node["id"].startswith("h"):
-            exit_node = self.indoor_graph.get_node_by_id("h1_entrance")
-            if exit_node is None:
-                return {"error": "Failed to find exit node", "success": False}
-            path = self.indoor_graph.find_shortest_path(exit_node, end_node)
-            if path is None:
-                return {"error": "Failed to find path", "success": False}
-            return path
-        # Find the shortest path between the two nodes
-        path = self.find_shortest_path(start_node, end_node)
+    #     if start_node["id"].startswith("h"):
+    #         exit_node = self.indoor_graph.get_node_by_id("h1_entrance")
+    #         if exit_node is None:
+    #             return {"error": "Failed to find exit node", "success": False}
+    #         path = self.indoor_graph.find_shortest_path(exit_node, end_node)
+    #         if path is None:
+    #             return {"error": "Failed to find path", "success": False}
+    #         return path
+    #     # Find the shortest path between the two nodes
+    #     path = self.find_shortest_path(start_node, end_node)
 
-        return self.find_integrated_path(start_location, end_location)
+    #     return self.find_integrated_path(start_location, end_location)
     
     
 if __name__ == "__main__":
@@ -864,3 +866,19 @@ if __name__ == "__main__":
     end_location = { "type": "indoor", "id": "cc_102"}
     result = integrated_routing.generate_route_with_weather(start_location, end_location)
     print(result)
+
+    start_entrances = integrated_routing._get_building_entrances("hall")
+    end_entrances = integrated_routing._get_building_entrances("cc")
+                    
+                    # Get the first entrance from each list
+    if start_entrances and end_entrances:
+        start = start_entrances[0]
+        end = end_entrances[0]
+        mid_lat = (start["lat"] + end["lat"]) / 2
+        mid_lng = (start["lng"] + end["lng"]) / 2
+        weather_data = integrated_routing.get_weather_for_location(mid_lat, mid_lng)
+        # nav_context.last_weather_data = weather_data
+        path_info = integrated_routing.find_integrated_path(start_location, end_location, weather_data=weather_data)
+
+
+# how to go from H-110 to CC-102

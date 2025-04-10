@@ -120,12 +120,19 @@ def plan_route():
                 
                 # Extract room numbers from addresses using regex
                 def extract_hall_room(addr):
-                    # Match patterns like H-196, H8-862
-                    match = re.search(r'H-?(\d?)[-]?(\d{3})', addr)
+                    # Match patterns like H-196, H8-862, MB-123, CC-456
+                    match = re.search(r'(H|MB|CC)-?(\d?)[-]?(\d{3})', addr, re.IGNORECASE)
                     if match:
-                        floor = match.group(1) or '1'  # Default to floor 1 if not specified
-                        room = match.group(2)
-                        return f"h{floor}_{room}"
+                        building = match.group(1).lower()
+                        floor = match.group(2) or '1'  # Default to floor 1 if not specified
+                        room = match.group(3)
+                        
+                        # For H building, include floor in the ID
+                        if building == 'h':
+                            return f"h{floor}_{room}"
+                        else:
+                            # For MB and CC, don't include floor in the building code
+                            return f"{building}_{room}"
                     return None
                 
                 start_room = extract_hall_room(prev_address)

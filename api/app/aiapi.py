@@ -3,7 +3,7 @@ import enum
 import logging
 from pathlib import Path
 import os
-from .graph.Graph2 import Graph
+from graph.Graph2 import Graph
 
 logger = logging.getLogger("navigation")
 logger.setLevel(logging.INFO)

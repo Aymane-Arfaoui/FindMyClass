@@ -1,8 +1,8 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
-from app.aiapi import AINavigationAPI
-from app.integrated_routing import IntegratedRoutingService
+from aiapi import AINavigationAPI
+from integrated_routing import IntegratedRoutingService
 import re
 
 class NavigationContext:
@@ -64,56 +64,93 @@ def extract_rooms(query: str) -> tuple:
     
     # Try different patterns
     
-    # Pattern 1: Direct "from H109 to H110" pattern
-    direct_pattern = r'(?:from\s+)?h\s*[-_ ]?\s*(\d{3})(?:\s+to|\s+and)\s+h\s*[-_ ]?\s*(\d{3})'
+    # Pattern 1: Direct "from H109 to H110" pattern (and similar for MB and CC)
+    direct_pattern = r'(?:from\s+)?(h|mb|cc)\s*[-_ ]?\s*(\d{3})(?:\s+to|\s+and)\s+(h|mb|cc)\s*[-_ ]?\s*(\d{3})'
     direct_match = re.search(direct_pattern, query_lower)
     
     if direct_match:
-        start_room_num = direct_match.group(1)
-        end_room_num = direct_match.group(2)
+        start_building = direct_match.group(1)
+        start_room_num = direct_match.group(2)
+        end_building = direct_match.group(3)
+        end_room_num = direct_match.group(4)
         
         # Get floor numbers (first digit of the room number)
         start_floor = start_room_num[0]
         end_floor = end_room_num[0]
         
         # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{start_room_num}"
-        end_room = f"h{end_floor}_{end_room_num}"
+        # For H building, include floor in the ID
+        if start_building == 'h':
+            start_room = f"h{start_floor}_{start_room_num}"
+        else:
+            # For MB and CC, don't include floor in the building code
+            start_room = f"{start_building}_{start_room_num}"
+            
+        if end_building == 'h':
+            end_room = f"h{end_floor}_{end_room_num}"
+        else:
+            end_room = f"{end_building}_{end_room_num}"
         
         print(f"CHAT.PY: Extracted rooms (direct pattern): {start_room} to {end_room}")
         return start_room, end_room
     
-    # Pattern 2: "How to go from H 109 to H 110" pattern
-    go_pattern = r'how to go from h\s*[-_ ]?\s*(\d{3})\s+to\s+h\s*[-_ ]?\s*(\d{3})'
+    # Pattern 2: "How to go from H 109 to H 110" pattern (and similar for MB and CC)
+    go_pattern = r'how to go from (h|mb|cc)\s*[-_ ]?\s*(\d{3})\s+to\s+(h|mb|cc)\s*[-_ ]?\s*(\d{3})'
     go_match = re.search(go_pattern, query_lower)
     
     if go_match:
-        start_room_num = go_match.group(1)
-        end_room_num = go_match.group(2)
+        start_building = go_match.group(1)
+        start_room_num = go_match.group(2)
+        end_building = go_match.group(3)
+        end_room_num = go_match.group(4)
         
         # Get floor numbers (first digit of the room number)
         start_floor = start_room_num[0]
         end_floor = end_room_num[0]
         
         # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{start_room_num}"
-        end_room = f"h{end_floor}_{end_room_num}"
+        # For H building, include floor in the ID
+        if start_building == 'h':
+            start_room = f"h{start_floor}_{start_room_num}"
+        else:
+            # For MB and CC, don't include floor in the building code
+            start_room = f"{start_building}_{start_room_num}"
+            
+        if end_building == 'h':
+            end_room = f"h{end_floor}_{end_room_num}"
+        else:
+            end_room = f"{end_building}_{end_room_num}"
         
         print(f"CHAT.PY: Extracted rooms (go pattern): {start_room} to {end_room}")
         return start_room, end_room
     
     # Pattern 3: Just find all room numbers and use the first two
-    room_pattern = r'h\s*[-_ ]?\s*(\d{3})'
+    room_pattern = r'(h|mb|cc)\s*[-_ ]?\s*(\d{3})'
     rooms = re.findall(room_pattern, query_lower)
     
     if len(rooms) >= 2:
-        # Get floor numbers from room numbers
-        start_floor = rooms[0][0]  # First digit is floor number
-        end_floor = rooms[1][0]    # First digit is floor number
+        # Get building and floor numbers
+        start_building = rooms[0][0]
+        start_room_num = rooms[0][1]
+        end_building = rooms[1][0]
+        end_room_num = rooms[1][1]
+        
+        # Get floor numbers (first digit of the room number)
+        start_floor = start_room_num[0]
+        end_floor = end_room_num[0]
         
         # Format room IDs for the navigation system
-        start_room = f"h{start_floor}_{rooms[0]}"
-        end_room = f"h{end_floor}_{rooms[1]}"
+        # For H building, include floor in the ID
+        if start_building == 'h':
+            start_room = f"h{start_floor}_{start_room_num}"
+        else:
+            # For MB and CC, don't include floor in the building code
+            start_room = f"{start_building}_{start_room_num}"
+            
+        if end_building == 'h':
+            end_room = f"h{end_floor}_{end_room_num}"
+        else:
+            end_room = f"{end_building}_{end_room_num}"
         
         print(f"CHAT.PY: Extracted rooms (generic pattern): {start_room} to {end_room}")
         return start_room, end_room
@@ -152,6 +189,61 @@ def extract_building_names(query: str) -> tuple:
         end_building = "hall"
     
     return start_building, end_building
+
+def parse_node(node_id: str) -> dict:
+    """Parse a node ID into its components"""
+    parts = node_id.split('_')
+    building = parts[0][0].upper()  # First letter of building code
+    floor = parts[0][1] if len(parts[0]) > 1 else '1'  # Floor number
+    room = parts[-1] if len(parts) > 1 else None  # Room number or other identifier
+    
+    return {
+        'building': building,
+        'floor': floor,
+        'room': room,
+        'is_hallway': 'hw' in node_id,
+        'is_elevator': 'elevator' in node_id,
+        'is_stairs': 'stairs' in node_id,
+        'is_escalator': 'escalator' in node_id
+    }
+
+def describe_transition(current: dict, next_node: dict) -> str:
+    """Generate a human-readable description of the transition between nodes"""
+    # Same floor transition
+    if current['floor'] == next_node['floor']:
+        if current['is_hallway'] and next_node['is_hallway']:
+            return f"Continue through the hallway on floor {current['floor']}"
+        elif current['is_hallway']:
+            if next_node['is_elevator']:
+                return f"Look for the elevator along the hallway"
+            elif next_node['is_stairs']:
+                return f"Look for the stairs along the hallway"
+            elif next_node['is_escalator']:
+                return f"Look for the escalator along the hallway"
+            else:
+                return f"Look for room {next_node['building']}-{next_node['room']} along the hallway"
+        elif next_node['is_hallway']:
+            if current['is_elevator']:
+                return f"Exit the elevator and enter the hallway"
+            elif current['is_stairs']:
+                return f"Exit the stairs and enter the hallway"
+            elif current['is_escalator']:
+                return f"Exit the escalator and enter the hallway"
+            else:
+                return f"Exit room {current['building']}-{current['room']} and enter the hallway"
+        else:
+            return f"Go from room {current['building']}-{current['room']} to room {next_node['building']}-{next_node['room']}"
+    
+    # Floor change
+    else:
+        if current['is_elevator'] and next_node['is_elevator']:
+            return f"Take the elevator from floor {current['floor']} to floor {next_node['floor']}"
+        elif current['is_stairs'] and next_node['is_stairs']:
+            return f"Take the stairs from floor {current['floor']} to floor {next_node['floor']}"
+        elif current['is_escalator'] and next_node['is_escalator']:
+            return f"Take the escalator from floor {current['floor']} to floor {next_node['floor']}"
+        else:
+            return f"Go from floor {current['floor']} to floor {next_node['floor']}"
 
 def interpret_path(path_info: dict) -> str:
     """Convert path information into human-readable instructions"""
@@ -276,7 +368,7 @@ def interpret_path(path_info: dict) -> str:
         next_node = parse_node(path[i + 1])
         instructions.append(describe_transition(current, next_node))
 
-        instructions.append(f"\nTotal distance: {path_info.get('distance', 0):.1f} meters")
+    instructions.append(f"\nTotal distance: {path_info.get('distance', 0):.1f} meters")
 
     return "\n".join(instructions)
 
@@ -517,6 +609,7 @@ def main():
             if is_navigation_query(user_input):
                 start_room, end_room = extract_rooms(user_input)
                 start_building, end_building = extract_building_names(user_input)
+                print(f"start_room: {start_room}, end_room: {end_room}, start_building: {start_building}, end_building: {end_building}")
                 
                 if not start_room or not end_room:
                     print("\nConcordia Assistant: I couldn't identify the rooms in your query. Please specify them clearly (e.g., 'How do I get from H-820 to H-110?')")
@@ -540,14 +633,22 @@ def main():
                 if start_building != end_building:
                     # For cross-building routes, get weather data
                     # Use the midpoint between buildings for weather data
-                    start = routing_service.get_entrance_for_building(start_building)
-                    end = routing_service.get_entrance_for_building(end_building)
-                    mid_lat = (start.get("lat") + end.get("lat")) / 2
-                    mid_lng = (start.get("lng") + end.get("lng")) / 2
-                    weather_data = routing_service.get_weather_for_location(mid_lat, mid_lng)
-                    nav_context.last_weather_data = weather_data
-                    path_info = routing_service.find_integrated_path(start_location, end_location, weather_data=weather_data)
-
+                    start_entrances = routing_service._get_building_entrances(start_building)
+                    end_entrances = routing_service._get_building_entrances(end_building)
+                    
+                    # Get the first entrance from each list
+                    if start_entrances and end_entrances:
+                        start = start_entrances[0]
+                        end = end_entrances[0]
+                        mid_lat = (start["lat"] + end["lat"]) / 2
+                        mid_lng = (start["lng"] + end["lng"]) / 2
+                        weather_data = routing_service.get_weather_for_location(mid_lat, mid_lng)
+                        nav_context.last_weather_data = weather_data
+                        path_info = routing_service.find_integrated_path(start_location, end_location, weather_data=weather_data)
+                    else:
+                        # Fallback if no entrances found
+                        print("no entrances found")
+                        path_info = routing_service.find_integrated_path(start_location, end_location)
                 else:
                     # Use simple indoor navigation for same-building routes
                     print("simple path navigation used.")
